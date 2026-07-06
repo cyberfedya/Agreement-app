@@ -1,0 +1,38 @@
+{
+    "domain": "finance",
+    "key": "lombard_credit_auction_application",
+    "title": {
+        "uz": "Марказий банк ломбард кредити кимошди савдосида иштирок этиш учун ариза",
+        "ru": "Заявление на участие в аукционе ломбардных кредитов Центрального банка",
+        "en": "Application to participate in the Central Bank's lombard credit auction"
+    },
+    "description": {
+        "uz": "Тижорат банкининг Марказий банк ўтказадиган ломбард кредити кимошди савдосида иштирок этиш учун сўралаётган кредит ҳажми ва фоиз ставкасини кўрсатиб топшириладиган аризаси.",
+        "ru": "Заявление коммерческого банка на участие в аукционе ломбардных кредитов Центрального банка с указанием запрашиваемого объёма и процентной ставки.",
+        "en": "An application by a commercial bank to participate in the Central Bank's lombard credit auction, stating the requested loan volume and interest rate."
+    },
+    "source_url": "https://yurxizmat.uz/uz/document/293",
+    "required_field": [
+        "Ломбард кредити кимошди савдосида иштирок этувчи банк номи",
+        "Марказий банки ҲККМдаги вакиллик ҳисобварағи рақами",
+        "Банкнинг алоқа учун манзили",
+        "Банкнинг телефон рақами",
+        "Банкнинг факс рақами",
+        "Валюта биржасидаги ДЕПО ҳисобварағининг рақами",
+        "Сўралаётган ломбард кредити ҳажми",
+        "Йиллик фоиз ставкаси",
+        "Банк ваколатли шахснинг Ф.И.О ва имзоси"
+    ],
+    "html_format": "<div class=\"document-view-wrapper\">\n<style>\n.html-preview * {font-family: Times New Roman; font-size: 12pt;}\n.html-preview a.NoteRef {text-decoration: none;}\n.html-preview table td {vertical-align: top;}\n.html-preview table {width: 100%;}\n.html-preview p {white-space: pre-wrap;}\n.html-preview .leading {width: 4px; display: inline-block;}\n.html-preview hr {height: 1px; padding: 0; margin: 1em 0; border: 0; border-top: 1px solid #CCC;}\n.html-preview .Normal {className: Normal; margin-bottom: 8pt;}\n.html-preview .a {font-family: 'Times New Roman'; font-size: 12pt;}\n.html-preview .customClass1 {font-size: 16pt; color: #2F5496;}\n.html-preview .a3 {font-weight: bold;}\n.html-preview .a4 {font-size: 11pt;}\n.html-preview .customClass10 {font-size: 16pt; color: #2F5496;}\n</style>\n<div class=\"html-preview\">\n<style>.html-preview{width: 762px}</style><style>.html-preview{margin-top: 76px}</style><style>.html-preview{margin-bottom: 32px}</style><style>.html-preview{padding-left: 81px}</style><style>.html-preview{padding-right: 57px}</style><p class=\"customClass1\" style=\" text-align: center;\"><span style=\"font-family: 'Times New Roman'; font-size: 12pt; color: #000000; font-weight: bold;\">Ўзбекистон Республикаси Марказий банки томонидан ўтказиладиган ломбард кредити кимошди савдосида иштирок этиш учун</span></p>\n<p class=\"customClass1\" style=\" text-align: center; margin-top: 12pt; margin-bottom: 0pt;\"><span style=\"font-family: 'Times New Roman'; font-size: 12pt; color: #000000; text-transform: uppercase;\">АРИЗА</span></p>\n<p style=\"text-align: justify; text-indent: 45.6px;\">Банк номи <span class=\"structures structure-2\" style=\"\">{#2}Ломбард кредити кимошди савдосида иштирок этувчи банк номи</span></p>\n<p style=\"text-align: justify; text-indent: 45.6px;\">Ўзбекистон Республикаси Марказий банки ҲККМдаги вакиллик ҳисобварағи рақами <span class=\"structures structure-3\" style=\"\">{#3}Марказий банки ҲККМдаги вакиллик ҳисобварағи рақами</span></p>\n<p style=\"text-align: justify; text-indent: 45.6px;\">Алоқа манзилгоҳи: <span class=\"structures structure-4\" style=\"\">{#4}Банкнинг алоқа учун манзили</span></p>\n<p style=\"text-align: justify; text-indent: 45.6px;\">Телефон:<span class=\"structures structure-5\" style=\"\">{#5}Банкнинг телефон рақами</span> Факс: <span class=\"structures structure-6\" style=\"\">{#6}Банкнинг факс рақами</span></p>\n<p style=\"text-align: justify; text-indent: 45.6px;\">Ўзбекистон Республикаси валюта биржасидаги ДЕПО ҳисобварағининг рақами <span class=\"structures structure-7\" style=\"\">{#7}Валюта биржасидаги ДЕПО ҳисобварағининг рақами</span></p>\n<p style=\"text-align: justify; text-indent: 45.6px;\">Сўралаётган ломбард кредити ҳажми <span class=\"structures structure-8\" style=\"\">{#8}Сўралаётган ломбард кредити ҳажми</span></p>\n<p style=\"text-align: justify; text-indent: 45.6px;\">Сўралаётган фоиз ставка йиллик <span class=\"structures structure-9\" style=\"\">{#9}Йиллик фоиз ставкаси</span> фоизни ташкил этади.</p>\n<p style=\"text-align: justify; text-indent: 45.6px;\">Банк эгалик қилиш ҳуқуқи (бошқа мулкий ҳуқуқ) асосида унга тегишли бўлган ва банкнинг бошқа мажбуриятлари билан боғлиқ бўлмаган ломбард кредитини тўлаш муддати келганидан сўнг 10 календарь кунидан кам бўлмаган муддат ичида тўлови амалга ошириладиган давлат қимматли қоғозларининг етарли миқдорига эга.</p>\n<p style=\"text-align: justify; text-indent: 45.6px;\">Ўзбекистон Республикаси Марказий банки томонидан тижорат банкларига қайта молиялаш кредитларини бериш тартиби тўғрисидаги низом талабларга риоя этилганлигини тасдиқлайман.</p>\n<p style=\"text-align: justify; text-indent: 45.6px;\">Ўзбекистон республика валюта биржасидаги ДЕПО ҳисобварағидан кўчирма нусхаси илова қилинади.</p>\n<table>\n<tr>\n<td 0=\"\">\n<p>Банк ваколатли шахсининг имзоси</p>\n</td>\n<td 0=\"\">\n<p><span class=\"structures structure-10\" style=\"\">{#10}Банк ваколатли шахснинг Ф.И.О ва имзоси</span></p>\n</td>\n</tr>\n<tr>\n<td 1=\"\">\n<p></p>\n<p><span style=\"font-style: italic;\">Марказий банк томонидан тўлдирилади</span></p>\n</td>\n<td 1=\"\">\n<p> </p>\n</td>\n</tr>\n<tr>\n<td 2=\"\" colspan=\"2\">\n<p>Аризанинг қайд рақами __________________</p>\n</td>\n</tr>\n<tr>\n<td 3=\"\" colspan=\"2\">\n<p>Ариза келиб тушган сана 20__ йил «___» ______________</p>\n</td>\n</tr>\n<tr>\n<td 4=\"\">\n<p>Ҳужжатларни қабул қилиш учун масъул шахс имзоси</p>\n</td>\n<td 4=\"\">\n<p> </p>\n<p>________________________________</p>\n</td>\n</tr>\n<tr>\n<td 5=\"\">\n<p> </p>\n</td>\n<td 5=\"\">\n<p style=\"text-align: center;\"><span style=\"vertical-align: super;\">(Ф.И.О.)</span></p>\n</td>\n</tr>\n</table>\n<p> </p>\n</div></div>",
+    "required_id": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+    ]
+}

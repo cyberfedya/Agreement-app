@@ -1,0 +1,21 @@
+name: Backend CI
+
+on:
+  push:
+    paths:
+      - "backend/**"
+  pull_request:
+    paths:
+      - "backend/**"
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+      - run: dotnet restore backend/EasyAgree.slnx
+      - run: dotnet build backend/EasyAgree.slnx --no-restore
+      - run: dotnet test backend/EasyAgree.slnx --no-build

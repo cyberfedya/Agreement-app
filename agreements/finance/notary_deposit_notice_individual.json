@@ -1,0 +1,57 @@
+{
+    "source_url": "https://yurxizmat.uz/uz/document/2080",
+    "required_field": [
+        "Нотариал идора",
+        "Хусусий амалиёт билан шуғулланувчи",
+        "Давлат нотариал идораси",
+        "Нотариал идора",
+        "Хусусий амалиёт билан шуғулланувчи",
+        "Давлат нотариал идораси",
+        "Жисмоний шахснинг яшаш манзили",
+        "Жисмоний шахснинг яшаш уйи рақами",
+        "Жисмоний шахснинг Ф.И.О",
+        "Хабарномани тасдиқлаган нотариал идора манзили",
+        "Давлат нотариал идораси рақами",
+        "нотариус Ф.И.О",
+        "Жисмоний шахснинг Ф.И.О",
+        "Қарз шартномаси тузилган сана",
+        "Қарз шартномаси тузилган жойи",
+        "Реестр рақами билан қайд этилган сана",
+        "Қайд этилган реестр рақами",
+        "Депозитига қабул қилинган пулнинг миқдори (рақам ва сўз билан)",
+        "Нотариус жойлашган уй рақами",
+        "Депозитни олиш учун қўйиладиган охирги муддат"
+    ],
+    "html_format": "<div class=\"document-view-wrapper\">\n<style>\n.html-preview * {font-family: Times New Roman; font-size: 12pt;}\n.html-preview a.NoteRef {text-decoration: none;}\n.html-preview table td {vertical-align: top;}\n.html-preview table {width: 100%;}\n.html-preview p {white-space: pre-wrap;}\n.html-preview .leading {width: 4px; display: inline-block;}\n.html-preview hr {height: 1px; padding: 0; margin: 1em 0; border: 0; border-top: 1px solid #CCC;}\n.html-preview .Normal {className: Normal; margin-bottom: 10pt;}\n.html-preview .a {font-family: 'Calibri';}\n.html-preview .a3 {font-family: 'AntiquaUz'; font-size: 12pt; color: #000000; font-weight: bold;}\n.html-preview .Text {font-family: 'AntiquaUz'; font-size: 12pt;}\n</style>\n<div class=\"html-preview\">\n<style>.html-preview{width: 762px}</style><style>.html-preview{margin-top: 76px}</style><style>.html-preview{margin-bottom: 32px}</style><style>.html-preview{padding-left: 81px}</style><style>.html-preview{padding-right: 57px}</style><p class=\"a3\" style=\" text-indent: 26.6px;\"><span style=\"font-family: 'Times New Roman'; color: #auto;\">Депозитга пул суммалари ва қимматли қоғозлар келиб тушганлиги ҳақида жисмоний шахс номига хабарнома</span></p>\n<p> </p>\n<p style=\"text-align: right; text-indent: 30.266666666667px;\"><span class=\"structures structure-2\" style=\"font-family: 'Times New Roman'; font-size: 12pt;\">{#2}Жисмоний шахснинг яшаш манзили</span><span style=\"font-family: 'Times New Roman'; font-size: 12pt;\"> </span></p>\n<p style=\"text-align: right; text-indent: 30.266666666667px;\"><span style=\"font-family: 'Times New Roman'; font-size: 12pt;\"> </span><span class=\"structures structure-5\" style=\"font-family: 'Times New Roman'; font-size: 12pt;\">{#5}Жисмоний шахснинг яшаш уйи рақами</span><span style=\"font-family: 'Times New Roman'; font-size: 12pt;\">-уйда</span></p>\n<p style=\"text-align: right; text-indent: 30.266666666667px;\"><span style=\"font-family: 'Times New Roman'; font-size: 12pt;\">яшовчи</span></p>\n<p style=\"text-align: right; text-indent: 30.266666666667px;\"><span class=\"structures structure-6\" style=\"font-family: 'Times New Roman'; font-size: 12pt;\">{#6}Жисмоний шахснинг Ф.И.О </span><span style=\"font-family: 'Times New Roman'; font-size: 12pt;\">га</span></p>\n<p style=\"text-align: right; text-indent: 30.266666666667px;\"></p>\n<p style=\"text-align: center; text-indent: 30.266666666667px;\"><span style=\"font-family: 'Times New Roman'; color: #auto; font-weight: bold;\">Х<span class=\"leading\"></span>А Б А Р Н О М А</span></p>\n<p style=\"text-align: center; text-indent: 30.266666666667px;\"></p>\n<p class=\"Text\" style=\" text-align: justify; margin-bottom: 0pt; text-indent: 36.6px;\"><span style=\"font-family: 'Times New Roman';\">Мен – Ўзбекистон Республикаси, </span><span class=\"structures structure-8\" style=\"font-family: 'Times New Roman';\">{#8}Хабарномани тасдиқлаган нотариал идора манзили</span><span style=\"font-family: 'Times New Roman'; font-style: italic;\">,</span><span style=\"font-family: 'Times New Roman';\"> </span><span class=\"structures structure-20\" style=\"font-family: 'Times New Roman'; display: none;\">{#20}Хусусий амалиёт билан шуғулланувчи</span><span class=\"structures structure-21\" style=\"font-family: 'Times New Roman';\">{#21} </span><span class=\"structures structure-21 structure-27\" style=\"className:21 27; font-family: 'Times New Roman';\">{#21}Давлат нотариал идораси рақами</span><span class=\"structures structure-21\" style=\"font-family: 'Times New Roman';\">{#21}-сонли давлат нотариал идораси</span><span style=\"font-family: 'Times New Roman'; color: #ff0000;\"> </span>нотариуси <span class=\"structures structure-26\" style=\"\">{#26}нотариус Ф.И.О</span><span style=\"font-family: 'Times New Roman';\"> фуқаро </span><span class=\"structures structure-11\" style=\"font-family: 'Times New Roman';\">{#11}Жисмоний шахснинг Ф.И.О </span><span style=\"font-family: 'Times New Roman';\"> ва Сизнинг ўртангизда </span><span class=\"structures structure-12\" style=\"font-family: 'Times New Roman';\">{#12}Қарз шартномаси тузилган сана</span><span style=\"font-family: 'Times New Roman';\"> йилда тузилган, </span><span class=\"structures structure-13\" style=\"font-family: 'Times New Roman';\">{#13}Қарз шартномаси тузилган жойи</span><span style=\"font-family: 'Times New Roman';\"> </span><span class=\"structures structure-20 structure-23\" style=\"className:20 23; font-family: 'Times New Roman'; display: none;\">{#20}Хусусий амалиёт билан шуғулланувчи </span><span style=\"font-family: 'Times New Roman';\"> </span><span class=\"structures structure-24 structure-28\" style=\"className:24 28; font-family: 'Times New Roman';\">{#24}Давлат нотариал идораси рақами</span><span class=\"structures structure-24\" style=\"font-family: 'Times New Roman';\">{#24}-сонли давлат нотариал идораси</span><span style=\"font-family: 'Times New Roman';\"> нотариус </span><span class=\"structures structure-29\" style=\"font-family: 'Times New Roman';\">{#29}нотариус Ф.И.О</span><span style=\"font-family: 'Times New Roman';\"> </span><span class=\"structures structure-14\" style=\"font-family: 'Times New Roman';\">{#14} Реестр рақами билан қайд этилган сана</span><span style=\"font-family: 'Times New Roman'; color: #ff0000;\"> </span><span style=\"font-family: 'Times New Roman';\">йилда </span><span class=\"structures structure-15\" style=\"font-family: 'Times New Roman';\">{#15}Қайд этилган реестр рақами</span><span style=\"font-family: 'Times New Roman';\"> реестр рақами билан қайд этилган қарз шартномасига кўра Сизга тўланиши лозим бўлган қарз суммаси, яъни </span><span class=\"structures structure-16\" style=\"font-family: 'Times New Roman';\">{#16}Депозитига қабул қилинган пулнинг миқдори (рақам ва сўз билан)</span><span style=\"font-family: 'Times New Roman';\"> сўм нотариус депозитига қабул қилинганлиги ҳақида хабар қиламан.</span></p>\n<p class=\"Text\" style=\" text-align: justify; margin-bottom: 0pt; text-indent: 36.6px;\"><span style=\"font-family: 'Times New Roman';\">Юқорида кўрсатилган пул суммасини олиш учун шахсингизни тасдиқловчи ҳужжат билан </span><span class=\"structures structure-8\" style=\"font-family: 'Times New Roman';\">{#8}Хабарномани тасдиқлаган нотариал идора манзили</span><span style=\"font-family: 'Times New Roman'; font-style: italic;\">,</span><span style=\"font-family: 'Times New Roman';\"> </span><span class=\"structures structure-25\" style=\"font-family: 'Times New Roman';\">{#25}Нотариус жойлашган уй рақами</span><span style=\"font-family: 'Times New Roman';\">-уйда жойлашган нотариал идорага келишингиз сўралади.</span></p>\n<p class=\"Text\" style=\" text-align: justify; margin-bottom: 0pt; text-indent: 36.6px;\"><span style=\"font-family: 'Times New Roman';\">Агар Сиз </span><span class=\"structures structure-18\" style=\"font-family: 'Times New Roman';\">{#18}Депозитни олиш учун қўйиладиган охирги муддат</span><span style=\"font-family: 'Times New Roman';\"> йилга қадар юқорида кўрсатилган пул суммасини келиб олмасангиз, у белгиланган тартибда давлат бюджетига ўтказиб юборилиши маълум қилинади.</span></p>\n<p> </p>\n<p> </p>\n<p class=\"Text\" style=\" text-indent: 36.6px;\"><span style=\"font-family: 'Times New Roman';\">Нотариус:____________________________________________________________</span></p>\n<p class=\"Text\" style=\" text-align: center; text-indent: 36.6px;\"><span style=\"font-family: 'Times New Roman';\">М.Ў.</span></p>\n</div></div>",
+    "required_id": [
+        2,
+        5,
+        6,
+        8,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        18,
+        20,
+        21,
+        24,
+        25,
+        26,
+        29
+    ],
+    "domain": "finance",
+    "key": "notary_deposit_notice_individual",
+    "title": {
+        "uz": "Депозитга пул ва қимматли қоғозлар келиб тушганлиги ҳақида жисмоний шахс номига хабарнома",
+        "ru": "Уведомление физическому лицу о поступлении денег и ценных бумаг на депозит",
+        "en": "Notary Notice to an Individual on Funds and Securities Received into Deposit"
+    },
+    "description": {
+        "uz": "Нотариус депозитига қарз шартномаси бўйича тушган пул маблағлари ҳақида жисмоний шахсга юборилаётган расмий хабарнома.",
+        "ru": "Официальное нотариальное уведомление физического лица о денежных средствах, поступивших на депозит по договору займа.",
+        "en": "A formal notary notice informing an individual that funds under a loan agreement have been placed into notarial deposit."
+    }
+}

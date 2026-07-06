@@ -1,0 +1,52 @@
+{
+    "domain": "education",
+    "key": "foreign_student_magistracy_admission_application",
+    "title": {
+        "uz": "Тошкент давлат юридик университети магистратурасига хорижий фуқароларни ўқишга қабул қилиш тўғрисида ариза",
+        "ru": "Заявление о приёме иностранных граждан в магистратуру Ташкентского государственного юридического университета",
+        "en": "Application for admission of foreign citizens to TSUL's master's (magistracy) program"
+    },
+    "description": {
+        "uz": "Хорижий фуқаронинг Тошкент давлат юридик университети магистратурасига ўқишга кириш учун суҳбатда қатнашишга рухсат сўраб берадиган аризаси.",
+        "ru": "Заявление иностранного гражданина с просьбой допустить его к вступительному собеседованию для поступления в магистратуру ТГЮУ.",
+        "en": "An application by a foreign citizen requesting admission to the entrance interview for TSUL's master's program."
+    },
+    "source_url": "https://yurxizmat.uz/uz/document/253",
+    "required_field": [
+        "ТДЮУ ректорининг Ф.И.О.",
+        "Ариза берувчининг Ф.И.О.",
+        "Магистратура мутахассислиги (йўналиши) номи",
+        "Ўқишга кириш учун ўтказиладиган суҳбат тили",
+        "Олий таълим йўналиши",
+        "Тугатган таълим муассасининг номи",
+        "Таълим муассасини тамомлаган йил",
+        "Маълумот тўғрисидаги ҳужжат",
+        "Ўзлаштирилган ҳорижий тиллар",
+        "Суҳбатни ўтказиш тили",
+        "Аризачинининг туғилган жойи ва санаси",
+        "Аризачининг фуқаролиги",
+        "Аризачининг доимий яшаш жойи (манзили)",
+        "Фуқаролик паспортига (ID-карта) оид маълумотлар",
+        "Халқаро ва миллий олимпиадалар, танловлар ва спорт мусобақаларида иштирок этганлик ҳақида маълумотлар",
+        "Ариза ёзилган сана"
+    ],
+    "html_format": "<div class=\"document-view-wrapper\">\n<style>\n.html-preview * {font-family: Times New Roman; font-size: 12pt;}\n.html-preview a.NoteRef {text-decoration: none;}\n.html-preview table td {vertical-align: top;}\n.html-preview table {width: 100%;}\n.html-preview p {white-space: pre-wrap;}\n.html-preview .leading {width: 4px; display: inline-block;}\n.html-preview hr {height: 1px; padding: 0; margin: 1em 0; border: 0; border-top: 1px solid #CCC;}\n.html-preview .Normal {className: Normal; margin-bottom: 8pt;}\n.html-preview .a {font-family: 'Times New Roman'; font-size: 12pt;}\n.html-preview .a3 {font-weight: bold;}\n.html-preview .a4 {font-style: italic;}\n.html-preview .a5 {font-size: 11pt;}\n</style>\n<div class=\"html-preview\">\n<style>.html-preview{width: 762px}</style><style>.html-preview{margin-top: 76px}</style><style>.html-preview{margin-bottom: 32px}</style><style>.html-preview{padding-left: 81px}</style><style>.html-preview{padding-right: 57px}</style><p style=\"text-align: center;\"><span style=\"font-size: 12pt; font-weight: bold;\">Тошкент давлат юридик университети магистратурасига хорижий фуқароларни </span></p>\n<p style=\"text-align: center;\"><span style=\"font-size: 12pt; font-weight: bold;\">ўқишга қабул қилиш тўғрисида</span></p>\n<p style=\"text-align: center;\"><span style=\"font-size: 12pt; font-weight: bold;\">Ариза</span></p>\n<p> </p>\n<p style=\"text-align: right;\"><span style=\"font-size: 12pt;\">Тошкент давлат юридик университети ректори</span></p>\n<p style=\"text-align: right;\"><span class=\"structures structure-2\" style=\"font-size: 12pt;\">{#2}ТДЮУ ректорининг Ф.И.О.</span><span style=\"font-size: 12pt;\">га </span></p>\n<p style=\"text-align: right;\"><span class=\"structures structure-3\" style=\"font-size: 12pt;\">{#3}Ариза берувчининг Ф.И.О.</span><span style=\"font-size: 12pt;\">дан</span></p>\n<p> </p>\n<p style=\"text-align: justify; text-indent: 45.6px;\"><span style=\"font-size: 12pt;\">Менга </span><span class=\"structures structure-4\" style=\"font-size: 12pt;\">{#4}Магистратура мутахассислиги (йўналиши) номи</span><span style=\"font-size: 12pt;\"> йўналиши бўйича магистратура мутахассислиги, таълимнинг </span><span class=\"structures structure-5\" style=\"font-size: 12pt;\">{#5}Ўқишга кириш учун ўтказиладиган суҳбат тили</span><span style=\"font-size: 12pt;\"> тилига ўқишга кириш учун ўтказиладиган суҳбатда қатнашишга рухсат беришингизни сўрайман.</span></p>\n<p style=\"text-align: justify; text-indent: 45.6px;\"><span style=\"font-size: 12pt;\">Мутахассислигим </span><span class=\"structures structure-6\" style=\"font-size: 12pt;\">{#6}Олий таълим йўналиши</span><span style=\"font-size: 12pt;\">.</span><span style=\"font-size: 12pt;\"> </span><span class=\"structures structure-7\" style=\"font-size: 12pt;\">{#7}Тугатган таълим муассасининг номи</span><span style=\"font-size: 12pt;\">ни </span><span class=\"structures structure-8\" style=\"font-size: 12pt;\">{#8}Таълим муассасини тамомлаган йил</span><span style=\"font-size: 12pt;\"> йилда тугатганман.</span></p>\n<p style=\"text-align: justify; text-indent: 45.6px;\"><span style=\"font-size: 12pt;\">Маълумотим ҳақидаги ҳужжат (диплом) серияси, рақами: </span><span class=\"structures structure-10\" style=\"font-size: 12pt;\">{#10}Маълумот тўғрисидаги ҳужжат</span><span style=\"font-size: 12pt;\">.</span></p>\n<p style=\"text-align: justify; text-indent: 45.6px;\"><span style=\"font-size: 12pt;\">Мен </span><span class=\"structures structure-11\" style=\"font-size: 12pt;\">{#11}Ўзлаштирилган ҳорижий тиллар</span><span style=\"font-size: 12pt;\">ини ўзлаштирганман.</span></p>\n<p style=\"text-align: justify; text-indent: 45.6px;\"><span style=\"font-size: 12pt;\">Суҳбатни </span><span class=\"structures structure-12\" style=\"font-size: 12pt;\">{#12}Суҳбатни ўтказиш тили</span><span style=\"font-size: 12pt;\"> тилида ўтказаман.</span></p>\n<p style=\"text-align: justify; text-indent: 45.6px;\"><span style=\"font-size: 12pt;\">Туғилган вақтим ва жойим: </span><span class=\"structures structure-13\" style=\"font-size: 12pt;\">{#13}Аризачинининг туғилган жойи ва санаси</span><span style=\"font-size: 12pt;\">.</span></p>\n<p style=\"text-align: justify; text-indent: 45.6px;\"><span style=\"font-size: 12pt;\">Фуқаролигим: </span><span class=\"structures structure-14\" style=\"font-size: 12pt;\">{#14}Аризачининг фуқаролиги</span></p>\n<p style=\"text-align: justify; text-indent: 45.6px;\"><span style=\"font-size: 12pt;\">Доимий яшаш жойим: </span><span class=\"structures structure-15\" style=\"font-size: 12pt;\">{#15}Аризачининг доимий яшаш жойи (манзили)</span></p>\n<p style=\"text-align: justify; text-indent: 45.6px;\"><span style=\"font-size: 12pt;\">Паспортга (ID-картага) оид маълумотлар: </span><span class=\"structures structure-16\" style=\"font-size: 12pt;\">{#16}Фуқаролик паспортига (ID-карта) оид маълумотлар</span><span style=\"font-size: 12pt;\">.</span></p>\n<p style=\"text-align: justify; text-indent: 45.6px;\"><span style=\"font-size: 12pt;\">Халқаро ва миллий олимпиадалар, танловлар ва спорт мусобақаларида иштирок этганлик ҳақида маълумот: </span><span class=\"structures structure-17\" style=\"font-size: 12pt;\">{#17}Халқаро ва миллий олимпиадалар, танловлар ва спорт мусобақаларида иштирок этганлик ҳақида маълумотлар</span></p>\n<p style=\"text-align: justify; text-indent: 45.6px;\"><span style=\"font-size: 12pt;\">Суҳбат ўтказиш тартиби ва қоидалари билан танишдим.</span></p>\n<p style=\"text-align: justify; text-indent: 45.6px;\"></p>\n<p style=\"text-align: justify; text-indent: 45.6px;\"><span class=\"structures structure-3\" style=\"font-size: 12pt;\">{#3}Ариза берувчининг Ф.И.О.</span><span style=\"font-size: 12pt;\"> ________________</span></p>\n<p style=\"text-align: justify; text-indent: 45.6px;\"></p>\n<p style=\"text-align: left; text-indent: 45.6px;\"><span class=\"structures structure-19\" style=\"font-size: 12pt;\">{#19}Ариза ёзилган сана</span></p>\n</div></div>",
+    "required_id": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        19
+    ]
+}

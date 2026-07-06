@@ -1,0 +1,20 @@
+# .NET
+backend/**/bin/
+backend/**/obj/
+*.user
+
+# Flutter
+app/.dart_tool/
+app/.flutter-plugin-dependencies
+app/build/
+app/**/ephemeral/
+app/android/local.properties
+app/ios/Flutter/Generated.xcconfig
+
+# IDE
+.idea/
+.vs/
+
+# OS
+.DS_Store
+Thumbs.db

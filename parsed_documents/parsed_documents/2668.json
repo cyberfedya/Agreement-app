@@ -1,0 +1,24 @@
+{
+    "source_url": "https://yurxizmat.uz/uz/document/2668",
+    "required_field": [
+        "Ариза берувчи юридик шахснинг номи, ташкилий-ҳуқуқий шакли",
+        "Ариза берувчи жойлашган жойи (почта манзили, телефон рақами, факс ва бошқалар)",
+        "Ариза берувчининг банк реквизитлари",
+        "Ташкилотнинг электрон почтаси",
+        "Ташкилотнинг телефон рақами",
+        "Ташкилот раҳбарининг лавозими",
+        "Ташкилот раҳбарининг имзоси",
+        "Ташкилот раҳбарининг Ф.И.О."
+    ],
+    "html_format": "<div class=\"document-view-wrapper\">\n<style>\n.html-preview * {font-family: Times New Roman; font-size: 12pt;}\n.html-preview a.NoteRef {text-decoration: none;}\n.html-preview table td {vertical-align: top;}\n.html-preview table {width: 100%;}\n.html-preview p {white-space: pre-wrap;}\n.html-preview .leading {width: 4px; display: inline-block;}\n.html-preview hr {height: 1px; padding: 0; margin: 1em 0; border: 0; border-top: 1px solid #CCC;}\n.html-preview .Normal {className: Normal; margin-bottom: 8pt;}\n.html-preview .adham {font-family: 'Times New Roman'; font-size: 12pt;}\n</style>\n<div class=\"html-preview\">\n<style>.html-preview{width: 762px}</style><style>.html-preview{margin-top: 76px}</style><style>.html-preview{margin-bottom: 32px}</style><style>.html-preview{padding-left: 81px}</style><style>.html-preview{padding-right: 57px}</style><p style=\"text-align: center; margin-top: 6pt; margin-bottom: 6pt; text-indent: 302.4px;\"><span style=\"font-family: 'Times New Roman'; font-size: 12pt; font-weight: bold;\">«Асл белгиси» маҳсулотларни маркировкалаш ва кузатиб бориш миллий ахборот тизими оператори «CРПТ ТУРОН» масъулияти чекланган жамиятига</span></p>\n<p> </p>\n<p style=\"text-align: center; margin-top: 6pt; margin-bottom: 6pt;\"><span style=\"font-family: 'Times New Roman'; font-size: 12pt; font-weight: bold;\">Маркировкалаш ахборот тизимида рўйхатдан ўтиш бўйича</span></p>\n<p style=\"text-align: center; margin-top: 6pt; margin-bottom: 6pt;\"><span style=\"font-family: 'Times New Roman'; font-size: 12pt; font-weight: bold;\">АРИЗА</span></p>\n<p style=\"text-align: justify; margin-top: 6pt; margin-bottom: 6pt; text-indent: 47.266666666667px;\"><span class=\"structures structure-2\" style=\"font-family: 'Times New Roman'; font-size: 12pt;\">{#2}Ариза берувчи юридик шахснинг номи, ташкилий-ҳуқуқий шакли</span></p>\n<p style=\"text-align: justify; margin-top: 6pt; margin-bottom: 6pt; text-indent: 47.266666666667px;\"><span class=\"structures structure-3\" style=\"font-family: 'Times New Roman'; font-size: 12pt;\">{#3}Ариза берувчи жойлашган жойи (почта манзили, телефон рақами, факс ва бошқалар)</span></p>\n<p style=\"text-align: justify; margin-top: 6pt; margin-bottom: 6pt; text-indent: 47.266666666667px;\"><span class=\"structures structure-4\" style=\"font-family: 'Times New Roman'; font-size: 12pt;\">{#4}Ариза берувчининг банк реквизитлари</span></p>\n<p style=\"text-align: justify; margin-top: 6pt; margin-bottom: 6pt; text-indent: 47.266666666667px;\"><span style=\"font-family: 'Times New Roman'; font-size: 12pt;\">«Асл белгиси» маҳсулотларни маркировкалаш ва кузатиб бориш миллий ахборот тизимида рўйхатдан ўтказиб беришингизни сўрайман:</span></p>\n<p style=\"text-align: justify; margin-bottom: 5pt;\"><span style=\"font-family: 'Times New Roman'; font-size: 12pt;\">Ташкилотнинг электрон почтаси: </span><span class=\"structures structure-5\" style=\"font-family: 'Times New Roman'; font-size: 12pt;\">{#5}Ташкилотнинг электрон почтаси</span></p>\n<p style=\"text-align: justify; margin-bottom: 5pt;\"><span style=\"font-family: 'Times New Roman'; font-size: 12pt;\">Ташкилотнинг телефон рақами: </span><span class=\"structures structure-6\" style=\"font-family: 'Times New Roman'; font-size: 12pt;\">{#6}Ташкилотнинг телефон рақами</span></p>\n<table>\n<tr>\n<td 0=\"\" style=\" width: 217.52908587258px;\">\n<p style=\"text-align: justify; margin-bottom: 5pt;\"><span class=\"structures structure-7\" style=\"font-family: 'Times New Roman'; font-size: 12pt;\">{#7}Ташкилот раҳбарининг лавозими</span></p>\n</td>\n<td 0=\"\" style=\" width: 119.0027700831px;\">\n<p style=\"text-align: justify; margin-bottom: 5pt;\"><span class=\"structures structure-8\" style=\"font-family: 'Times New Roman'; font-size: 12pt;\">{#8}Ташкилот раҳбарининг имзоси</span></p>\n</td>\n<td 0=\"\" style=\" width: 284.74238227147px;\">\n<p style=\"text-align: justify; margin-bottom: 5pt;\"><span class=\"structures structure-9\" style=\"font-family: 'Times New Roman'; font-size: 12pt;\">{#9}Ташкилот раҳбарининг Ф.И.О.</span></p>\n</td>\n</tr>\n</table>\n<p> </p>\n<p> </p>\n</div></div>",
+    "required_id": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+    ]
+}

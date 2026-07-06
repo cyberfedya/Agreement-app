@@ -1,0 +1,36 @@
+{
+    "domain": "real_estate",
+    "key": "residential_property_handover_act",
+    "title": {
+        "uz": "Турар жой объектини топшириш ва қабул қилиш далолатномаси",
+        "ru": "Акт приёма-передачи объекта жилой недвижимости",
+        "en": "Act of Handover and Acceptance of Residential Property"
+    },
+    "description": {
+        "uz": "Сотилган турар жой объектининг сотиб олувчига топширилганлигини тасдиқловчи ҳужжат.",
+        "ru": "Документ, подтверждающий передачу проданного жилого объекта покупателю.",
+        "en": "A document confirming the transfer of a sold residential property to the buyer."
+    },
+    "source_url": "https://yurxizmat.uz/uz/document/1852",
+    "required_field": [
+        "Далолатнома тузилган сана",
+        "Далолатнома тузилган жой",
+        "Турар жой объектини топшираётган шахснинг Ф.И.Ш.си",
+        "Турар жой объектини қабул қилаётган тарафнинг Ф.И.Ш.си",
+        "Турар жой объектининг манзили",
+        "Топширилаётган турар жой юзасидан шартнома тузилган сана",
+        "Топширилаётган турар жой юзасидан тузилган шартнома рақами",
+        "Ишларни бажариш учун асос бўлган шартнома",
+        "Турар жой объектининг тавсифи"
+    ],
+    "html_format": "<div class=\"document-view-wrapper\">\n<style>\n.html-preview * {font-family: Times New Roman; font-size: 12pt;}\n.html-preview a.NoteRef {text-decoration: none;}\n.html-preview table td {vertical-align: top;}\n.html-preview table {width: 100%;}\n.html-preview p {white-space: pre-wrap;}\n.html-preview .leading {width: 4px; display: inline-block;}\n.html-preview hr {height: 1px; padding: 0; margin: 1em 0; border: 0; border-top: 1px solid #CCC;}\n.html-preview .a {font-size: 12pt;}\n.html-preview .a3 {font-family: 'Batang'; font-size: 14pt;}\n.html-preview .a4 {font-family: 'Batang'; font-size: 14pt;}\n</style>\n<div class=\"html-preview\">\n<style>.html-preview{width: 762px}</style><style>.html-preview{margin-top: 76px}</style><style>.html-preview{margin-bottom: 32px}</style><style>.html-preview{padding-left: 81px}</style><style>.html-preview{padding-right: 57px}</style><p></p>\n<p style=\"text-align: center;\"><span style=\"font-size: 14pt; font-weight: bold;\">ДАЛОЛАТНОМА</span></p>\n<p style=\"text-align: center;\"><span style=\"font-family: 'Times New Roman'; font-size: 14pt;\">(</span><span class=\"structures structure-10\" style=\"font-family: 'Times New Roman'; font-size: 14pt;\">{#10}Турар жой объектининг манзили</span><span style=\"font-family: 'Times New Roman'; font-size: 14pt;\">ни топшириш ва қабул қилиш тўғрисида</span><span style=\"font-family: 'Times New Roman'; font-size: 14pt;\">)</span></p>\n<p> </p>\n<table>\n<tr>\n<td 0=\"\" style=\" width: 212.07756232687px;\">\n<p style=\"text-align: center;\"><span class=\"structures structure-2\" style=\"font-family: 'Times New Roman'; font-size: 14pt;\">{#2}Далолатнома тузилган сана</span></p>\n</td>\n<td 0=\"\" style=\" width: 212.07756232687px;\">\n<p> </p>\n</td>\n<td 0=\"\" style=\" width: 212.07756232687px;\">\n<p style=\"text-align: right;\"><span class=\"structures structure-3\" style=\"font-family: 'Times New Roman'; font-size: 14pt;\">{#3} Далолатнома тузилган жой</span></p>\n</td>\n</tr>\n</table>\n<p> </p>\n<p> </p>\n<p class=\"a3\" style=\" margin-bottom: 0pt; text-indent: 47.266666666667px;\"><span class=\"structures structure-6\" style=\"\">{#6}Турар жой объектини топшираётган шахснинг Ф.И.Ш.си</span>ҳамда <span class=\"structures structure-8\" style=\"\">{#8}Турар жой объектини қабул қилаётган тарафнинг Ф.И.Ш.си</span> ўртасида <span class=\"leading\"></span><span class=\"structures structure-11\" style=\"\">{#11}Топширилаётган турар жой юзасидан шартнома тузилган сана</span> куни <span class=\"structures structure-12\" style=\"\">{#12}Топширилаётган турар жой юзасидан тузилган шартнома рақами</span>-сонли шартнома тузилган. Шартномага кўра <span class=\"structures structure-6\" style=\"\">{#6}Турар жой объектини топшираётган шахснинг Ф.И.Ш.си</span> <span class=\"structures structure-8\" style=\"\">{#8}Турар жой объектини қабул қилаётган тарафнинг Ф.И.Ш.си</span>га <span class=\"structures structure-10\" style=\"\">{#10}Турар жой объектининг манзили</span> манзилида жойлашган турар жойни сотган. </p>\n<p class=\"a3\" style=\" margin-bottom: 0pt; text-indent: 47.266666666667px;\">Юқоридаги шартномадан келиб чиққан ҳолда <span class=\"structures structure-6\" style=\"\">{#6}Турар жой объектини топшираётган шахснинг Ф.И.Ш.си</span> томонидан <span class=\"structures structure-10\" style=\"\">{#10}Турар жой объектининг манзили</span> манзилида жойлашган турар жой <span class=\"leading\"></span><span class=\"structures structure-8\" style=\"\">{#8}Турар жой объектини қабул қилаётган тарафнинг Ф.И.Ш.си</span> топширилди. </p>\n<p class=\"a3\" style=\" margin-bottom: 0pt; text-indent: 47.266666666667px;\">Қабул қилувчи ушбу турар жой объектини қабул қилиб олди. </p>\n<p> </p>\n<p class=\"a3\" style=\" margin-bottom: 0pt; text-indent: 30.6px;\"><span style=\"font-weight: bold;\">Топширувчи: </span></p>\n<p class=\"a3\" style=\" margin-bottom: 0pt; text-indent: 30.6px;\"><span class=\"structures structure-6\" style=\"\">{#6}Турар жой объектини топшираётган шахснинг Ф.И.Ш.си</span><span class=\"tab\" style=\"width: 47.2px; display: inline-block\"></span><span class=\"tab\" style=\"width: 47.2px; display: inline-block\"></span><span class=\"tab\" style=\"width: 47.2px; display: inline-block\"></span><span class=\"tab\" style=\"width: 47.2px; display: inline-block\"></span><span class=\"tab\" style=\"width: 47.2px; display: inline-block\"></span><span class=\"tab\" style=\"width: 47.2px; display: inline-block\"></span><span class=\"tab\" style=\"width: 47.2px; display: inline-block\"></span><span class=\"tab\" style=\"width: 47.2px; display: inline-block\"></span>___________</p>\n<p> </p>\n<p class=\"a3\" style=\" margin-bottom: 0pt; text-indent: 30.6px;\"><span style=\"font-weight: bold;\">Қабул қилувчи:</span></p>\n<p class=\"a3\" style=\" margin-bottom: 0pt; text-indent: 30.6px;\"><span class=\"structures structure-8\" style=\"\">{#8}Турар жой объектини қабул қилаётган тарафнинг Ф.И.Ш.си</span><span class=\"tab\" style=\"width: 47.2px; display: inline-block\"></span><span class=\"tab\" style=\"width: 47.2px; display: inline-block\"></span><span class=\"tab\" style=\"width: 47.2px; display: inline-block\"></span><span class=\"tab\" style=\"width: 47.2px; display: inline-block\"></span><span class=\"tab\" style=\"width: 47.2px; display: inline-block\"></span><span class=\"tab\" style=\"width: 47.2px; display: inline-block\"></span><span class=\"tab\" style=\"width: 47.2px; display: inline-block\"></span><span class=\"tab\" style=\"width: 47.2px; display: inline-block\"></span>___________</p>\n<p> </p>\n<p> </p>\n<p> </p>\n</div></div>",
+    "required_id": [
+        2,
+        3,
+        6,
+        8,
+        10,
+        11,
+        12
+    ]
+}

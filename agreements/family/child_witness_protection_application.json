@@ -1,0 +1,42 @@
+{
+    "domain": "family",
+    "key": "child_witness_protection_application",
+    "title": {
+        "uz": "Гувоҳ сифатида жалб қилинган болани ҳимоя билан таъминлаш тўғрисида ариза",
+        "ru": "Заявление об обеспечении защиты ребёнка, привлечённого в качестве свидетеля",
+        "en": "Application for Protection of a Child Involved as a Witness"
+    },
+    "description": {
+        "uz": "Ҳуқуқбузарлик ёки жиноятга гувоҳ бўлган боланинг ҳимоясини таъминлаш сўраб бола ҳуқуқлари вакилига берилган ариза.",
+        "ru": "Заявление представителю по правам ребёнка с просьбой обеспечить защиту ребёнка, ставшего свидетелем правонарушения.",
+        "en": "An application to a children's rights representative requesting protection for a child who witnessed an offense."
+    },
+    "source_url": "https://yurxizmat.uz/uz/document/1567",
+    "required_field": [
+        "Боланинг яшаш манзили",
+        "Боланинг Ф.И.О.си",
+        "Боланинг телефон рақами",
+        "Боланинг туғилган вақти",
+        "Бола биргаликда яшаётган шахслар",
+        "Бола ҳуқуқбузарлик ёки жиноят гувоҳи бўлган вақт",
+        "Бола ҳуқуқбузарлик ёки жиноят гувоҳи бўлган жой",
+        "Бола қандай ҳуқуқбузарлик ёки жиноят гувоҳи бўлган ҳолат",
+        "Бола гувоҳлик бериш учун чақирилган орган",
+        "Ариза ёзилган сана",
+        "Имзо ўрни"
+    ],
+    "html_format": "<div class=\"document-view-wrapper\">\n<style>\n.html-preview * {font-family: Times New Roman; font-size: 12pt;}\n.html-preview a.NoteRef {text-decoration: none;}\n.html-preview table td {vertical-align: top;}\n.html-preview table {width: 100%;}\n.html-preview p {white-space: pre-wrap;}\n.html-preview .leading {width: 4px; display: inline-block;}\n.html-preview hr {height: 1px; padding: 0; margin: 1em 0; border: 0; border-top: 1px solid #CCC;}\n.html-preview .Normal {className: Normal; margin-bottom: 8pt;}\n.html-preview .a3 td {border: 1px solid #000;}\n.html-preview .a4 {className: a4; text-indent: 48px;}\n</style>\n<div class=\"html-preview\">\n<style>.html-preview{width: 762px}</style><style>.html-preview{margin-top: 76px}</style><style>.html-preview{margin-bottom: 32px}</style><style>.html-preview{padding-left: 81px}</style><style>.html-preview{padding-right: 57px}</style><table style=\"border: 0px solid; border-spacing: 0; \">\n<tr>\n<td 0=\"\" style=\"border: 0; width: 348.69806094183px;\">\n<p> </p>\n</td>\n<td 0=\"\" style=\"border: 0; width: 272.57617728532px;\">\n<p style=\"text-align: justify;\"><span style=\"font-family: 'Times New Roman'; font-size: 12pt; font-weight: bold;\">Бола ҳуқуқлари бўйича вакил номига</span></p>\n<p style=\"text-align: justify;\"><span class=\"structures structure-2\" style=\"font-family: 'Times New Roman'; font-size: 12pt; font-weight: bold;\">{#2}Боланинг яшаш манзили</span><span style=\"font-family: 'Times New Roman'; font-size: 12pt; font-weight: bold;\">да яшовчи </span><span class=\"structures structure-3\" style=\"font-family: 'Times New Roman'; font-size: 12pt; font-weight: bold;\">{#3}Боланинг Ф.И.О.си</span><span style=\"font-family: 'Times New Roman'; font-size: 12pt; font-weight: bold;\">дан</span></p>\n<p style=\"text-align: justify;\"><span style=\"font-family: 'Times New Roman'; font-size: 12pt; font-weight: bold;\">телефон </span><span class=\"structures structure-4\" style=\"font-family: 'Times New Roman'; font-size: 12pt; font-weight: bold;\">{#4}Боланинг телефон рақами</span></p>\n</td>\n</tr>\n</table>\n<p> </p>\n<p> </p>\n<p style=\"text-align: center;\"><span style=\"font-family: 'Times New Roman'; font-size: 12pt; font-weight: bold;\">АРИЗА</span></p>\n<p style=\"text-align: center;\"><span style=\"font-family: 'Times New Roman'; font-size: 12pt; font-style: italic;\">(гувоҳ сифатида жалб қилинган болани ҳимоя билан таъминлаш тўғрисида)</span></p>\n<p style=\"text-align: justify; text-indent: 47.266666666667px;\"><span style=\"font-family: 'Times New Roman'; font-size: 12pt;\">Мен, </span><span class=\"structures structure-5\" style=\"font-family: 'Times New Roman'; font-size: 12pt;\">{#5}Боланинг туғилган вақти</span><span style=\"font-family: 'Times New Roman'; font-size: 12pt;\">да туғилган </span><span class=\"structures structure-3\" style=\"font-family: 'Times New Roman'; font-size: 12pt;\">{#3}Боланинг Ф.И.О.си</span><span style=\"font-family: 'Times New Roman'; font-size: 12pt;\"> </span><span class=\"structures structure-2\" style=\"font-family: 'Times New Roman'; font-size: 12pt;\">{#2}Боланинг яшаш манзили</span><span style=\"font-family: 'Times New Roman'; font-size: 12pt;\">да </span><span class=\"structures structure-6\" style=\"font-family: 'Times New Roman'; font-size: 12pt;\">{#6}Бола биргаликда яшаётган шахслар</span><span style=\"font-family: 'Times New Roman'; font-size: 12pt;\"> билан биргаликда яшайман. Мен </span><span class=\"structures structure-7\" style=\"font-family: 'Times New Roman'; font-size: 12pt;\">{#7}Бола ҳуқуқбузарлик ёки жиноят гувоҳи бўлган вақт </span><span style=\"font-family: 'Times New Roman'; font-size: 12pt;\"> куни </span><span class=\"structures structure-8\" style=\"font-family: 'Times New Roman'; font-size: 12pt;\">{#8}Бола ҳуқуқбузарлик ёки жиноят гувоҳи бўлган жой</span><span style=\"font-family: 'Times New Roman'; font-size: 12pt;\">да </span><span class=\"structures structure-9\" style=\"font-family: 'Times New Roman'; font-size: 12pt;\">{#9}Бола қандай ҳуқуқбузарлик ёки жиноят гувоҳи бўлган ҳолат</span><span style=\"font-family: 'Times New Roman'; font-size: 12pt;\"> кўринишидаги ҳуқуқбузарликнинг гувоҳи бўлган эдим. кўрган эдим. Шу сабабли мени </span><span class=\"structures structure-10\" style=\"font-family: 'Times New Roman'; font-size: 12pt;\">{#10}Бола гувоҳлик бериш учун чақирилган орган</span><span style=\"font-family: 'Times New Roman'; font-size: 12pt;\">га гувоҳлик бериш учун чақиришди. Сўроқ жараёнида менга турли босимлар ўтказилди.</span></p>\n<p style=\"text-align: justify; text-indent: 47.266666666667px;\"><span style=\"font-family: 'Times New Roman'; font-size: 12pt;\">Шунга кўра, бола сифатидаги ҳуқуқларимни ҳимоя қилиш мақсадида менга амалий ёрдам кўрсатишингизни сўрайман.</span></p>\n<p> </p>\n<p> </p>\n<p style=\"text-align: justify; text-indent: 47.266666666667px;\"><span class=\"structures structure-11\" style=\"font-family: 'Times New Roman'; font-size: 12pt;\">{#11}Ариза ёзилган сана</span><span class=\"tab\" style=\"width: 47.2px; display: inline-block\"></span><span class=\"tab\" style=\"width: 47.2px; display: inline-block\"></span><span class=\"tab\" style=\"width: 47.2px; display: inline-block\"></span><span class=\"structures structure-12\" style=\"font-family: 'Times New Roman'; font-size: 12pt;\">{#12}Имзо ўрни</span><span class=\"tab\" style=\"width: 47.2px; display: inline-block\"></span><span class=\"tab\" style=\"width: 47.2px; display: inline-block\"></span><span class=\"structures structure-11\" style=\"font-family: 'Times New Roman'; font-size: 12pt;\">{#11}Ариза ёзилган сана</span></p>\n</div></div>",
+    "required_id": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+    ]
+}

@@ -1,0 +1,23 @@
+{
+  "app_name": "EasyAgree",
+  "common": {
+    "next": "Next",
+    "back": "Back",
+    "cancel": "Cancel",
+    "confirm": "Confirm"
+  },
+  "auth": {
+    "login_title": "Sign in with MyID"
+  },
+  "home": {
+    "title": "Home",
+    "scan_qr": "Scan QR"
+  },
+  "questionnaire": {
+    "title": "AI Questionnaire"
+  },
+  "agreement": {
+    "title": "Agreement Preview",
+    "sign": "Sign"
+  }
+}

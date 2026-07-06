@@ -1,0 +1,59 @@
+{
+    "domain": "inheritance",
+    "key": "inheritance_preservation_reward_order",
+    "title": {
+        "uz": "Мерос мол-мулкни сақлаганлик учун тақдирлаш тўғрисида фармойиш",
+        "ru": "Распоряжение о вознаграждении за сохранение наследственного имущества",
+        "en": "Order awarding reward for preservation of inheritance property"
+    },
+    "description": {
+        "uz": "Мерос мол-мулкни қўриқлаган ва бошқарган шахсга унинг хизматлари учун марҳумнинг банк маблағидан мукофот тўланишини буюрувчи нотариус фармойиши.",
+        "ru": "Распоряжение нотариуса о выплате вознаграждения со счёта умершего лицу, охранявшему и управлявшему наследственным имуществом.",
+        "en": "A notary's order directing payment of a reward from the deceased's bank funds to the person who guarded and managed the inheritance property."
+    },
+    "source_url": "https://yurxizmat.uz/uz/document/240",
+    "required_field": [
+        "Нотариал округ номи",
+        "Фармойиш тасдиқланган сана",
+        "Нотариал идора  манзили",
+        "Нотариуснинг Ф.И.О",
+        "Шахснинг вафот этган санаси",
+        "Марҳумнинг охирги яшаш манзили",
+        "Марҳум рўйхатда турган уйнинг рақами",
+        "Мархумнинг Ф.И.О",
+        "Ариза билан мурожаат қилган шахснинг Ф.И.О",
+        "Аризачининг паспорт серия рақами",
+        "Аризачига паспорт берган ИИБ",
+        "Аризачига паспорт берилган сана",
+        "Мерос қолдирувчининг мероси сақланаётган банк номи",
+        "Банк филиали",
+        "Банк ҳисоб рақам",
+        "Банк ҳисоб рақамида сақланаётган пул суммаси миқдори",
+        "Мерос ишининг рақами",
+        "Нотариус идораси рақами",
+        "Аризачининг яшаш манзили",
+        "Аризачининг  яшаш уйи рақами"
+    ],
+    "html_format": "<div class=\"document-view-wrapper\">\n<style>\n.html-preview * {font-family: Times New Roman; font-size: 12pt;}\n.html-preview a.NoteRef {text-decoration: none;}\n.html-preview table td {vertical-align: top;}\n.html-preview table {width: 100%;}\n.html-preview p {white-space: pre-wrap;}\n.html-preview .leading {width: 4px; display: inline-block;}\n.html-preview hr {height: 1px; padding: 0; margin: 1em 0; border: 0; border-top: 1px solid #CCC;}\n.html-preview .Normal {className: Normal; margin-bottom: 10pt;}\n.html-preview .a3 {font-family: 'AntiquaUz'; font-size: 12pt; color: #000000; font-weight: bold;}\n.html-preview .Text {font-family: 'AntiquaUz'; font-size: 12pt;}\n.html-preview .a4 {font-size: 9pt; font-style: italic;}\n</style>\n<div class=\"html-preview\">\n<style>.html-preview{width: 762px}</style><style>.html-preview{margin-top: 76px}</style><style>.html-preview{margin-bottom: 32px}</style><style>.html-preview{padding-left: 81px}</style><style>.html-preview{padding-right: 57px}</style><p class=\"a3\" style=\" text-align: center; margin-top: 0pt; margin-bottom: 0pt;\"><span style=\"font-family: 'Times New Roman'; color: #auto;\">Мерос мол-мулкни сақлаганлик учун </span></p>\n<p class=\"a3\" style=\" text-align: center; margin-top: 0pt; margin-bottom: 0pt;\"><span style=\"font-family: 'Times New Roman'; color: #auto;\">тақдирлаш тўғрисида </span></p>\n<p class=\"a3\" style=\" text-align: center; margin-top: 0pt; margin-bottom: 0pt;\"><span style=\"font-family: 'Times New Roman'; color: #auto;\">Ф<span class=\"leading\"></span>А Р М О Й И Ш</span></p>\n<p class=\"Text\" style=\" text-align: center;\"><span class=\"structures structure-2\" style=\"font-family: 'Times New Roman';\">{#2}Нотариал округ номи</span></p>\n<p class=\"a4\" style=\" text-align: center;\"></p>\n<p class=\"Text\" style=\" text-align: center;\"><span class=\"structures structure-3\" style=\"font-family: 'Times New Roman';\">{#3}Фармойиш тасдиқланган сана</span></p>\n<p class=\"a4\" style=\" text-align: center;\"></p>\n<p> </p>\n<p class=\"Text\" style=\" text-align: justify; margin-bottom: 0pt; text-indent: 45.6px;\"><span style=\"font-family: 'Times New Roman';\">Мен – Ўзбекистон Республикаси,</span><span class=\"structures structure-4\" style=\"font-family: 'Times New Roman';\">{#4}Нотариал идора <span class=\"leading\"></span>манзили</span><span style=\"font-family: 'Times New Roman';\">даги хусусий амалиёт билан шуғулланувчи нотариус </span><span class=\"structures structure-6\" style=\"font-family: 'Times New Roman';\">{#6}Нотариуснинг Ф.И.О</span><span style=\"font-family: 'Times New Roman';\"> нотариал идорага </span><span class=\"structures structure-7\" style=\"font-family: 'Times New Roman';\">{#7}Шахснинг вафот этган санаси</span><span style=\"font-family: 'Times New Roman';\"> куни вафот этган </span><span class=\"structures structure-8\" style=\"font-family: 'Times New Roman';\">{#8}Марҳумнинг охирги яшаш манзили</span><span style=\"font-family: 'Times New Roman';\">,<span class=\"leading\"></span></span><span class=\"structures structure-11\" style=\"font-family: 'Times New Roman';\">{#11}Марҳум рўйхатда турган уйнинг рақами</span><span style=\"font-family: 'Times New Roman';\">-уйда пропискада турувчи </span><span class=\"structures structure-12\" style=\"font-family: 'Times New Roman';\">{#12}Мархумнинг Ф.И.О</span><span style=\"font-family: 'Times New Roman';\">нинг мерос мол-мулкини сақлаганлиги учун тақдирлаш юзасидан </span><span class=\"structures structure-13\" style=\"font-family: 'Times New Roman';\">{#13}Ариза билан мурожаат қилган шахснинг Ф.И.О</span><span style=\"font-family: 'Times New Roman';\"> томонидан берилган аризани кўриб чиқиб, Ўзбекистон Республикаси «Нотариат тўғрисида»ги қонунининг 55-57-моддаларига асосан</span></p>\n<p> </p>\n<p class=\"Text\" style=\" text-align: center;\"><span style=\"font-family: 'Times New Roman'; font-weight: bold;\">фармойиш қиламан:</span></p>\n<p> </p>\n<p class=\"Text\" style=\" text-align: justify; margin-bottom: 0pt; text-indent: 45.6px;\"><span class=\"structures structure-26\" style=\"font-family: 'Times New Roman';\">{#26}Аризачининг яшаш манзили</span><span style=\"font-family: 'Times New Roman';\">,<span class=\"leading\"></span></span><span class=\"structures structure-16\" style=\"font-family: 'Times New Roman';\">{#16}Аризачининг <span class=\"leading\"></span>яшаш уйи рақами</span><span style=\"font-family: 'Times New Roman';\"> - сонли уйда пропискада турувчи – </span><span class=\"structures structure-13\" style=\"font-family: 'Times New Roman';\">{#13}Ариза билан мурожаат қилган шахснинг Ф.И.О</span><span style=\"font-family: 'Times New Roman';\">га (паспорт </span><span class=\"structures structure-17\" style=\"font-family: 'Times New Roman';\">{#17}Аризачининг паспорт серия рақами</span><span style=\"font-family: 'Times New Roman';\">,<span class=\"leading\"></span></span><span class=\"structures structure-18\" style=\"font-family: 'Times New Roman';\">{#18}Аризачига паспорт берган ИИБ </span><span style=\"font-family: 'Times New Roman';\"> <span class=\"leading\"></span>томонидан </span><span class=\"structures structure-19\" style=\"font-family: 'Times New Roman';\">{#19}Аризачига паспорт берилган сана</span><span style=\"font-family: 'Times New Roman';\"> йилда берилган) марҳум </span><span class=\"structures structure-12\" style=\"font-family: 'Times New Roman';\">{#12}Мархумнинг Ф.И.О</span><span style=\"font-family: 'Times New Roman';\">нинг мерос мол-мулкини қўриқлаш ва уни бошқариш, шунингдек уларни сақлаганлиги учун тақдирлаш мақсадида, марҳумнинг Ўзбекистон Республикаси </span><span class=\"structures structure-20\" style=\"font-family: 'Times New Roman';\">{#20}Мерос қолдирувчининг мероси сақланаётган банк номи</span><span style=\"font-family: 'Times New Roman';\"> банки </span><span class=\"structures structure-21\" style=\"font-family: 'Times New Roman';\">{#21}Банк филиали</span><span style=\"font-family: 'Times New Roman';\"> филиалининг </span><span class=\"structures structure-22\" style=\"font-family: 'Times New Roman';\">{#22}Банк ҳисоб рақам</span><span style=\"font-family: 'Times New Roman';\"> ҳисоб рақамида сақланаётган суммадан </span><span class=\"structures structure-23\" style=\"font-family: 'Times New Roman';\">{#23}Банк ҳисоб рақамида сақланаётган пул суммаси миқдори</span><span style=\"font-family: 'Times New Roman';\">сўм ундириб берилсин.</span></p>\n<p class=\"Text\" style=\" text-indent: 45.6px;\"><span style=\"font-family: 'Times New Roman';\">Ушбу фармойиш икки нусхада тузилди, улардан бир нусхаси хусусий амалиёт билан шуғулланувчи нотариус </span><span class=\"structures structure-6\" style=\"font-family: 'Times New Roman';\">{#6}Нотариуснинг Ф.И.О</span><span style=\"font-family: 'Times New Roman';\">да очилган </span><span class=\"structures structure-24\" style=\"font-family: 'Times New Roman';\">{#24}Мерос ишининг рақами</span><span style=\"font-family: 'Times New Roman';\">-сон мерос ишида сақланади, иккинчи нусхаси фуқаро </span><span class=\"structures structure-13\" style=\"font-family: 'Times New Roman';\">{#13}Ариза билан мурожаат қилган шахснинг Ф.И.О</span><span style=\"font-family: 'Times New Roman';\">га берилди.</span></p>\n<p class=\"Text\" style=\" text-indent: 45.6px;\"></p>\n<p class=\"Text\" style=\"\"></p>\n<p class=\"Text\" style=\"\">Ариза берувчи:_______________________________________________________</p>\n<p class=\"Text\" style=\"\"></p>\n<p class=\"Text\" style=\"\"><span style=\"font-family: 'Times New Roman';\">Нотариус____________________________________________________________</span></p>\n<p class=\"Text\" style=\" text-align: center;\"><span style=\"font-family: 'Times New Roman';\">М.Ў.</span></p>\n<p class=\"Text\" style=\"\"></p>\n<p class=\"Text\" style=\"\"></p>\n<p class=\"Text\" style=\"\"><span style=\"font-family: 'Times New Roman'; font-size: 11pt; font-weight: bold; font-style: italic;\">Эслатма:</span><span style=\"font-family: 'Times New Roman'; font-size: 11pt; font-style: italic;\"> ушбу фармойиш нотариал ҳаракат деб ҳисобланмайди, шунинг учун давлат божи ундирилмайди.</span></p>\n<p style=\"text-align: justify; margin-bottom: 0pt;\"></p>\n</div></div>",
+    "required_id": [
+        2,
+        3,
+        4,
+        6,
+        7,
+        8,
+        11,
+        12,
+        13,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        26
+    ]
+}

@@ -1,0 +1,46 @@
+{
+    "domain": "inheritance",
+    "key": "will_disinherit_legal_heirs_apartment",
+    "title": {
+        "uz": "Қонун бўйича меросхўрларни меросдан маҳрум қилиш шарти билан васиятнома (уй-жой учун)",
+        "ru": "Завещание квартиры с условием лишения наследства законных наследников",
+        "en": "Will bequeathing an apartment while disinheriting statutory heirs"
+    },
+    "description": {
+        "uz": "Васият қилувчи ўз уй-жойини бошқа шахсга васият қилиб, шу билан бирга қонун бўйича барча меросхўрларини меросдан маҳрум қилувчи нотариал васиятнома.",
+        "ru": "Нотариальное завещание, по которому завещатель передаёт квартиру постороннему лицу, одновременно лишая наследства всех законных наследников.",
+        "en": "A notarized will bequeathing the testator's apartment to another person while disinheriting all statutory heirs."
+    },
+    "source_url": "https://yurxizmat.uz/uz/document/264",
+    "required_field": [
+        "Нотариал округ номи",
+        "Фармойиш тасдиқланган сана",
+        "Нотариал идора тўлиқ номи ва манзили, нотариуснинг Ф.И.О",
+        "Васиятнома қолдирувчининг яшаш манзили",
+        "Васиятнома қолдирувчининг рўйхатдан ўтказилган уй рақами",
+        "Васиятнома қолдирувчининг туғилган санаси",
+        "Васиятнома қолдирувчининг Ф.И.О",
+        "Васиятнома қолдирувчининг паспорт серия рақами",
+        "Васиятнома қолдирувчига паспорт берган ҳудуд номи",
+        "Васиятнома қолдирувчига паспорт берилган сана",
+        "Васият қилинадиган уй рақами",
+        "Васият қилинадиган хонадон рақами",
+        "Уй-жойни васиятнома асосида олувчи фуқаронинг Ф.И.О"
+    ],
+    "html_format": "<div class=\"document-view-wrapper\">\n<style>\n.html-preview * {font-family: Times New Roman; font-size: 12pt;}\n.html-preview a.NoteRef {text-decoration: none;}\n.html-preview table td {vertical-align: top;}\n.html-preview table {width: 100%;}\n.html-preview p {white-space: pre-wrap;}\n.html-preview .leading {width: 4px; display: inline-block;}\n.html-preview hr {height: 1px; padding: 0; margin: 1em 0; border: 0; border-top: 1px solid #CCC;}\n.html-preview .Normal {className: Normal; margin-bottom: 10pt;}\n.html-preview .a3 {font-family: 'AntiquaUz'; font-size: 12pt; color: #000000; font-weight: bold;}\n.html-preview .Text {font-family: 'AntiquaUz'; font-size: 12pt;}\n.html-preview .a4 {font-size: 9pt; font-style: italic;}\n</style>\n<div class=\"html-preview\">\n<style>.html-preview{width: 762px}</style><style>.html-preview{margin-top: 76px}</style><style>.html-preview{margin-bottom: 32px}</style><style>.html-preview{padding-left: 81px}</style><style>.html-preview{padding-right: 57px}</style><p class=\"a3\" style=\" text-align: center; margin-top: 0pt;\"><span style=\"font-family: 'Times New Roman'; color: #auto;\">Қонун бўйича меросхўрларни меросдан маҳрум</span></p>\n<p class=\"a3\" style=\" text-align: center; margin-top: 0pt;\"><span style=\"font-family: 'Times New Roman'; color: #auto;\">қилиш шарти билан васиятнома</span></p>\n<p class=\"a3\" style=\" text-align: center; margin-top: 0pt;\"></p>\n<p class=\"Text\" style=\" text-align: center;\"><span class=\"structures structure-2\" style=\"font-family: 'Times New Roman';\">{#2}Нотариал округ номи</span></p>\n<p class=\"a4\" style=\"\"></p>\n<p class=\"Text\" style=\" text-align: center;\"><span class=\"structures structure-3\" style=\"font-family: 'Times New Roman';\">{#3}Фармойиш тасдиқланган сана</span></p>\n<p class=\"Text\" style=\" text-align: center;\"><span class=\"structures structure-4\" style=\"font-family: 'Times New Roman';\">{#4}Нотариал идора тўлиқ номи ва манзили, нотариуснинг Ф.И.О</span></p>\n<p> </p>\n<p class=\"Text\" style=\" text-indent: 45.6px;\"><span style=\"font-family: 'Times New Roman';\">Мен – </span><span class=\"structures structure-5\" style=\"font-family: 'Times New Roman';\">{#5}Васиятнома қолдирувчининг яшаш манзили </span><span style=\"font-family: 'Times New Roman';\"> </span><span class=\"structures structure-8\" style=\"font-family: 'Times New Roman';\">{#8}Васиятнома қолдирувчининг рўйхатдан ўтказилган уй рақами</span><span style=\"font-family: 'Times New Roman';\">-уйда пропискада турувчи – </span><span class=\"structures structure-9\" style=\"font-family: 'Times New Roman';\">{#9}Васиятнома қолдирувчининг туғилган санаси</span><span style=\"font-family: 'Times New Roman';\"> йилда туғилган <span class=\"leading\"></span></span><span class=\"structures structure-10\" style=\"font-family: 'Times New Roman';\">{#10}Васиятнома қолдирувчининг Ф.И.О </span><span style=\"font-family: 'Times New Roman';\"> (паспорт </span><span class=\"structures structure-11\" style=\"font-family: 'Times New Roman';\">{#11}Васиятнома қолдирувчининг паспорт серия рақами</span><span style=\"font-family: 'Times New Roman';\">,<span class=\"leading\"></span></span><span class=\"structures structure-12\" style=\"font-family: 'Times New Roman';\">{#12}Васиятнома қолдирувчига паспорт берган ҳудуд номи</span><span style=\"font-family: 'Times New Roman';\"> <span class=\"leading\"></span>томонидан </span><span class=\"structures structure-13\" style=\"font-family: 'Times New Roman';\">{#13}Васиятнома қолдирувчига паспорт берилган сана</span><span style=\"font-family: 'Times New Roman';\"> йилда берилган) ушбу васиятнома билан қуйидагиларни фармойиш қиламан:</span></p>\n<p class=\"Text\" style=\" text-indent: 45.6px;\"><span style=\"font-family: 'Times New Roman';\">1. Менга мулк ҳуқуқи асосида тегишли бўлган барча мол-мулкимни, уларнинг нималардан иборат бўлишидан ва қаерда жойлашганлигидан қатъи назар, шу жумладан, </span><span class=\"structures structure-5\" style=\"font-family: 'Times New Roman';\">{#5}Васиятнома қолдирувчининг яшаш манзили</span><span style=\"font-family: 'Times New Roman';\">,<span class=\"leading\"></span></span><span class=\"structures structure-15\" style=\"font-family: 'Times New Roman';\">{#15}Васият қилинадиган уй рақами</span><span style=\"font-family: 'Times New Roman';\">-уй, </span><span class=\"structures structure-16\" style=\"font-family: 'Times New Roman';\">{#16}Васият қилинадиган хонадон рақами</span><span style=\"font-family: 'Times New Roman';\">-хонадонни фуқаро </span><span class=\"structures structure-17\" style=\"font-family: 'Times New Roman';\">{#17}Уй-жойни васиятнома асосида олувчи фуқаронинг Ф.И.О</span><span style=\"font-family: 'Times New Roman';\">га васият қиламан.</span></p>\n<p class=\"Text\" style=\" text-indent: 45.6px;\"><span style=\"font-family: 'Times New Roman';\">2. Қонун бўйича меросхўрлар доирасига кирадиган барча меросхўрларимни ушбу васиятнома билан меросдан маҳрум қиламан.</span></p>\n<p class=\"Text\" style=\" text-indent: 45.6px;\"><span style=\"font-family: 'Times New Roman';\">3. Ўзбекистон Республикаси Фуқаролик кодексининг 1120, 1127 ва 1142-моддалари мазмуни менга нотариус томонидан тушунтирилди ва тушунарли.</span></p>\n<p class=\"Text\" style=\" text-indent: 45.6px;\"><span style=\"font-family: 'Times New Roman';\">4. Васиятнома матнини мен – </span><span class=\"structures structure-10\" style=\"font-family: 'Times New Roman';\">{#10}Васиятнома қолдирувчининг Ф.И.О</span><span style=\"font-family: 'Times New Roman';\"> </span><span style=\"font-family: 'Times New Roman';\">тўлиқ ўқиб чиқдим, у менинг сўзларимдан, тўғри ёзилган. Унинг мазмун-моҳияти, ҳуқуқий оқибатлари менга нотариус томонидан тушунтирилди, тушунарли ва у менинг асл мақсадимга мос келади.</span></p>\n<p class=\"Text\" style=\" text-indent: 45.6px;\"><span style=\"font-family: 'Times New Roman';\">5. Васиятнома икки нусхада тузилиб, имзоланди, улардан бир нусхаси </span><span class=\"structures structure-4\" style=\"font-family: 'Times New Roman';\">{#4}Нотариал идора тўлиқ номи ва манзили, нотариуснинг Ф.И.О</span><span style=\"font-family: 'Times New Roman';\"> </span><span style=\"font-family: 'Times New Roman';\">нотариусида сақланади, иккинчи нусхаси васият қилувчига берилди.</span></p>\n<p> </p>\n<p class=\"Text\" style=\" text-indent: 36.6px;\"><span style=\"font-family: 'Times New Roman';\">ИМЗО: _C___________________________________________________________</span></p>\n<p class=\"a4\" style=\"\"></p>\n<p> </p>\n<p class=\"Text\" style=\" text-indent: 36.6px;\"><span style=\"font-family: 'Times New Roman';\">Нотариуснинг тасдиқлов ёзуви.</span></p>\n<p> </p>\n<p> </p>\n</div></div>",
+    "required_id": [
+        2,
+        3,
+        4,
+        5,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        15,
+        16,
+        17
+    ]
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RiskAnalysis",
+  "description": "Output of the risk analysis step for a drafted agreement.",
+  "type": "object",
+  "properties": {
+    "risks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "clause_id": { "type": "string" },
+          "severity": { "type": "string", "enum": ["low", "medium", "high"] },
+          "description": { "type": "string" }
+        },
+        "required": ["clause_id", "severity", "description"]
+      }
+    }
+  },
+  "required": ["risks"]
+}

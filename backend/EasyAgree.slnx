@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/EasyAgree.Api/EasyAgree.Api.csproj" />
+    <Project Path="src/EasyAgree.Application/EasyAgree.Application.csproj" />
+    <Project Path="src/EasyAgree.Contracts/EasyAgree.Contracts.csproj" />
+    <Project Path="src/EasyAgree.Domain/EasyAgree.Domain.csproj" />
+    <Project Path="src/EasyAgree.Infrastructure/EasyAgree.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ApiTests/ApiTests.csproj" />
+    <Project Path="tests/IntegrationTests/IntegrationTests.csproj" />
+    <Project Path="tests/UnitTests/UnitTests.csproj" />
+  </Folder>
+</Solution>
