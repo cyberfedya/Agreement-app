@@ -1,6 +1,13 @@
 class Agreement {
-  const Agreement({required this.id, required this.content});
+  const Agreement({required this.key, required this.html, required this.generatedAt});
 
-  final String id;
-  final String content;
+  final String key;
+  final String html;
+  final DateTime generatedAt;
+
+  factory Agreement.fromJson(Map<String, dynamic> json) => Agreement(
+    key: json['key'] as String,
+    html: json['html'] as String,
+    generatedAt: DateTime.parse(json['generatedAt'] as String),
+  );
 }

@@ -18,3 +18,7 @@ app/ios/Flutter/Generated.xcconfig
 # OS
 .DS_Store
 Thumbs.db
+
+# Secrets
+.env
+.env.*

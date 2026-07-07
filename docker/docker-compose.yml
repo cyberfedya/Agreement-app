@@ -11,6 +11,11 @@ services:
     environment:
       ConnectionStrings__Default: Host=postgres;Database=easyagree;Username=easyagree;Password=easyagree
       Redis__Connection: redis:6379
+      AgreementSeeder__SourcePath: /agreements
+      # Set AI_API_KEY in your shell or an untracked .env file — never commit it.
+      Ai__ApiKey: ${AI_API_KEY:?Set AI_API_KEY in your environment or a .env file}
+    volumes:
+      - ../agreements:/agreements:ro
 
   postgres:
     image: postgres:16-alpine
