@@ -2,18 +2,79 @@ import 'package:flutter/material.dart';
 
 import 'package:app/core/theme/app_tokens.dart';
 
-/// Single accent + neutral surfaces. All component styling is centralized
-/// here — widgets never hardcode colors, radii, or text styles.
+/// Notary-grade blue + white. No purple drift, no tonal noise — every
+/// surface is either white/navy or a step of the single blue accent.
 class AppTheme {
   const AppTheme._();
 
-  static const Color _seed = Color(0xFF4F5BD5); // calm indigo
+  static const Color _blue = Color(0xFF1652D6);
 
-  static ThemeData get light => _build(Brightness.light);
-  static ThemeData get dark => _build(Brightness.dark);
+  static final ColorScheme _light = ColorScheme(
+    brightness: Brightness.light,
+    primary: _blue,
+    onPrimary: Colors.white,
+    primaryContainer: const Color(0xFFE6ECFB),
+    onPrimaryContainer: const Color(0xFF0B3488),
+    secondary: _blue,
+    onSecondary: Colors.white,
+    secondaryContainer: const Color(0xFFE6ECFB),
+    onSecondaryContainer: const Color(0xFF0B3488),
+    tertiary: _blue,
+    onTertiary: Colors.white,
+    error: const Color(0xFFBA1A1A),
+    onError: Colors.white,
+    surface: Colors.white,
+    onSurface: const Color(0xFF10151F),
+    surfaceContainerLowest: Colors.white,
+    surfaceContainerLow: const Color(0xFFF6F8FC),
+    surfaceContainer: const Color(0xFFF0F3FA),
+    surfaceContainerHigh: const Color(0xFFE9EDF7),
+    surfaceContainerHighest: const Color(0xFFE1E7F4),
+    onSurfaceVariant: const Color(0xFF4B5568),
+    outline: const Color(0xFFB7C0D6),
+    outlineVariant: const Color(0xFFDCE2F0),
+    shadow: Colors.black,
+    scrim: Colors.black,
+    inverseSurface: const Color(0xFF10151F),
+    onInverseSurface: Colors.white,
+    inversePrimary: const Color(0xFFAEC2FF),
+  );
 
-  static ThemeData _build(Brightness brightness) {
-    final scheme = ColorScheme.fromSeed(seedColor: _seed, brightness: brightness);
+  static final ColorScheme _dark = ColorScheme(
+    brightness: Brightness.dark,
+    primary: const Color(0xFF7C9CFF),
+    onPrimary: const Color(0xFF072164),
+    primaryContainer: const Color(0xFF15398F),
+    onPrimaryContainer: const Color(0xFFDCE4FF),
+    secondary: const Color(0xFF7C9CFF),
+    onSecondary: const Color(0xFF072164),
+    secondaryContainer: const Color(0xFF15398F),
+    onSecondaryContainer: const Color(0xFFDCE4FF),
+    tertiary: const Color(0xFF7C9CFF),
+    onTertiary: const Color(0xFF072164),
+    error: const Color(0xFFFFB4AB),
+    onError: const Color(0xFF690005),
+    surface: const Color(0xFF0B1220),
+    onSurface: const Color(0xFFE3E8F4),
+    surfaceContainerLowest: const Color(0xFF060A13),
+    surfaceContainerLow: const Color(0xFF101928),
+    surfaceContainer: const Color(0xFF141E30),
+    surfaceContainerHigh: const Color(0xFF1B2740),
+    surfaceContainerHighest: const Color(0xFF23304C),
+    onSurfaceVariant: const Color(0xFFA9B3C9),
+    outline: const Color(0xFF4A5670),
+    outlineVariant: const Color(0xFF2A3550),
+    shadow: Colors.black,
+    scrim: Colors.black,
+    inverseSurface: const Color(0xFFE3E8F4),
+    onInverseSurface: const Color(0xFF10151F),
+    inversePrimary: _blue,
+  );
+
+  static ThemeData get light => _build(_light);
+  static ThemeData get dark => _build(_dark);
+
+  static ThemeData _build(ColorScheme scheme) {
     final base = ThemeData(useMaterial3: true, colorScheme: scheme);
 
     final textTheme = base.textTheme.copyWith(

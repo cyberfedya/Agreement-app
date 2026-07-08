@@ -43,5 +43,6 @@ using (var startupScope = app.Services.CreateScope())
 }
 
 app.MapTemplateEndpoints();
+app.MapDealEndpoints();
 
 app.Run();

@@ -21,10 +21,10 @@ class ApiClient {
     return _decode(response);
   }
 
-  Future<dynamic> postJson(String path, {Object? body}) async {
+  Future<dynamic> postJson(String path, {Object? body, Map<String, String>? query}) async {
     final response = await _send(
       () => _http.post(
-        _uri(path),
+        _uri(path, query),
         headers: const {'Content-Type': 'application/json'},
         body: jsonEncode(body),
       ),

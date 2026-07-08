@@ -1,6 +1,7 @@
 import 'package:app/core/network/api_client.dart';
 import 'package:app/core/network/api_exception.dart';
 import 'package:app/features/agreement/domain/agreement.dart';
+import 'package:app/features/deal/domain/deal.dart';
 import 'package:app/features/questionnaire/domain/question.dart';
 import 'package:app/features/templates/domain/template.dart';
 
@@ -12,25 +13,48 @@ class ApiService {
 
   final ApiClient _client;
 
-  Future<List<TemplateSummary>> getTemplates({String lang = 'uz'}) async {
+  Future<List<TemplateSummary>> getTemplates({String lang = 'ru'}) async {
     final json = await _client.getJson('/api/templates', query: {'lang': lang});
     return (json as List).cast<Map<String, dynamic>>().map(TemplateSummary.fromJson).toList();
   }
 
-  Future<TemplateDetail> getTemplate(String key, {String lang = 'uz'}) async {
+  Future<TemplateDetail> getTemplate(String key, {String lang = 'ru'}) async {
     final json = await _client.getJson('/api/templates/$key', query: {'lang': lang});
     return TemplateDetail.fromJson(json as Map<String, dynamic>);
   }
 
+  /// Lightweight preview only — the interview flow uses [getDealQuestions].
   Future<List<Question>> getQuestions(String key) async {
     final json = await _client.getJson('/api/templates/$key/questions');
     return (json as List).cast<Map<String, dynamic>>().map(Question.fromJson).toList();
   }
 
-  Future<Agreement> generateAgreement(String key, Map<int, String> answers) async {
+  /// Matches free-form [text] (or a direct [templateKey]) to a template and
+  /// opens a [Deal] for it. Returns null when the AI found no reasonable
+  /// match (HTTP 422) — callers fall back to manual template selection.
+  Future<Deal?> createDeal({String? text, String? templateKey, String lang = 'ru'}) async {
     try {
       final json = await _client.postJson(
-        '/api/templates/$key/generate',
+        '/api/deals',
+        query: {'lang': lang},
+        body: {'text': text, 'templateKey': templateKey},
+      );
+      return Deal.fromJson(json as Map<String, dynamic>);
+    } on ServerException catch (e) {
+      if (e.statusCode == 422) return null;
+      rethrow;
+    }
+  }
+
+  Future<List<Question>> getDealQuestions(String dealId) async {
+    final json = await _client.getJson('/api/deals/$dealId/questions');
+    return (json as List).cast<Map<String, dynamic>>().map(Question.fromJson).toList();
+  }
+
+  Future<Agreement> generateFromDeal(String dealId, Map<int, String> answers) async {
+    try {
+      final json = await _client.postJson(
+        '/api/deals/$dealId/generate',
         body: {'answers': answers.map((fieldId, value) => MapEntry(fieldId.toString(), value))},
       );
       return Agreement.fromJson(json as Map<String, dynamic>);

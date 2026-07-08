@@ -12,10 +12,13 @@ import 'package:app/features/templates/presentation/widgets/category_chip.dart';
 import 'package:app/features/templates/providers/templates_list_provider.dart';
 
 class TemplatesListPage extends StatefulWidget {
-  const TemplatesListPage({super.key, this.initialCategory});
+  const TemplatesListPage({super.key, this.initialCategory, this.initialQuery});
 
   /// Pre-selects a category filter (used when arriving from Home).
   final String? initialCategory;
+
+  /// Pre-fills the search box (used when arriving from the Home composer).
+  final String? initialQuery;
 
   @override
   State<TemplatesListPage> createState() => _TemplatesListPageState();
@@ -30,6 +33,10 @@ class _TemplatesListPageState extends State<TemplatesListPage> {
   void initState() {
     super.initState();
     _selectedCategory = widget.initialCategory;
+    if (widget.initialQuery != null && widget.initialQuery!.trim().isNotEmpty) {
+      _searchController.text = widget.initialQuery!.trim();
+      _query = _searchController.text.toLowerCase();
+    }
     final provider = context.read<TemplatesListProvider>();
     Future.microtask(provider.load);
     _searchController.addListener(() {

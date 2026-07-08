@@ -6,8 +6,10 @@ import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/core/widgets/app_widgets.dart';
 import 'package:app/core/widgets/bottom_action_bar.dart';
 import 'package:app/core/widgets/skeletons.dart';
+import 'package:app/features/deal/data/deal_repository.dart';
 import 'package:app/features/templates/providers/template_detail_provider.dart';
 import 'package:app/shared/extensions/string_extensions.dart';
+import 'package:app/shared/models/result.dart';
 import 'package:app/shared/widgets/primary_button.dart';
 
 class TemplateDetailPage extends StatefulWidget {
@@ -20,11 +22,30 @@ class TemplateDetailPage extends StatefulWidget {
 }
 
 class _TemplateDetailPageState extends State<TemplateDetailPage> {
+  bool _creatingDeal = false;
+
   @override
   void initState() {
     super.initState();
     final provider = context.read<TemplateDetailProvider>();
     Future.microtask(() => provider.load(widget.templateKey));
+  }
+
+  Future<void> _continue(String templateTitle) async {
+    setState(() => _creatingDeal = true);
+    final result = await context.read<DealRepository>().createFromTemplate(widget.templateKey);
+    if (!mounted) return;
+    setState(() => _creatingDeal = false);
+
+    switch (result) {
+      case Success(:final value):
+        Navigator.of(context).pushNamed(
+          AppRoutes.questionnaire,
+          arguments: QuestionnaireRouteArgs(dealId: value.id, templateTitle: templateTitle),
+        );
+      case Failure(:final message):
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    }
   }
 
   @override
@@ -128,8 +149,8 @@ class _TemplateDetailPageState extends State<TemplateDetailPage> {
             child: PrimaryButton(
               label: 'Continue',
               icon: Icons.arrow_forward,
-              onPressed: () => Navigator.of(context)
-                  .pushNamed(AppRoutes.questionnaire, arguments: widget.templateKey),
+              loading: _creatingDeal,
+              onPressed: () => _continue(provider.template!.title),
             ),
           );
         },

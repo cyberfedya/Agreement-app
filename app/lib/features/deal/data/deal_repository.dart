@@ -1,6 +1,44 @@
+import 'package:app/core/network/api_exception.dart';
+import 'package:app/core/services/api_service.dart';
 import 'package:app/features/deal/domain/deal.dart';
+import 'package:app/shared/models/result.dart';
 
 abstract class DealRepository {
-  Future<Deal> createDeal();
-  Future<Deal> getDeal(String id);
+  /// Matches free-form [text] to a template via the AI and opens a deal for
+  /// it. `Success(null)` means the AI found no reasonable match — the
+  /// caller should fall back to manual template selection.
+  Future<Result<Deal?>> createFromText(String text);
+
+  /// Opens a deal for a manually-picked template — same downstream flow as
+  /// [createFromText], just skipping AI classification.
+  Future<Result<Deal>> createFromTemplate(String templateKey);
+}
+
+class ApiDealRepository implements DealRepository {
+  ApiDealRepository(this._api);
+
+  final ApiService _api;
+
+  @override
+  Future<Result<Deal?>> createFromText(String text) async {
+    try {
+      return Success(await _api.createDeal(text: text));
+    } on ApiException catch (e) {
+      return Failure(e.message);
+    }
+  }
+
+  @override
+  Future<Result<Deal>> createFromTemplate(String templateKey) async {
+    try {
+      final deal = await _api.createDeal(templateKey: templateKey);
+      // The template key came from our own catalog, so a null (no-match)
+      // response here would mean the backend and app disagree about what
+      // exists — treat it as a server error, not a normal outcome.
+      if (deal == null) return const Failure('Could not open this template.');
+      return Success(deal);
+    } on ApiException catch (e) {
+      return Failure(e.message);
+    }
+  }
 }

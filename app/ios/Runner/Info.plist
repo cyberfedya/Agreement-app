@@ -26,6 +26,12 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>EasyAgree uses the microphone so you can dictate the terms of your agreement.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>EasyAgree transcribes your speech to fill out the agreement for you.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>EasyAgree uses the camera to scan agreement QR codes.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

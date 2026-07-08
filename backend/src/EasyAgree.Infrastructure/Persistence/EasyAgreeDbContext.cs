@@ -11,6 +11,8 @@ public class EasyAgreeDbContext(DbContextOptions<EasyAgreeDbContext> options) : 
 
     public DbSet<AgreementTemplateField> AgreementTemplateFields => Set<AgreementTemplateField>();
 
+    public DbSet<Deal> Deals => Set<Deal>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(EasyAgreeDbContext).Assembly);

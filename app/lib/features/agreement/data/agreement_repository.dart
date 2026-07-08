@@ -4,7 +4,7 @@ import 'package:app/features/agreement/domain/agreement.dart';
 import 'package:app/shared/models/result.dart';
 
 abstract class AgreementRepository {
-  Future<Result<Agreement>> generate(String templateKey, Map<int, String> answers);
+  Future<Result<Agreement>> generate(String dealId, Map<int, String> answers);
 }
 
 class ApiAgreementRepository implements AgreementRepository {
@@ -13,9 +13,9 @@ class ApiAgreementRepository implements AgreementRepository {
   final ApiService _api;
 
   @override
-  Future<Result<Agreement>> generate(String templateKey, Map<int, String> answers) async {
+  Future<Result<Agreement>> generate(String dealId, Map<int, String> answers) async {
     try {
-      return Success(await _api.generateAgreement(templateKey, answers));
+      return Success(await _api.generateFromDeal(dealId, answers));
     } on MissingFieldsException catch (e) {
       return Failure(e.message);
     } on ApiException catch (e) {

@@ -10,9 +10,7 @@ using Microsoft.Extensions.Options;
 using OpenAI;
 using OpenAI.Chat;
 using System.ClientModel;
-
-namespace EasyAgree.Infrastructure;
-
+namespace EasyAgree.Infrastructure; 
 public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
@@ -30,6 +28,7 @@ public static class DependencyInjection
         services.AddScoped<AgreementSeedService>();
 
         services.AddScoped<IAgreementTemplateRepository, AgreementTemplateRepository>();
+        services.AddScoped<IDealRepository, DealRepository>();
 
         services.Configure<AiOptions>(configuration.GetSection(AiOptions.SectionName));
         services.AddSingleton(sp =>
@@ -44,4 +43,4 @@ public static class DependencyInjection
 
         return services;
     }
-}
+} 

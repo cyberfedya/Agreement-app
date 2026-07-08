@@ -1,3 +1,4 @@
+using EasyAgree.Application.Deals;
 using EasyAgree.Application.Templates;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,6 +12,11 @@ public static class DependencyInjection
         services.AddScoped<GetTemplateUseCase>();
         services.AddScoped<GetQuestionsUseCase>();
         services.AddScoped<GenerateAgreementUseCase>();
+
+        services.AddScoped<CreateDealUseCase>();
+        services.AddScoped<GetDealUseCase>();
+        services.AddScoped<GetDealQuestionsUseCase>();
+        services.AddScoped<GenerateFromDealUseCase>();
 
         return services;
     }

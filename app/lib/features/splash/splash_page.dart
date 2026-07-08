@@ -21,8 +21,8 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
   @override
   void initState() {
     super.initState();
-    _timer = Timer(const Duration(milliseconds: 600), () {
-      Navigator.of(context).pushReplacementNamed(AppRoutes.home);
+    _timer = Timer(const Duration(milliseconds: 700), () {
+      Navigator.of(context).pushReplacementNamed(AppRoutes.login);
     });
   }
 

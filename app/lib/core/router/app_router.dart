@@ -2,27 +2,60 @@ import 'package:flutter/material.dart';
 
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/core/widgets/app_widgets.dart';
+import 'package:app/features/agreement/presentation/agreement_completed_page.dart';
 import 'package:app/features/agreement/presentation/agreement_page.dart';
+import 'package:app/features/agreement/presentation/agreement_sign_page.dart';
+import 'package:app/features/ai_processing/presentation/ai_processing_page.dart';
+import 'package:app/features/auth/presentation/auth_page.dart';
 import 'package:app/features/home/presentation/home_page.dart';
 import 'package:app/features/questionnaire/presentation/pages/questionnaire_page.dart';
+import 'package:app/features/qr/presentation/qr_page.dart';
 import 'package:app/features/splash/splash_page.dart';
 import 'package:app/features/templates/presentation/template_detail_page.dart';
 import 'package:app/features/templates/presentation/templates_list_page.dart';
 
 abstract class AppRoutes {
   static const String splash = '/';
+  static const String login = '/login';
   static const String home = '/home';
 
-  /// Optional `String` argument: pre-selected category.
+  /// Optional [TemplatesRouteArgs] argument.
   static const String templates = '/templates';
 
   /// Required `String` argument: template key.
   static const String templateDetail = '/templates/detail';
 
-  /// Required `String` argument: template key.
+  /// Required [QuestionnaireRouteArgs] argument.
   static const String questionnaire = '/questionnaire';
 
   static const String agreement = '/agreement';
+
+  /// Required `String` argument: the scanned agreement key. Second-party
+  /// document view + demo MyID identification + signing.
+  static const String agreementSign = '/agreement/sign';
+
+  static const String agreementCompleted = '/agreement/completed';
+
+  static const String qrScan = '/qr-scan';
+
+  /// Required `String` argument: the user's free-form request text.
+  static const String aiProcessing = '/ai-processing';
+}
+
+/// Arguments for [AppRoutes.templates].
+class TemplatesRouteArgs {
+  const TemplatesRouteArgs({this.category, this.query});
+
+  final String? category;
+  final String? query;
+}
+
+/// Arguments for [AppRoutes.questionnaire].
+class QuestionnaireRouteArgs {
+  const QuestionnaireRouteArgs({required this.dealId, required this.templateTitle});
+
+  final String dealId;
+  final String templateTitle;
 }
 
 class AppRouter {
@@ -32,16 +65,34 @@ class AppRouter {
     switch (settings.name) {
       case AppRoutes.splash:
         return _fadeRoute(const SplashPage(), settings);
+      case AppRoutes.login:
+        return _fadeRoute(const AuthPage(), settings);
       case AppRoutes.home:
         return _fadeRoute(const HomePage(), settings);
       case AppRoutes.templates:
-        return _fadeRoute(TemplatesListPage(initialCategory: settings.arguments as String?), settings);
+        final args = settings.arguments as TemplatesRouteArgs?;
+        return _fadeRoute(
+          TemplatesListPage(initialCategory: args?.category, initialQuery: args?.query),
+          settings,
+        );
       case AppRoutes.templateDetail:
         return _fadeRoute(TemplateDetailPage(templateKey: settings.arguments as String), settings);
       case AppRoutes.questionnaire:
-        return _fadeRoute(QuestionnairePage(templateKey: settings.arguments as String), settings);
+        final args = settings.arguments as QuestionnaireRouteArgs;
+        return _fadeRoute(
+          QuestionnairePage(dealId: args.dealId, templateTitle: args.templateTitle),
+          settings,
+        );
       case AppRoutes.agreement:
         return _fadeRoute(const AgreementPage(), settings);
+      case AppRoutes.agreementSign:
+        return _fadeRoute(AgreementSignPage(agreementKey: settings.arguments as String), settings);
+      case AppRoutes.agreementCompleted:
+        return _fadeRoute(const AgreementCompletedPage(), settings);
+      case AppRoutes.qrScan:
+        return _fadeRoute(const QrPage(), settings);
+      case AppRoutes.aiProcessing:
+        return _fadeRoute(AiProcessingPage(requestText: settings.arguments as String), settings);
       default:
         return _fadeRoute(
           Scaffold(

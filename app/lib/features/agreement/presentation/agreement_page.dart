@@ -2,17 +2,54 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:provider/provider.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 import 'package:app/core/router/app_router.dart';
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/core/widgets/app_widgets.dart';
 import 'package:app/core/widgets/bottom_action_bar.dart';
 import 'package:app/features/agreement/domain/agreement.dart';
+import 'package:app/features/agreement/domain/agreement_qr.dart';
 import 'package:app/features/agreement/providers/agreement_provider.dart';
 import 'package:app/shared/widgets/primary_button.dart';
 
-class AgreementPage extends StatelessWidget {
+/// Shown right after generation: the document plus a QR code the second
+/// party scans to view and sign it. Auto-advances to
+/// [AppRoutes.agreementCompleted] the moment [AgreementProvider] reports a
+/// signature (see that page's docs for why signing is same-session-only).
+class AgreementPage extends StatefulWidget {
   const AgreementPage({super.key});
+
+  @override
+  State<AgreementPage> createState() => _AgreementPageState();
+}
+
+class _AgreementPageState extends State<AgreementPage> {
+  // Cached rather than looked up via context.read() in dispose(): by then
+  // the element is deactivated and ancestor lookups are unsafe.
+  AgreementProvider? _provider;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final provider = context.read<AgreementProvider>();
+    if (!identical(_provider, provider)) {
+      _provider?.removeListener(_onProviderChanged);
+      _provider = provider..addListener(_onProviderChanged);
+    }
+  }
+
+  @override
+  void dispose() {
+    _provider?.removeListener(_onProviderChanged);
+    super.dispose();
+  }
+
+  void _onProviderChanged() {
+    if (_provider!.isFullySigned) {
+      Navigator.of(context).pushReplacementNamed(AppRoutes.agreementCompleted);
+    }
+  }
 
   /// Rough HTML → plain-text conversion for the clipboard.
   static String _plainText(String html) => html
@@ -54,7 +91,7 @@ class AgreementPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Preview')),
+      appBar: AppBar(title: const Text('Договор')),
       body: Consumer<AgreementProvider>(
         builder: (context, provider, _) {
           final agreement = provider.agreement;
@@ -69,13 +106,54 @@ class AgreementPage extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.all(Insets.x20),
               children: [
+                Container(
+                  padding: const EdgeInsets.all(Insets.x16),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primaryContainer,
+                    borderRadius: Corners.lgRadius,
+                  ),
+                  child: Row( 
+                    children: [
+                      Icon(Icons.hourglass_top_rounded, size: 20, color: theme.colorScheme.onPrimaryContainer),
+                      const SizedBox(width: Insets.x12),
+                      Expanded(
+                        child: Text(
+                          'Ожидает подпись второй стороны',
+                          style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.onPrimaryContainer),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: Insets.x24),
+
+                Center(
+                  child: Container(
+                    padding: const EdgeInsets.all(Insets.x16),
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: Corners.lgRadius),
+                    child: QrImageView(
+                      data: buildAgreementQrPayload(agreement.key),
+                      size: 200,
+                      backgroundColor: Colors.white,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: Insets.x12),
+                Text(
+                  'Покажите этот QR-код второй стороне — она отсканирует его, '
+                  'пройдёт идентификацию через MyID и подпишет договор.',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                ),
+                const SizedBox(height: Insets.x24),
+
                 Row(
                   children: [
                     Icon(Icons.verified_outlined, size: 18, color: theme.colorScheme.primary),
                     const SizedBox(width: Insets.x8),
                     Expanded(
                       child: Text(
-                        'Generated ${TimeOfDay.fromDateTime(agreement.generatedAt.toLocal()).format(context)}',
+                        'Создан ${TimeOfDay.fromDateTime(agreement.generatedAt.toLocal()).format(context)}',
                         style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                       ),
                     ),
@@ -112,24 +190,36 @@ class AgreementPage extends StatelessWidget {
       ),
       bottomNavigationBar: Consumer<AgreementProvider>(
         builder: (context, provider, _) {
-          if (provider.agreement == null) return const SizedBox.shrink();
+          final agreement = provider.agreement;
+          if (agreement == null) return const SizedBox.shrink();
           return BottomActionBar(
-            child: Row(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () => _copy(context, provider.agreement!),
-                    icon: const Icon(Icons.copy_outlined, size: 18),
-                    label: const Text('Copy'),
-                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () => _copy(context, agreement),
+                        icon: const Icon(Icons.copy_outlined, size: 18),
+                        label: const Text('Copy'),
+                      ),
+                    ),
+                    const SizedBox(width: Insets.x12),
+                    Expanded(
+                      child: PrimaryButton(
+                        label: 'На главную',
+                        onPressed: () => Navigator.of(context)
+                            .pushNamedAndRemoveUntil(AppRoutes.home, (route) => false),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: Insets.x12),
-                Expanded(
-                  child: PrimaryButton(
-                    label: 'Done',
-                    onPressed: () => Navigator.of(context)
-                        .pushNamedAndRemoveUntil(AppRoutes.home, (route) => false),
-                  ),
+                const SizedBox(height: Insets.x8),
+                TextButton(
+                  onPressed: () => Navigator.of(context)
+                      .pushNamed(AppRoutes.agreementSign, arguments: agreement.key),
+                  child: const Text('Демо: подписать как вторая сторона'),
                 ),
               ],
             ),

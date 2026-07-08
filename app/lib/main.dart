@@ -8,6 +8,7 @@ import 'package:app/core/services/api_service.dart';
 import 'package:app/core/theme/app_theme.dart';
 import 'package:app/features/agreement/data/agreement_repository.dart';
 import 'package:app/features/agreement/providers/agreement_provider.dart';
+import 'package:app/features/deal/data/deal_repository.dart';
 import 'package:app/features/questionnaire/data/questionnaire_repository.dart';
 import 'package:app/features/questionnaire/providers/questionnaire_provider.dart';
 import 'package:app/features/templates/data/template_repository.dart';
@@ -37,6 +38,7 @@ class EasyAgreeApp extends StatelessWidget {
           create: (ctx) => ApiQuestionnaireRepository(ctx.read<ApiService>()),
         ),
         Provider<AgreementRepository>(create: (ctx) => ApiAgreementRepository(ctx.read<ApiService>())),
+        Provider<DealRepository>(create: (ctx) => ApiDealRepository(ctx.read<ApiService>())),
         ChangeNotifierProvider(create: (ctx) => TemplatesListProvider(ctx.read<TemplateRepository>())),
         ChangeNotifierProvider(
           create: (ctx) => TemplateDetailProvider(
@@ -52,7 +54,9 @@ class EasyAgreeApp extends StatelessWidget {
       child: MaterialApp(
         title: AppConfig.appName,
         theme: AppTheme.light,
-        darkTheme: AppTheme.dark,
+        // Notary-style white/blue is the whole brand — never let the
+        // device's system dark mode override it.
+        themeMode: ThemeMode.light,
         initialRoute: AppRoutes.splash,
         onGenerateRoute: AppRouter.onGenerateRoute,
       ),

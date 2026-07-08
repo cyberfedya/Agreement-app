@@ -4,12 +4,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
 import 'package:app/core/router/app_router.dart';
-import 'package:app/core/widgets/app_search_bar.dart';
 import 'package:app/core/widgets/app_widgets.dart';
 import 'package:app/features/agreement/data/agreement_repository.dart';
 import 'package:app/features/agreement/domain/agreement.dart';
 import 'package:app/features/agreement/presentation/agreement_page.dart';
 import 'package:app/features/agreement/providers/agreement_provider.dart';
+import 'package:app/features/deal/data/deal_repository.dart';
+import 'package:app/features/deal/domain/deal.dart';
 import 'package:app/features/home/presentation/home_page.dart';
 import 'package:app/features/questionnaire/data/questionnaire_repository.dart';
 import 'package:app/features/questionnaire/domain/question.dart';
@@ -57,6 +58,9 @@ class FakeQuestionnaireRepository implements QuestionnaireRepository {
 
   @override
   Future<Result<List<Question>>> getQuestions(String templateKey) async => result;
+
+  @override
+  Future<Result<List<Question>>> getQuestionsForDeal(String dealId) async => result;
 }
 
 class FakeAgreementRepository implements AgreementRepository {
@@ -65,7 +69,27 @@ class FakeAgreementRepository implements AgreementRepository {
   final Result<Agreement> result;
 
   @override
-  Future<Result<Agreement>> generate(String templateKey, Map<int, String> answers) async => result;
+  Future<Result<Agreement>> generate(String dealId, Map<int, String> answers) async => result;
+}
+
+/// Defaults to "no AI match" for [createFromText] (so the AI Processing
+/// screen's fallback path is what most tests exercise) and a fixed deal for
+/// [createFromTemplate] (the manual picker's path).
+class FakeDealRepository implements DealRepository {
+  FakeDealRepository({this.createFromTextResult, this.createFromTemplateResult});
+
+  Result<Deal?>? createFromTextResult;
+  Result<Deal>? createFromTemplateResult;
+
+  @override
+  Future<Result<Deal?>> createFromText(String text) async => createFromTextResult ?? const Success(null);
+
+  @override
+  Future<Result<Deal>> createFromTemplate(String templateKey) async =>
+      createFromTemplateResult ??
+      Success(
+        Deal(id: 'test_deal', templateKey: templateKey, templateTitle: 'Test Agreement Title', status: DealStatus.draft),
+      );
 }
 
 const _template = TemplateSummary(
@@ -92,9 +116,12 @@ Widget buildTestApp({
   required TemplateRepository templateRepository,
   required QuestionnaireRepository questionnaireRepository,
   required AgreementRepository agreementRepository,
+  DealRepository? dealRepository,
 }) {
   return MultiProvider(
     providers: [
+      Provider<TemplateRepository>.value(value: templateRepository),
+      Provider<DealRepository>.value(value: dealRepository ?? FakeDealRepository()),
       ChangeNotifierProvider(create: (_) => TemplatesListProvider(templateRepository)),
       ChangeNotifierProvider(
         create: (_) => TemplateDetailProvider(templateRepository, questionnaireRepository),
@@ -109,7 +136,8 @@ Widget buildTestApp({
   );
 }
 
-/// Pumps past Splash's fixed 600ms auto-navigate timer.
+/// Pumps past Splash's fixed 700ms auto-navigate timer, landing on the
+/// demo MyID login screen.
 ///
 /// Deliberately not using `initialRoute: AppRoutes.home` as a shortcut:
 /// Flutter's default initial-route handling splits any multi-segment path
@@ -120,9 +148,32 @@ Future<void> _skipSplash(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
-/// Home -> Templates list (via the search shortcut near the top of Home).
+/// Completes the demo MyID login (fixed 1400ms simulated verification),
+/// landing on Home.
+Future<void> _completeLogin(WidgetTester tester) async {
+  await tester.tap(find.widgetWithText(FilledButton, 'Продолжить с MyID'));
+  await tester.pump(const Duration(milliseconds: 1400));
+  await tester.pumpAndSettle();
+}
+
+/// Home -> AI Processing (fixed ~2650ms simulated analysis) -> Templates
+/// list, pre-searched with whatever the user typed into the composer.
+///
+/// Uses a request that matches nothing in the fake catalog, so AI
+/// Processing falls back to the manual template picker instead of jumping
+/// straight to the questionnaire — that direct-match path is covered by
+/// `template_matcher_test.dart` instead.
 Future<void> _openTemplatesList(WidgetTester tester) async {
-  await tester.tap(find.byType(AppSearchBar).first);
+  await tester.enterText(find.byType(TextField).first, 'zzqxxnomatch');
+  await tester.pump();
+  await tester.tap(find.widgetWithText(FilledButton, 'Создать договор'));
+  await tester.pumpAndSettle();
+  await tester.pump(const Duration(milliseconds: 2650));
+  await tester.pumpAndSettle();
+
+  // Landed on the picker with the (non-matching) request pre-filled as a
+  // search query — clear it so the fake catalog's templates are visible.
+  await tester.enterText(find.byType(TextField).first, '');
   await tester.pumpAndSettle();
 }
 
@@ -144,6 +195,7 @@ void main() {
       ),
     );
     await _skipSplash(tester);
+    await _completeLogin(tester);
     expect(find.byType(HomePage), findsOneWidget);
 
     await _openTemplatesList(tester);
@@ -165,28 +217,68 @@ void main() {
     expect(find.text('Full name'), findsOneWidget);
     expect(find.text('1 of 2'), findsOneWidget);
 
-    // Next is disabled until the required question is answered.
-    expect(_button(tester, 'Next').onPressed, isNull);
+    // Next ("Далее") is disabled until the required question is answered.
+    expect(_button(tester, 'Далее').onPressed, isNull);
 
     final answerField = find.descendant(of: find.byType(QuestionCard), matching: find.byType(TextField));
     await tester.enterText(answerField, 'Aliyev Vali');
     await tester.pump();
-    expect(_button(tester, 'Next').onPressed, isNotNull);
+    expect(_button(tester, 'Далее').onPressed, isNotNull);
 
-    await tester.tap(find.widgetWithText(FilledButton, 'Next'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Далее'));
     await tester.pumpAndSettle();
 
     expect(find.text('Optional note'), findsOneWidget);
     expect(find.text('2 of 2'), findsOneWidget);
 
-    // Second question is optional, so Generate is already enabled.
-    expect(_button(tester, 'Generate').onPressed, isNotNull);
+    // Second question is optional, so the submit button is already enabled.
+    expect(_button(tester, 'Создать договор').onPressed, isNotNull);
 
-    await tester.tap(find.widgetWithText(FilledButton, 'Generate'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Создать договор'));
     await tester.pumpAndSettle();
 
     expect(find.byType(AgreementPage), findsOneWidget);
+    // The new QR/status header pushes the document preview below the
+    // sliver's build cache, so scroll to it rather than assume it's built.
+    await tester.scrollUntilVisible(find.byType(Html), 300, scrollable: find.byType(Scrollable).first);
     expect(find.byType(Html), findsOneWidget);
+  });
+
+  testWidgets('AI match on Home goes straight to the interview, never through Agreements', (tester) async {
+    const matchedDeal = Deal(
+      id: 'deal-1',
+      templateKey: 'vehicle_sale_agreement',
+      templateTitle: 'Договор купли-продажи автотранспортного средства',
+      status: DealStatus.draft,
+    );
+    await tester.pumpWidget(
+      buildTestApp(
+        templateRepository: FakeTemplateRepository(
+          listResult: const Success([_template]),
+          detailResult: const Success(_templateDetail),
+        ),
+        questionnaireRepository: FakeQuestionnaireRepository(const Success(_questions)),
+        agreementRepository: FakeAgreementRepository(
+          Success(Agreement(key: 'deal-1', html: '<p>x</p>', generatedAt: DateTime(2026))),
+        ),
+        dealRepository: FakeDealRepository(createFromTextResult: const Success(matchedDeal)),
+      ),
+    );
+    await _skipSplash(tester);
+    await _completeLogin(tester);
+
+    await tester.enterText(find.byType(TextField).first, 'Я хочу продать свою машину');
+    await tester.pump();
+    await tester.tap(find.widgetWithText(FilledButton, 'Создать договор'));
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 2650));
+    await tester.pumpAndSettle();
+
+    // Straight to the interview for the matched deal — Agreements (the
+    // template picker) never appears.
+    expect(find.byType(QuestionnairePage), findsOneWidget);
+    expect(find.byType(TemplatesListPage), findsNothing);
+    expect(find.text(matchedDeal.templateTitle), findsOneWidget);
   });
 
   testWidgets('templates list surfaces a friendly error with retry', (tester) async {
@@ -200,6 +292,7 @@ void main() {
       ),
     );
     await _skipSplash(tester);
+    await _completeLogin(tester);
 
     await _openTemplatesList(tester);
     expect(find.byType(AppErrorView), findsWidgets);
@@ -218,6 +311,7 @@ void main() {
       ),
     );
     await _skipSplash(tester);
+    await _completeLogin(tester);
 
     await _openTemplatesList(tester);
     expect(find.byType(AppEmptyView), findsOneWidget);
@@ -237,6 +331,7 @@ void main() {
       ),
     );
     await _skipSplash(tester);
+    await _completeLogin(tester);
 
     await _openTemplatesList(tester);
     await tester.tap(find.byType(AgreementCard).first);
@@ -247,10 +342,10 @@ void main() {
     final answerField = find.descendant(of: find.byType(QuestionCard), matching: find.byType(TextField));
     await tester.enterText(answerField, 'Aliyev Vali');
     await tester.pump();
-    await tester.tap(find.widgetWithText(FilledButton, 'Next'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Далее'));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.widgetWithText(FilledButton, 'Generate'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Создать договор'));
     await tester.pumpAndSettle();
 
     expect(find.byType(QuestionnairePage), findsOneWidget);
@@ -272,6 +367,7 @@ void main() {
       ),
     );
     await _skipSplash(tester);
+    await _completeLogin(tester);
     await _openTemplatesList(tester);
     await tester.tap(find.byType(AgreementCard).first);
     await tester.pumpAndSettle();
@@ -281,11 +377,11 @@ void main() {
     final answerField = find.descendant(of: find.byType(QuestionCard), matching: find.byType(TextField));
     await tester.enterText(answerField, 'Saved answer');
     await tester.pump();
-    await tester.tap(find.widgetWithText(FilledButton, 'Next'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Далее'));
     await tester.pumpAndSettle();
     expect(find.text('2 of 2'), findsOneWidget);
 
-    await tester.tap(find.widgetWithText(OutlinedButton, 'Back'));
+    await tester.tap(find.byTooltip('Предыдущий вопрос'));
     await tester.pumpAndSettle();
 
     expect(find.text('1 of 2'), findsOneWidget);
