@@ -32,6 +32,22 @@ class UploadedDocument {
   bool get isProcessed => status == 'Processed';
   bool get isFailed => status == 'Failed';
 
+  /// Returns a copy with [key] set to a user-confirmed value (confidence
+  /// 1.0 - a human just looked at the document and typed it themselves).
+  UploadedDocument withField(String key, String value) {
+    final updated = Map<String, ExtractedField>.from(fields);
+    updated[key] = ExtractedField(value: value, confidence: 1);
+    return UploadedDocument(
+      id: id,
+      fileName: fileName,
+      documentType: documentType,
+      typeConfidence: typeConfidence,
+      status: status,
+      errorMessage: errorMessage,
+      fields: updated,
+    );
+  }
+
   factory UploadedDocument.fromJson(Map<String, dynamic> json) => UploadedDocument(
     id: json['id'] as String,
     fileName: json['fileName'] as String,

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-
 import 'package:app/core/router/app_router.dart';
 import 'package:app/core/services/tts_service.dart';
 import 'package:app/core/theme/app_tokens.dart';
@@ -322,51 +321,192 @@ class _UploadedDocumentCard extends StatelessWidget {
   final UploadedDocument document;
   final VoidCallback onDelete;
 
+  void _openEditSheet(BuildContext context) {
+    final provider = context.read<DocumentUploadProvider>();
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (sheetContext) => _EditFieldsSheet(document: document, provider: provider),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.all(Insets.x16),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerLow,
+    final canEdit = document.isProcessed && document.fields.isNotEmpty;
+    return Material(
+      color: theme.colorScheme.surfaceContainerLow,
+      borderRadius: Corners.lgRadius,
+      child: InkWell(
+        onTap: canEdit ? () => _openEditSheet(context) : null,
         borderRadius: Corners.lgRadius,
-        border: Border.all(color: theme.colorScheme.outlineVariant),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            document.isProcessed
-                ? Icons.check_circle_outline
-                : document.isFailed
-                ? Icons.error_outline
-                : Icons.hourglass_top_rounded,
-            color: document.isFailed ? theme.colorScheme.error : theme.colorScheme.primary,
+        child: Container(
+          padding: const EdgeInsets.all(Insets.x16),
+          decoration: BoxDecoration(
+            borderRadius: Corners.lgRadius,
+            border: Border.all(color: theme.colorScheme.outlineVariant),
           ),
-          const SizedBox(width: Insets.x12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(documentTypeLabel(document.documentType), style: theme.textTheme.titleSmall),
-                Text(
-                  document.isFailed
-                      ? 'Не удалось распознать'
-                      : '${document.fields.length} полей найдено',
-                  style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+          child: Row(
+            children: [
+              Icon(
+                document.isProcessed
+                    ? Icons.check_circle_outline
+                    : document.isFailed
+                    ? Icons.error_outline
+                    : Icons.hourglass_top_rounded,
+                color: document.isFailed ? theme.colorScheme.error : theme.colorScheme.primary,
+              ),
+              const SizedBox(width: Insets.x12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(documentTypeLabel(document.documentType), style: theme.textTheme.titleSmall),
+                    Text(
+                      document.isFailed
+                          ? 'Не удалось распознать'
+                          : canEdit
+                          ? '${document.fields.length} полей найдено · нажмите, чтобы проверить'
+                          : '${document.fields.length} полей найдено',
+                      style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              IconButton(
+                onPressed: onDelete,
+                icon: const Icon(Icons.delete_outline_rounded, size: 20),
+                tooltip: 'Удалить и загрузить заново',
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ],
           ),
-          IconButton(
-            onPressed: onDelete,
-            icon: const Icon(Icons.delete_outline_rounded, size: 20),
-            tooltip: 'Удалить и загрузить заново',
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-        ],
+        ),
       ),
     );
   }
+}
+
+/// Lets the user correct any field the AI misread before it's used in the
+/// interview - each field commits on submit/blur, independently.
+class _EditFieldsSheet extends StatefulWidget {
+  const _EditFieldsSheet({required this.document, required this.provider});
+
+  final UploadedDocument document;
+  final DocumentUploadProvider provider;
+
+  @override
+  State<_EditFieldsSheet> createState() => _EditFieldsSheetState();
+}
+
+class _EditFieldsSheetState extends State<_EditFieldsSheet> {
+  late final Map<String, TextEditingController> _controllers = {
+    for (final entry in widget.document.fields.entries) entry.key: TextEditingController(text: entry.value.value),
+  };
+
+  @override
+  void dispose() {
+    for (final controller in _controllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  void _commit(String key) {
+    final text = _controllers[key]!.text.trim();
+    if (text.isEmpty || text == widget.document.fields[key]?.value) return;
+    widget.provider.updateField(widget.document.id, key, text);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: EdgeInsets.only(
+        left: Insets.x20,
+        right: Insets.x20,
+        top: Insets.x20,
+        bottom: MediaQuery.of(context).viewInsets.bottom + Insets.x20,
+      ),
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(documentTypeLabel(widget.document.documentType), style: theme.textTheme.titleMedium),
+            const SizedBox(height: Insets.x4),
+            Text(
+              'Проверьте, что распознано верно — можно поправить любое поле.',
+              style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            ),
+            const SizedBox(height: Insets.x20),
+            for (final key in _controllers.keys)
+              Padding(
+                padding: const EdgeInsets.only(bottom: Insets.x12),
+                child: TextField(
+                  controller: _controllers[key],
+                  decoration: InputDecoration(labelText: fieldKeyLabel(key)),
+                  onSubmitted: (_) => _commit(key),
+                  onTapOutside: (_) => _commit(key),
+                ),
+              ),
+            const SizedBox(height: Insets.x8),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: () {
+                  for (final key in _controllers.keys) {
+                    _commit(key);
+                  }
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Готово'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Best-effort human-readable label for a semantic field key like
+/// "passport_number" or "engine_capacity" - falls back to the raw key
+/// (still more readable than nothing) for keys the AI invented.
+String fieldKeyLabel(String key) {
+  const known = {
+    'full_name': 'ФИО',
+    'passport_number': 'Номер паспорта',
+    'pinfl': 'ПИНФЛ',
+    'birth_date': 'Дата рождения',
+    'address': 'Адрес',
+    'vin': 'VIN',
+    'plate_number': 'Гос. номер',
+    'brand': 'Марка',
+    'model': 'Модель',
+    'brand_model': 'Марка/модель',
+    'year': 'Год выпуска',
+    'color': 'Цвет',
+    'engine_number': 'Номер двигателя',
+    'engine_capacity': 'Объём двигателя',
+    'engine_power': 'Мощность двигателя',
+    'chassis_number': 'Номер кузова',
+    'body_number': 'Номер кузова',
+    'cadastre_number': 'Кадастровый номер',
+    'area': 'Площадь',
+    'rooms': 'Количество комнат',
+    'floor': 'Этаж',
+    'company_name': 'Название компании',
+    'tin': 'ИНН',
+    'director': 'Директор',
+    'owner_full_name': 'Владелец',
+    'first_owner': 'Первый владелец',
+    'document_number': 'Номер документа',
+    'manufacturer': 'Изготовитель',
+    'series': 'Серия',
+    'category': 'Категория',
+  };
+  return known[key] ?? key.replaceAll('_', ' ');
 }
 
 class _SuggestedDocumentCard extends StatelessWidget {

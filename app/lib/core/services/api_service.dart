@@ -146,6 +146,9 @@ class ApiService {
   Future<void> deleteDocument(String dealId, String documentId) =>
       _client.deleteJson('/api/deals/$dealId/documents/$documentId');
 
+  Future<void> updateDocumentField(String dealId, String documentId, String key, String value) =>
+      _client.patchJson('/api/deals/$dealId/documents/$documentId/fields', body: {'key': key, 'value': value});
+
   /// An honest "how many questions are left" count right after upload -
   /// reuses the real extraction logic rather than a guess.
   Future<InterviewPreview> getInterviewPreview(String dealId, {String lang = 'ru'}) async {

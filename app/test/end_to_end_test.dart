@@ -126,6 +126,10 @@ class FakeDocumentRepository implements DocumentRepository {
   Future<Result<void>> delete(String dealId, String documentId) async => const Success(null);
 
   @override
+  Future<Result<void>> updateField(String dealId, String documentId, String key, String value) async =>
+      const Success(null);
+
+  @override
   Future<Result<InterviewPreview>> getInterviewPreview(String dealId) async =>
       const Success(InterviewPreview(totalAskableFields: 0, estimatedRemainingQuestions: 0));
 }

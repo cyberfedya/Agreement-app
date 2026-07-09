@@ -17,6 +17,8 @@ abstract class DocumentRepository {
 
   Future<Result<void>> delete(String dealId, String documentId);
 
+  Future<Result<void>> updateField(String dealId, String documentId, String key, String value);
+
   Future<Result<InterviewPreview>> getInterviewPreview(String dealId);
 }
 
@@ -59,6 +61,16 @@ class ApiDocumentRepository implements DocumentRepository {
   Future<Result<void>> delete(String dealId, String documentId) async {
     try {
       await _api.deleteDocument(dealId, documentId);
+      return const Success(null);
+    } on ApiException catch (e) {
+      return Failure(e.message);
+    }
+  }
+
+  @override
+  Future<Result<void>> updateField(String dealId, String documentId, String key, String value) async {
+    try {
+      await _api.updateDocumentField(dealId, documentId, key, value);
       return const Success(null);
     } on ApiException catch (e) {
       return Failure(e.message);

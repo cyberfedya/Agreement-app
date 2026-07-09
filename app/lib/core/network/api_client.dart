@@ -69,6 +69,17 @@ class ApiClient {
     return _decode(response);
   }
 
+  Future<dynamic> patchJson(String path, {Object? body, Map<String, String>? query}) async {
+    final response = await _send(
+      () => _http.patch(
+        _uri(path, query),
+        headers: const {'Content-Type': 'application/json'},
+        body: jsonEncode(body),
+      ),
+    );
+    return _decode(response);
+  }
+
   Future<void> deleteJson(String path, {Map<String, String>? query}) async {
     final response = await _send(() => _http.delete(_uri(path, query)));
     _decode(response);

@@ -99,6 +99,28 @@ class DocumentUploadProvider extends ChangeNotifier {
     }
   }
 
+  /// Corrects a field the AI misread - updates locally first so the UI
+  /// reflects the fix immediately, then persists it (and refreshes the
+  /// preview count, since the corrected value can now cover a question).
+  Future<void> updateField(String documentId, String key, String value) async {
+    final dealId = _dealId;
+    if (dealId == null) return;
+
+    final index = _uploadedDocuments.indexWhere((d) => d.id == documentId);
+    if (index == -1) return;
+
+    _uploadedDocuments[index] = _uploadedDocuments[index].withField(key, value);
+    notifyListeners();
+
+    switch (await _repository.updateField(dealId, documentId, key, value)) {
+      case Success():
+        await _refreshPreview();
+      case Failure(:final message):
+        _errorMessage = message;
+        notifyListeners();
+    }
+  }
+
   Future<void> _refreshPreview() async {
     final dealId = _dealId;
     if (dealId == null) return;
