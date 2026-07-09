@@ -39,7 +39,6 @@ public sealed class GetNextQuestionUseCase(
         var (title, _) = TranslationResolver.Resolve(template.Translations, language);
 
         var mergedFields = MergedFieldCollectionSerializer.Deserialize(deal.PreprocessedFieldsJson);
-        mergedFields.ApplyHighConfidenceAnswers(answers);
 
         var result = await conversationManager.ExecuteAsync(
             title, language, deal.RequestText, mergedFields, answeredFieldId, answerText, currentQuestionText,

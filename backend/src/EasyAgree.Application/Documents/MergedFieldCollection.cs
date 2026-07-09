@@ -20,27 +20,6 @@ public sealed class MergedFieldCollection
         value.Confidence >= threshold &&
         !string.IsNullOrWhiteSpace(value.Value);
 
-    public void ApplyHighConfidenceAnswers(Dictionary<int, string> answers, double threshold = 0.75)
-    {
-        foreach (var (fieldId, field) in Fields)
-        {
-            if (!answers.ContainsKey(fieldId) && field.Confidence >= threshold && !string.IsNullOrWhiteSpace(field.Value))
-                answers[fieldId] = field.Value;
-        }
-    }
-
-    public void RemoveOwnedAnswers(Dictionary<int, string> answers)
-    {
-        foreach (var (fieldId, field) in Fields)
-        {
-            if (field.Source is not ("document" or "account_profile"))
-                continue;
-
-            if (answers.TryGetValue(fieldId, out var current) && current == field.Value)
-                answers.Remove(fieldId);
-        }
-    }
-
     public string? ToPromptContext(double threshold = 0.75)
     {
         var knownFields = Fields.Values

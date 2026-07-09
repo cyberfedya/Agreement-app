@@ -10,7 +10,7 @@ namespace UnitTests;
 public sealed class MergedFieldServiceTests
 {
     [Fact]
-    public async Task Vehicle_registration_fields_are_completed_before_interview_questions()
+    public async Task Vehicle_registration_fields_are_not_completed_without_user_confirmation()
     {
         var fields = RequiredFields(
             (21, "vehicle make"),
@@ -30,12 +30,12 @@ public sealed class MergedFieldServiceTests
 
         var result = await PlanAfterMerge(fields, documents, mapper);
 
-        Assert.Equal(32, result.FieldId);
+        Assert.Equal(21, result.FieldId);
         Assert.False(result.Question!.Contains("VIN", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
-    public async Task Property_cadastre_fields_are_completed_before_interview_questions()
+    public async Task Property_cadastre_fields_are_not_completed_without_user_confirmation()
     {
         var fields = RequiredFields(
             (21, "property address"),
@@ -55,13 +55,12 @@ public sealed class MergedFieldServiceTests
 
         var result = await PlanAfterMerge(fields, documents, mapper);
 
-        Assert.Equal(32, result.FieldId);
+        Assert.Equal(21, result.FieldId);
         Assert.False(result.Question!.Contains("cadastre", StringComparison.OrdinalIgnoreCase));
-        Assert.False(result.Question.Contains("address", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
-    public async Task Employment_document_fields_are_completed_before_interview_questions()
+    public async Task Employment_document_fields_are_not_completed_without_user_confirmation()
     {
         var fields = RequiredFields(
             (11, "workplace"),
@@ -81,9 +80,8 @@ public sealed class MergedFieldServiceTests
 
         var result = await PlanAfterMerge(fields, documents, mapper);
 
-        Assert.Equal(32, result.FieldId);
+        Assert.Equal(11, result.FieldId);
         Assert.False(result.Question!.Contains("salary", StringComparison.OrdinalIgnoreCase));
-        Assert.False(result.Question.Contains("position", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -103,40 +101,34 @@ public sealed class MergedFieldServiceTests
     }
 
     [Fact]
-    public void Preprocessed_fields_do_not_overwrite_user_answers()
+    public async Task First_turn_extractions_are_ignored_even_when_model_returns_document_values()
     {
-        var answers = new Dictionary<int, string> { [21] = "User value" };
-        var collection = new MergedFieldCollection(new Dictionary<int, MergedFieldValue>
+        var fields = RequiredFields((21, "vehicle make"), (32, "sale price"));
+        var documents = Documents(new Dictionary<string, ExtractedFieldValue>
         {
-            [21] = new(21, "Document value", 0.99, "document"),
+            ["vehicle_make"] = new("15.03.2019", 1.0),
         });
+        var mapper = new StaticChatClient(
+            """{"fields":[{"fieldId":21,"value":"15.03.2019","confidence":1.0,"source":"document"}]}""");
+        var labels = fields.ToDictionary(f => f.FieldId, f => f.FieldId == 21 ? "vehicle make" : "sale price");
+        var answers = DealAnswersSerializer.Deserialize(null);
+        var mergedFields = await new MergedFieldService(mapper)
+            .BuildAsync(fields, labels, answers, documents, null);
+        var planner = new InterviewPlanner(new QuestionGenerator(new StaticChatClient("""{"question":null,"extracted":{"21":"15.03.2019"}}""")));
 
-        collection.ApplyHighConfidenceAnswers(answers);
+        var result = await planner.ExecuteAsync(
+            "Test agreement",
+            "en",
+            null,
+            null,
+            mergedFields,
+            fields,
+            labels,
+            answers,
+            CancellationToken.None);
 
-        Assert.Equal("User value", answers[21]);
-    }
-
-    [Fact]
-    public void Refresh_removes_only_unchanged_owned_answers()
-    {
-        var answers = new Dictionary<int, string>
-        {
-            [21] = "Old document value",
-            [22] = "User override",
-            [23] = "Conversation answer",
-        };
-        var previous = new MergedFieldCollection(new Dictionary<int, MergedFieldValue>
-        {
-            [21] = new(21, "Old document value", 0.99, "document"),
-            [22] = new(22, "Old document value", 0.99, "document"),
-            [23] = new(23, "Conversation answer", 1.0, "conversation"),
-        });
-
-        previous.RemoveOwnedAnswers(answers);
-
+        Assert.Equal(21, result.FieldId);
         Assert.False(answers.ContainsKey(21));
-        Assert.Equal("User override", answers[22]);
-        Assert.Equal("Conversation answer", answers[23]);
     }
 
     private static async Task<InterviewPlanResult> PlanAfterMerge(
@@ -149,8 +141,6 @@ public sealed class MergedFieldServiceTests
         var answers = DealAnswersSerializer.Deserialize(null);
         var mergedFields = await new MergedFieldService(mapper)
             .BuildAsync(fields, labels, answers, documents, null);
-
-        mergedFields.ApplyHighConfidenceAnswers(answers);
 
         var planner = new InterviewPlanner(new QuestionGenerator(new StaticChatClient("""{"question":"What missing field is still needed?","extracted":{}}""")));
         return await planner.ExecuteAsync(

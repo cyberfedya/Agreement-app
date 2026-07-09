@@ -23,16 +23,12 @@ public sealed class IntakePreprocessingService(
 
         var labels = AgreementPlaceholderParser.ExtractLabels(template.HtmlTemplate);
         var answers = DealAnswersSerializer.Deserialize(deal.AnswersJson);
-        var previous = MergedFieldCollectionSerializer.Deserialize(deal.PreprocessedFieldsJson);
-        previous.RemoveOwnedAnswers(answers);
 
         var documents = await documentRepository.GetByDealIdAsync(dealId, cancellationToken);
         var profile = deal.ProfileId is null ? null : await profileRepository.GetAsync(deal.ProfileId, cancellationToken);
         var refreshed = await fieldMergeService.BuildAsync(
             template.Fields, labels, answers, documents, profile, cancellationToken);
 
-        refreshed.ApplyHighConfidenceAnswers(answers);
-        deal.AnswersJson = DealAnswersSerializer.Serialize(answers);
         deal.PreprocessedFieldsJson = MergedFieldCollectionSerializer.Serialize(refreshed);
         deal.UpdatedAt = DateTime.UtcNow;
         await dealRepository.UpdateAsync(deal, cancellationToken);

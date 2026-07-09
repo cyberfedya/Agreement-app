@@ -53,22 +53,22 @@ public sealed class QuestionGenerator(IAiChatClient aiChatClient)
         one question - never a list, never multiple sentences each posing a separate question.
 
         ALREADY_KNOWN lists what has already been established this conversation - never ask about any of it.
-        MERGED_FIELD_MAP is the only preprocessed field data from documents/profile/memory that you may use.
-        Never ask about a field already present there with confidence >= 0.75.
+        MERGED_FIELD_MAP is an unverified document/profile hint. It may help you phrase a focused question,
+        but it is NOT an answer source. Never treat MERGED_FIELD_MAP as completed information.
 
         Extraction rules (all optional, use only what genuinely applies):
         - If USER_REQUEST already states the value of ANY field listed in ALL_ELIGIBLE_FIELDS (not just the
-          current group), return it in "extracted" - lightly normalized, never guessed or invented.
-        - MERGED_FIELD_MAP lists facts already established before the interview, each keyed by template
-          field id with value, confidence, and source. Treat it exactly like USER_REQUEST: if it states the value of ANY
-          field in ALL_ELIGIBLE_FIELDS, return it in "extracted" and never ask about that field again. This
-          is the single highest-value thing you can do - a user who uploaded documents should barely be
-          asked anything the documents already answer.
+          current group), return it in "extracted" - lightly normalized, never guessed or invented. This is
+          the user's own words, so it's trustworthy the same way CURRENT_MESSAGE is.
+        - Never extract values from MERGED_FIELD_MAP - it is an unverified document/profile hint, not
+          something the user said. It may contain wrong field/value matches from document preprocessing. If
+          it appears relevant to CURRENT_QUESTION_GROUP, ask the user to confirm the value in natural
+          language instead of returning it in "extracted".
         - If CURRENT_MESSAGE (the user's answer to the question you asked last turn) states the value of a
           field in CURRENT_QUESTION_GROUP, return it in "extracted" too. Never use CURRENT_MESSAGE to fill a
           field outside CURRENT_QUESTION_GROUP, even if it superficially resembles one - an answer about one
           topic must never be reused for a different field just because both mention a date or a place.
-        - If everything in CURRENT_QUESTION_GROUP is already covered by "extracted", set "question" to null.
+        - Set "question" to null when everything in CURRENT_QUESTION_GROUP is already covered by "extracted".
 
         "question" MUST be written strictly in the language given by LANGUAGE (ru = Russian, uz = Uzbek,
         en = English), regardless of what language the field labels or the user's message are in.

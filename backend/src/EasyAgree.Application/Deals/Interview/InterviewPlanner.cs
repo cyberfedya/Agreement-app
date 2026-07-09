@@ -62,13 +62,24 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator)
                 generated = await questionGenerator.GenerateAsync(context, cancellationToken);
             }
 
-            // USER_REQUEST is only meaningful on the first turn, but
-            // the merged field map is reliable structured data (not raw OCR)
-            // regardless of when documents were uploaded, so it's allowed
-            // to fill any eligible field on every turn.
+            // Only the user's own words may write values: USER_REQUEST (their
+            // opening free-text description, first turn only) or
+            // CURRENT_MESSAGE (their answer to the last question, any turn).
+            // On the first turn there's no CURRENT_MESSAGE yet, so nothing
+            // structurally distinguishes "the model read this from
+            // USER_REQUEST" from "the model read this off MERGED_FIELD_MAP
+            // and mistook it for something the user said" - exclude fields
+            // that have a document/profile hint from the first-turn set so
+            // that ambiguity can never write an unverified value. Once the
+            // interview is asking about a field directly (any turn,
+            // CURRENT_QUESTION_GROUP), the user's answer is unambiguous and
+            // always trusted regardless of what MERGED_FIELD_MAP says.
             var allowedExtractionIds = group.Select(f => f.FieldId).ToHashSet();
-            if (isFirstTurn || mergedFields.Fields.Count > 0)
+            if (isFirstTurn)
+            {
                 allowedExtractionIds.UnionWith(ordered.Select(f => f.FieldId));
+                allowedExtractionIds.ExceptWith(mergedFields.Fields.Keys);
+            }
 
             foreach (var (fieldId, value) in generated.Extracted)
             {

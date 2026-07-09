@@ -16,8 +16,7 @@ public sealed record InterviewPreviewResult(int TotalAskableFields, int Estimate
 /// </summary>
 public sealed class GetInterviewPreviewUseCase(
     IDealRepository dealRepository,
-    IAgreementTemplateRepository templateRepository,
-    QuestionGenerator questionGenerator)
+    IAgreementTemplateRepository templateRepository)
 {
     public async Task<InterviewPreviewResult?> ExecuteAsync(
         Guid dealId, string language, CancellationToken cancellationToken = default)
@@ -32,10 +31,6 @@ public sealed class GetInterviewPreviewUseCase(
 
         var answers = DealAnswersSerializer.Deserialize(deal.AnswersJson);
         var labels = AgreementPlaceholderParser.ExtractLabels(template.HtmlTemplate);
-        var (title, _) = TranslationResolver.Resolve(template.Translations, language);
-
-        var mergedFields = MergedFieldCollectionSerializer.Deserialize(deal.PreprocessedFieldsJson);
-        mergedFields.ApplyHighConfidenceAnswers(answers);
 
         var classified = FieldEligibilityEngine.Classify(template.Fields, labels);
         var askable = classified
@@ -46,13 +41,6 @@ public sealed class GetInterviewPreviewUseCase(
         if (askable.Count == 0)
             return new InterviewPreviewResult(0, 0);
 
-        if (mergedFields.Fields.Count == 0)
-            return new InterviewPreviewResult(askable.Count, askable.Count);
-
-        var context = new InterviewContext(title, language, deal.RequestText, null, askable, answers, askable, null, mergedFields);
-        var generated = await questionGenerator.GenerateAsync(context, cancellationToken);
-
-        var matched = generated.Extracted.Keys.Count(id => askable.Any(f => f.FieldId == id));
-        return new InterviewPreviewResult(askable.Count, Math.Max(0, askable.Count - matched));
+        return new InterviewPreviewResult(askable.Count, askable.Count);
     }
 }
