@@ -16,10 +16,6 @@ public sealed class GetNextQuestionUseCase(
     IAgreementTemplateRepository templateRepository,
     IAiChatClient aiChatClient)
 {
-    // Deliberately narrow and specific (rather than broad terms like "date"
-    // or "city") — those are legitimate answers for plenty of agreements
-    // (transfer date, property address). Only administrative/notarial
-    // metadata that no template field list carries a "source" tag for yet.
     private static readonly string[] NeverAskKeywords =
     [
         "нотариал", "нотариус",
@@ -28,6 +24,9 @@ public sealed class GetNextQuestionUseCase(
         "рўйхатга ол", "реестр",
         "иш рақами", "номер дела",
         "тузилган сана", "тасдиқланган сана", "дата составления", "дата подписания",
+        // seller/buyer identity — belongs to the creator or the second party, never asked here
+        "сотувчи", "сотиб олувчи", "харидор", "покупател", "продав",
+        "паспорт", "ф.и.о",
     ];
 
     private const string SystemPrompt = """
