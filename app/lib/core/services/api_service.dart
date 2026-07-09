@@ -2,6 +2,7 @@ import 'package:app/core/network/api_client.dart';
 import 'package:app/core/network/api_exception.dart';
 import 'package:app/features/agreement/domain/agreement.dart';
 import 'package:app/features/deal/domain/deal.dart';
+import 'package:app/features/questionnaire/domain/interview_step.dart';
 import 'package:app/features/questionnaire/domain/question.dart';
 import 'package:app/features/templates/domain/template.dart';
 
@@ -46,9 +47,25 @@ class ApiService {
     }
   }
 
+  /// Every field the template has — used to render the full-document
+  /// preview sheet. The interview itself is driven by [nextQuestion], one
+  /// field at a time.
   Future<List<Question>> getDealQuestions(String dealId) async {
     final json = await _client.getJson('/api/deals/$dealId/questions');
     return (json as List).cast<Map<String, dynamic>>().map(Question.fromJson).toList();
+  }
+
+  /// Asks the Interview Planner what to do next: either the next question
+  /// to show, or that enough is known to generate. [fieldId]/[answer] are
+  /// the answer to the *previous* question this deal was asked (omit both
+  /// on the very first call).
+  Future<InterviewStep> nextQuestion(String dealId, {int? fieldId, String? answer, String lang = 'ru'}) async {
+    final json = await _client.postJson(
+      '/api/deals/$dealId/next-question',
+      query: {'lang': lang},
+      body: {'fieldId': fieldId, 'answer': answer},
+    );
+    return InterviewStep.fromJson(json as Map<String, dynamic>);
   }
 
   Future<Agreement> generateFromDeal(String dealId, Map<int, String> answers) async {

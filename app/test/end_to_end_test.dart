@@ -13,6 +13,7 @@ import 'package:app/features/deal/data/deal_repository.dart';
 import 'package:app/features/deal/domain/deal.dart';
 import 'package:app/features/home/presentation/home_page.dart';
 import 'package:app/features/questionnaire/data/questionnaire_repository.dart';
+import 'package:app/features/questionnaire/domain/interview_step.dart';
 import 'package:app/features/questionnaire/domain/question.dart';
 import 'package:app/features/questionnaire/presentation/pages/questionnaire_page.dart';
 import 'package:app/features/questionnaire/presentation/widgets/question_card.dart';
@@ -51,16 +52,30 @@ class FakeTemplateRepository implements TemplateRepository {
       detailResult ?? const Failure('not found');
 }
 
+/// Scripts the Interview Planner's turn-by-turn responses. [steps] is
+/// consumed in order (one per `nextQuestion` call); the last entry repeats
+/// if there are more calls than scripted steps.
 class FakeQuestionnaireRepository implements QuestionnaireRepository {
-  FakeQuestionnaireRepository(this.result);
+  FakeQuestionnaireRepository(this.steps, {this.allFieldsResult});
 
-  final Result<List<Question>> result;
+  final List<Result<InterviewStep>> steps;
+  final Result<List<Question>>? allFieldsResult;
+  int _callIndex = 0;
 
   @override
-  Future<Result<List<Question>>> getQuestions(String templateKey) async => result;
+  Future<Result<List<Question>>> getQuestions(String templateKey) async =>
+      allFieldsResult ?? const Success<List<Question>>([]);
 
   @override
-  Future<Result<List<Question>>> getQuestionsForDeal(String dealId) async => result;
+  Future<Result<List<Question>>> getQuestionsForDeal(String dealId) async =>
+      allFieldsResult ?? const Success<List<Question>>([]);
+
+  @override
+  Future<Result<InterviewStep>> nextQuestion(String dealId, {int? fieldId, String? answer}) async {
+    final step = steps[_callIndex.clamp(0, steps.length - 1)];
+    if (_callIndex < steps.length - 1) _callIndex++;
+    return step;
+  }
 }
 
 class FakeAgreementRepository implements AgreementRepository {
@@ -107,9 +122,16 @@ const _templateDetail = TemplateDetail(
   sourceUrl: 'https://example.com/doc/1',
 );
 
-const _questions = [
-  Question(fieldId: 1, fieldName: 'Full name', required: true, type: 'text'),
-  Question(fieldId: 2, fieldName: 'Optional note', required: false, type: 'text'),
+const _fullNameQuestion = Question(fieldId: 1, fieldName: 'Full name', required: true, type: 'text');
+const _optionalNoteQuestion = Question(fieldId: 2, fieldName: 'Optional note', required: false, type: 'text');
+const _questions = [_fullNameQuestion, _optionalNoteQuestion];
+
+/// A two-turn interview (ask field 1, then field 2, then ready) — the
+/// scripted shape most tests exercise.
+List<Result<InterviewStep>> _twoQuestionSteps() => [
+  const Success(InterviewStep(readyToGenerate: false, question: _fullNameQuestion)),
+  const Success(InterviewStep(readyToGenerate: false, question: _optionalNoteQuestion)),
+  const Success(InterviewStep(readyToGenerate: true)),
 ];
 
 Widget buildTestApp({
@@ -188,7 +210,7 @@ void main() {
           listResult: const Success([_template]),
           detailResult: const Success(_templateDetail),
         ),
-        questionnaireRepository: FakeQuestionnaireRepository(const Success(_questions)),
+        questionnaireRepository: FakeQuestionnaireRepository(_twoQuestionSteps(), allFieldsResult: const Success(_questions)),
         agreementRepository: FakeAgreementRepository(
           Success(Agreement(key: 'test_key', html: '<p>Generated agreement body</p>', generatedAt: DateTime(2026))),
         ),
@@ -212,12 +234,12 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(QuestionnairePage), findsOneWidget);
-    // One question per page (Typeform style).
+    // One question at a time, chosen live by the Interview Planner.
     expect(find.byType(QuestionCard), findsOneWidget);
     expect(find.text('Full name'), findsOneWidget);
-    expect(find.text('1 of 2'), findsOneWidget);
+    expect(find.text('Вопрос 1'), findsOneWidget);
 
-    // Next ("Далее") is disabled until the required question is answered.
+    // Next ("Далее") is disabled until the field has an answer.
     expect(_button(tester, 'Далее').onPressed, isNull);
 
     final answerField = find.descendant(of: find.byType(QuestionCard), matching: find.byType(TextField));
@@ -229,9 +251,15 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Optional note'), findsOneWidget);
-    expect(find.text('2 of 2'), findsOneWidget);
+    expect(find.text('Вопрос 2'), findsOneWidget);
 
-    // Second question is optional, so the submit button is already enabled.
+    await tester.enterText(answerField, 'A quick note'.trim());
+    await tester.pump();
+    await tester.tap(find.widgetWithText(FilledButton, 'Далее'));
+    await tester.pumpAndSettle();
+
+    // Planner says it has enough — submit button switches to Generate.
+    expect(find.text('Готово к созданию'), findsOneWidget);
     expect(_button(tester, 'Создать договор').onPressed, isNotNull);
 
     await tester.tap(find.widgetWithText(FilledButton, 'Создать договор'));
@@ -257,7 +285,7 @@ void main() {
           listResult: const Success([_template]),
           detailResult: const Success(_templateDetail),
         ),
-        questionnaireRepository: FakeQuestionnaireRepository(const Success(_questions)),
+        questionnaireRepository: FakeQuestionnaireRepository(_twoQuestionSteps(), allFieldsResult: const Success(_questions)),
         agreementRepository: FakeAgreementRepository(
           Success(Agreement(key: 'deal-1', html: '<p>x</p>', generatedAt: DateTime(2026))),
         ),
@@ -285,7 +313,7 @@ void main() {
     await tester.pumpWidget(
       buildTestApp(
         templateRepository: FakeTemplateRepository(listResult: const Failure('Could not reach the server.')),
-        questionnaireRepository: FakeQuestionnaireRepository(const Success(_questions)),
+        questionnaireRepository: FakeQuestionnaireRepository(_twoQuestionSteps(), allFieldsResult: const Success(_questions)),
         agreementRepository: FakeAgreementRepository(
           Success(Agreement(key: 'k', html: '<p>x</p>', generatedAt: DateTime(2026))),
         ),
@@ -304,7 +332,7 @@ void main() {
     await tester.pumpWidget(
       buildTestApp(
         templateRepository: FakeTemplateRepository(listResult: const Success([])),
-        questionnaireRepository: FakeQuestionnaireRepository(const Success(_questions)),
+        questionnaireRepository: FakeQuestionnaireRepository(_twoQuestionSteps(), allFieldsResult: const Success(_questions)),
         agreementRepository: FakeAgreementRepository(
           Success(Agreement(key: 'k', html: '<p>x</p>', generatedAt: DateTime(2026))),
         ),
@@ -324,7 +352,7 @@ void main() {
           listResult: const Success([_template]),
           detailResult: const Success(_templateDetail),
         ),
-        questionnaireRepository: FakeQuestionnaireRepository(const Success(_questions)),
+        questionnaireRepository: FakeQuestionnaireRepository(_twoQuestionSteps(), allFieldsResult: const Success(_questions)),
         agreementRepository: FakeAgreementRepository(
           const Failure('Please answer all required questions before generating.'),
         ),
@@ -345,6 +373,11 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Далее'));
     await tester.pumpAndSettle();
 
+    await tester.enterText(answerField, 'A quick note');
+    await tester.pump();
+    await tester.tap(find.widgetWithText(FilledButton, 'Далее'));
+    await tester.pumpAndSettle();
+
     await tester.tap(find.widgetWithText(FilledButton, 'Создать договор'));
     await tester.pumpAndSettle();
 
@@ -360,7 +393,7 @@ void main() {
           listResult: const Success([_template]),
           detailResult: const Success(_templateDetail),
         ),
-        questionnaireRepository: FakeQuestionnaireRepository(const Success(_questions)),
+        questionnaireRepository: FakeQuestionnaireRepository(_twoQuestionSteps(), allFieldsResult: const Success(_questions)),
         agreementRepository: FakeAgreementRepository(
           Success(Agreement(key: 'k', html: '<p>x</p>', generatedAt: DateTime(2026))),
         ),
@@ -379,12 +412,12 @@ void main() {
     await tester.pump();
     await tester.tap(find.widgetWithText(FilledButton, 'Далее'));
     await tester.pumpAndSettle();
-    expect(find.text('2 of 2'), findsOneWidget);
+    expect(find.text('Вопрос 2'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Предыдущий вопрос'));
     await tester.pumpAndSettle();
 
-    expect(find.text('1 of 2'), findsOneWidget);
+    expect(find.text('Вопрос 1'), findsOneWidget);
     expect(find.text('Saved answer'), findsOneWidget);
   });
 }

@@ -1,31 +1,52 @@
 import 'package:flutter/foundation.dart';
+
 import 'package:app/features/questionnaire/data/questionnaire_repository.dart';
 import 'package:app/features/questionnaire/domain/question.dart';
 import 'package:app/shared/models/result.dart';
+
+/// Drives a one-question-at-a-time interview: each answer is sent to the
+/// backend's Interview Planner, which decides the next question (or that
+/// enough is known to generate) — the field list is never fetched upfront.
 class QuestionnaireProvider extends ChangeNotifier {
   QuestionnaireProvider(this._repository);
+
   final QuestionnaireRepository _repository;
+
   String? _dealId;
   bool _isLoading = false;
   String? _errorMessage;
-  List<Question> _questions = const [];
+  Question? _currentQuestion;
+  bool _readyToGenerate = false;
+  List<Question> _allFields = const [];
   final Map<int, String> _answers = {};
+  final List<Question> _history = [];
+
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
-  List<Question> get questions => _questions;
+  Question? get currentQuestion => _currentQuestion;
+  bool get readyToGenerate => _readyToGenerate;
+
+  /// Every field the template has, for the full-document preview sheet —
+  /// not the (much shorter) set actually asked during the interview.
+  List<Question> get allFields => _allFields;
+
   Map<int, String> get answers => Map.unmodifiable(_answers);
-  bool get canSubmit =>
-      _questions.isNotEmpty &&
-      _questions.where((q) => q.required).every((q) => isAnswered(q.fieldId));
+  bool get canGoBack => _history.isNotEmpty;
+
+  /// 1-based position of [currentQuestion] in the sequence shown so far —
+  /// tracks `_history`, not total answers, so it decreases on [goBack].
+  int get position => _history.length + 1;
+
   String answerFor(int fieldId) => _answers[fieldId] ?? '';
-  bool isAnswered(int fieldId) => answerFor(fieldId).trim().isNotEmpty;
-  /// Loads questions for [dealId]. Answers are kept (auto-saved) when
-  /// re-entering the same deal's questionnaire, and cleared when the user
-  /// starts a different one.
-  Future<void> load(String dealId)  async {
+
+  /// Starts (or resumes) the interview for [dealId]. Answers are kept
+  /// (auto-saved) when re-entering the same deal, cleared for a new one.
+  Future<void> start(String dealId) async {
     if (_dealId != dealId) {
       _answers.clear();
-      _questions = const [];
+      _history.clear();
+      _currentQuestion = null;
+      _readyToGenerate = false;
     }
     _dealId = dealId;
     _isLoading = true;
@@ -34,17 +55,53 @@ class QuestionnaireProvider extends ChangeNotifier {
 
     switch (await _repository.getQuestionsForDeal(dealId)) {
       case Success(:final value):
-        _questions = value;
-      case Failure(:final message):
-        _errorMessage = message;
+        _allFields = value;
+      case Failure():
+        // The preview sheet just won't have anything to show — not fatal.
+        break;
     }
 
+    await _advance();
     _isLoading = false;
     notifyListeners();
   }
 
-  void setAnswer(int fieldId, String value) {
-    _answers[fieldId] = value;
+  /// Submits [text] as the answer to the current question and fetches the
+  /// next one.
+  Future<void> submitAnswer(String text) async {
+    final field = _currentQuestion;
+    if (field == null) return;
+
+    _answers[field.fieldId] = text;
+    _history.add(field);
+    _isLoading = true;
     notifyListeners();
+
+    await _advance(fieldId: field.fieldId, answer: text);
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  /// Re-shows the previous question (its answer stays editable via
+  /// [answerFor]) without a network round-trip.
+  void goBack() {
+    if (_history.isEmpty) return;
+    _currentQuestion = _history.removeLast();
+    _readyToGenerate = false;
+    notifyListeners();
+  }
+
+  Future<void> _advance({int? fieldId, String? answer}) async {
+    final dealId = _dealId;
+    if (dealId == null) return;
+
+    switch (await _repository.nextQuestion(dealId, fieldId: fieldId, answer: answer)) {
+      case Success(:final value):
+        _readyToGenerate = value.readyToGenerate;
+        _currentQuestion = value.question;
+        _errorMessage = null;
+      case Failure(:final message):
+        _errorMessage = message;
+    }
   }
 }

@@ -5,7 +5,6 @@ import 'package:app/core/router/app_router.dart';
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/core/widgets/app_widgets.dart';
 import 'package:app/core/widgets/bottom_action_bar.dart';
-import 'package:app/core/widgets/progress_header.dart';
 import 'package:app/core/widgets/skeletons.dart';
 import 'package:app/features/agreement/providers/agreement_provider.dart';
 import 'package:app/features/questionnaire/presentation/widgets/agreement_preview_sheet.dart';
@@ -13,9 +12,9 @@ import 'package:app/features/questionnaire/presentation/widgets/question_card.da
 import 'package:app/features/questionnaire/providers/questionnaire_provider.dart';
 import 'package:app/shared/widgets/primary_button.dart';
 
-/// One-question-at-a-time flow with a progress header. Answers auto-save
-/// into the provider on every keystroke, so moving back and forth never
-/// loses input.
+/// One question at a time, chosen live by the backend's Interview Planner
+/// — there's no fixed list or total, so the flow just keeps going until the
+/// planner says "ready_to_generate".
 class QuestionnairePage extends StatefulWidget {
   const QuestionnairePage({super.key, required this.dealId, required this.templateTitle});
 
@@ -27,57 +26,78 @@ class QuestionnairePage extends StatefulWidget {
 }
 
 class _QuestionnairePageState extends State<QuestionnairePage> {
-  final PageController _pageController = PageController();
-  final Map<int, TextEditingController> _controllers = {};
-  int _currentIndex = 0;
+  final TextEditingController _controller = TextEditingController();
   bool _showCheck = false;
+  bool _hasText = false;
+  int? _controllerBoundToFieldId;
+
+  // Cached rather than looked up via context.read() in dispose(): by then
+  // the element is deactivated and ancestor lookups are unsafe.
+  QuestionnaireProvider? _provider;
 
   @override
   void initState() {
     super.initState();
+    _controller.addListener(_onControllerChanged);
     final provider = context.read<QuestionnaireProvider>();
-    Future.microtask(() => provider.load(widget.dealId));
+    Future.microtask(() => provider.start(widget.dealId));
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final provider = context.read<QuestionnaireProvider>();
+    if (!identical(_provider, provider)) {
+      _provider?.removeListener(_onProviderChanged);
+      _provider = provider..addListener(_onProviderChanged);
+    }
   }
 
   @override
   void dispose() {
-    _pageController.dispose();
-    for (final controller in _controllers.values) {
-      controller.dispose();
-    }
+    _provider?.removeListener(_onProviderChanged);
+    _controller.dispose();
     super.dispose();
   }
 
-  TextEditingController _controllerFor(int fieldId, QuestionnaireProvider provider) =>
-      _controllers.putIfAbsent(fieldId, () => TextEditingController(text: provider.answerFor(fieldId)));
-
-  void _goTo(int index) {
-    setState(() => _currentIndex = index);
-    _pageController.animateToPage(index, duration: Motion.normal, curve: Motion.curve);
+  void _onControllerChanged() {
+    final hasText = _controller.text.trim().isNotEmpty;
+    if (hasText != _hasText) setState(() => _hasText = hasText);
   }
 
-  /// A brief checkmark flash before advancing — the document feels like
-  /// it's being assembled brick by brick, not just paginated.
-  Future<void> _confirmAndAdvance(int nextIndex) async {
+  /// Keeps the text field in sync with whichever question is current —
+  /// prefilled when going back to an already-answered one, empty for a
+  /// fresh one from the planner.
+  void _onProviderChanged() {
+    final field = _provider?.currentQuestion;
+    if (field == null || field.fieldId == _controllerBoundToFieldId) return;
+    _controllerBoundToFieldId = field.fieldId;
+    final text = _provider!.answerFor(field.fieldId);
+    _controller.value = TextEditingValue(text: text, selection: TextSelection.collapsed(offset: text.length));
+  }
+
+  Future<void> _submitAnswer(QuestionnaireProvider provider) async {
+    final text = _controller.text.trim();
+    if (text.isEmpty) return;
     setState(() => _showCheck = true);
-    await Future<void>.delayed(const Duration(milliseconds: 260));
+    await Future<void>.delayed(const Duration(milliseconds: 220));
     if (!mounted) return;
     setState(() => _showCheck = false);
-    _goTo(nextIndex);
+    await provider.submitAnswer(text);
   }
 
-  void _showHelp(String fieldName) {
+  void _showHelp(String question) {
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Зачем этот вопрос?'),
-        content: Text('Поле «$fieldName» нужно, чтобы точно отразить это условие в договоре.'),
+        content: Text('«$question» нужно, чтобы точно отразить это условие в договоре.'),
         actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Понятно'))],
       ),
     );
   }
 
-  Future<void> _submit() async {
+  Future<void> _generate() async {
     final questionnaire = context.read<QuestionnaireProvider>();
     final agreementProvider = context.read<AgreementProvider>();
     final messenger = ScaffoldMessenger.of(context);
@@ -102,19 +122,15 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
       body: SafeArea(
         child: Consumer<QuestionnaireProvider>(
           builder: (context, provider, _) {
-            if (provider.isLoading) {
+            if (provider.isLoading && provider.currentQuestion == null && !provider.readyToGenerate) {
               return const CenteredContent(
                 child: Padding(
                   padding: EdgeInsets.all(Insets.x20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Skeleton(width: 80, height: 14),
-                      SizedBox(height: Insets.x8),
-                      Skeleton(height: 6, radius: 4),
-                      SizedBox(height: Insets.x32),
                       Skeleton(width: 120, height: 14),
-                      SizedBox(height: Insets.x12),
+                      SizedBox(height: Insets.x32),
                       Skeleton(height: 24),
                       SizedBox(height: Insets.x8),
                       Skeleton(width: 240, height: 24),
@@ -125,20 +141,15 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                 ),
               );
             }
-            if (provider.errorMessage != null) {
+            if (provider.errorMessage != null && provider.currentQuestion == null && !provider.readyToGenerate) {
               return AppErrorView(
                 message: provider.errorMessage!,
-                onRetry: () => provider.load(widget.dealId),
-              );
-            }
-            if (provider.questions.isEmpty) {
-              return const AppEmptyView(
-                title: 'No questions',
-                message: 'This template has no questionnaire.',
+                onRetry: () => provider.start(widget.dealId),
               );
             }
 
-            final questions = provider.questions;
+            final field = provider.currentQuestion;
+
             return CenteredContent(
               child: Column(
                 children: [
@@ -153,7 +164,14 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                             children: [
                               Text(widget.templateTitle, style: theme.textTheme.titleMedium),
                               const SizedBox(height: Insets.x8),
-                              ProgressHeader(current: _currentIndex + 1, total: questions.length),
+                              Text(
+                                provider.readyToGenerate
+                                    ? 'Готово к созданию'
+                                    : 'Вопрос ${provider.position}',
+                                style: theme.textTheme.labelLarge?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -161,7 +179,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                         IconButton(
                           onPressed: () => AgreementPreviewSheet.show(
                             context,
-                            questions: questions,
+                            questions: provider.allFields,
                             answers: provider.answers,
                           ),
                           icon: const Icon(Icons.description_outlined),
@@ -177,21 +195,15 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                   Expanded(
                     child: Stack(
                       children: [
-                        PageView.builder(
-                          controller: _pageController,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: questions.length,
-                          onPageChanged: (index) => setState(() => _currentIndex = index),
-                          itemBuilder: (context, index) {
-                            final question = questions[index];
-                            return QuestionCard(
-                              question: question,
-                              controller: _controllerFor(question.fieldId, provider),
-                              onChanged: (value) => provider.setAnswer(question.fieldId, value),
-                              autofocus: false,
-                            );
-                          },
-                        ),
+                        if (provider.readyToGenerate)
+                          _ReadyToGenerateView(templateTitle: widget.templateTitle)
+                        else if (field != null)
+                          QuestionCard(
+                            key: ValueKey(field.fieldId),
+                            question: field,
+                            controller: _controller,
+                            onChanged: (_) {},
+                          ),
                         IgnorePointer(
                           child: AnimatedOpacity(
                             opacity: _showCheck ? 1 : 0,
@@ -200,10 +212,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                               child: Container(
                                 width: 88,
                                 height: 88,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: theme.colorScheme.primary,
-                                ),
+                                decoration: BoxDecoration(shape: BoxShape.circle, color: theme.colorScheme.primary),
                                 child: const Icon(Icons.check_rounded, color: Colors.white, size: 44),
                               ),
                             ),
@@ -220,41 +229,40 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
       ),
       bottomNavigationBar: Consumer<QuestionnaireProvider>(
         builder: (context, provider, _) {
-          final questions = provider.questions;
-          if (provider.isLoading || questions.isEmpty) return const SizedBox.shrink();
-
-          final isLast = _currentIndex == questions.length - 1;
-          final question = questions[_currentIndex];
-          final currentAnswered = !question.required || provider.isAnswered(question.fieldId);
+          if (provider.currentQuestion == null && !provider.readyToGenerate) return const SizedBox.shrink();
 
           return BottomActionBar(
             child: Row(
               children: [
                 IconButton(
-                  onPressed: _currentIndex > 0 ? () => _goTo(_currentIndex - 1) : null,
+                  onPressed: provider.canGoBack ? provider.goBack : null,
                   icon: const Icon(Icons.arrow_back_rounded),
                   tooltip: 'Предыдущий вопрос',
                 ),
-                IconButton(
-                  onPressed: () => _showHelp(question.fieldName),
-                  icon: const Icon(Icons.help_outline_rounded),
-                  tooltip: 'Помощь',
-                ),
+                if (!provider.readyToGenerate)
+                  IconButton(
+                    onPressed: provider.currentQuestion == null
+                        ? null
+                        : () => _showHelp(provider.currentQuestion!.fieldName),
+                    icon: const Icon(Icons.help_outline_rounded),
+                    tooltip: 'Помощь',
+                  ),
                 const SizedBox(width: Insets.x8),
                 Expanded(
                   child: Consumer<AgreementProvider>(
                     builder: (context, agreementProvider, _) {
-                      if (isLast) {
+                      if (provider.readyToGenerate) {
                         return PrimaryButton(
                           label: 'Создать договор',
                           loading: agreementProvider.isLoading,
-                          onPressed: provider.canSubmit ? _submit : null,
+                          onPressed: _generate,
                         );
                       }
                       return PrimaryButton(
                         label: 'Далее',
                         icon: Icons.arrow_forward,
-                        onPressed: currentAnswered ? () => _confirmAndAdvance(_currentIndex + 1) : null,
+                        loading: provider.isLoading,
+                        onPressed: _hasText ? () => _submitAnswer(provider) : null,
                       );
                     },
                   ),
@@ -263,6 +271,41 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+class _ReadyToGenerateView extends StatelessWidget {
+  const _ReadyToGenerateView({required this.templateTitle});
+
+  final String templateTitle;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(Insets.x32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(color: theme.colorScheme.primaryContainer, shape: BoxShape.circle),
+              child: Icon(Icons.check_rounded, color: theme.colorScheme.onPrimaryContainer, size: 36),
+            ),
+            const SizedBox(height: Insets.x20),
+            Text('Достаточно информации', style: theme.textTheme.headlineSmall, textAlign: TextAlign.center),
+            const SizedBox(height: Insets.x8),
+            Text(
+              'Мы собрали всё необходимое для «$templateTitle». Можно создавать договор.',
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            ),
+          ],
+        ),
       ),
     );
   }

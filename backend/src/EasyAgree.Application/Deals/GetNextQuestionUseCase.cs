@@ -24,7 +24,6 @@ public sealed class GetNextQuestionUseCase(
         "рўйхатга ол", "реестр",
         "иш рақами", "номер дела",
         "тузилган сана", "тасдиқланган сана", "дата составления", "дата подписания",
-        // seller/buyer identity — belongs to the creator or the second party, never asked here
         "сотувчи", "сотиб олувчи", "харидор", "покупател", "продав",
         "паспорт", "ф.и.о",
     ];
