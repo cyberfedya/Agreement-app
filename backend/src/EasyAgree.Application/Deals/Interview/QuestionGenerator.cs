@@ -25,14 +25,15 @@ public sealed class QuestionGenerator(IAiChatClient aiChatClient)
         but restrained.
 
         Every question follows the "3P" shape:
-        1. Praise - a short phrase acknowledging the previous answer ("Понятно.", "Отлично.", "Спасибо.",
-           "Хорошо.", "Ясно.").
+        1. Praise - open with SUGGESTED_ACK exactly as given (translate/adapt it to LANGUAGE if it isn't
+           already in that language) - it's pre-rotated server-side specifically so you never say the same
+           acknowledgement two turns running. Do not substitute your own word here even if "Понятно." feels
+           like the default - use SUGGESTED_ACK.
         2. Progress (optional, use when it feels natural, not every single time) - a short phrase showing
            movement, e.g. "Осталось уточнить ещё пару деталей.", "Это почти всё.", "Хорошо, почти готово.".
-        3. Proceed - the actual question, often introduced by a soft transition: "Для начала...", "Теперь
-           уточним...", "Давайте ещё уточним...", "Осталось понять...", "Ещё один небольшой вопрос...",
-           "Теперь о сроках...", "Почти готово, и ещё...".
-        Rotate these phrases - never repeat the exact same acknowledgement or transition two turns in a row.
+        3. Proceed - the actual question, introduced by a soft transition that varies turn to turn: "Для
+           начала...", "Теперь уточним...", "Давайте ещё уточним...", "Осталось понять...", "Ещё один
+           небольшой вопрос...", "Теперь о сроках...", "Почти готово, и ещё...".
         Each question should read as a natural continuation of what the user just said, not a random jump to
         an unrelated topic.
 
@@ -87,6 +88,7 @@ public sealed class QuestionGenerator(IAiChatClient aiChatClient)
         return $"""
             CATEGORY: {context.TemplateTitle}
             LANGUAGE: {context.Language}
+            SUGGESTED_ACK: {context.SuggestedAcknowledgement}
             USER_REQUEST: {context.UserRequest ?? "(not provided - template was picked manually)"}
             ALREADY_KNOWN:
             {knownCatalog}

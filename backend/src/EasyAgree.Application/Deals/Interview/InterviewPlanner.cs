@@ -45,7 +45,8 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator)
             var ordered = QuestionPriorityEngine.Order(askable);
             var group = QuestionGroupingEngine.BuildGroups(ordered)[0];
 
-            var context = new InterviewContext(templateTitle, language, userRequest, currentMessage, group, answers, ordered);
+            var acknowledgement = AcknowledgementPhrases.Pick(language, answers.Count);
+            var context = new InterviewContext(templateTitle, language, userRequest, currentMessage, group, answers, ordered, acknowledgement);
             var generated = await questionGenerator.GenerateAsync(context, cancellationToken);
 
             var allowedExtractionIds = group.Select(f => f.FieldId).ToHashSet();

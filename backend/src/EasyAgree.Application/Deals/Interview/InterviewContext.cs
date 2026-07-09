@@ -12,4 +12,5 @@ public sealed record InterviewContext(
     string? CurrentMessage,
     IReadOnlyList<ClassifiedField> CurrentGroup,
     IReadOnlyDictionary<int, string> AlreadyKnown,
-    IReadOnlyList<ClassifiedField> AllEligible);
+    IReadOnlyList<ClassifiedField> AllEligible,
+    string SuggestedAcknowledgement);
