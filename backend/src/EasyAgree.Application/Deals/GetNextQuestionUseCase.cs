@@ -54,11 +54,18 @@ public sealed class GetNextQuestionUseCase(
         Never ask questions that can be generated automatically or that belong to another participant.
         The goal is to reach "ready_to_generate" as quickly as possible.
 
-        USER_REQUEST is the user's original free-form request. If USER_REQUEST or CURRENT_MESSAGE already clearly
-        states the value of any eligible field, DO NOT ask about that field - return it in "extracted" instead
-        (a map of fieldId to the stated value, lightly normalized). Extract only what is explicitly stated;
-        never guess or invent values. Example: for the request "I want to sell my apartment", a field
-        "description of the property being sold" is already answered ("apartment") - extract it, don't ask.
+        USER_REQUEST is the user's original free-form request, given once at the start of the deal. If USER_REQUEST
+        clearly states the value of an eligible field, DO NOT ask about that field - return it in "extracted"
+        instead (a map of fieldId to the stated value, lightly normalized). Extract only what is explicitly and
+        unambiguously stated in USER_REQUEST; never guess or invent values. Example: for the request "I want to
+        sell my apartment", a field "description of the property being sold" is already answered ("apartment") -
+        extract it, don't ask.
+
+        CURRENT_MESSAGE is only the user's answer to the single field asked in the previous turn - it has already
+        been recorded for that field. Never use CURRENT_MESSAGE to extract values for OTHER fields, even if it
+        superficially resembles them (e.g. an answer about where the contract itself was signed must never be
+        reused as the property's own address, and an answer about a date must never be reused for an unrelated
+        date field). Only USER_REQUEST may populate "extracted" for fields other than the one just answered.
 
         Ask only ONE meaningful question at a time. Prefer: 1) the object of the agreement, 2) commercial terms
         (price, payment), 3) dates that materially change the agreement (transfer date, start date, repayment date -
