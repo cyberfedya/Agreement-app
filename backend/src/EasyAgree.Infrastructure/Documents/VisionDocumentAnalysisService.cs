@@ -26,9 +26,20 @@ public sealed class VisionDocumentAnalysisService(IVisionAiClient visionClient) 
            (1.0 = clearly and unambiguously legible, 0.5 = partially legible or inferred, below 0.3 = a guess).
            Use short snake_case English keys describing what the value represents - full_name,
            passport_number, pinfl, birth_date, address, vin, plate_number, brand, model, year,
-           engine_number, cadastre_number, area, rooms, floor, company_name, tin, director, and so on;
+           cadastre_number, area, rooms, floor, company_name, tin, director, and so on;
            invent a sensible key if none of these fit. Never invent a value that isn't actually visible on
            the document - omit the field entirely instead of guessing.
+
+           Be precise about IDENTIFIERS vs SPECIFICATIONS - these are often confused and are NOT
+           interchangeable: engine_number is the serial/ID code stamped on the engine block (e.g.
+           "F16D3-987654" or similar alphanumeric code), completely different from engine_capacity/
+           engine_type (e.g. "2.0 бензин", "1.6L petrol" - a displacement/fuel description, not an
+           identifier). Likewise chassis_number/body_number is a separate stamped serial code, distinct
+           from vin (though on some documents they're the same value - only report chassis_number
+           separately if the document actually labels it as a distinct field). If a document has an
+           engine specification but no visible engine serial number, extract engine_capacity but do NOT
+           put the specification under the key engine_number - leave engine_number out entirely rather
+           than reporting the wrong kind of value under that key.
 
         Output ONLY valid JSON, no Markdown, no explanations, matching exactly:
         {"document_type":"<type>","type_confidence":0.0,"ocr_text":"<all visible text>","fields":{"<key>":{"value":"<value>","confidence":0.0}}}
