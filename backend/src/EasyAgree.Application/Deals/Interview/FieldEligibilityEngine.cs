@@ -101,7 +101,14 @@ public static class FieldEligibilityEngine
     {
         var lower = label.ToLowerInvariant();
 
-        if (MatchesAny(lower, LegalDefaultKeywords) || MatchesAny(lower, PartyRoleKeywords) ||
+        // "гувоҳнома" (certificate/license - birth certificate, registration
+        // certificate, trademark certificate, etc.) shares a prefix with
+        // "гувоҳ" (witness) but means something entirely different and is
+        // often a genuinely required field. Strip it before the witness
+        // check so certificate fields aren't wrongly swallowed.
+        var legalCheckText = lower.Replace("гувоҳнома", "");
+
+        if (MatchesAny(legalCheckText, LegalDefaultKeywords) || MatchesAny(lower, PartyRoleKeywords) ||
             MatchesAny(lower, IdentityAttributeKeywords))
         {
             return FieldCategory.NeverAsk;
