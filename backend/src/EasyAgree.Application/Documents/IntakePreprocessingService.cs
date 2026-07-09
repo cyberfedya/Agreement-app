@@ -1,15 +1,11 @@
-using EasyAgree.Application.Common;
 using EasyAgree.Application.Common.Interfaces;
-using EasyAgree.Application.Deals;
 
 namespace EasyAgree.Application.Documents;
 
 public sealed class IntakePreprocessingService(
     IDealRepository dealRepository,
-    IAgreementTemplateRepository templateRepository,
     IUploadedDocumentRepository documentRepository,
-    IUserProfileRepository profileRepository,
-    IFieldMergeService fieldMergeService)
+    IUserProfileRepository profileRepository)
 {
     public async Task RefreshAsync(Guid dealId, CancellationToken cancellationToken = default)
     {
@@ -17,19 +13,13 @@ public sealed class IntakePreprocessingService(
         if (deal is null)
             return;
 
-        var template = await templateRepository.GetByKeyAsync(deal.TemplateKey, cancellationToken);
-        if (template is null)
-            return;
-
-        var labels = AgreementPlaceholderParser.ExtractLabels(template.HtmlTemplate);
-        var answers = DealAnswersSerializer.Deserialize(deal.AnswersJson);
-
         var documents = await documentRepository.GetByDealIdAsync(dealId, cancellationToken);
         var profile = deal.ProfileId is null ? null : await profileRepository.GetAsync(deal.ProfileId, cancellationToken);
-        var refreshed = await fieldMergeService.BuildAsync(
-            template.Fields, labels, answers, documents, profile, cancellationToken);
+        var refreshed = DocumentFieldHintCollection.Combine(
+            DocumentFieldHintCollection.FromDocuments(documents),
+            DocumentFieldHintCollection.FromProfile(profile));
 
-        deal.PreprocessedFieldsJson = MergedFieldCollectionSerializer.Serialize(refreshed);
+        deal.PreprocessedFieldsJson = DocumentFieldHintCollectionSerializer.Serialize(refreshed);
         deal.UpdatedAt = DateTime.UtcNow;
         await dealRepository.UpdateAsync(deal, cancellationToken);
     }

@@ -16,4 +16,4 @@ public sealed record InterviewContext(
     IReadOnlyDictionary<int, string> AlreadyKnown,
     IReadOnlyList<ClassifiedField> AllEligible,
     string? SuggestedAcknowledgement,
-    MergedFieldCollection MergedFields);
+    DocumentFieldHintCollection DocumentHints);

@@ -53,17 +53,19 @@ public sealed class QuestionGenerator(IAiChatClient aiChatClient)
         one question - never a list, never multiple sentences each posing a separate question.
 
         ALREADY_KNOWN lists what has already been established this conversation - never ask about any of it.
-        MERGED_FIELD_MAP is an unverified document/profile hint. It may help you phrase a focused question,
-        but it is NOT an answer source. Never treat MERGED_FIELD_MAP as completed information.
+        DOCUMENT_FIELD_HINTS lists raw semantic values already extracted from uploaded documents. These are
+        not mapped to template field ids. Use them only to answer or confirm fields in CURRENT_QUESTION_GROUP.
 
         Extraction rules (all optional, use only what genuinely applies):
         - If USER_REQUEST already states the value of ANY field listed in ALL_ELIGIBLE_FIELDS (not just the
           current group), return it in "extracted" - lightly normalized, never guessed or invented. This is
           the user's own words, so it's trustworthy the same way CURRENT_MESSAGE is.
-        - Never extract values from MERGED_FIELD_MAP - it is an unverified document/profile hint, not
-          something the user said. It may contain wrong field/value matches from document preprocessing. If
-          it appears relevant to CURRENT_QUESTION_GROUP, ask the user to confirm the value in natural
-          language instead of returning it in "extracted".
+        - DOCUMENT_FIELD_HINTS may answer fields in CURRENT_QUESTION_GROUP only. If a raw document key/value
+          clearly corresponds to a current field, return it in "extracted". Do not use document hints for
+          fields outside CURRENT_QUESTION_GROUP, and never force-fit a value when the key does not match.
+          Be precise: vehicle_make/model/year/vin/body_number/chassis_number/engine_number/plate_number/
+          issued_date are different fields. A date must never be used as make/model; chassis_number must
+          never be used as year; model must never be used as VIN/body/chassis number.
         - If CURRENT_MESSAGE (the user's answer to the question you asked last turn) states the value of a
           field in CURRENT_QUESTION_GROUP, return it in "extracted" too. Never use CURRENT_MESSAGE to fill a
           field outside CURRENT_QUESTION_GROUP, even if it superficially resembles one - an answer about one
@@ -99,8 +101,8 @@ public sealed class QuestionGenerator(IAiChatClient aiChatClient)
             LANGUAGE: {context.Language}
             SUGGESTED_ACK: {context.SuggestedAcknowledgement ?? "(none - this is the first question)"}
             USER_REQUEST: {context.UserRequest ?? "(not provided - template was picked manually)"}
-            MERGED_FIELD_MAP:
-            {context.MergedFields.ToPromptContext() ?? "(no preprocessed fields)"}
+            DOCUMENT_FIELD_HINTS:
+            {context.DocumentHints.ToPromptContext() ?? "(no document fields extracted)"}
             ALREADY_KNOWN:
             {knownCatalog}
             ALL_ELIGIBLE_FIELDS:
