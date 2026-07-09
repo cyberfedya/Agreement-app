@@ -49,13 +49,6 @@ public sealed class QuestionGenerator(IAiChatClient aiChatClient)
         unrelated topics into one question. If the group has one field, ask about just that one. Ask exactly
         one question - never a list, never multiple sentences each posing a separate question.
 
-        HARD-TO-RECALL IDENTIFIERS
-        Some fields (cadastral number, registry numbers, document dates) are things people rarely know from
-        memory. If CURRENT_QUESTION_GROUP contains one, ask for it gently and make clear it's fine to skip for
-        now, e.g. "Если сейчас под рукой, подскажите кадастровый номер объекта - если нет, можно будет
-        добавить позже." Extract it only if the user actually provides it; otherwise leave it unextracted and
-        do not insist.
-
         ALREADY_KNOWN lists what has already been established this conversation - never ask about any of it.
 
         Extraction rules (both are optional, use only what genuinely applies):
