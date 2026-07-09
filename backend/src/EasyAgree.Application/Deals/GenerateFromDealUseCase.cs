@@ -33,6 +33,8 @@ public sealed class GenerateFromDealUseCase(
         "қарз берувчи", "займодав", "кредитор",
         "иш берувчи", "работодател",
         "буюртмачи", "заказчик",
+        "ҳадя қилувчи", "дарител",
+        // generic wording some templates use instead of role names
         "биринчи томон", "первой стороны", "первая сторона",
     ];
 
