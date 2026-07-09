@@ -16,15 +16,6 @@ public sealed class GetNextQuestionUseCase(
     IAgreementTemplateRepository templateRepository,
     IAiChatClient aiChatClient)
 {
-    // Deliberately narrow and specific (rather than broad terms like "date"
-    // or "city") — those are legitimate answers for plenty of agreements
-    // (transfer date, property address). No template field list carries a
-    // "source" tag yet (required/ask_current_user/system), so this is a
-    // heuristic stand-in for two of the product rules' categories:
-    //   1) administrative/notarial metadata about the agreement itself
-    //   2) either party's own identity — the creator's is already known,
-    //      the second party's comes from the QR-sign flow, so asking here
-    //      would violate "DO NOT ask creator/second-party information".
     private static readonly string[] NeverAskKeywords =
     [
         // administrative / notarial metadata
@@ -35,10 +26,6 @@ public sealed class GetNextQuestionUseCase(
         "иш рақами", "номер дела", "шартнома рақами", "номер договора",
         "тузилган сана", "тузилган вақт", "тузилган жой", "тасдиқланган сана",
         "дата составления", "дата подписания",
-        // party identity — belongs to the creator (profile) or the second
-        // party (QR-sign flow), never asked here. Covers the common role
-        // pairs across domains: sale, rent, loan, employment, services,
-        // marriage.
         "сотувчи", "сотиб олувчи", "харидор", "покупател", "продав",
         "ижарага берувчи", "ижарага олувчи", "арендодател", "арендатор",
         "қарз берувчи", "қарз олувчи", "займодав", "заемщик", "заёмщик", "кредитор",
@@ -47,8 +34,14 @@ public sealed class GetNextQuestionUseCase(
         "ҳадя қилувчи", "ҳадя олувчи", "дарител", "одаряем",
         "супруг", "хотин", "турмуш ўртоғ",
         "биринчи томон", "иккинчи томон", "первой стороны", "второй стороны",
-        "первая сторона", "вторая сторона",
-        "паспорт", "ф.и.о",
+        "первая сторона", "вторая сторона", "биринчи тараф", "иккинчи тараф",
+        "аризачи", "даъвогарнинг", "жавобгарнинг",
+        "паспорт", "ф.и.о", "ф.и.ш",
+        "стир", "инн", "телефон", "факс", "электрон почта",
+        "яшаш манзил", "проживан",
+        "туғилган", "рожден",
+        "ҳисоб рақам", "банк", "мфо",
+        "лавозим", "ташкилий-ҳуқуқий", "директор", "раҳбар", "руководител",
      ];
 
     private const string SystemPrompt = """

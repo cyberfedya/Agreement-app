@@ -34,8 +34,9 @@ public sealed class GenerateFromDealUseCase(
         "иш берувчи", "работодател",
         "буюртмачи", "заказчик",
         "ҳадя қилувчи", "дарител",
+        "аризачи", "даъвогар", "талабнома берувчи",
         // generic wording some templates use instead of role names
-        "биринчи томон", "первой стороны", "первая сторона",
+        "биринчи томон", "первой стороны", "первая сторона", "биринчи тараф",
     ];
 
     public async Task<GenerateFromDealResult> ExecuteAsync(
@@ -48,9 +49,6 @@ public sealed class GenerateFromDealUseCase(
         var template = await templateRepository.GetByKeyAsync(deal.TemplateKey, cancellationToken);
         if (template is null)
             return GenerateFromDealResult.NotFound();
-
-        // Server-persisted answers first, then the client's copy on top —
-        // the client's is fresher for fields edited via "back".
         var merged = DealAnswersSerializer.Deserialize(deal.AnswersJson);
         foreach (var (fieldId, value) in answers)
         {
