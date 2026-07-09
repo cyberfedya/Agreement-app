@@ -83,6 +83,12 @@ class FakeAgreementRepository implements AgreementRepository {
 
   @override
   Future<Result<Agreement>> generate(String dealId, Map<int, String> answers) async => result;
+
+  @override
+  Future<Result<Agreement>> getByDealId(String dealId) async => result;
+
+  @override
+  Future<Result<void>> signAsSecondParty(String dealId, String fullName) async => const Success(null);
 }
 
 /// Defaults to a matched deal for both entry points, mirroring the happy

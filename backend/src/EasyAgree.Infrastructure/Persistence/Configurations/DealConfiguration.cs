@@ -32,6 +32,9 @@ public sealed class DealConfiguration : IEntityTypeConfiguration<Deal>
         builder.Property(d => d.GeneratedHtml)
             .HasColumnType("text");
 
+        builder.Property(d => d.SecondPartyName)
+            .HasMaxLength(300);
+
         builder.Property(d => d.CreatedAt);
         builder.Property(d => d.UpdatedAt);
 

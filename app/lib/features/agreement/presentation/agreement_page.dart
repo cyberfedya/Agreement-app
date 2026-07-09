@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_html/flutter_html.dart';
@@ -29,6 +31,7 @@ class _AgreementPageState extends State<AgreementPage> {
   // Cached rather than looked up via context.read() in dispose(): by then
   // the element is deactivated and ancestor lookups are unsafe.
   AgreementProvider? _provider;
+  Timer? _pollTimer;
 
   @override
   void didChangeDependencies() {
@@ -37,17 +40,33 @@ class _AgreementPageState extends State<AgreementPage> {
     if (!identical(_provider, provider)) {
       _provider?.removeListener(_onProviderChanged);
       _provider = provider..addListener(_onProviderChanged);
+      _startPollingIfNeeded();
     }
   }
 
   @override
   void dispose() {
+    _pollTimer?.cancel();
     _provider?.removeListener(_onProviderChanged);
     super.dispose();
   }
 
+  /// The second party signs on their own device after scanning the QR
+  /// code - there's no push mechanism, so this device has to periodically
+  /// ask the backend whether that's happened yet.
+  void _startPollingIfNeeded() {
+    final agreement = _provider?.agreement;
+    if (agreement == null || _provider!.isFullySigned) return;
+    _pollTimer ??= Timer.periodic(const Duration(seconds: 4), (_) {
+      final dealId = _provider?.agreement?.key;
+      if (dealId != null) _provider?.refreshStatus(dealId);
+    });
+  }
+
   void _onProviderChanged() {
+    _startPollingIfNeeded();
     if (_provider!.isFullySigned) {
+      _pollTimer?.cancel();
       Navigator.of(context).pushReplacementNamed(AppRoutes.agreementCompleted);
     }
   }
@@ -220,7 +239,7 @@ class _AgreementPageState extends State<AgreementPage> {
                 TextButton(
                   onPressed: () => Navigator.of(context)
                       .pushNamed(AppRoutes.agreementSign, arguments: agreement.key),
-                  child: const Text('Демо: подписать как вторая сторона'),
+                  child: const Text('Открыть как вторая сторона (на этом устройстве)'),
                 ),
               ],
             ),

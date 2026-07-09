@@ -32,6 +32,11 @@ public class Deal
 
     public string? GeneratedHtml { get; set; }
 
+    /// <summary>Second party's legal name, set once they complete the QR-sign flow (null until then).</summary>
+    public string? SecondPartyName { get; set; }
+
+    public DateTime? SecondPartySignedAt { get; set; }
+
     public DateTime CreatedAt { get; set; }
 
     public DateTime UpdatedAt { get; set; }

@@ -9,16 +9,14 @@ import 'package:app/core/widgets/bottom_action_bar.dart';
 import 'package:app/features/agreement/providers/agreement_provider.dart';
 import 'package:app/shared/widgets/primary_button.dart';
 
-/// Second party's view after scanning the QR code: read-only document,
-/// then a demo MyID identification step before signing.
-///
-/// There is no backend endpoint yet to fetch a generated agreement by key
-/// from a different session, so this reads the same in-memory
-/// [AgreementProvider] the first party generated it into — real
-/// cross-device retrieval is future work, not this screen's concern.
+/// Second party's view after scanning the QR code: fetches the agreement
+/// by deal id from the backend (so this works from any device, not just
+/// the one that generated it), then a demo MyID identification step
+/// before signing - which is also persisted via the backend.
 class AgreementSignPage extends StatefulWidget {
   const AgreementSignPage({super.key, required this.agreementKey});
 
+  /// The deal id encoded in the scanned QR code.
   final String agreementKey;
 
   @override
@@ -28,83 +26,129 @@ class AgreementSignPage extends StatefulWidget {
 class _AgreementSignPageState extends State<AgreementSignPage> {
   bool _verifying = false;
 
+  @override
+  void initState() {
+    super.initState();
+    final provider = context.read<AgreementProvider>();
+    Future.microtask(() => provider.loadByDealId(widget.agreementKey));
+  }
+
   Future<void> _identifyAndSign() async {
     setState(() => _verifying = true);
     await Future<void>.delayed(const Duration(milliseconds: 1400));
     if (!mounted) return;
     // Demo MyID: a real integration would return the verified party's
     // legal name here instead of this placeholder.
-    context.read<AgreementProvider>().signAsSecondParty('Иванов Иван Иванович');
+    final success = await context.read<AgreementProvider>().signAsSecondParty(
+      widget.agreementKey,
+      'Иванов Иван Иванович',
+    );
+    if (!mounted) return;
+    setState(() => _verifying = false);
+    if (!success) {
+      final message = context.read<AgreementProvider>().errorMessage ?? 'Не удалось подписать договор.';
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final agreement = context.watch<AgreementProvider>().agreement;
+    return Consumer<AgreementProvider>(
+      builder: (context, provider, _) {
+        if (provider.isLoading) {
+          return const Scaffold(body: AppLoadingIndicator());
+        }
 
-    if (agreement == null || agreement.key != widget.agreementKey) {
-      return Scaffold(
-        appBar: AppBar(),
-        body: const AppEmptyView(
-          title: 'Документ недоступен',
-          message: 'Этот договор не найден в текущей демо-сессии.',
-        ),
-      );
-    }
-
-    return Scaffold(
-      appBar: AppBar(title: const Text('Договор на подпись')),
-      body: CenteredContent(
-        child: ListView(
-          padding: const EdgeInsets.all(Insets.x20),
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                color: theme.brightness == Brightness.light ? Colors.white : theme.colorScheme.surfaceContainerHigh,
-                borderRadius: Corners.lgRadius,
-                border: Border.all(color: theme.colorScheme.outlineVariant),
-              ),
-              padding: const EdgeInsets.all(Insets.x20),
-              child: Html(data: sanitizeAgreementHtml(agreement.html)),
+        final agreement = provider.agreement;
+        if (agreement == null || agreement.key != widget.agreementKey) {
+          return Scaffold(
+            appBar: AppBar(),
+            body: AppEmptyView(
+              title: 'Документ недоступен',
+              message: provider.errorMessage ?? 'Этот договор не найден или ещё не сформирован.',
             ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: BottomActionBar(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(Insets.x16),
-              margin: const EdgeInsets.only(bottom: Insets.x12),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerLow,
-                borderRadius: Corners.lgRadius,
-                border: Border.all(color: theme.colorScheme.outlineVariant),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.badge_outlined, size: 20, color: theme.colorScheme.primary),
-                  const SizedBox(width: Insets.x12),
-                  Expanded(
-                    child: Text(
-                      'Перед подписью — идентификация через MyID. '
-                      'Ваши имя и данные подставятся в договор автоматически.',
-                      style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+          );
+        }
+
+        return Scaffold(
+          appBar: AppBar(title: const Text('Договор на подпись')),
+          body: CenteredContent(
+            child: ListView(
+              padding: const EdgeInsets.all(Insets.x20),
+              children: [
+                if (provider.isFullySigned)
+                  Container(
+                    padding: const EdgeInsets.all(Insets.x16),
+                    margin: const EdgeInsets.only(bottom: Insets.x16),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primaryContainer,
+                      borderRadius: Corners.lgRadius,
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.check_circle_outline, size: 20, color: theme.colorScheme.onPrimaryContainer),
+                        const SizedBox(width: Insets.x12),
+                        Expanded(
+                          child: Text(
+                            'Подписано: ${provider.secondPartyName}',
+                            style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.onPrimaryContainer),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
+                Container(
+                  decoration: BoxDecoration(
+                    color: theme.brightness == Brightness.light ? Colors.white : theme.colorScheme.surfaceContainerHigh,
+                    borderRadius: Corners.lgRadius,
+                    border: Border.all(color: theme.colorScheme.outlineVariant),
+                  ),
+                  padding: const EdgeInsets.all(Insets.x20),
+                  child: Html(data: sanitizeAgreementHtml(agreement.html)),
+                ),
+              ],
             ),
-            PrimaryButton(
-              label: 'Пройти MyID и подписать',
-              loading: _verifying,
-              onPressed: _identifyAndSign,
-            ),
-          ],
-        ),
-      ),
+          ),
+          bottomNavigationBar: provider.isFullySigned
+              ? null
+              : BottomActionBar(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(Insets.x16),
+                        margin: const EdgeInsets.only(bottom: Insets.x12),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.surfaceContainerLow,
+                          borderRadius: Corners.lgRadius,
+                          border: Border.all(color: theme.colorScheme.outlineVariant),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.badge_outlined, size: 20, color: theme.colorScheme.primary),
+                            const SizedBox(width: Insets.x12),
+                            Expanded(
+                              child: Text(
+                                'Перед подписью — идентификация через MyID. '
+                                'Ваши имя и данные подставятся в договор автоматически.',
+                                style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      PrimaryButton(
+                        label: 'Пройти MyID и подписать',
+                        loading: _verifying,
+                        onPressed: _identifyAndSign,
+                      ),
+                    ],
+                  ),
+                ),
+        );
+      },
     );
   }
 }

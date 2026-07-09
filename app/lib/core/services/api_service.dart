@@ -105,4 +105,16 @@ class ApiService {
       rethrow;
     }
   }
+
+  /// Fetches an already-generated agreement by deal id - the cross-device
+  /// counterpart to [generateFromDeal]. This is what lets the second party
+  /// (whoever scanned the QR code, on their own device) retrieve the same
+  /// document rather than relying on any local state.
+  Future<Agreement> getDealAgreement(String dealId) async {
+    final json = await _client.getJson('/api/deals/$dealId/agreement');
+    return Agreement.fromJson(json as Map<String, dynamic>);
+  }
+
+  Future<void> signDealSecondParty(String dealId, String fullName) =>
+      _client.postJson('/api/deals/$dealId/sign', body: {'fullName': fullName});
 }

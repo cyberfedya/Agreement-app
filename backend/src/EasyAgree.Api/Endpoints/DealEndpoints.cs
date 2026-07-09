@@ -66,6 +66,24 @@ public static class DealEndpoints
         })
         .WithName("GenerateFromDeal");
 
+        group.MapGet("/{id:guid}/agreement", async (Guid id, GetDealAgreementUseCase useCase, CancellationToken ct) =>
+        {
+            var result = await useCase.ExecuteAsync(id, ct);
+            return result is null ? Results.NotFound() : Results.Ok(result);
+        })
+        .WithName("GetDealAgreement");
+
+        group.MapPost("/{id:guid}/sign", async (
+            Guid id, SignDealRequest request, SignDealSecondPartyUseCase useCase, CancellationToken ct) =>
+        {
+            if (string.IsNullOrWhiteSpace(request.FullName))
+                return Results.BadRequest();
+
+            var success = await useCase.ExecuteAsync(id, request.FullName, ct);
+            return success ? Results.NoContent() : Results.NotFound();
+        })
+        .WithName("SignDealSecondParty");
+
         return app;
     }
 }
