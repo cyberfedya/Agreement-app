@@ -15,7 +15,8 @@ public static class DealEndpoints
         group.MapPost("/", async (
             CreateDealRequest request, CreateDealUseCase useCase, string? lang, CancellationToken ct) =>
         {
-            var result = await useCase.ExecuteAsync(request.Text, request.TemplateKey, lang ?? DefaultLanguage, ct);
+            var result = await useCase.ExecuteAsync(
+                request.Text, request.TemplateKey, lang ?? DefaultLanguage, request.ProfileId, ct);
             return result.IsNoMatch ? Results.UnprocessableEntity(new { error = "no_match" }) : Results.Ok(result.Deal);
         })
         .WithName("CreateDeal");

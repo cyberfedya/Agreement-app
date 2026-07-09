@@ -1,6 +1,7 @@
 using EasyAgree.Application.Common;
 using EasyAgree.Application.Common.Interfaces;
 using EasyAgree.Application.Templates;
+using EasyAgree.Domain.Entities;
 using EasyAgree.Domain.Enums;
 
 namespace EasyAgree.Application.Deals;
@@ -12,7 +13,8 @@ namespace EasyAgree.Application.Deals;
 ///   1. answers persisted on the deal (interview answers + AI-extracted
 ///      values from the original request),
 ///   2. answers sent by the client with this call,
-///   3. the creator's profile (their own party details — never asked),
+///   3. the creator's profile (their own party details — never asked;
+///      blank if the creator hasn't filled in their profile yet),
 ///   4. a visible blank placeholder for everything still pending: the
 ///      second party's details (filled via the QR-sign flow) and notarial
 ///      metadata (filled at the notarization stage).
@@ -20,7 +22,7 @@ namespace EasyAgree.Application.Deals;
 public sealed class GenerateFromDealUseCase(
     IDealRepository dealRepository,
     IAgreementTemplateRepository templateRepository,
-    IUserProfileProvider profileProvider,
+    IUserProfileRepository profileRepository,
     GenerateAgreementUseCase generateAgreement)
 {
     private const string PendingPlaceholder = "____________";
@@ -49,6 +51,7 @@ public sealed class GenerateFromDealUseCase(
         var template = await templateRepository.GetByKeyAsync(deal.TemplateKey, cancellationToken);
         if (template is null)
             return GenerateFromDealResult.NotFound();
+
         var merged = DealAnswersSerializer.Deserialize(deal.AnswersJson);
         foreach (var (fieldId, value) in answers)
         {
@@ -57,7 +60,7 @@ public sealed class GenerateFromDealUseCase(
         }
 
         var labels = AgreementPlaceholderParser.ExtractLabels(template.HtmlTemplate);
-        var profile = await profileProvider.GetCurrentAsync(cancellationToken);
+        var profile = deal.ProfileId is null ? null : await profileRepository.GetAsync(deal.ProfileId, cancellationToken);
 
         foreach (var field in template.Fields)
         {
@@ -65,7 +68,8 @@ public sealed class GenerateFromDealUseCase(
                 continue;
 
             var label = labels.GetValueOrDefault(field.FieldId, string.Empty);
-            merged[field.FieldId] = ResolveFromProfile(label, profile) ?? PendingPlaceholder;
+            var resolved = profile is null ? null : ResolveFromProfile(label, profile);
+            merged[field.FieldId] = string.IsNullOrWhiteSpace(resolved) ? PendingPlaceholder : resolved;
         }
 
         var result = await generateAgreement.ExecuteAsync(deal.TemplateKey, merged, cancellationToken);
@@ -101,13 +105,7 @@ public sealed class GenerateFromDealUseCase(
         if (lower.Contains("туғилган") || lower.Contains("рожден"))
             return profile.BirthDate;
         if (lower.Contains("паспорт"))
-        {
-            if (lower.Contains("берилган сана") || lower.Contains("дата выдачи"))
-                return profile.PassportIssueDate;
-            if (lower.Contains("берган") || lower.Contains("выдав"))
-                return profile.PassportIssuedBy;
             return profile.PassportNumber;
-        }
 
         return null;
     }

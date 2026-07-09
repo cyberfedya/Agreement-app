@@ -28,7 +28,11 @@ public sealed class CreateDealUseCase(
         """;
 
     public async Task<CreateDealResult> ExecuteAsync(
-        string? text, string? templateKey, string language, CancellationToken cancellationToken = default)
+        string? text,
+        string? templateKey,
+        string language,
+        string? profileId,
+        CancellationToken cancellationToken = default)
     {
         AgreementTemplate? template;
 
@@ -56,6 +60,7 @@ public sealed class CreateDealUseCase(
             Id = Guid.NewGuid(),
             TemplateKey = template.Key,
             RequestText = text,
+            ProfileId = profileId,
             Status = DealStatus.Draft,
             CreatedAt = now,
             UpdatedAt = now,

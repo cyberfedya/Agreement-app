@@ -19,6 +19,9 @@ public sealed class DealConfiguration : IEntityTypeConfiguration<Deal>
         builder.Property(d => d.RequestText)
             .HasColumnType("text");
 
+        builder.Property(d => d.ProfileId)
+            .HasMaxLength(64);
+
         builder.Property(d => d.Status)
             .HasConversion<string>()
             .HasMaxLength(20);

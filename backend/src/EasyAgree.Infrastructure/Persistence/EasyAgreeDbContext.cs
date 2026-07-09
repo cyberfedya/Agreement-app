@@ -13,6 +13,8 @@ public class EasyAgreeDbContext(DbContextOptions<EasyAgreeDbContext> options) : 
 
     public DbSet<Deal> Deals => Set<Deal>();
 
+    public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(EasyAgreeDbContext).Assembly);

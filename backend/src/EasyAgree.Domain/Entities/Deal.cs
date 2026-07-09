@@ -16,6 +16,9 @@ public class Deal
     /// <summary>The free-form text that produced this deal, if any (null when created from a direct template pick).</summary>
     public string? RequestText { get; set; }
 
+    /// <summary>The creator's <see cref="UserProfile.Id"/>, so generation knows whose profile fills the first party.</summary>
+    public string? ProfileId { get; set; }
+
     public DealStatus Status { get; set; } = DealStatus.Draft;
 
     /// <summary>
