@@ -2,17 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:provider/provider.dart';
-
 import 'package:app/core/router/app_router.dart';
 import 'package:app/features/agreement/domain/agreement_html.dart';
+import 'package:app/features/agreement/domain/agreement_pdf.dart';
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/core/widgets/app_widgets.dart';
 import 'package:app/core/widgets/bottom_action_bar.dart';
 import 'package:app/features/agreement/providers/agreement_provider.dart';
 import 'package:app/shared/widgets/primary_button.dart';
-
-/// Final step: both parties have signed. Shows the completed document with
-/// the second party's (demo) name attached, and the usual export actions.
 class AgreementCompletedPage extends StatelessWidget {
   const AgreementCompletedPage({super.key});
 
@@ -28,16 +25,7 @@ class AgreementCompletedPage extends StatelessWidget {
     messenger.showSnackBar(const SnackBar(content: Text('Договор скопирован')));
   }
 
-  void _exportPdf(BuildContext context) {
-    showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Экспорт в PDF'),
-        content: const Text('Сохранение и отправка PDF появится в следующем релизе.'),
-        actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Понятно'))],
-      ),
-    );
-  }
+  Future<void> _exportPdf(BuildContext context, String html) => exportAgreementAsPdf(context, html);
 
   @override
   Widget build(BuildContext context) {
@@ -105,7 +93,7 @@ class AgreementCompletedPage extends StatelessWidget {
                 const SizedBox(width: Insets.x12),
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: () => _exportPdf(context),
+                    onPressed: () => _exportPdf(context, agreement.html),
                     icon: const Icon(Icons.ios_share_outlined, size: 18),
                     label: const Text('PDF'),
                   ),

@@ -8,6 +8,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 
 import 'package:app/core/router/app_router.dart';
 import 'package:app/features/agreement/domain/agreement_html.dart';
+import 'package:app/features/agreement/domain/agreement_pdf.dart';
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/core/widgets/app_widgets.dart';
 import 'package:app/core/widgets/bottom_action_bar.dart';
@@ -90,22 +91,7 @@ class _AgreementPageState extends State<AgreementPage> {
     messenger.showSnackBar(const SnackBar(content: Text('Agreement copied to clipboard')));
   }
 
-  void _exportPdf(BuildContext context) {
-    // PDF export ships in V2; this dialog is the sanctioned placeholder.
-    showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('PDF export'),
-        content: const Text(
-          'Saving and sharing as PDF is coming in the next release. '
-          'For now you can copy the agreement text.',
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Got it')),
-        ],
-      ),
-    );
-  }
+  Future<void> _exportPdf(BuildContext context, String html) => exportAgreementAsPdf(context, html);
 
   @override
   Widget build(BuildContext context) {
@@ -185,7 +171,7 @@ class _AgreementPageState extends State<AgreementPage> {
                     IconButton(
                       tooltip: 'Share / Export PDF',
                       icon: const Icon(Icons.ios_share_outlined, size: 20),
-                      onPressed: () => _exportPdf(context),
+                      onPressed: () => _exportPdf(context, agreement.html),
                     ),
                   ],
                 ),
