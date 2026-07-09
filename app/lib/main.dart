@@ -5,6 +5,7 @@ import 'package:app/core/config/app_config.dart';
 import 'package:app/core/network/api_client.dart';
 import 'package:app/core/router/app_router.dart';
 import 'package:app/core/services/api_service.dart';
+import 'package:app/core/services/tts_service.dart';
 import 'package:app/core/theme/app_theme.dart';
 import 'package:app/features/agreement/data/agreement_repository.dart';
 import 'package:app/features/agreement/providers/agreement_provider.dart';
@@ -41,6 +42,7 @@ class EasyAgreeApp extends StatelessWidget {
         Provider<AgreementRepository>(create: (ctx) => ApiAgreementRepository(ctx.read<ApiService>())),
         Provider<DealRepository>(create: (ctx) => ApiDealRepository(ctx.read<ApiService>())),
         Provider<ProfileRepository>(create: (_) => const DemoProfileRepository()),
+        Provider<TtsService>(create: (_) => TtsService(), dispose: (_, tts) => tts.dispose()),
         ChangeNotifierProvider(create: (ctx) => TemplatesListProvider(ctx.read<TemplateRepository>())),
         ChangeNotifierProvider(
           create: (ctx) => TemplateDetailProvider(

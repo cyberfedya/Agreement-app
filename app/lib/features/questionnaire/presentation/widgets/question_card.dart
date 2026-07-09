@@ -13,12 +13,16 @@ class QuestionCard extends StatelessWidget {
     required this.controller,
     required this.onChanged,
     this.autofocus = false,
+    this.onSpeak,
   });
 
   final Question question;
   final TextEditingController controller;
   final ValueChanged<String> onChanged;
   final bool autofocus;
+
+  /// Replays the question aloud; the speaker button is hidden when null.
+  final VoidCallback? onSpeak;
 
   void _onVoiceText(String text) {
     controller.value = TextEditingValue(text: text, selection: TextSelection.collapsed(offset: text.length));
@@ -31,11 +35,24 @@ class QuestionCard extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(Insets.x20, Insets.x24, Insets.x20, Insets.x24),
       children: [
-        Text(
-          question.required ? 'Обязательный вопрос' : 'Необязательно',
-          style: theme.textTheme.labelLarge?.copyWith(
-            color: question.required ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant,
-          ),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                question.required ? 'Обязательный вопрос' : 'Необязательно',
+                style: theme.textTheme.labelLarge?.copyWith(
+                  color: question.required ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+            if (onSpeak != null)
+              IconButton(
+                onPressed: onSpeak,
+                icon: const Icon(Icons.volume_up_rounded, size: 22),
+                tooltip: 'Озвучить вопрос',
+                color: theme.colorScheme.primary,
+              ),
+          ],
         ),
         const SizedBox(height: Insets.x8),
         Text(question.fieldName, style: theme.textTheme.headlineSmall?.copyWith(height: 1.3)),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'package:app/core/router/app_router.dart';
+import 'package:app/core/services/tts_service.dart';
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/core/widgets/app_widgets.dart';
 import 'package:app/core/widgets/bottom_action_bar.dart';
@@ -34,6 +34,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
   // Cached rather than looked up via context.read() in dispose(): by then
   // the element is deactivated and ancestor lookups are unsafe.
   QuestionnaireProvider? _provider;
+  TtsService? _tts;
 
   @override
   void initState() {
@@ -46,6 +47,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _tts = context.read<TtsService>();
     final provider = context.read<QuestionnaireProvider>();
     if (!identical(_provider, provider)) {
       _provider?.removeListener(_onProviderChanged);
@@ -55,6 +57,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
 
   @override
   void dispose() {
+    _tts?.stop();
     _provider?.removeListener(_onProviderChanged);
     _controller.dispose();
     super.dispose();
@@ -67,13 +70,14 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
 
   /// Keeps the text field in sync with whichever question is current —
   /// prefilled when going back to an already-answered one, empty for a
-  /// fresh one from the planner.
+  /// fresh one from the planner — and reads each new question aloud.
   void _onProviderChanged() {
     final field = _provider?.currentQuestion;
     if (field == null || field.fieldId == _controllerBoundToFieldId) return;
     _controllerBoundToFieldId = field.fieldId;
     final text = _provider!.answerFor(field.fieldId);
     _controller.value = TextEditingValue(text: text, selection: TextSelection.collapsed(offset: text.length));
+    _tts?.speak(field.fieldName);
   }
 
   Future<void> _submitAnswer(QuestionnaireProvider provider) async {
@@ -203,6 +207,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                             question: field,
                             controller: _controller,
                             onChanged: (_) {},
+                            onSpeak: () => _tts?.speak(field.fieldName),
                           ),
                         IgnorePointer(
                           child: AnimatedOpacity(

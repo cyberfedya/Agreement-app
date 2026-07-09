@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
-
 import 'package:app/core/router/app_router.dart';
+import 'package:app/core/services/tts_service.dart';
 import 'package:app/features/agreement/data/agreement_repository.dart';
 import 'package:app/features/agreement/domain/agreement.dart';
 import 'package:app/features/agreement/presentation/agreement_page.dart';
@@ -137,6 +137,7 @@ Widget buildTestApp({
     providers: [
       Provider<TemplateRepository>.value(value: templates),
       Provider<DealRepository>.value(value: dealRepository ?? FakeDealRepository()),
+      Provider<TtsService>(create: (_) => TtsService()),
       ChangeNotifierProvider(create: (_) => TemplatesListProvider(templates)),
       ChangeNotifierProvider(create: (_) => TemplateDetailProvider(templates, questionnaire)),
       ChangeNotifierProvider(create: (_) => QuestionnaireProvider(questionnaire)),

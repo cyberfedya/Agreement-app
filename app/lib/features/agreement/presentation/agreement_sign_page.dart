@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:provider/provider.dart';
 
+import 'package:app/features/agreement/domain/agreement_html.dart';
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/core/widgets/app_widgets.dart';
 import 'package:app/core/widgets/bottom_action_bar.dart';
@@ -64,7 +65,7 @@ class _AgreementSignPageState extends State<AgreementSignPage> {
                 border: Border.all(color: theme.colorScheme.outlineVariant),
               ),
               padding: const EdgeInsets.all(Insets.x20),
-              child: Html(data: agreement.html),
+              child: Html(data: sanitizeAgreementHtml(agreement.html)),
             ),
           ],
         ),
