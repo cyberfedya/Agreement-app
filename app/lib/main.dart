@@ -9,6 +9,7 @@ import 'package:app/core/theme/app_theme.dart';
 import 'package:app/features/agreement/data/agreement_repository.dart';
 import 'package:app/features/agreement/providers/agreement_provider.dart';
 import 'package:app/features/deal/data/deal_repository.dart';
+import 'package:app/features/profile/data/profile_repository.dart';
 import 'package:app/features/questionnaire/data/questionnaire_repository.dart';
 import 'package:app/features/questionnaire/providers/questionnaire_provider.dart';
 import 'package:app/features/templates/data/template_repository.dart';
@@ -39,6 +40,7 @@ class EasyAgreeApp extends StatelessWidget {
         ),
         Provider<AgreementRepository>(create: (ctx) => ApiAgreementRepository(ctx.read<ApiService>())),
         Provider<DealRepository>(create: (ctx) => ApiDealRepository(ctx.read<ApiService>())),
+        Provider<ProfileRepository>(create: (_) => const DemoProfileRepository()),
         ChangeNotifierProvider(create: (ctx) => TemplatesListProvider(ctx.read<TemplateRepository>())),
         ChangeNotifierProvider(
           create: (ctx) => TemplateDetailProvider(

@@ -95,7 +95,7 @@ public sealed class GetNextQuestionUseCase(
         if (template is null)
             return NextQuestionResult.NotFound();
 
-        var answers = DeserializeAnswers(deal.AnswersJson);
+        var answers = DealAnswersSerializer.Deserialize(deal.AnswersJson);
         if (answeredFieldId is { } fieldId && !string.IsNullOrWhiteSpace(answerText))
         {
             answers[fieldId] = answerText;
@@ -155,7 +155,7 @@ public sealed class GetNextQuestionUseCase(
 
     private async Task SaveAnswersAsync(Deal deal, Dictionary<int, string> answers, CancellationToken cancellationToken)
     {
-        deal.AnswersJson = JsonSerializer.Serialize(answers.ToDictionary(kv => kv.Key.ToString(), kv => kv.Value));
+        deal.AnswersJson = DealAnswersSerializer.Serialize(answers);
         deal.UpdatedAt = DateTime.UtcNow;
         await dealRepository.UpdateAsync(deal, cancellationToken);
     }
@@ -243,19 +243,4 @@ public sealed class GetNextQuestionUseCase(
         return NeverAskKeywords.Any(lower.Contains);
     }
 
-    private static Dictionary<int, string> DeserializeAnswers(string? json)
-    {
-        if (string.IsNullOrWhiteSpace(json))
-            return [];
-
-        try
-        {
-            return JsonSerializer.Deserialize<Dictionary<string, string>>(json)?
-                .ToDictionary(kv => int.Parse(kv.Key), kv => kv.Value) ?? [];
-        }
-        catch (JsonException)
-        {
-            return [];
-        }
-    }
 }

@@ -2,6 +2,7 @@ using EasyAgree.Application.Common.Interfaces;
 using EasyAgree.Infrastructure.AI;
 using EasyAgree.Infrastructure.Persistence;
 using EasyAgree.Infrastructure.Persistence.Repositories;
+using EasyAgree.Infrastructure.Profile;
 using EasyAgree.Infrastructure.Persistence.Seed;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -29,6 +30,7 @@ public static class DependencyInjection
 
         services.AddScoped<IAgreementTemplateRepository, AgreementTemplateRepository>();
         services.AddScoped<IDealRepository, DealRepository>();
+        services.AddSingleton<IUserProfileProvider, DemoUserProfileProvider>();
 
         services.Configure<AiOptions>(configuration.GetSection(AiOptions.SectionName));
         services.AddSingleton(sp =>
