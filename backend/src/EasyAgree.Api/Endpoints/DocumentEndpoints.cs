@@ -1,3 +1,4 @@
+using EasyAgree.Application.Deals.Interview;
 using EasyAgree.Application.Documents;
 using EasyAgree.Contracts.Documents;
 using EasyAgree.Domain.Entities;
@@ -54,6 +55,24 @@ public static class DocumentEndpoints
                 new RequiredDocumentDto(r.Type.ToString(), r.Title, r.Description, r.Required, r.Priority)));
         })
         .WithName("GetRequiredDocuments");
+
+        group.MapDelete("/{id:guid}/documents/{documentId:guid}", async (
+            Guid id, Guid documentId, DeleteDocumentUseCase useCase, CancellationToken ct) =>
+        {
+            var deleted = await useCase.ExecuteAsync(id, documentId, ct);
+            return deleted ? Results.NoContent() : Results.NotFound();
+        })
+        .WithName("DeleteDocument");
+
+        group.MapGet("/{id:guid}/interview-preview", async (
+            Guid id, string? lang, GetInterviewPreviewUseCase useCase, CancellationToken ct) =>
+        {
+            var preview = await useCase.ExecuteAsync(id, lang ?? DefaultLanguage, ct);
+            return preview is null
+                ? Results.NotFound()
+                : Results.Ok(new InterviewPreviewDto(preview.TotalAskableFields, preview.EstimatedRemainingQuestions));
+        })
+        .WithName("GetInterviewPreview");
 
         return app;
     }

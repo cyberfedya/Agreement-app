@@ -7,4 +7,6 @@ public interface IFileStorage
     Task<string> SaveAsync(Guid dealId, Guid documentId, string fileName, byte[] bytes, CancellationToken cancellationToken = default);
 
     Task<byte[]> ReadAsync(string storagePath, CancellationToken cancellationToken = default);
+
+    Task DeleteAsync(string storagePath, CancellationToken cancellationToken = default);
 }

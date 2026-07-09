@@ -27,4 +27,10 @@ public sealed class UploadedDocumentRepository(EasyAgreeDbContext db) : IUploade
         db.UploadedDocuments.Update(document);
         await db.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task DeleteAsync(UploadedDocument document, CancellationToken cancellationToken = default)
+    {
+        db.UploadedDocuments.Remove(document);
+        await db.SaveChangesAsync(cancellationToken);
+    }
 }

@@ -11,4 +11,6 @@ public interface IUploadedDocumentRepository
     Task<List<UploadedDocument>> GetByDealIdAsync(Guid dealId, CancellationToken cancellationToken = default);
 
     Task UpdateAsync(UploadedDocument document, CancellationToken cancellationToken = default);
+
+    Task DeleteAsync(UploadedDocument document, CancellationToken cancellationToken = default);
 }

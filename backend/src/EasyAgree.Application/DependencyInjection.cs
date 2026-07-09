@@ -35,6 +35,8 @@ public static class DependencyInjection
         services.AddScoped<UploadDocumentsUseCase>();
         services.AddScoped<GetDealDocumentsUseCase>();
         services.AddScoped<GetRequiredDocumentsUseCase>();
+        services.AddScoped<DeleteDocumentUseCase>();
+        services.AddScoped<GetInterviewPreviewUseCase>();
 
         return services;
     }

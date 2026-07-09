@@ -31,4 +31,12 @@ public sealed class LocalFileStorage(IOptions<FileStorageOptions> options) : IFi
 
     public Task<byte[]> ReadAsync(string storagePath, CancellationToken cancellationToken = default) =>
         File.ReadAllBytesAsync(Path.Combine(_root, storagePath), cancellationToken);
+
+    public Task DeleteAsync(string storagePath, CancellationToken cancellationToken = default)
+    {
+        var fullPath = Path.Combine(_root, storagePath);
+        if (File.Exists(fullPath))
+            File.Delete(fullPath);
+        return Task.CompletedTask;
+    }
 }
