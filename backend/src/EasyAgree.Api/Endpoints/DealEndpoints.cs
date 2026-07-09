@@ -19,7 +19,7 @@ public static class DealEndpoints
                 request.Text, request.TemplateKey, lang ?? DefaultLanguage, request.ProfileId, ct);
             return result.IsNoMatch ? Results.UnprocessableEntity(new { error = "no_match" }) : Results.Ok(result.Deal);
         })
-        .WithName("CreateDeal");
+        .WithName("CreateDeal"); 
 
         group.MapGet("/{id:guid}", async (Guid id, GetDealUseCase useCase, string? lang, CancellationToken ct) =>
         {

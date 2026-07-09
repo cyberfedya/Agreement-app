@@ -65,8 +65,6 @@ class EasyAgreeApp extends StatelessWidget {
       child: MaterialApp(
         title: AppConfig.appName,
         theme: AppTheme.light,
-        // Notary-style white/blue is the whole brand — never let the
-        // device's system dark mode override it.
         themeMode: ThemeMode.light,
         initialRoute: AppRoutes.splash,
         onGenerateRoute: AppRouter.onGenerateRoute,
