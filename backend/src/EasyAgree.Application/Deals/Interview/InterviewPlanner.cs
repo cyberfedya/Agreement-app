@@ -28,6 +28,7 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator)
         string language,
         string? userRequest,
         string? currentMessage,
+        string? documentContext,
         IReadOnlyList<AgreementTemplateField> fields,
         IReadOnlyDictionary<int, string> labels,
         Dictionary<int, string> answers,
@@ -48,7 +49,8 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator)
             // Nothing to acknowledge on the very first question - the user
             // hasn't answered anything yet, only stated their request.
             var acknowledgement = isFirstTurn ? null : AcknowledgementPhrases.Pick(language, answers.Count);
-            var context = new InterviewContext(templateTitle, language, userRequest, currentMessage, group, answers, ordered, acknowledgement);
+            var context = new InterviewContext(
+                templateTitle, language, userRequest, currentMessage, group, answers, ordered, acknowledgement, documentContext);
             var generated = await questionGenerator.GenerateAsync(context, cancellationToken);
             if (string.IsNullOrWhiteSpace(generated.Question) && generated.Extracted.Count == 0)
             {
@@ -59,8 +61,13 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator)
                 generated = await questionGenerator.GenerateAsync(context, cancellationToken);
             }
 
+            // USER_REQUEST is only meaningful on the first turn, but
+            // DOCUMENT_EXTRACTED_DATA is reliable structured data (not raw
+            // free text that could get misattributed) regardless of when
+            // the documents were uploaded, so it's allowed to fill any
+            // eligible field on every turn.
             var allowedExtractionIds = group.Select(f => f.FieldId).ToHashSet();
-            if (isFirstTurn)
+            if (isFirstTurn || documentContext is not null)
                 allowedExtractionIds.UnionWith(ordered.Select(f => f.FieldId));
 
             foreach (var (fieldId, value) in generated.Extracted)

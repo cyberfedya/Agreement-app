@@ -1,6 +1,7 @@
 using EasyAgree.Application.Common;
 using EasyAgree.Application.Common.Interfaces;
 using EasyAgree.Application.Deals.Interview;
+using EasyAgree.Application.Documents;
 using EasyAgree.Domain.Entities;
 
 namespace EasyAgree.Application.Deals;
@@ -14,6 +15,8 @@ namespace EasyAgree.Application.Deals;
 public sealed class GetNextQuestionUseCase(
     IDealRepository dealRepository,
     IAgreementTemplateRepository templateRepository,
+    IUploadedDocumentRepository documentRepository,
+    IFieldMergeService fieldMergeService,
     ConversationManager conversationManager)
 {
     public async Task<NextQuestionResult> ExecuteAsync(
@@ -37,8 +40,11 @@ public sealed class GetNextQuestionUseCase(
         var labels = AgreementPlaceholderParser.ExtractLabels(template.HtmlTemplate);
         var (title, _) = TranslationResolver.Resolve(template.Translations, language);
 
+        var documents = await documentRepository.GetByDealIdAsync(dealId, cancellationToken);
+        var documentContext = fieldMergeService.BuildDocumentContext(documents);
+
         var result = await conversationManager.ExecuteAsync(
-            title, language, deal.RequestText, answeredFieldId, answerText, currentQuestionText,
+            title, language, deal.RequestText, documentContext, answeredFieldId, answerText, currentQuestionText,
             template.Fields, labels, answers, cancellationToken);
 
         await SaveAnswersAsync(deal, answers, cancellationToken);

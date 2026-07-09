@@ -54,9 +54,14 @@ public sealed class QuestionGenerator(IAiChatClient aiChatClient)
 
         ALREADY_KNOWN lists what has already been established this conversation - never ask about any of it.
 
-        Extraction rules (both are optional, use only what genuinely applies):
+        Extraction rules (all optional, use only what genuinely applies):
         - If USER_REQUEST already states the value of ANY field listed in ALL_ELIGIBLE_FIELDS (not just the
           current group), return it in "extracted" - lightly normalized, never guessed or invented.
+        - DOCUMENT_EXTRACTED_DATA lists facts already read from documents the user uploaded (photos/scans),
+          each with a confidence score. Treat it exactly like USER_REQUEST: if it states the value of ANY
+          field in ALL_ELIGIBLE_FIELDS, return it in "extracted" and never ask about that field again. This
+          is the single highest-value thing you can do - a user who uploaded documents should barely be
+          asked anything the documents already answer.
         - If CURRENT_MESSAGE (the user's answer to the question you asked last turn) states the value of a
           field in CURRENT_QUESTION_GROUP, return it in "extracted" too. Never use CURRENT_MESSAGE to fill a
           field outside CURRENT_QUESTION_GROUP, even if it superficially resembles one - an answer about one
@@ -92,6 +97,8 @@ public sealed class QuestionGenerator(IAiChatClient aiChatClient)
             LANGUAGE: {context.Language}
             SUGGESTED_ACK: {context.SuggestedAcknowledgement ?? "(none - this is the first question)"}
             USER_REQUEST: {context.UserRequest ?? "(not provided - template was picked manually)"}
+            DOCUMENT_EXTRACTED_DATA:
+            {context.DocumentContext ?? "(no documents uploaded)"}
             ALREADY_KNOWN:
             {knownCatalog}
             ALL_ELIGIBLE_FIELDS:

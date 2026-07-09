@@ -1,5 +1,7 @@
 using EasyAgree.Application.Common.Interfaces;
+using EasyAgree.Application.Documents;
 using EasyAgree.Infrastructure.AI;
+using EasyAgree.Infrastructure.Documents;
 using EasyAgree.Infrastructure.Persistence;
 using EasyAgree.Infrastructure.Persistence.Repositories;
 using EasyAgree.Infrastructure.Persistence.Seed;
@@ -30,6 +32,13 @@ public static class DependencyInjection
         services.AddScoped<IAgreementTemplateRepository, AgreementTemplateRepository>();
         services.AddScoped<IDealRepository, DealRepository>();
         services.AddScoped<IUserProfileRepository, UserProfileRepository>();
+        services.AddScoped<IUploadedDocumentRepository, UploadedDocumentRepository>();
+
+        services.Configure<FileStorageOptions>(configuration.GetSection(FileStorageOptions.SectionName));
+        services.AddSingleton<IFileStorage, LocalFileStorage>();
+        services.AddScoped<IDocumentAnalysisService, VisionDocumentAnalysisService>();
+        services.AddScoped<IDocumentRequirementResolver, DocumentRequirementResolver>();
+        services.AddScoped<IFieldMergeService, FieldMergeService>();
 
         services.Configure<AiOptions>(configuration.GetSection(AiOptions.SectionName));
         services.AddSingleton(sp =>
@@ -41,6 +50,7 @@ public static class DependencyInjection
             return new ChatClient(options.Model, credential, clientOptions);
         });
         services.AddSingleton<IAiChatClient, VllmChatClient>();
+        services.AddSingleton<IVisionAiClient, VllmVisionClient>();
 
         return services;
     }

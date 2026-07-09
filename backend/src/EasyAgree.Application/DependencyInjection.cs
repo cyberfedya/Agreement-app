@@ -1,5 +1,6 @@
 using EasyAgree.Application.Deals;
 using EasyAgree.Application.Deals.Interview;
+using EasyAgree.Application.Documents;
 using EasyAgree.Application.Profile;
 using EasyAgree.Application.Templates;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,6 +31,10 @@ public static class DependencyInjection
 
         services.AddScoped<GetUserProfileUseCase>();
         services.AddScoped<SaveUserProfileUseCase>();
+
+        services.AddScoped<UploadDocumentsUseCase>();
+        services.AddScoped<GetDealDocumentsUseCase>();
+        services.AddScoped<GetRequiredDocumentsUseCase>();
 
         return services;
     }

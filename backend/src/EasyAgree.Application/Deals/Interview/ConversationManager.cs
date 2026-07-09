@@ -19,6 +19,7 @@ public sealed class ConversationManager(
         string templateTitle,
         string language,
         string? userRequest,
+        string? documentContext,
         int? answeredFieldId,
         string? answerText,
         string? currentQuestionText,
@@ -37,7 +38,7 @@ public sealed class ConversationManager(
                 answers[fallbackFieldId] = answerText;
 
             return await interviewPlanner.ExecuteAsync(
-                templateTitle, language, userRequest, answerText, fields, labels, answers, cancellationToken);
+                templateTitle, language, userRequest, answerText, documentContext, fields, labels, answers, cancellationToken);
         }
 
         var intent = await intentClassifier.ClassifyAsync(currentQuestionText, answerText, cancellationToken);
@@ -51,7 +52,7 @@ public sealed class ConversationManager(
                 // never needs to see the field that was just filled.
                 answers[fieldId] = answerText;
                 return await interviewPlanner.ExecuteAsync(
-                    templateTitle, language, userRequest, answerText, fields, labels, answers, cancellationToken);
+                        templateTitle, language, userRequest, answerText, documentContext, fields, labels, answers, cancellationToken);
 
             case ConversationIntent.Question:
             case ConversationIntent.Help:
@@ -73,7 +74,7 @@ public sealed class ConversationManager(
 
             default:
                 return await interviewPlanner.ExecuteAsync(
-                    templateTitle, language, userRequest, answerText, fields, labels, answers, cancellationToken);
+                    templateTitle, language, userRequest, answerText, documentContext, fields, labels, answers, cancellationToken);
         }
     }
 }

@@ -16,6 +16,7 @@ services:
       Ai__ApiKey: ${AI_API_KEY:?Set AI_API_KEY in your environment or a .env file}
     volumes:
       - ../agreements:/agreements:ro
+      - uploads_data:/app/uploads
 
   postgres:
     image: postgres:16-alpine
@@ -44,3 +45,4 @@ services:
 
 volumes:
   postgres_data:
+  uploads_data:

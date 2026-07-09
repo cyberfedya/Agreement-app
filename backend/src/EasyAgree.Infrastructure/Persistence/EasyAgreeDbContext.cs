@@ -15,6 +15,8 @@ public class EasyAgreeDbContext(DbContextOptions<EasyAgreeDbContext> options) : 
 
     public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
 
+    public DbSet<UploadedDocument> UploadedDocuments => Set<UploadedDocument>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(EasyAgreeDbContext).Assembly);
