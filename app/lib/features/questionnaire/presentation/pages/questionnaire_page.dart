@@ -30,6 +30,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
   bool _showCheck = false;
   bool _hasText = false;
   int? _controllerBoundToFieldId;
+  bool _closingSpoken = false;
 
   // Cached rather than looked up via context.read() in dispose(): by then
   // the element is deactivated and ancestor lookups are unsafe.
@@ -72,6 +73,15 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
   /// prefilled when going back to an already-answered one, empty for a
   /// fresh one from the planner — and reads each new question aloud.
   void _onProviderChanged() {
+    if (_provider?.readyToGenerate ?? false) {
+      final closing = _provider?.closingMessage;
+      if (!_closingSpoken && closing != null) {
+        _closingSpoken = true;
+        _tts?.speak(closing);
+      }
+      return;
+    }
+
     final field = _provider?.currentQuestion;
     if (field == null || field.fieldId == _controllerBoundToFieldId) return;
     _controllerBoundToFieldId = field.fieldId;

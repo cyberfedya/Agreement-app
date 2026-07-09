@@ -17,6 +17,7 @@ class QuestionnaireProvider extends ChangeNotifier {
   String? _errorMessage;
   Question? _currentQuestion;
   bool _readyToGenerate = false;
+  String? _closingMessage;
   List<Question> _allFields = const [];
   final Map<int, String> _answers = {};
   final List<Question> _history = [];
@@ -25,6 +26,7 @@ class QuestionnaireProvider extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
   Question? get currentQuestion => _currentQuestion;
   bool get readyToGenerate => _readyToGenerate;
+  String? get closingMessage => _closingMessage;
 
   /// Every field the template has, for the full-document preview sheet —
   /// not the (much shorter) set actually asked during the interview.
@@ -99,6 +101,7 @@ class QuestionnaireProvider extends ChangeNotifier {
       case Success(:final value):
         _readyToGenerate = value.readyToGenerate;
         _currentQuestion = value.question;
+        _closingMessage = value.closingMessage;
         _errorMessage = null;
       case Failure(:final message):
         _errorMessage = message;

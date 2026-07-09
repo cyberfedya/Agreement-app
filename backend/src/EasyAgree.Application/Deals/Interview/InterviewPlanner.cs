@@ -40,7 +40,7 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator)
         {
             var askable = Askable(classified, answers);
             if (askable.Count == 0)
-                return InterviewPlanResult.Ready();
+                return InterviewPlanResult.Ready(ClosingPhrases.Pick(language));
 
             var ordered = QuestionPriorityEngine.Order(askable);
             var group = QuestionGroupingEngine.BuildGroups(ordered)[0];
@@ -74,7 +74,7 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator)
         // model again.
         var remaining = Askable(classified, answers);
         if (remaining.Count == 0)
-            return InterviewPlanResult.Ready();
+            return InterviewPlanResult.Ready(ClosingPhrases.Pick(language));
 
         var next = QuestionPriorityEngine.Order(remaining)[0];
         return InterviewPlanResult.NeedMoreInfo(next.FieldId, next.Label);

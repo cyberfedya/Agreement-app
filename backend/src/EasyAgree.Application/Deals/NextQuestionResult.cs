@@ -13,7 +13,8 @@ public sealed class NextQuestionResult
 
     public static NextQuestionResult NotFound() => new() { IsNotFound = true };
 
-    public static NextQuestionResult ReadyToGenerate() => new() { IsReadyToGenerate = true };
+    public static NextQuestionResult ReadyToGenerate(string closingMessage) =>
+        new() { IsReadyToGenerate = true, NextQuestion = closingMessage };
 
     public static NextQuestionResult NeedMoreInfo(int fieldId, string question) =>
         new() { NextFieldId = fieldId, NextQuestion = question };

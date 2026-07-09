@@ -44,7 +44,7 @@ public sealed class GetNextQuestionUseCase(
         await SaveAnswersAsync(deal, answers, cancellationToken);
 
         return result.IsReady
-            ? NextQuestionResult.ReadyToGenerate()
+            ? NextQuestionResult.ReadyToGenerate(result.Question!)
             : NextQuestionResult.NeedMoreInfo(result.FieldId!.Value, result.Question!);
     }
 
