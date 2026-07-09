@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/core/widgets/app_widgets.dart';
 import 'package:app/features/agreement/presentation/agreement_completed_page.dart';
@@ -7,6 +6,7 @@ import 'package:app/features/agreement/presentation/agreement_page.dart';
 import 'package:app/features/agreement/presentation/agreement_sign_page.dart';
 import 'package:app/features/ai_processing/presentation/ai_processing_page.dart';
 import 'package:app/features/auth/presentation/auth_page.dart';
+import 'package:app/features/documents/presentation/document_upload_page.dart';
 import 'package:app/features/home/presentation/home_page.dart';
 import 'package:app/features/profile/profile_page.dart';
 import 'package:app/features/profile/settings_page.dart';
@@ -29,6 +29,10 @@ abstract class AppRoutes {
 
   /// Required [QuestionnaireRouteArgs] argument.
   static const String questionnaire = '/questionnaire';
+
+  /// Required [QuestionnaireRouteArgs] argument - same shape, shown before
+  /// the interview when the template has useful document suggestions.
+  static const String documentUpload = '/documents/upload';
 
   static const String agreement = '/agreement';
 
@@ -86,6 +90,12 @@ class AppRouter {
         final args = settings.arguments as QuestionnaireRouteArgs;
         return _fadeRoute(
           QuestionnairePage(dealId: args.dealId, templateTitle: args.templateTitle),
+          settings,
+        );
+      case AppRoutes.documentUpload:
+        final args = settings.arguments as QuestionnaireRouteArgs;
+        return _fadeRoute(
+          DocumentUploadPage(dealId: args.dealId, templateTitle: args.templateTitle),
           settings,
         );
       case AppRoutes.agreement:

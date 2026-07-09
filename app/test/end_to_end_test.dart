@@ -11,6 +11,10 @@ import 'package:app/features/agreement/providers/agreement_provider.dart';
 import 'package:app/features/ai_processing/presentation/ai_processing_page.dart';
 import 'package:app/features/deal/data/deal_repository.dart';
 import 'package:app/features/deal/domain/deal.dart';
+import 'package:app/features/documents/data/document_repository.dart';
+import 'package:app/features/documents/domain/required_document.dart';
+import 'package:app/features/documents/domain/uploaded_document.dart';
+import 'package:app/features/documents/providers/document_upload_provider.dart';
 import 'package:app/features/home/presentation/home_page.dart';
 import 'package:app/features/questionnaire/data/questionnaire_repository.dart';
 import 'package:app/features/questionnaire/domain/interview_step.dart';
@@ -24,17 +28,6 @@ import 'package:app/features/templates/presentation/templates_list_page.dart';
 import 'package:app/features/templates/providers/template_detail_provider.dart';
 import 'package:app/features/templates/providers/templates_list_provider.dart';
 import 'package:app/shared/models/result.dart';
-
-/// Drives the full creation flow (splash -> login -> home -> AI match ->
-/// interview -> generate -> agreement) through the real pages, providers,
-/// and router, against fake repositories standing in for the network layer.
-///
-/// The backend contracts these fakes mimic were verified live against the
-/// real .NET API + PostgreSQL. `flutter_test`'s fake-time zone cannot
-/// service real socket I/O triggered from widget lifecycle callbacks, so a
-/// real-network widget test isn't possible without `integration_test` on a
-/// real device/browser.
-
 class FakeTemplateRepository implements TemplateRepository {
   FakeTemplateRepository({this.listResult, this.detailResult});
 
@@ -107,6 +100,28 @@ class FakeDealRepository implements DealRepository {
       createFromTemplateResult ?? const Success(_matchedDeal);
 }
 
+/// Defaults to "nothing to suggest" so the creation flow goes straight to
+/// the interview, matching the pre-document-upload happy path.
+class FakeDocumentRepository implements DocumentRepository {
+  FakeDocumentRepository({this.requiredDocumentsResult});
+
+  Result<List<RequiredDocument>>? requiredDocumentsResult;
+
+  @override
+  Future<Result<List<RequiredDocument>>> getRequiredDocuments(String dealId) async =>
+      requiredDocumentsResult ?? const Success<List<RequiredDocument>>([]);
+
+  @override
+  Future<Result<List<UploadedDocument>>> getDealDocuments(String dealId) async =>
+      const Success<List<UploadedDocument>>([]);
+
+  @override
+  Future<Result<List<UploadedDocument>>> upload(
+    String dealId,
+    List<(String fileName, String contentType, List<int> bytes)> files,
+  ) async => const Success<List<UploadedDocument>>([]);
+}
+
 const _matchedDeal = Deal(
   id: 'deal-1',
   templateKey: 'vehicle_sale_agreement',
@@ -131,6 +146,7 @@ Widget buildTestApp({
   QuestionnaireRepository? questionnaireRepository,
   AgreementRepository? agreementRepository,
   DealRepository? dealRepository,
+  DocumentRepository? documentRepository,
   String initialRoute = AppRoutes.splash,
 }) {
   final templates = templateRepository ?? FakeTemplateRepository();
@@ -138,16 +154,19 @@ Widget buildTestApp({
       questionnaireRepository ?? FakeQuestionnaireRepository(_twoQuestionSteps(), allFieldsResult: const Success(_questions));
   final agreements = agreementRepository ??
       FakeAgreementRepository(Success(Agreement(key: 'deal-1', html: '<p>x</p>', generatedAt: DateTime(2026))));
+  final documents = documentRepository ?? FakeDocumentRepository();
 
   return MultiProvider(
     providers: [
       Provider<TemplateRepository>.value(value: templates),
       Provider<DealRepository>.value(value: dealRepository ?? FakeDealRepository()),
+      Provider<DocumentRepository>.value(value: documents),
       Provider<TtsService>(create: (_) => TtsService()),
       ChangeNotifierProvider(create: (_) => TemplatesListProvider(templates)),
       ChangeNotifierProvider(create: (_) => TemplateDetailProvider(templates, questionnaire)),
       ChangeNotifierProvider(create: (_) => QuestionnaireProvider(questionnaire)),
       ChangeNotifierProvider(create: (_) => AgreementProvider(agreements)),
+      ChangeNotifierProvider(create: (_) => DocumentUploadProvider(documents)),
     ],
     child: MaterialApp(
       initialRoute: initialRoute,

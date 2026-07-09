@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 
 import 'package:app/core/config/app_config.dart';
 import 'package:app/core/constants/app_constants.dart';
@@ -29,6 +30,31 @@ class ApiClient {
         body: jsonEncode(body),
       ),
     );
+    return _decode(response);
+  }
+
+  /// Uploads one or more files as multipart/form-data. Each entry in
+  /// [files] is (fieldName, fileName, contentType, bytes).
+  Future<dynamic> postMultipart(
+    String path, {
+    required List<(String field, String fileName, String contentType, List<int> bytes)> files,
+    Map<String, String>? query,
+  }) async {
+    final response = await _send(() async {
+      final request = http.MultipartRequest('POST', _uri(path, query));
+      for (final (field, fileName, contentType, bytes) in files) {
+        request.files.add(
+          http.MultipartFile.fromBytes(
+            field,
+            bytes,
+            filename: fileName,
+            contentType: MediaType.parse(contentType),
+          ),
+        );
+      }
+      final streamed = await _http.send(request);
+      return http.Response.fromStream(streamed);
+    });
     return _decode(response);
   }
 

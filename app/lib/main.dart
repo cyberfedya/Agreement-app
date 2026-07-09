@@ -12,6 +12,8 @@ import 'package:app/core/theme/app_theme.dart';
 import 'package:app/features/agreement/data/agreement_repository.dart';
 import 'package:app/features/agreement/providers/agreement_provider.dart';
 import 'package:app/features/deal/data/deal_repository.dart';
+import 'package:app/features/documents/data/document_repository.dart';
+import 'package:app/features/documents/providers/document_upload_provider.dart';
 import 'package:app/features/profile/data/profile_repository.dart';
 import 'package:app/features/questionnaire/data/questionnaire_repository.dart';
 import 'package:app/features/questionnaire/providers/questionnaire_provider.dart';
@@ -49,6 +51,7 @@ class EasyAgreeApp extends StatelessWidget {
         Provider<DealRepository>(
           create: (ctx) => ApiDealRepository(ctx.read<ApiService>(), ctx.read<ProfileRepository>()),
         ),
+        Provider<DocumentRepository>(create: (ctx) => ApiDocumentRepository(ctx.read<ApiService>())),
         Provider<TtsService>(create: (_) => TtsService(), dispose: (_, tts) => tts.dispose()),
         ChangeNotifierProvider(create: (ctx) => TemplatesListProvider(ctx.read<TemplateRepository>())),
         ChangeNotifierProvider(
@@ -61,6 +64,7 @@ class EasyAgreeApp extends StatelessWidget {
           create: (ctx) => QuestionnaireProvider(ctx.read<QuestionnaireRepository>()),
         ),
         ChangeNotifierProvider(create: (ctx) => AgreementProvider(ctx.read<AgreementRepository>())),
+        ChangeNotifierProvider(create: (ctx) => DocumentUploadProvider(ctx.read<DocumentRepository>())),
       ],
       child: MaterialApp(
         title: AppConfig.appName,

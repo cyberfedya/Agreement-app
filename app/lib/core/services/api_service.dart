@@ -2,6 +2,8 @@ import 'package:app/core/network/api_client.dart';
 import 'package:app/core/network/api_exception.dart';
 import 'package:app/features/agreement/domain/agreement.dart';
 import 'package:app/features/deal/domain/deal.dart';
+import 'package:app/features/documents/domain/required_document.dart';
+import 'package:app/features/documents/domain/uploaded_document.dart';
 import 'package:app/features/profile/domain/user_profile.dart';
 import 'package:app/features/questionnaire/domain/interview_step.dart';
 import 'package:app/features/questionnaire/domain/question.dart';
@@ -117,4 +119,30 @@ class ApiService {
 
   Future<void> signDealSecondParty(String dealId, String fullName) =>
       _client.postJson('/api/deals/$dealId/sign', body: {'fullName': fullName});
+
+  /// Documents worth suggesting the user upload for this deal's template -
+  /// empty when nothing useful comes to mind (never identity documents).
+  Future<List<RequiredDocument>> getRequiredDocuments(String dealId, {String lang = 'ru'}) async {
+    final json = await _client.getJson('/api/deals/$dealId/required-documents', query: {'lang': lang});
+    return (json as List).cast<Map<String, dynamic>>().map(RequiredDocument.fromJson).toList();
+  }
+
+  Future<List<UploadedDocument>> getDealDocuments(String dealId) async {
+    final json = await _client.getJson('/api/deals/$dealId/documents');
+    return (json as List).cast<Map<String, dynamic>>().map(UploadedDocument.fromJson).toList();
+  }
+
+  /// Uploads one or more files at once; each gets classified and its
+  /// fields extracted before the response comes back (there's no
+  /// background job queue, so this can take a few seconds per file).
+  Future<List<UploadedDocument>> uploadDocuments(
+    String dealId,
+    List<(String fileName, String contentType, List<int> bytes)> files,
+  ) async {
+    final json = await _client.postMultipart(
+      '/api/deals/$dealId/documents',
+      files: files.map((f) => ('file', f.$1, f.$2, f.$3)).toList(),
+    );
+    return (json as List).cast<Map<String, dynamic>>().map(UploadedDocument.fromJson).toList();
+  }
 }
