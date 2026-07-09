@@ -6,29 +6,29 @@ using EasyAgree.Domain.Enums;
 namespace EasyAgree.Infrastructure.Documents;
 
 /// <summary>
-/// One vision-model call per document covers classification, OCR, and
-/// semantic field extraction together - a modern multimodal model reads
-/// all three off the same image in one pass, so splitting this into three
-/// separate round-trips would only add latency and cost.
+/// Two-stage pipeline: Tesseract reads the raw text off the image first
+/// (<see cref="IOcrService"/>), then a text-only LLM call classifies the
+/// document and extracts semantic fields from that text - no image ever
+/// reaches the model, only what OCR actually read.
 /// </summary>
-public sealed class VisionDocumentAnalysisService(IVisionAiClient visionClient) : IDocumentAnalysisService
+public sealed class OcrDocumentAnalysisService(IOcrService ocrService, IAiChatClient aiChatClient) : IDocumentAnalysisService
 {
     private const string SystemPrompt = """
-        You are a document intelligence system for a legal-agreement app. Given a photo or scan of one
-        document, do three things at once:
+        You are a document intelligence system for a legal-agreement app. You are given raw OCR text read off
+        a photo or scan of one document (the OCR may contain minor recognition errors - use judgement to
+        correct obvious ones, e.g. "О" vs "0", but never invent content that isn't plausibly there).
 
         1. Classify the document type - exactly one of: passport, cadastre, technical_passport,
            ownership_certificate, vehicle_registration, vehicle_passport, company_registration,
            tax_certificate, diploma, power_of_attorney, invoice, bank_statement, employment_contract,
            certificate, supporting_document, unknown.
-        2. Read the visible text as plain text (OCR), preserving line breaks where reasonable.
-        3. Extract every clearly legible fact as semantic key/value pairs, each with a confidence from 0 to 1
-           (1.0 = clearly and unambiguously legible, 0.5 = partially legible or inferred, below 0.3 = a guess).
+        2. Extract every clearly stated fact as semantic key/value pairs, each with a confidence from 0 to 1
+           (1.0 = clearly and unambiguously stated, 0.5 = partially legible or inferred, below 0.3 = a guess).
            Use short snake_case English keys describing what the value represents - full_name,
            passport_number, pinfl, birth_date, address, vin, plate_number, brand, model, year,
-           cadastre_number, area, rooms, floor, company_name, tin, director, and so on;
-           invent a sensible key if none of these fit. Never invent a value that isn't actually visible on
-           the document - omit the field entirely instead of guessing.
+           cadastre_number, area, rooms, floor, company_name, tin, director, and so on; invent a sensible
+           key if none of these fit. Never invent a value that isn't actually present in the text - omit the
+           field entirely instead of guessing.
 
            Be precise about IDENTIFIERS vs SPECIFICATIONS - these are often confused and are NOT
            interchangeable: engine_number is the serial/ID code stamped on the engine block (e.g.
@@ -36,25 +36,28 @@ public sealed class VisionDocumentAnalysisService(IVisionAiClient visionClient) 
            engine_type (e.g. "2.0 бензин", "1.6L petrol" - a displacement/fuel description, not an
            identifier). Likewise chassis_number/body_number is a separate stamped serial code, distinct
            from vin (though on some documents they're the same value - only report chassis_number
-           separately if the document actually labels it as a distinct field). If a document has an
-           engine specification but no visible engine serial number, extract engine_capacity but do NOT
-           put the specification under the key engine_number - leave engine_number out entirely rather
-           than reporting the wrong kind of value under that key.
+           separately if the text actually labels it as a distinct field). If the text has an engine
+           specification but no visible engine serial number, extract engine_capacity but do NOT put the
+           specification under the key engine_number - leave engine_number out entirely rather than
+           reporting the wrong kind of value under that key.
 
         Output ONLY valid JSON, no Markdown, no explanations, matching exactly:
-        {"document_type":"<type>","type_confidence":0.0,"ocr_text":"<all visible text>","fields":{"<key>":{"value":"<value>","confidence":0.0}}}
+        {"document_type":"<type>","type_confidence":0.0,"fields":{"<key>":{"value":"<value>","confidence":0.0}}}
         """;
-
-    private const string UserMessage = "Analyze this document.";
 
     public async Task<DocumentAnalysisResult> AnalyzeAsync(
         byte[] bytes, string contentType, CancellationToken cancellationToken = default)
     {
-        var raw = await visionClient.CompleteWithImageAsync(SystemPrompt, UserMessage, bytes, contentType, cancellationToken);
-        return Parse(raw);
+        var ocrText = await ocrService.ExtractTextAsync(bytes, cancellationToken);
+        if (string.IsNullOrWhiteSpace(ocrText))
+            return new DocumentAnalysisResult(DocumentType.Unknown, 0.0, "", new Dictionary<string, ExtractedFieldValue>());
+
+        var userMessage = $"OCR_TEXT:\n{ocrText}";
+        var raw = await aiChatClient.CompleteAsync(SystemPrompt, userMessage, cancellationToken);
+        return Parse(raw, ocrText);
     }
 
-    private static DocumentAnalysisResult Parse(string raw)
+    private static DocumentAnalysisResult Parse(string raw, string ocrText)
     {
         var json = raw.Trim().Trim('`');
         if (json.StartsWith("json", StringComparison.OrdinalIgnoreCase))
@@ -69,7 +72,6 @@ public sealed class VisionDocumentAnalysisService(IVisionAiClient visionClient) 
             var typeConfidence = root.TryGetProperty("type_confidence", out var confEl) && confEl.TryGetDouble(out var conf)
                 ? conf
                 : 0.0;
-            var ocrText = root.TryGetProperty("ocr_text", out var ocrEl) ? ocrEl.GetString() ?? "" : "";
 
             var fields = new Dictionary<string, ExtractedFieldValue>();
             if (root.TryGetProperty("fields", out var fieldsEl) && fieldsEl.ValueKind == JsonValueKind.Object)
@@ -95,7 +97,7 @@ public sealed class VisionDocumentAnalysisService(IVisionAiClient visionClient) 
         }
         catch (JsonException)
         {
-            return new DocumentAnalysisResult(DocumentType.Unknown, 0.0, "", new Dictionary<string, ExtractedFieldValue>());
+            return new DocumentAnalysisResult(DocumentType.Unknown, 0.0, ocrText, new Dictionary<string, ExtractedFieldValue>());
         }
     }
 
