@@ -14,8 +14,10 @@ abstract class QuestionnaireRepository {
   /// [getQuestions], keyed by deal instead. Used for the preview sheet.
   Future<Result<List<Question>>> getQuestionsForDeal(String dealId);
 
-  /// Drives the actual interview, one turn at a time.
-  Future<Result<InterviewStep>> nextQuestion(String dealId, {int? fieldId, String? answer});
+  /// Drives the actual interview, one turn at a time. [question] is the
+  /// exact text of the question [answer] is replying to - the backend
+  /// uses it to tell a real answer apart from a side remark.
+  Future<Result<InterviewStep>> nextQuestion(String dealId, {int? fieldId, String? answer, String? question});
 }
 
 class ApiQuestionnaireRepository implements QuestionnaireRepository {
@@ -42,9 +44,9 @@ class ApiQuestionnaireRepository implements QuestionnaireRepository {
   }
 
   @override
-  Future<Result<InterviewStep>> nextQuestion(String dealId, {int? fieldId, String? answer}) async {
+  Future<Result<InterviewStep>> nextQuestion(String dealId, {int? fieldId, String? answer, String? question}) async {
     try {
-      return Success(await _api.nextQuestion(dealId, fieldId: fieldId, answer: answer));
+      return Success(await _api.nextQuestion(dealId, fieldId: fieldId, answer: answer, question: question));
     } on ApiException catch (e) {
       return Failure(e.message);
     }

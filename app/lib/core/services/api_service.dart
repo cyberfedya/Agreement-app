@@ -70,13 +70,21 @@ class ApiService {
 
   /// Asks the Interview Planner what to do next: either the next question
   /// to show, or that enough is known to generate. [fieldId]/[answer] are
-  /// the answer to the *previous* question this deal was asked (omit both
-  /// on the very first call).
-  Future<InterviewStep> nextQuestion(String dealId, {int? fieldId, String? answer, String lang = 'ru'}) async {
+  /// the answer to the *previous* question this deal was asked, and
+  /// [question] is that question's exact text - the backend uses it to
+  /// classify whether [answer] actually answers it or is a side remark
+  /// (all three omitted on the very first call).
+  Future<InterviewStep> nextQuestion(
+    String dealId, {
+    int? fieldId,
+    String? answer,
+    String? question,
+    String lang = 'ru',
+  }) async {
     final json = await _client.postJson(
       '/api/deals/$dealId/next-question',
       query: {'lang': lang},
-      body: {'fieldId': fieldId, 'answer': answer},
+      body: {'fieldId': fieldId, 'answer': answer, 'question': question},
     );
     return InterviewStep.fromJson(json as Map<String, dynamic>);
   }

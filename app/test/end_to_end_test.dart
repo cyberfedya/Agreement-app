@@ -69,7 +69,7 @@ class FakeQuestionnaireRepository implements QuestionnaireRepository {
       allFieldsResult ?? const Success<List<Question>>([]);
 
   @override
-  Future<Result<InterviewStep>> nextQuestion(String dealId, {int? fieldId, String? answer}) async {
+  Future<Result<InterviewStep>> nextQuestion(String dealId, {int? fieldId, String? answer, String? question}) async {
     final step = steps[_callIndex.clamp(0, steps.length - 1)];
     if (_callIndex < steps.length - 1) _callIndex++;
     return step;

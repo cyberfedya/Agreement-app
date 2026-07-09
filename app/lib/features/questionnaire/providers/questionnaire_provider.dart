@@ -69,18 +69,26 @@ class QuestionnaireProvider extends ChangeNotifier {
   }
 
   /// Submits [text] as the answer to the current question and fetches the
-  /// next one.
+  /// next one. The backend classifies whether [text] actually answers
+  /// [field] before touching anything - a side question, an off-topic
+  /// remark, or a cancel/change-topic request comes back as the *same*
+  /// field repeated with a reply woven in, so only commit to history/
+  /// answers once the interview has genuinely moved past this field.
   Future<void> submitAnswer(String text) async {
     final field = _currentQuestion;
     if (field == null) return;
 
-    _answers[field.fieldId] = text;
-    _history.add(field);
     _isLoading = true;
     notifyListeners();
 
-    await _advance(fieldId: field.fieldId, answer: text);
+    await _advance(fieldId: field.fieldId, answer: text, question: field.fieldName);
     _isLoading = false;
+
+    final movedOn = _readyToGenerate || _currentQuestion?.fieldId != field.fieldId;
+    if (movedOn) {
+      _answers[field.fieldId] = text;
+      _history.add(field);
+    }
     notifyListeners();
   }
 
@@ -93,11 +101,11 @@ class QuestionnaireProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> _advance({int? fieldId, String? answer}) async {
+  Future<void> _advance({int? fieldId, String? answer, String? question}) async {
     final dealId = _dealId;
     if (dealId == null) return;
 
-    switch (await _repository.nextQuestion(dealId, fieldId: fieldId, answer: answer)) {
+    switch (await _repository.nextQuestion(dealId, fieldId: fieldId, answer: answer, question: question)) {
       case Success(:final value):
         _readyToGenerate = value.readyToGenerate;
         _currentQuestion = value.question;

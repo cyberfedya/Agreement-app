@@ -31,6 +31,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
   bool _hasText = false;
   int? _controllerBoundToFieldId;
   bool _closingSpoken = false;
+  String? _lastSpokenQuestionText;
 
   // Cached rather than looked up via context.read() in dispose(): by then
   // the element is deactivated and ancestor lookups are unsafe.
@@ -83,9 +84,20 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
     }
 
     final field = _provider?.currentQuestion;
-    if (field == null || field.fieldId == _controllerBoundToFieldId) return;
+    if (field == null) return;
+
+    final sameField = field.fieldId == _controllerBoundToFieldId;
+    final textChanged = field.fieldName != _lastSpokenQuestionText;
+    if (sameField && !textChanged) return;
+
     _controllerBoundToFieldId = field.fieldId;
-    final text = _provider!.answerFor(field.fieldId);
+    _lastSpokenQuestionText = field.fieldName;
+
+    // A repeated question (side remark handled, interview didn't move on)
+    // keeps the same fieldId but comes back with new text woven in -
+    // clear the box instead of reusing the goBack()-style answer prefill,
+    // so the user isn't left staring at the remark they just sent.
+    final text = sameField ? '' : _provider!.answerFor(field.fieldId);
     _controller.value = TextEditingValue(text: text, selection: TextSelection.collapsed(offset: text.length));
     _tts?.speak(field.fieldName);
   }
