@@ -36,8 +36,7 @@ public static class DependencyInjection
 
         services.Configure<FileStorageOptions>(configuration.GetSection(FileStorageOptions.SectionName));
         services.AddSingleton<IFileStorage, LocalFileStorage>();
-        services.AddSingleton<IOcrService, TesseractOcrService>();
-        services.AddScoped<IDocumentAnalysisService, OcrDocumentAnalysisService>();
+        services.AddScoped<IDocumentAnalysisService, VisionDocumentAnalysisService>();
         services.AddScoped<IDocumentRequirementResolver, DocumentRequirementResolver>();
         services.AddScoped<IFieldMergeService, FieldMergeService>();
 
@@ -51,6 +50,7 @@ public static class DependencyInjection
             return new ChatClient(options.Model, credential, clientOptions);
         });
         services.AddSingleton<IAiChatClient, VllmChatClient>();
+        services.AddSingleton<IVisionAiClient, VllmVisionClient>();
 
         return services;
     }
