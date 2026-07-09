@@ -1,5 +1,6 @@
 using System.Text.Json;
 using EasyAgree.Application.Common.Interfaces;
+using EasyAgree.Application.Deals.Interview;
 using EasyAgree.Domain.Entities;
 using EasyAgree.Domain.Enums;
 
@@ -43,8 +44,18 @@ public sealed class MergedFieldService(IAiChatClient aiChatClient) : IFieldMerge
         if (documentFields.Count == 0 && profileFields.Count == 0)
             return new MergedFieldCollection(merged);
 
+        // NeverAsk fields (notary metadata, party identity/passport details)
+        // are filled exclusively via AccountProfile/SecondPartyQr, never
+        // from documents - excluding them from the catalog keeps the model
+        // from ever mapping an unrelated document value (e.g. a vehicle
+        // registration number) onto a passport/notary field.
+        var askableFieldIds = FieldEligibilityEngine.Classify(templateFields, labels)
+            .Where(f => f.Category != FieldCategory.NeverAsk)
+            .Select(f => f.FieldId)
+            .ToHashSet();
+
         var catalog = templateFields
-            .Where(f => labels.ContainsKey(f.FieldId))
+            .Where(f => labels.ContainsKey(f.FieldId) && askableFieldIds.Contains(f.FieldId))
             .Select(f => new { fieldId = f.FieldId, label = labels[f.FieldId] })
             .ToList();
 
@@ -67,7 +78,10 @@ public sealed class MergedFieldService(IAiChatClient aiChatClient) : IFieldMerge
         var raw = await aiChatClient.CompleteAsync(SystemPrompt, userMessage, cancellationToken);
 
         foreach (var field in Parse(raw))
-            Put(merged, field);
+        {
+            if (askableFieldIds.Contains(field.FieldId))
+                Put(merged, field);
+        }
 
         return new MergedFieldCollection(merged);
     }
