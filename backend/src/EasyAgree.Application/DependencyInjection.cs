@@ -16,6 +16,7 @@ public static class DependencyInjection
         services.AddScoped<CreateDealUseCase>();
         services.AddScoped<GetDealUseCase>();
         services.AddScoped<GetDealQuestionsUseCase>();
+        services.AddScoped<GetNextQuestionUseCase>();
         services.AddScoped<GenerateFromDealUseCase>();
 
         return services;

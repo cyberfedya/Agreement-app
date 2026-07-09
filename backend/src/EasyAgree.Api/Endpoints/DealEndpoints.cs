@@ -34,6 +34,20 @@ public static class DealEndpoints
         })
         .WithName("GetDealQuestions");
 
+        group.MapPost("/{id:guid}/next-question", async (
+            Guid id, NextQuestionRequest request, GetNextQuestionUseCase useCase, string? lang, CancellationToken ct) =>
+        {
+            var result = await useCase.ExecuteAsync(id, request.FieldId, request.Answer, lang ?? DefaultLanguage, ct);
+
+            if (result.IsNotFound)
+                return Results.NotFound();
+
+            var status = result.IsReadyToGenerate ? "ready_to_generate" : "need_more_info";
+            List<int> missing = result.NextFieldId is { } fieldId ? [fieldId] : [];
+            return Results.Ok(new NextQuestionResponse(status, result.NextFieldId, result.NextQuestion, missing));
+        })
+        .WithName("GetNextQuestion");
+
         group.MapPost("/{id:guid}/generate", async (
             Guid id, GenerateAgreementRequest request, GenerateFromDealUseCase useCase, CancellationToken ct) =>
         {

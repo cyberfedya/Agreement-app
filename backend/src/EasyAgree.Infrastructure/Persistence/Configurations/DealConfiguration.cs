@@ -23,6 +23,9 @@ public sealed class DealConfiguration : IEntityTypeConfiguration<Deal>
             .HasConversion<string>()
             .HasMaxLength(20);
 
+        builder.Property(d => d.AnswersJson)
+            .HasColumnType("jsonb");
+
         builder.Property(d => d.GeneratedHtml)
             .HasColumnType("text");
 
