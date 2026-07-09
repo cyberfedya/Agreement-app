@@ -20,6 +20,9 @@ public sealed class CreateDealUseCase(
 {
     private const string ClassifierSystemPrompt = """
         You classify a user's free-form request into exactly one legal agreement template from the provided catalog.
+        Match the template scope precisely: residential property (квартира, дом, жильё) must never map to a
+        non-residential-premises template (нежилое помещение, офис, склад) and vice versa; prefer the most
+        specific matching template, falling back to a general one only when no specific template fits.
         Respond with ONLY the template's key on a single line - nothing else, no punctuation, no explanation.
         If nothing in the catalog reasonably matches the request, respond with exactly: NONE
         """;

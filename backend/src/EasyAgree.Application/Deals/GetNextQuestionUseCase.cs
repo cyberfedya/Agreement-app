@@ -34,8 +34,16 @@ public sealed class GetNextQuestionUseCase(
         "рўйхатга ол", "реестр",
         "иш рақами", "номер дела",
         "тузилган сана", "тасдиқланган сана", "дата составления", "дата подписания",
-        // seller/buyer identity — belongs to the creator or the second party, never asked here
+        // party identity — belongs to the creator (profile) or the second
+        // party (QR-sign flow), never asked here. Covers the common role
+        // pairs across domains: sale, rent, loan, employment, services,
+        // marriage.
         "сотувчи", "сотиб олувчи", "харидор", "покупател", "продав",
+        "ижарага берувчи", "ижарага олувчи", "арендодател", "арендатор",
+        "қарз берувчи", "қарз олувчи", "займодав", "заемщик", "заёмщик", "кредитор",
+        "иш берувчи", "работодател", "ходим", "работник",
+        "буюртмачи", "заказчик", "пудратчи", "подрядчик", "исполнител", "бажарувчи",
+        "супруг", "хотин", "турмуш ўртоғ",
         "паспорт", "ф.и.о",
      ];
 
