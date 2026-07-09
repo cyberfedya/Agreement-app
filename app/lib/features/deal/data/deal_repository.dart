@@ -1,6 +1,7 @@
 import 'package:app/core/network/api_exception.dart';
 import 'package:app/core/services/api_service.dart';
 import 'package:app/features/deal/domain/deal.dart';
+import 'package:app/features/profile/data/profile_repository.dart';
 import 'package:app/shared/models/result.dart';
 
 abstract class DealRepository {
@@ -15,14 +16,16 @@ abstract class DealRepository {
 }
 
 class ApiDealRepository implements DealRepository {
-  ApiDealRepository(this._api);
+  ApiDealRepository(this._api, this._profiles);
 
   final ApiService _api;
+  final ProfileRepository _profiles;
 
   @override
   Future<Result<Deal?>> createFromText(String text) async {
     try {
-      return Success(await _api.createDeal(text: text));
+      final profileId = await _profiles.getProfileId();
+      return Success(await _api.createDeal(text: text, profileId: profileId));
     } on ApiException catch (e) {
       return Failure(e.message);
     }
@@ -31,7 +34,8 @@ class ApiDealRepository implements DealRepository {
   @override
   Future<Result<Deal>> createFromTemplate(String templateKey) async {
     try {
-      final deal = await _api.createDeal(templateKey: templateKey);
+      final profileId = await _profiles.getProfileId();
+      final deal = await _api.createDeal(templateKey: templateKey, profileId: profileId);
       // The template key came from our own catalog, so a null (no-match)
       // response here would mean the backend and app disagree about what
       // exists — treat it as a server error, not a normal outcome.

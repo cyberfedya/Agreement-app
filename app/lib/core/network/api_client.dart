@@ -32,6 +32,22 @@ class ApiClient {
     return _decode(response);
   }
 
+  Future<dynamic> putJson(String path, {Object? body, Map<String, String>? query}) async {
+    final response = await _send(
+      () => _http.put(
+        _uri(path, query),
+        headers: const {'Content-Type': 'application/json'},
+        body: jsonEncode(body),
+      ),
+    );
+    return _decode(response);
+  }
+
+  Future<void> deleteJson(String path, {Map<String, String>? query}) async {
+    final response = await _send(() => _http.delete(_uri(path, query)));
+    _decode(response);
+  }
+
   Uri _uri(String path, [Map<String, String>? query]) {
     final normalized = path.startsWith('/') ? path : '/$path';
     return Uri.parse('$baseUrl$normalized').replace(queryParameters: query);

@@ -9,6 +9,7 @@ import 'package:app/features/ai_processing/presentation/ai_processing_page.dart'
 import 'package:app/features/auth/presentation/auth_page.dart';
 import 'package:app/features/home/presentation/home_page.dart';
 import 'package:app/features/profile/profile_page.dart';
+import 'package:app/features/profile/settings_page.dart';
 import 'package:app/features/questionnaire/presentation/pages/questionnaire_page.dart';
 import 'package:app/features/qr/presentation/qr_page.dart';
 import 'package:app/features/splash/splash_page.dart';
@@ -40,6 +41,7 @@ abstract class AppRoutes {
   static const String qrScan = '/qr-scan';
 
   static const String profile = '/profile';
+  static const String settings = '/settings';
 
   /// Required `String` argument: the user's free-form request text.
   static const String aiProcessing = '/ai-processing';
@@ -96,6 +98,8 @@ class AppRouter {
         return _fadeRoute(const QrPage(), settings);
       case AppRoutes.profile:
         return _fadeRoute(const ProfilePage(), settings);
+      case AppRoutes.settings:
+        return _fadeRoute(const SettingsPage(), settings);
       case AppRoutes.aiProcessing:
         return _fadeRoute(AiProcessingPage(requestText: settings.arguments as String), settings);
       default:

@@ -2,6 +2,7 @@ import 'package:app/core/network/api_client.dart';
 import 'package:app/core/network/api_exception.dart';
 import 'package:app/features/agreement/domain/agreement.dart';
 import 'package:app/features/deal/domain/deal.dart';
+import 'package:app/features/profile/domain/user_profile.dart';
 import 'package:app/features/questionnaire/domain/interview_step.dart';
 import 'package:app/features/questionnaire/domain/question.dart';
 import 'package:app/features/templates/domain/template.dart';
@@ -33,12 +34,12 @@ class ApiService {
   /// Matches free-form [text] (or a direct [templateKey]) to a template and
   /// opens a [Deal] for it. Returns null when the AI found no reasonable
   /// match (HTTP 422) — callers fall back to manual template selection.
-  Future<Deal?> createDeal({String? text, String? templateKey, String lang = 'ru'}) async {
+  Future<Deal?> createDeal({String? text, String? templateKey, required String profileId, String lang = 'ru'}) async {
     try {
       final json = await _client.postJson(
         '/api/deals',
         query: {'lang': lang},
-        body: {'text': text, 'templateKey': templateKey},
+        body: {'text': text, 'templateKey': templateKey, 'profileId': profileId},
       );
       return Deal.fromJson(json as Map<String, dynamic>);
     } on ServerException catch (e) {
@@ -46,6 +47,18 @@ class ApiService {
       rethrow;
     }
   }
+
+  Future<UserProfile> getProfile(String id) async {
+    final json = await _client.getJson('/api/profile/$id');
+    return UserProfile.fromJson(json as Map<String, dynamic>);
+  }
+
+  Future<UserProfile> saveProfile(String id, UserProfile profile) async {
+    final json = await _client.putJson('/api/profile/$id', body: profile.toJson());
+    return UserProfile.fromJson(json as Map<String, dynamic>);
+  }
+
+  Future<void> deleteProfile(String id) => _client.deleteJson('/api/profile/$id');
 
   /// Every field the template has — used to render the full-document
   /// preview sheet. The interview itself is driven by [nextQuestion], one

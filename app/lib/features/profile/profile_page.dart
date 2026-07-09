@@ -7,9 +7,10 @@ import 'package:app/core/widgets/app_widgets.dart';
 import 'package:app/features/profile/data/profile_repository.dart';
 import 'package:app/features/profile/domain/user_profile.dart';
 
-/// The identity EasyAgree substitutes into agreements as the creator's
-/// party data. Values come from [ProfileRepository] — a demo identity
-/// today, the real MyID-verified profile once that integration lands.
+/// Self-entered identity — no mock data, no fake MyID verification badge.
+/// Whatever the user types here is what's substituted into agreements as
+/// the creator's party details, and is saved to the backend keyed by this
+/// device's profile id (see [ProfileRepository]).
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
@@ -18,105 +19,144 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  late final Future<UserProfile> _profile = context.read<ProfileRepository>().getCurrent();
+  final _fullName = TextEditingController();
+  final _passportNumber = TextEditingController();
+  final _birthDate = TextEditingController();
+  final _address = TextEditingController();
 
-  void _logout() {
-    Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.login, (route) => false);
+  bool _isLoading = true;
+  bool _isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final profile = await context.read<ProfileRepository>().getCurrent();
+    if (!mounted) return;
+    if (profile != null) {
+      _fullName.text = profile.fullName;
+      _passportNumber.text = profile.passportNumber;
+      _birthDate.text = profile.birthDate;
+      _address.text = profile.address;
+    }
+    setState(() => _isLoading = false);
+  }
+
+  Future<void> _save() async {
+    setState(() => _isSaving = true);
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await context.read<ProfileRepository>().save(
+        UserProfile(
+          fullName: _fullName.text.trim(),
+          passportNumber: _passportNumber.text.trim(),
+          birthDate: _birthDate.text.trim(),
+          address: _address.text.trim(),
+        ),
+      );
+      if (!mounted) return;
+      messenger.showSnackBar(const SnackBar(content: Text('Профиль сохранён')));
+    } catch (_) {
+      if (!mounted) return;
+      messenger.showSnackBar(const SnackBar(content: Text('Не удалось сохранить. Проверьте связь с сервером.')));
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
+  }
+
+  @override
+  void dispose() {
+    _fullName.dispose();
+    _passportNumber.dispose();
+    _birthDate.dispose();
+    _address.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Профиль')),
-      body: FutureBuilder<UserProfile>(
-        future: _profile,
-        builder: (context, snapshot) {
-          final profile = snapshot.data;
-          if (profile == null) {
-            return const AppLoadingIndicator();
-          }
-
-          final fields = [
-            ('Ф.И.О.', profile.fullName),
-            ('Серия и номер паспорта', profile.passportNumber),
-            ('Дата рождения', profile.birthDate),
-            ('Адрес', profile.address),
-          ];
-
-          return CenteredContent(
-            child: ListView(
-              padding: const EdgeInsets.all(Insets.x20),
-              children: [
-                Center(
-                  child: Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(color: theme.colorScheme.primaryContainer, shape: BoxShape.circle),
-                    child: Icon(Icons.person_rounded, size: 40, color: theme.colorScheme.onPrimaryContainer),
-                  ),
-                ),
-                const SizedBox(height: Insets.x16),
-                if (profile.verified)
+      appBar: AppBar(
+        title: const Text('Профиль'),
+        actions: [
+          IconButton(
+            onPressed: () => Navigator.of(context).pushNamed(AppRoutes.settings),
+            icon: const Icon(Icons.settings_outlined),
+            tooltip: 'Настройки',
+          ),
+        ],
+      ),
+      body: _isLoading
+          ? const AppLoadingIndicator()
+          : CenteredContent(
+              child: ListView(
+                padding: const EdgeInsets.all(Insets.x20),
+                children: [
                   Center(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.verified_rounded, size: 18, color: theme.colorScheme.primary),
-                        const SizedBox(width: Insets.x8),
-                        Text(
-                          'Подтверждено через MyID',
-                          style: theme.textTheme.labelLarge?.copyWith(color: theme.colorScheme.primary),
-                        ),
-                      ],
+                    child: Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(color: theme.colorScheme.primaryContainer, shape: BoxShape.circle),
+                      child: Icon(Icons.person_rounded, size: 40, color: theme.colorScheme.onPrimaryContainer),
                     ),
                   ),
-                const SizedBox(height: Insets.x24),
-                Container(
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceContainerLow,
-                    borderRadius: Corners.lgRadius,
-                    border: Border.all(color: theme.colorScheme.outlineVariant),
+                  const SizedBox(height: Insets.x24),
+                  Text(
+                    'Эти данные подставляются в договор как данные вашей стороны — '
+                    'заполните их один раз, и в интервью они больше не спрашиваются.',
+                    style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant, height: 1.5),
                   ),
-                  child: Column(
-                    children: [
-                      for (final (index, (label, value)) in fields.indexed) ...[
-                        if (index > 0) const Divider(height: 1),
-                        Padding(
-                          padding: const EdgeInsets.all(Insets.x16),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  label,
-                                  style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-                                ),
-                              ),
-                              Text(value, style: theme.textTheme.bodyMedium),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                const SizedBox(height: Insets.x16),
-                Text(
-                  'Эти данные автоматически подставляются в договор как данные вашей '
-                  'стороны — в интервью они не запрашиваются.',
-                  style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant, height: 1.5),
-                ),
-                const SizedBox(height: Insets.x32),
-                OutlinedButton.icon(
-                  onPressed: _logout,
-                  icon: const Icon(Icons.logout_rounded, size: 18),
-                  label: const Text('Выйти'),
-                ),
-              ],
+                  const SizedBox(height: Insets.x24),
+                  _Field(label: 'Ф.И.О.', controller: _fullName, hint: 'Иванов Иван Иванович'),
+                  const SizedBox(height: Insets.x16),
+                  _Field(label: 'Серия и номер паспорта', controller: _passportNumber, hint: 'AD 1234567'),
+                  const SizedBox(height: Insets.x16),
+                  _Field(label: 'Дата рождения', controller: _birthDate, hint: '01.01.1990'),
+                  const SizedBox(height: Insets.x16),
+                  _Field(label: 'Адрес', controller: _address, hint: 'г. Ташкент, ул. Примерная, 1'),
+                ],
+              ),
             ),
-          );
-        },
-      ),
+      bottomNavigationBar: _isLoading
+          ? null
+          : SafeArea(
+              minimum: const EdgeInsets.all(Insets.x20),
+              child: FilledButton(
+                onPressed: _isSaving ? null : _save,
+                child: _isSaving
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2.4, color: Colors.white),
+                      )
+                    : const Text('Сохранить'),
+              ),
+            ),
+    );
+  }
+}
+
+class _Field extends StatelessWidget {
+  const _Field({required this.label, required this.controller, required this.hint});
+
+  final String label;
+  final TextEditingController controller;
+  final String hint;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: theme.textTheme.labelLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+        const SizedBox(height: Insets.x8),
+        TextField(controller: controller, decoration: InputDecoration(hintText: hint)),
+      ],
     );
   }
 }
