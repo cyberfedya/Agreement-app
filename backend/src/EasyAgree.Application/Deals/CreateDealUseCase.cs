@@ -1,5 +1,6 @@
 using EasyAgree.Application.Common;
 using EasyAgree.Application.Common.Interfaces;
+using EasyAgree.Application.Documents;
 using EasyAgree.Contracts.Deals;
 using EasyAgree.Domain.Entities;
 using EasyAgree.Domain.Enums;
@@ -16,6 +17,7 @@ namespace EasyAgree.Application.Deals;
 public sealed class CreateDealUseCase(
     IAgreementTemplateRepository templateRepository,
     IDealRepository dealRepository,
+    IntakePreprocessingService preprocessingService,
     IAiChatClient aiChatClient)
 {
     private const string ClassifierSystemPrompt = """
@@ -66,6 +68,8 @@ public sealed class CreateDealUseCase(
             UpdatedAt = now,
         };
         await dealRepository.AddAsync(deal, cancellationToken);
+        if (!string.IsNullOrWhiteSpace(profileId))
+            await preprocessingService.RefreshAsync(deal.Id, cancellationToken);
 
         var (title, _) = TranslationResolver.Resolve(template.Translations, language);
         return CreateDealResult.Success(new DealDto(deal.Id, template.Key, title, deal.Status.ToString()));

@@ -16,7 +16,8 @@ public sealed class UploadDocumentsUseCase(
     IDealRepository dealRepository,
     IUploadedDocumentRepository documentRepository,
     IFileStorage fileStorage,
-    IDocumentAnalysisService analysisService)
+    IDocumentAnalysisService analysisService,
+    IntakePreprocessingService preprocessingService)
 {
     public async Task<List<UploadedDocument>?> ExecuteAsync(
         Guid dealId, IReadOnlyList<UploadedFile> files, CancellationToken cancellationToken = default)
@@ -63,6 +64,7 @@ public sealed class UploadDocumentsUseCase(
             results.Add(document);
         }
 
+        await preprocessingService.RefreshAsync(dealId, cancellationToken);
         return results;
     }
 }

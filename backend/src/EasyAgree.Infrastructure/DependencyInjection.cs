@@ -38,7 +38,7 @@ public static class DependencyInjection
         services.AddSingleton<IFileStorage, LocalFileStorage>();
         services.AddScoped<IDocumentAnalysisService, VisionDocumentAnalysisService>();
         services.AddScoped<IDocumentRequirementResolver, DocumentRequirementResolver>();
-        services.AddScoped<IFieldMergeService, FieldMergeService>();
+        services.AddScoped<IFieldMergeService, MergedFieldService>();
 
         services.Configure<AiOptions>(configuration.GetSection(AiOptions.SectionName));
         services.AddSingleton(sp =>

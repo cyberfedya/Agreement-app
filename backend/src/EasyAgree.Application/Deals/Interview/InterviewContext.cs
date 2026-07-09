@@ -1,3 +1,5 @@
+using EasyAgree.Application.Documents;
+
 namespace EasyAgree.Application.Deals.Interview;
 
 /// <summary>
@@ -14,4 +16,4 @@ public sealed record InterviewContext(
     IReadOnlyDictionary<int, string> AlreadyKnown,
     IReadOnlyList<ClassifiedField> AllEligible,
     string? SuggestedAcknowledgement,
-    string? DocumentContext);
+    MergedFieldCollection MergedFields);

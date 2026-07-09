@@ -7,7 +7,9 @@ namespace EasyAgree.Application.Documents;
 /// is trusted completely - confidence 1.0, since a human just looked at
 /// the document and typed it themselves.
 /// </summary>
-public sealed class UpdateDocumentFieldUseCase(IUploadedDocumentRepository documentRepository)
+public sealed class UpdateDocumentFieldUseCase(
+    IUploadedDocumentRepository documentRepository,
+    IntakePreprocessingService preprocessingService)
 {
     public async Task<bool> ExecuteAsync(
         Guid dealId, Guid documentId, string fieldKey, string value, CancellationToken cancellationToken = default)
@@ -21,6 +23,7 @@ public sealed class UpdateDocumentFieldUseCase(IUploadedDocumentRepository docum
         document.ExtractedFieldsJson = ExtractedDocumentFieldsSerializer.Serialize(fields);
 
         await documentRepository.UpdateAsync(document, cancellationToken);
+        await preprocessingService.RefreshAsync(dealId, cancellationToken);
         return true;
     }
 }

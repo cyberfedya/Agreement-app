@@ -17,8 +17,6 @@ public sealed record InterviewPreviewResult(int TotalAskableFields, int Estimate
 public sealed class GetInterviewPreviewUseCase(
     IDealRepository dealRepository,
     IAgreementTemplateRepository templateRepository,
-    IUploadedDocumentRepository documentRepository,
-    IFieldMergeService fieldMergeService,
     QuestionGenerator questionGenerator)
 {
     public async Task<InterviewPreviewResult?> ExecuteAsync(
@@ -36,8 +34,8 @@ public sealed class GetInterviewPreviewUseCase(
         var labels = AgreementPlaceholderParser.ExtractLabels(template.HtmlTemplate);
         var (title, _) = TranslationResolver.Resolve(template.Translations, language);
 
-        var documents = await documentRepository.GetByDealIdAsync(dealId, cancellationToken);
-        var documentContext = fieldMergeService.BuildDocumentContext(documents);
+        var mergedFields = MergedFieldCollectionSerializer.Deserialize(deal.PreprocessedFieldsJson);
+        mergedFields.ApplyHighConfidenceAnswers(answers);
 
         var classified = FieldEligibilityEngine.Classify(template.Fields, labels);
         var askable = classified
@@ -48,10 +46,10 @@ public sealed class GetInterviewPreviewUseCase(
         if (askable.Count == 0)
             return new InterviewPreviewResult(0, 0);
 
-        if (documentContext is null)
+        if (mergedFields.Fields.Count == 0)
             return new InterviewPreviewResult(askable.Count, askable.Count);
 
-        var context = new InterviewContext(title, language, deal.RequestText, null, askable, answers, askable, null, documentContext);
+        var context = new InterviewContext(title, language, deal.RequestText, null, askable, answers, askable, null, mergedFields);
         var generated = await questionGenerator.GenerateAsync(context, cancellationToken);
 
         var matched = generated.Extracted.Keys.Count(id => askable.Any(f => f.FieldId == id));

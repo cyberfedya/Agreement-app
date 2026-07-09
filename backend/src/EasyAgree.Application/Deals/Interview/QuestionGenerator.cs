@@ -53,12 +53,14 @@ public sealed class QuestionGenerator(IAiChatClient aiChatClient)
         one question - never a list, never multiple sentences each posing a separate question.
 
         ALREADY_KNOWN lists what has already been established this conversation - never ask about any of it.
+        MERGED_FIELD_MAP is the only preprocessed field data from documents/profile/memory that you may use.
+        Never ask about a field already present there with confidence >= 0.75.
 
         Extraction rules (all optional, use only what genuinely applies):
         - If USER_REQUEST already states the value of ANY field listed in ALL_ELIGIBLE_FIELDS (not just the
           current group), return it in "extracted" - lightly normalized, never guessed or invented.
-        - DOCUMENT_EXTRACTED_DATA lists facts already read from documents the user uploaded (photos/scans),
-          each with a confidence score. Treat it exactly like USER_REQUEST: if it states the value of ANY
+        - MERGED_FIELD_MAP lists facts already established before the interview, each keyed by template
+          field id with value, confidence, and source. Treat it exactly like USER_REQUEST: if it states the value of ANY
           field in ALL_ELIGIBLE_FIELDS, return it in "extracted" and never ask about that field again. This
           is the single highest-value thing you can do - a user who uploaded documents should barely be
           asked anything the documents already answer.
@@ -97,8 +99,8 @@ public sealed class QuestionGenerator(IAiChatClient aiChatClient)
             LANGUAGE: {context.Language}
             SUGGESTED_ACK: {context.SuggestedAcknowledgement ?? "(none - this is the first question)"}
             USER_REQUEST: {context.UserRequest ?? "(not provided - template was picked manually)"}
-            DOCUMENT_EXTRACTED_DATA:
-            {context.DocumentContext ?? "(no documents uploaded)"}
+            MERGED_FIELD_MAP:
+            {context.MergedFields.ToPromptContext() ?? "(no preprocessed fields)"}
             ALREADY_KNOWN:
             {knownCatalog}
             ALL_ELIGIBLE_FIELDS:

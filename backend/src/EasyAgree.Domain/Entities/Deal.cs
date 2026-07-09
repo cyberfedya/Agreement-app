@@ -30,6 +30,13 @@ public class Deal
     /// </summary>
     public string? AnswersJson { get; set; }
 
+    /// <summary>
+    /// Pre-interview field map produced from documents/profile/memory,
+    /// keyed by template field id and preserving source/confidence so the
+    /// intake can be refreshed without losing user-entered answers.
+    /// </summary>
+    public string? PreprocessedFieldsJson { get; set; }
+
     public string? GeneratedHtml { get; set; }
 
     /// <summary>Second party's legal name, set once they complete the QR-sign flow (null until then).</summary>
