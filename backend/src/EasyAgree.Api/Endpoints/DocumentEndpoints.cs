@@ -64,6 +64,17 @@ public static class DocumentEndpoints
         })
         .WithName("DeleteDocument");
 
+        group.MapPatch("/{id:guid}/documents/{documentId:guid}/fields", async (
+            Guid id, Guid documentId, UpdateDocumentFieldRequest request, UpdateDocumentFieldUseCase useCase, CancellationToken ct) =>
+        {
+            if (string.IsNullOrWhiteSpace(request.Key))
+                return Results.BadRequest();
+
+            var updated = await useCase.ExecuteAsync(id, documentId, request.Key, request.Value, ct);
+            return updated ? Results.NoContent() : Results.NotFound();
+        })
+        .WithName("UpdateDocumentField");
+
         group.MapGet("/{id:guid}/interview-preview", async (
             Guid id, string? lang, GetInterviewPreviewUseCase useCase, CancellationToken ct) =>
         {
