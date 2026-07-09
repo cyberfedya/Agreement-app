@@ -71,9 +71,9 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     IconButton(
-                      onPressed: () {},
+                      onPressed: () => Navigator.of(context).pushNamed(AppRoutes.profile),
                       icon: const Icon(Icons.person_outline_rounded),
-                      tooltip: 'Profile',
+                      tooltip: 'Профиль',
                       style: IconButton.styleFrom(
                         backgroundColor: theme.colorScheme.surfaceContainerHigh,
                         foregroundColor: theme.colorScheme.onSurface,
