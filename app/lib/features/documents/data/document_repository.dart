@@ -1,5 +1,6 @@
 import 'package:app/core/network/api_exception.dart';
 import 'package:app/core/services/api_service.dart';
+import 'package:app/features/documents/domain/interview_preview.dart';
 import 'package:app/features/documents/domain/required_document.dart';
 import 'package:app/features/documents/domain/uploaded_document.dart';
 import 'package:app/shared/models/result.dart';
@@ -13,6 +14,10 @@ abstract class DocumentRepository {
     String dealId,
     List<(String fileName, String contentType, List<int> bytes)> files,
   );
+
+  Future<Result<void>> delete(String dealId, String documentId);
+
+  Future<Result<InterviewPreview>> getInterviewPreview(String dealId);
 }
 
 class ApiDocumentRepository implements DocumentRepository {
@@ -45,6 +50,25 @@ class ApiDocumentRepository implements DocumentRepository {
   ) async {
     try {
       return Success(await _api.uploadDocuments(dealId, files));
+    } on ApiException catch (e) {
+      return Failure(e.message);
+    }
+  }
+
+  @override
+  Future<Result<void>> delete(String dealId, String documentId) async {
+    try {
+      await _api.deleteDocument(dealId, documentId);
+      return const Success(null);
+    } on ApiException catch (e) {
+      return Failure(e.message);
+    }
+  }
+
+  @override
+  Future<Result<InterviewPreview>> getInterviewPreview(String dealId) async {
+    try {
+      return Success(await _api.getInterviewPreview(dealId));
     } on ApiException catch (e) {
       return Failure(e.message);
     }

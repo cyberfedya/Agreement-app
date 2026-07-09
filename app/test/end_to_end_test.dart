@@ -12,6 +12,7 @@ import 'package:app/features/ai_processing/presentation/ai_processing_page.dart'
 import 'package:app/features/deal/data/deal_repository.dart';
 import 'package:app/features/deal/domain/deal.dart';
 import 'package:app/features/documents/data/document_repository.dart';
+import 'package:app/features/documents/domain/interview_preview.dart';
 import 'package:app/features/documents/domain/required_document.dart';
 import 'package:app/features/documents/domain/uploaded_document.dart';
 import 'package:app/features/documents/providers/document_upload_provider.dart';
@@ -120,6 +121,13 @@ class FakeDocumentRepository implements DocumentRepository {
     String dealId,
     List<(String fileName, String contentType, List<int> bytes)> files,
   ) async => const Success<List<UploadedDocument>>([]);
+
+  @override
+  Future<Result<void>> delete(String dealId, String documentId) async => const Success(null);
+
+  @override
+  Future<Result<InterviewPreview>> getInterviewPreview(String dealId) async =>
+      const Success(InterviewPreview(totalAskableFields: 0, estimatedRemainingQuestions: 0));
 }
 
 const _matchedDeal = Deal(

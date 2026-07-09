@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import 'package:app/core/router/app_router.dart';
+import 'package:app/core/services/tts_service.dart';
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/core/widgets/app_widgets.dart';
 import 'package:app/core/widgets/bottom_action_bar.dart';
@@ -28,11 +29,69 @@ class DocumentUploadPage extends StatefulWidget {
 class _DocumentUploadPageState extends State<DocumentUploadPage> {
   final _picker = ImagePicker();
 
+  // Cached rather than looked up via context.read() in dispose(): by then
+  // the element is deactivated and ancestor lookups are unsafe.
+  DocumentUploadProvider? _provider;
+  TtsService? _tts;
+  int _lastSpokenDocumentCount = 0;
+
   @override
   void initState() {
     super.initState();
     final provider = context.read<DocumentUploadProvider>();
     Future.microtask(() => provider.loadRequirements(widget.dealId));
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _tts = context.read<TtsService>();
+    final provider = context.read<DocumentUploadProvider>();
+    if (!identical(_provider, provider)) {
+      _provider?.removeListener(_onProviderChanged);
+      _provider = provider..addListener(_onProviderChanged);
+    }
+  }
+
+  @override
+  void dispose() {
+    _tts?.stop();
+    _provider?.removeListener(_onProviderChanged);
+    super.dispose();
+  }
+
+  /// Speaks a short summary of what got recognized once the preview count
+  /// lands after a fresh upload batch - the AI "explaining itself" instead
+  /// of silently filling fields in the background.
+  void _onProviderChanged() {
+    final provider = _provider;
+    if (provider == null || provider.isLoadingPreview) return;
+    final preview = provider.preview;
+    if (preview == null) return;
+
+    final docCount = provider.uploadedDocuments.length;
+    if (docCount == _lastSpokenDocumentCount) return;
+    _lastSpokenDocumentCount = docCount;
+
+    final recognized = provider.uploadedDocuments.where((d) => d.isProcessed).length;
+    final remaining = preview.estimatedRemainingQuestions;
+    final summary = remaining == 0
+        ? 'Готово. Распознано документов: $recognized. Извлечено ${provider.extractedFieldCount} '
+              'полей автоматически — этого достаточно, дополнительных вопросов не будет.'
+        : 'Готово. Распознано документов: $recognized. Извлечено ${provider.extractedFieldCount} '
+              'полей автоматически. Осталось уточнить ещё ${_questionsWord(remaining)}.';
+    _tts?.speak(summary);
+  }
+
+  static String _questionsWord(int count) {
+    final mod10 = count % 10;
+    final mod100 = count % 100;
+    final word = (mod10 == 1 && mod100 != 11)
+        ? 'вопрос'
+        : (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20))
+        ? 'вопроса'
+        : 'вопросов';
+    return '$count $word';
   }
 
   Future<void> _pickFromCamera() async {
@@ -96,7 +155,10 @@ class _DocumentUploadPageState extends State<DocumentUploadPage> {
                     ...provider.uploadedDocuments.map(
                       (d) => Padding(
                         padding: const EdgeInsets.only(bottom: Insets.x8),
-                        child: _UploadedDocumentCard(document: d),
+                        child: _UploadedDocumentCard(
+                          document: d,
+                          onDelete: () => provider.deleteDocument(d.id),
+                        ),
                       ),
                     ),
                     const SizedBox(height: Insets.x16),
@@ -183,6 +245,7 @@ class _ExtractionSummaryCard extends StatelessWidget {
     final theme = Theme.of(context);
     final processed = provider.uploadedDocuments.where((d) => d.isProcessed).toList();
     final failed = provider.uploadedDocuments.where((d) => d.isFailed).length;
+    final preview = provider.preview;
 
     return Container(
       width: double.infinity,
@@ -229,6 +292,24 @@ class _ExtractionSummaryCard extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
+          if (provider.isLoadingPreview)
+            Padding(
+              padding: const EdgeInsets.only(top: Insets.x4),
+              child: Text(
+                'Считаю, сколько ещё нужно уточнить…',
+                style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onPrimaryContainer),
+              ),
+            )
+          else if (preview != null)
+            Padding(
+              padding: const EdgeInsets.only(top: Insets.x4),
+              child: Text(
+                preview.estimatedRemainingQuestions == 0
+                    ? 'Дополнительных вопросов не будет'
+                    : 'Осталось уточнить: ${preview.estimatedRemainingQuestions}',
+                style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onPrimaryContainer),
+              ),
+            ),
         ],
       ),
     );
@@ -236,9 +317,10 @@ class _ExtractionSummaryCard extends StatelessWidget {
 }
 
 class _UploadedDocumentCard extends StatelessWidget {
-  const _UploadedDocumentCard({required this.document});
+  const _UploadedDocumentCard({required this.document, required this.onDelete});
 
   final UploadedDocument document;
+  final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -274,6 +356,12 @@ class _UploadedDocumentCard extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+          IconButton(
+            onPressed: onDelete,
+            icon: const Icon(Icons.delete_outline_rounded, size: 20),
+            tooltip: 'Удалить и загрузить заново',
+            color: theme.colorScheme.onSurfaceVariant,
           ),
         ],
       ),
