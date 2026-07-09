@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
 import 'package:app/core/services/cloud_tts_service.dart';
@@ -23,22 +24,29 @@ class TtsService {
     try {
       _cloud ??= CloudTtsService();
       if (await _cloud!.speakForLanguage(text, lang)) return;
-    } catch (_) {
-      // fall through to on-device TTS
+      debugPrint('TtsService: cloud TTS unavailable/failed, falling back to on-device engine');
+    } catch (e) {
+      debugPrint('TtsService: cloud TTS threw, falling back to on-device engine: $e');
     }
 
     try {
       await _device.stop();
-      await _device.setLanguage(switch (lang) {
-        'ru' => 'ru-RU',
-        'uz' => 'uz-UZ',
-        _ => 'en-US',
-      });
+      final locale = switch (lang) { 'ru' => 'ru-RU', 'uz' => 'uz-UZ', _ => 'en-US' };
+      final supported = await _device.isLanguageAvailable(locale);
+      // Many Android devices never downloaded the Russian/Uzbek voice pack —
+      // silently falling back to whatever locale IS installed beats staying
+      // mute, even if the accent ends up wrong.
+      if (supported != true) {
+        debugPrint('TtsService: locale $locale not available on this device, using engine default');
+      } else {
+        await _device.setLanguage(locale);
+      }
       // No male on-device voice is guaranteed; a lower pitch approximates one.
       await _device.setPitch(0.8);
-      await _device.speak(text);
-    } catch (_) {
-      // No TTS engine (tests, stripped-down devices) — stay silent.
+      final result = await _device.speak(text);
+      debugPrint('TtsService: on-device speak() result=$result');
+    } catch (e) {
+      debugPrint('TtsService: on-device TTS threw: $e');
     }
   }
 
