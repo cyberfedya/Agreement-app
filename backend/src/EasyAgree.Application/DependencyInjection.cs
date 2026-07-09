@@ -20,6 +20,9 @@ public static class DependencyInjection
         services.AddScoped<GetDealQuestionsUseCase>();
         services.AddScoped<QuestionGenerator>();
         services.AddScoped<InterviewPlanner>();
+        services.AddScoped<IntentClassifier>();
+        services.AddScoped<SideQuestionAnswerer>();
+        services.AddScoped<ConversationManager>();
         services.AddScoped<GetNextQuestionUseCase>();
         services.AddScoped<GenerateFromDealUseCase>();
 

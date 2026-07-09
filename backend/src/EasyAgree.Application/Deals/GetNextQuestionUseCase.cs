@@ -7,19 +7,20 @@ namespace EasyAgree.Application.Deals;
 
 /// <summary>
 /// Thin adapter between the deal/template persistence layer and the
-/// <see cref="InterviewPlanner"/>: loads state, records the incoming
-/// answer, delegates the actual planning, then persists whatever the
-/// planner extracted before returning.
+/// <see cref="ConversationManager"/>: loads state, delegates the actual
+/// intent classification + planning, then persists whatever ended up
+/// written to the answer set before returning.
 /// </summary>
 public sealed class GetNextQuestionUseCase(
     IDealRepository dealRepository,
     IAgreementTemplateRepository templateRepository,
-    InterviewPlanner planner)
+    ConversationManager conversationManager)
 {
     public async Task<NextQuestionResult> ExecuteAsync(
         Guid dealId,
         int? answeredFieldId,
         string? answerText,
+        string? currentQuestionText,
         string language,
         CancellationToken cancellationToken = default)
     {
@@ -32,14 +33,13 @@ public sealed class GetNextQuestionUseCase(
             return NextQuestionResult.NotFound();
 
         var answers = DealAnswersSerializer.Deserialize(deal.AnswersJson);
-        if (answeredFieldId is { } fieldId && !string.IsNullOrWhiteSpace(answerText))
-            answers[fieldId] = answerText;
 
         var labels = AgreementPlaceholderParser.ExtractLabels(template.HtmlTemplate);
         var (title, _) = TranslationResolver.Resolve(template.Translations, language);
 
-        var result = await planner.ExecuteAsync(
-            title, language, deal.RequestText, answerText, template.Fields, labels, answers, cancellationToken);
+        var result = await conversationManager.ExecuteAsync(
+            title, language, deal.RequestText, answeredFieldId, answerText, currentQuestionText,
+            template.Fields, labels, answers, cancellationToken);
 
         await SaveAnswersAsync(deal, answers, cancellationToken);
 

@@ -45,9 +45,19 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator)
             var ordered = QuestionPriorityEngine.Order(askable);
             var group = QuestionGroupingEngine.BuildGroups(ordered)[0];
 
-            var acknowledgement = AcknowledgementPhrases.Pick(language, answers.Count);
+            // Nothing to acknowledge on the very first question - the user
+            // hasn't answered anything yet, only stated their request.
+            var acknowledgement = isFirstTurn ? null : AcknowledgementPhrases.Pick(language, answers.Count);
             var context = new InterviewContext(templateTitle, language, userRequest, currentMessage, group, answers, ordered, acknowledgement);
             var generated = await questionGenerator.GenerateAsync(context, cancellationToken);
+            if (string.IsNullOrWhiteSpace(generated.Question) && generated.Extracted.Count == 0)
+            {
+                // A blank result usually means a transient failure (timeout,
+                // unparseable JSON) rather than "everything got extracted" -
+                // one retry clears most of those before we resort to a
+                // generic fallback question.
+                generated = await questionGenerator.GenerateAsync(context, cancellationToken);
+            }
 
             var allowedExtractionIds = group.Select(f => f.FieldId).ToHashSet();
             if (isFirstTurn)
@@ -62,7 +72,9 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator)
             var firstMissing = group.FirstOrDefault(f => !answers.ContainsKey(f.FieldId));
             if (firstMissing is not null)
             {
-                var question = string.IsNullOrWhiteSpace(generated.Question) ? firstMissing.Label : generated.Question!;
+                var question = string.IsNullOrWhiteSpace(generated.Question)
+                    ? ConversationReplies.GenericFallbackQuestion(language)
+                    : generated.Question!;
                 return InterviewPlanResult.NeedMoreInfo(firstMissing.FieldId, question);
             }
 

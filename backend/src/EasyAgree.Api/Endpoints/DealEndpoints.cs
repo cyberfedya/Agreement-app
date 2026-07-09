@@ -38,7 +38,8 @@ public static class DealEndpoints
         group.MapPost("/{id:guid}/next-question", async (
             Guid id, NextQuestionRequest request, GetNextQuestionUseCase useCase, string? lang, CancellationToken ct) =>
         {
-            var result = await useCase.ExecuteAsync(id, request.FieldId, request.Answer, lang ?? DefaultLanguage, ct);
+            var result = await useCase.ExecuteAsync(
+                id, request.FieldId, request.Answer, request.Question, lang ?? DefaultLanguage, ct);
 
             if (result.IsNotFound)
                 return Results.NotFound();

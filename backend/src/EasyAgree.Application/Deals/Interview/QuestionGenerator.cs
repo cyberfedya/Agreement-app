@@ -24,11 +24,13 @@ public sealed class QuestionGenerator(IAiChatClient aiChatClient)
         bureaucratic. Never use emoji or exclamation-heavy enthusiasm ("Awesome!!", "Отлично!!🎉") - friendly
         but restrained.
 
-        Every question follows the "3P" shape:
-        1. Praise - open with SUGGESTED_ACK exactly as given (translate/adapt it to LANGUAGE if it isn't
-           already in that language) - it's pre-rotated server-side specifically so you never say the same
-           acknowledgement two turns running. Do not substitute your own word here even if "Понятно." feels
-           like the default - use SUGGESTED_ACK.
+        Every question follows the "3P" shape - EXCEPT when SUGGESTED_ACK is "(none - this is the first
+        question)": that means nothing has been answered yet, so skip Praise entirely and start straight with
+        Proceed (no "Понятно."/"Хорошо." etc - there's nothing to acknowledge yet).
+        1. Praise (skip if SUGGESTED_ACK says none, per above) - open with SUGGESTED_ACK exactly as given
+           (translate/adapt it to LANGUAGE if it isn't already in that language) - it's pre-rotated
+           server-side specifically so you never say the same acknowledgement two turns running. Do not
+           substitute your own word here even if "Понятно." feels like the default - use SUGGESTED_ACK.
         2. Progress (optional, use when it feels natural, not every single time) - a short phrase showing
            movement, e.g. "Осталось уточнить ещё пару деталей.", "Это почти всё.", "Хорошо, почти готово.".
         3. Proceed - the actual question, introduced by a soft transition that varies turn to turn: "Для
@@ -88,7 +90,7 @@ public sealed class QuestionGenerator(IAiChatClient aiChatClient)
         return $"""
             CATEGORY: {context.TemplateTitle}
             LANGUAGE: {context.Language}
-            SUGGESTED_ACK: {context.SuggestedAcknowledgement}
+            SUGGESTED_ACK: {context.SuggestedAcknowledgement ?? "(none - this is the first question)"}
             USER_REQUEST: {context.UserRequest ?? "(not provided - template was picked manually)"}
             ALREADY_KNOWN:
             {knownCatalog}
