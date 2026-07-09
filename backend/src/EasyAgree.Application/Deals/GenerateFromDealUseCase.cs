@@ -32,6 +32,8 @@ public sealed class GenerateFromDealUseCase(
         "ижарага берувчи", "арендодател",
         "қарз берувчи", "займодав", "кредитор",
         "иш берувчи", "работодател",
+        "буюртмачи", "заказчик",
+        "биринчи томон", "первой стороны", "первая сторона",
     ];
 
     public async Task<GenerateFromDealResult> ExecuteAsync(
