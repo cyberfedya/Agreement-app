@@ -1,4 +1,5 @@
 using EasyAgree.Application.Deals;
+using EasyAgree.Application.Deals.Interview;
 using EasyAgree.Application.Profile;
 using EasyAgree.Application.Templates;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +18,8 @@ public static class DependencyInjection
         services.AddScoped<CreateDealUseCase>();
         services.AddScoped<GetDealUseCase>();
         services.AddScoped<GetDealQuestionsUseCase>();
+        services.AddScoped<QuestionGenerator>();
+        services.AddScoped<InterviewPlanner>();
         services.AddScoped<GetNextQuestionUseCase>();
         services.AddScoped<GenerateFromDealUseCase>();
 
