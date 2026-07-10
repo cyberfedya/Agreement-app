@@ -52,6 +52,16 @@ class DocumentUploadProvider extends ChangeNotifier {
       _uploadedDocuments.where((d) => d.isProcessed).fold(0, (sum, d) => sum + d.fields.length);
 
   Future<void> loadRequirements(String dealId) async {
+    // This provider is registered once at the app root, so without this
+    // guard, starting a fresh deal would keep showing the previous deal's
+    // uploaded documents/preview - they're a different dealId server-side,
+    // but nothing here ever forgot about them.
+    if (_dealId != dealId) {
+      _uploadedDocuments.clear();
+      _preview = null;
+      _pendingMismatchWarnings = const [];
+    }
+
     _dealId = dealId;
     _isLoadingRequirements = true;
     _errorMessage = null;
