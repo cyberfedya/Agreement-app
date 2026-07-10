@@ -1,12 +1,39 @@
 import 'package:app/features/questionnaire/domain/question.dart';
 
+/// Non-mandatory mid-interview upload suggestion - shown instead of the
+/// next question when uploading a photo would fill several fields at
+/// once. [documentType] is the backend's `DocumentType` enum name (e.g.
+/// `"VehicleRegistration"`) - echo it back verbatim if the user dismisses.
+class DocumentSuggestion {
+  const DocumentSuggestion({
+    required this.documentType,
+    required this.title,
+    required this.description,
+    required this.matchedFieldCount,
+  });
+
+  final String documentType;
+  final String title;
+  final String description;
+  final int matchedFieldCount;
+
+  factory DocumentSuggestion.fromJson(Map<String, dynamic> json) => DocumentSuggestion(
+    documentType: json['documentType'] as String,
+    title: json['title'] as String,
+    description: json['description'] as String,
+    matchedFieldCount: json['matchedFieldCount'] as int,
+  );
+}
+
 /// One turn's worth of guidance from the backend's Interview Planner:
-/// either "here's the next thing to ask" or "you have enough — generate".
+/// "here's the next thing to ask", "you have enough — generate", or
+/// "consider uploading this document before we keep going".
 class InterviewStep {
-  const InterviewStep({required this.readyToGenerate, this.question, this.closingMessage});
+  const InterviewStep({required this.readyToGenerate, this.question, this.closingMessage, this.documentSuggestion});
 
   final bool readyToGenerate;
   final Question? question;
+  final DocumentSuggestion? documentSuggestion;
 
   /// Short spoken/shown sign-off for when [readyToGenerate] is true — e.g.
   /// "Спасибо. Этой информации уже достаточно, чтобы подготовить проект
@@ -14,6 +41,12 @@ class InterviewStep {
   final String? closingMessage;
 
   factory InterviewStep.fromJson(Map<String, dynamic> json) {
+    if (json['status'] == 'suggest_document') {
+      return InterviewStep(
+        readyToGenerate: false,
+        documentSuggestion: DocumentSuggestion.fromJson(json['documentSuggestion'] as Map<String, dynamic>),
+      );
+    }
     if (json['status'] == 'ready_to_generate') {
       return InterviewStep(readyToGenerate: true, closingMessage: json['nextQuestion'] as String?);
     }

@@ -25,6 +25,7 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator)
     private const int MaxPlanningIterations = 20;
 
     public async Task<InterviewPlanResult> ExecuteAsync(
+        string templateDomain,
         string templateTitle,
         string language,
         string? userRequest,
@@ -34,12 +35,9 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator)
         IReadOnlyDictionary<int, string> labels,
         Dictionary<int, string> answers,
         Dictionary<string, string> askedQuestions,
+        ISet<string> dismissedDocumentSuggestions,
         CancellationToken cancellationToken)
     {
-        // Deterministic, zero-LLM pass first: anything the document
-        // clearly answers by keyword gets written before the model is
-        // ever asked to match anything, so it can never be dropped by an
-        // incomplete model response.
         DocumentFieldMapper.ApplyMatches(fields, labels, documentHints, answers);
 
         var classified = FieldEligibilityEngine.Classify(fields, labels);
@@ -49,18 +47,15 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator)
         {
             var askable = Askable(classified, answers);
             if (askable.Count == 0)
-                return InterviewPlanResult.Ready(ClosingPhrases.Pick(language));
+                return InterviewPlanResult.Ready(ClosingPhrases.Pick(language)); 
+                
+            var suggestion = DocumentSuggestionEngine.Evaluate(templateDomain, askable, documentHints, dismissedDocumentSuggestions);
+            if (suggestion is not null)
+                return InterviewPlanResult.SuggestDocument(suggestion.DocumentType, suggestion.MatchedFieldCount);
 
             var ordered = QuestionPriorityEngine.Order(askable);
             var group = QuestionGroupingEngine.BuildGroups(ordered)[0];
             var groupKey = GroupKey(group);
-
-            // Exactly this set of fields was already asked about and is
-            // still unanswered - reuse that wording verbatim instead of
-            // calling the model for yet another rephrasing, which is what
-            // full-template testing surfaced as the interview appearing to
-            // loop ("Номер дела?" / "Уточните номер дела." / "Подскажите
-            // номер дела." for the same unfilled field across turns).
             var isRepeat = askedQuestions.TryGetValue(groupKey, out var previousQuestion);
 
             GeneratedQuestion generated;
@@ -70,18 +65,12 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator)
             }
             else
             {
-                // Nothing to acknowledge on the very first question - the
-                // user hasn't answered anything yet, only stated their request.
                 var acknowledgement = isFirstTurn ? null : AcknowledgementPhrases.Pick(language, answers.Count);
                 var context = new InterviewContext(
                     templateTitle, language, userRequest, currentMessage, group, answers, ordered, acknowledgement, documentHints);
                 generated = await questionGenerator.GenerateAsync(context, cancellationToken);
                 if (string.IsNullOrWhiteSpace(generated.Question) && generated.Extracted.Count == 0)
                 {
-                    // A blank result usually means a transient failure (timeout,
-                    // unparseable JSON) rather than "everything got extracted" -
-                    // one retry clears most of those before we resort to a
-                    // generic fallback question.
                     generated = await questionGenerator.GenerateAsync(context, cancellationToken);
                 }
             }
@@ -94,11 +83,6 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator)
             {
                 if (!allowedExtractionIds.Contains(fieldId) || string.IsNullOrWhiteSpace(value) || answers.ContainsKey(fieldId))
                     continue;
-
-                // Same shape check as the direct-answer path - an
-                // implausible extracted value is simply dropped rather
-                // than blocking the turn, since the field will just be
-                // asked about normally on a later iteration/turn.
                 if (labels.TryGetValue(fieldId, out var extractedLabel) && !AnswerShapeValidator.LooksPlausible(extractedLabel, value))
                     continue;
 
@@ -111,9 +95,6 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator)
                 string question;
                 if (isRepeat)
                 {
-                    // Reuse the prior wording as-is (never re-cache the
-                    // notice-wrapped text - the cache always holds the bare
-                    // question so a third+ ask doesn't stack notices).
                     question = $"{ConversationReplies.RepeatedQuestionNotice(language)} {previousQuestion}";
                 }
                 else
@@ -127,13 +108,8 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator)
                 return InterviewPlanResult.NeedMoreInfo(firstMissing.FieldId, question);
             }
 
-            // The whole group got covered by extraction alone - loop to the
-            // next group instead of surfacing a now-redundant question.
         }
 
-        // Iteration cap hit (rare) - fall back to a plain, deterministic
-        // question for whatever is still missing rather than calling the
-        // model again.
         var remaining = Askable(classified, answers);
         if (remaining.Count == 0)
             return InterviewPlanResult.Ready(ClosingPhrases.Pick(language));

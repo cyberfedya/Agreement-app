@@ -36,6 +36,7 @@ public sealed class GetNextQuestionUseCase(
 
         var answers = DealAnswersSerializer.Deserialize(deal.AnswersJson);
         var askedQuestions = DealAskedQuestionsSerializer.Deserialize(deal.AskedQuestionsJson);
+        var dismissedDocumentSuggestions = DealDismissedDocumentSuggestionsSerializer.Deserialize(deal.DismissedDocumentSuggestionsJson);
 
         var labels = AgreementPlaceholderParser.ExtractLabels(template.HtmlTemplate);
         var (title, _) = TranslationResolver.Resolve(template.Translations, language);
@@ -44,10 +45,13 @@ public sealed class GetNextQuestionUseCase(
         var documentHints = DocumentFieldHintCollection.FromDocuments(documents);
 
         var result = await conversationManager.ExecuteAsync(
-            title, language, deal.RequestText, documentHints, answeredFieldId, answerText, currentQuestionText,
-            template.Fields, labels, answers, askedQuestions, cancellationToken);
+            template.Domain, title, language, deal.RequestText, documentHints, answeredFieldId, answerText, currentQuestionText,
+            template.Fields, labels, answers, askedQuestions, dismissedDocumentSuggestions, cancellationToken);
 
         await SaveAsync(deal, answers, askedQuestions, cancellationToken);
+
+        if (result.IsSuggestDocument)
+            return NextQuestionResult.SuggestDocument(result.SuggestedDocumentType!.Value, result.SuggestedMatchedFieldCount);
 
         return result.IsReady
             ? NextQuestionResult.ReadyToGenerate(result.Question!)

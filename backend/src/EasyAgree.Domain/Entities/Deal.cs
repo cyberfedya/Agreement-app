@@ -42,6 +42,14 @@ public class Deal
     public string? AskedQuestionsJson { get; set; }
 
     /// <summary>
+    /// Document types (<c>DocumentType.ToString()</c>) the user chose
+    /// "Continue without document" for, serialized as a JSON array. Once
+    /// dismissed, that document's mid-interview upload suggestion never
+    /// resurfaces for the rest of this deal.
+    /// </summary>
+    public string? DismissedDocumentSuggestionsJson { get; set; }
+
+    /// <summary>
     /// Pre-interview field map produced from documents/profile/memory,
     /// keyed by template field id and preserving source/confidence so the
     /// intake can be refreshed without losing user-entered answers.

@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:app/features/questionnaire/data/questionnaire_repository.dart';
+import 'package:app/features/questionnaire/domain/interview_step.dart';
 import 'package:app/features/questionnaire/domain/question.dart';
 import 'package:app/shared/models/result.dart';
 
@@ -17,6 +18,7 @@ class QuestionnaireProvider extends ChangeNotifier {
   Question? _currentQuestion;
   bool _readyToGenerate = false;
   String? _closingMessage;
+  DocumentSuggestion? _documentSuggestion;
   List<Question> _allFields = const [];
   final Map<int, String> _answers = {};
   final List<Question> _history = [];
@@ -26,6 +28,12 @@ class QuestionnaireProvider extends ChangeNotifier {
   Question? get currentQuestion => _currentQuestion;
   bool get readyToGenerate => _readyToGenerate;
   String? get closingMessage => _closingMessage;
+
+  /// Non-mandatory "upload this instead of typing N fields" suggestion for
+  /// the current turn - non-null only while it hasn't been resolved yet
+  /// (by uploading, via [resumeAfterDocumentUpload], or by dismissing, via
+  /// [dismissDocumentSuggestion]).
+  DocumentSuggestion? get documentSuggestion => _documentSuggestion;
 
   /// Every field the template has, for the full-document preview sheet —
   /// not the (much shorter) set actually asked during the interview.
@@ -48,6 +56,7 @@ class QuestionnaireProvider extends ChangeNotifier {
       _history.clear();
       _currentQuestion = null;
       _readyToGenerate = false;
+      _documentSuggestion = null;
     }
     _dealId = dealId;
     _isLoading = true;
@@ -131,6 +140,38 @@ class QuestionnaireProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Call after the caller has already uploaded the suggested document
+  /// (e.g. via `DocumentUploadProvider.upload`) - re-asks the planner for
+  /// the next step, which now skips whatever the upload just filled.
+  Future<void> resumeAfterDocumentUpload() async {
+    if (_dealId == null) return;
+
+    _documentSuggestion = null;
+    _isLoading = true;
+    notifyListeners();
+
+    await _advance();
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  /// "Continue without document" - never shows this document's suggestion
+  /// again for this deal, then continues the interview normally.
+  Future<void> dismissDocumentSuggestion() async {
+    final dealId = _dealId;
+    final suggestion = _documentSuggestion;
+    if (dealId == null || suggestion == null) return;
+
+    _isLoading = true;
+    notifyListeners();
+
+    await _repository.dismissDocumentSuggestion(dealId, suggestion.documentType);
+    _documentSuggestion = null;
+    await _advance();
+    _isLoading = false;
+    notifyListeners();
+  }
+
   Future<void> _advance({int? fieldId, String? answer, String? question}) async {
     final dealId = _dealId;
     if (dealId == null) return;
@@ -140,6 +181,7 @@ class QuestionnaireProvider extends ChangeNotifier {
         _readyToGenerate = value.readyToGenerate;
         _currentQuestion = value.question;
         _closingMessage = value.closingMessage;
+        _documentSuggestion = value.documentSuggestion;
         _errorMessage = null;
       case Failure(:final message):
         _errorMessage = message;

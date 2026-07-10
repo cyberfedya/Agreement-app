@@ -69,6 +69,9 @@ class FakeQuestionnaireRepository implements QuestionnaireRepository {
     if (_callIndex < steps.length - 1) _callIndex++;
     return step;
   }
+
+  @override
+  Future<Result<void>> dismissDocumentSuggestion(String dealId, String documentType) async => const Success(null);
 }
 
 class FakeAgreementRepository implements AgreementRepository {

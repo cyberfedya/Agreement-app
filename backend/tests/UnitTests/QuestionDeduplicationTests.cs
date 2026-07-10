@@ -19,8 +19,8 @@ public sealed class QuestionDeduplicationTests
         var askedQuestions = new Dictionary<string, string>();
 
         var first = await planner.ExecuteAsync(
-            "Inheritance", "ru", null, "some message", DocumentFieldHintCollection.Empty,
-            fields, Labels(fields), answers, askedQuestions, CancellationToken.None);
+            "test", "Inheritance", "ru", null, "some message", DocumentFieldHintCollection.Empty,
+            fields, Labels(fields), answers, askedQuestions, new HashSet<string>(), CancellationToken.None);
 
         Assert.Equal(1, first.FieldId);
         Assert.Equal("Подскажите номер наследственного дела?", first.Question);
@@ -30,8 +30,8 @@ public sealed class QuestionDeduplicationTests
         // return different wording if called again, but it must not be
         // called at all - the cached question is reused verbatim.
         var second = await planner.ExecuteAsync(
-            "Inheritance", "ru", null, "Тестовый ответ", DocumentFieldHintCollection.Empty,
-            fields, Labels(fields), answers, askedQuestions, CancellationToken.None);
+            "test", "Inheritance", "ru", null, "Тестовый ответ", DocumentFieldHintCollection.Empty,
+            fields, Labels(fields), answers, askedQuestions, new HashSet<string>(), CancellationToken.None);
 
         Assert.Equal(1, second.FieldId);
         Assert.Contains("Подскажите номер наследственного дела?", second.Question);
@@ -49,14 +49,14 @@ public sealed class QuestionDeduplicationTests
         var askedQuestions = new Dictionary<string, string>();
 
         await planner.ExecuteAsync(
-            "Inheritance", "ru", null, "some message", DocumentFieldHintCollection.Empty,
-            fields, Labels(fields), answers, askedQuestions, CancellationToken.None);
+            "test", "Inheritance", "ru", null, "some message", DocumentFieldHintCollection.Empty,
+            fields, Labels(fields), answers, askedQuestions, new HashSet<string>(), CancellationToken.None);
         var second = await planner.ExecuteAsync(
-            "Inheritance", "ru", null, "Тестовый ответ", DocumentFieldHintCollection.Empty,
-            fields, Labels(fields), answers, askedQuestions, CancellationToken.None);
+            "test", "Inheritance", "ru", null, "Тестовый ответ", DocumentFieldHintCollection.Empty,
+            fields, Labels(fields), answers, askedQuestions, new HashSet<string>(), CancellationToken.None);
         var third = await planner.ExecuteAsync(
-            "Inheritance", "ru", null, "Ещё один тестовый ответ", DocumentFieldHintCollection.Empty,
-            fields, Labels(fields), answers, askedQuestions, CancellationToken.None);
+            "test", "Inheritance", "ru", null, "Ещё один тестовый ответ", DocumentFieldHintCollection.Empty,
+            fields, Labels(fields), answers, askedQuestions, new HashSet<string>(), CancellationToken.None);
 
         Assert.Equal(second.Question, third.Question);
         var noticeCount = CountOccurrences(third.Question!, ConversationReplies.RepeatedQuestionNotice("ru"));
@@ -74,8 +74,8 @@ public sealed class QuestionDeduplicationTests
         var askedQuestions = new Dictionary<string, string>();
 
         var first = await planner.ExecuteAsync(
-            "Inheritance", "ru", null, null, DocumentFieldHintCollection.Empty,
-            fields, Labels(fields), answers, askedQuestions, CancellationToken.None);
+            "test", "Inheritance", "ru", null, null, DocumentFieldHintCollection.Empty,
+            fields, Labels(fields), answers, askedQuestions, new HashSet<string>(), CancellationToken.None);
 
         Assert.Equal("12345", answers[1]);
         Assert.Equal(2, first.FieldId);

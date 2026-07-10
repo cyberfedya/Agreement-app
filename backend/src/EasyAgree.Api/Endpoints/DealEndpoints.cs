@@ -1,4 +1,5 @@
 using EasyAgree.Application.Deals;
+using EasyAgree.Application.Deals.Interview;
 using EasyAgree.Contracts.Deals;
 using EasyAgree.Contracts.Templates;
 
@@ -44,11 +45,33 @@ public static class DealEndpoints
             if (result.IsNotFound)
                 return Results.NotFound();
 
+            if (result.IsSuggestDocument)
+            {
+                var docType = result.SuggestedDocumentType!.Value;
+                var suggestion = new DocumentSuggestionDto(
+                    docType.ToString(),
+                    DocumentSuggestionReplies.Title(docType, lang ?? DefaultLanguage),
+                    DocumentSuggestionReplies.Description(docType, lang ?? DefaultLanguage),
+                    result.SuggestedMatchedFieldCount);
+                return Results.Ok(new NextQuestionResponse("suggest_document", null, null, [], suggestion));
+            }
+
             var status = result.IsReadyToGenerate ? "ready_to_generate" : "need_more_info";
             List<int> missing = result.NextFieldId is { } fieldId ? [fieldId] : [];
             return Results.Ok(new NextQuestionResponse(status, result.NextFieldId, result.NextQuestion, missing));
         })
         .WithName("GetNextQuestion");
+
+        group.MapPost("/{id:guid}/document-suggestions/dismiss", async (
+            Guid id, DismissDocumentSuggestionRequest request, DismissDocumentSuggestionUseCase useCase, CancellationToken ct) =>
+        {
+            if (string.IsNullOrWhiteSpace(request.DocumentType))
+                return Results.BadRequest();
+
+            var success = await useCase.ExecuteAsync(id, request.DocumentType, ct);
+            return success ? Results.NoContent() : Results.NotFound();
+        })
+        .WithName("DismissDocumentSuggestion");
 
         group.MapPost("/{id:guid}/generate", async (
             Guid id, GenerateAgreementRequest request, GenerateFromDealUseCase useCase, CancellationToken ct) =>

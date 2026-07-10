@@ -33,6 +33,7 @@ public sealed class AnswerShapeValidationTests
         var answers = DealAnswersSerializer.Deserialize(null);
 
         var result = await manager.ExecuteAsync(
+            "loan",
             "Loan agreement",
             "ru",
             null,
@@ -44,6 +45,7 @@ public sealed class AnswerShapeValidationTests
             Labels(fields),
             answers,
             new Dictionary<string, string>(),
+            new HashSet<string>(),
             CancellationToken.None);
 
         Assert.Equal(1, result.FieldId);
@@ -63,16 +65,16 @@ public sealed class AnswerShapeValidationTests
         var answers = DealAnswersSerializer.Deserialize(null);
 
         var first = await manager.ExecuteAsync(
-            "Loan agreement", "ru", null, DocumentFieldHintCollection.Empty,
+            "loan", "Loan agreement", "ru", null, DocumentFieldHintCollection.Empty,
             1, "Тестовый ответ", "Какая сумма займа?",
-            fields, Labels(fields), answers, new Dictionary<string, string>(), CancellationToken.None);
+            fields, Labels(fields), answers, new Dictionary<string, string>(), new HashSet<string>(), CancellationToken.None);
 
         // The client echoes back exactly what it was just shown - which is
         // already notice-wrapped from the first mismatch.
         var second = await manager.ExecuteAsync(
-            "Loan agreement", "ru", null, DocumentFieldHintCollection.Empty,
+            "loan", "Loan agreement", "ru", null, DocumentFieldHintCollection.Empty,
             1, "Ещё один нерелевантный ответ", first.Question!,
-            fields, Labels(fields), answers, new Dictionary<string, string>(), CancellationToken.None);
+            fields, Labels(fields), answers, new Dictionary<string, string>(), new HashSet<string>(), CancellationToken.None);
 
         Assert.Equal(first.Question, second.Question);
         var noticeCount = CountOccurrences(second.Question!, "Уточните, пожалуйста:");
@@ -104,6 +106,7 @@ public sealed class AnswerShapeValidationTests
         var answers = DealAnswersSerializer.Deserialize(null);
 
         var result = await manager.ExecuteAsync(
+            "loan",
             "Loan agreement",
             "ru",
             null,
@@ -115,6 +118,7 @@ public sealed class AnswerShapeValidationTests
             Labels(fields),
             answers,
             new Dictionary<string, string>(),
+            new HashSet<string>(),
             CancellationToken.None);
 
         Assert.Equal("15 000 000 сум", answers[1]);

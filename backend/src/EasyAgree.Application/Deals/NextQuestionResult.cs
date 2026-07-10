@@ -1,3 +1,5 @@
+using EasyAgree.Domain.Enums;
+
 namespace EasyAgree.Application.Deals;
 
 /// <summary>Discriminated outcome of asking the interview planner what to do next.</summary>
@@ -7,9 +9,15 @@ public sealed class NextQuestionResult
 
     public bool IsReadyToGenerate { get; private init; }
 
+    public bool IsSuggestDocument { get; private init; }
+
     public int? NextFieldId { get; private init; }
 
     public string? NextQuestion { get; private init; }
+
+    public DocumentType? SuggestedDocumentType { get; private init; }
+
+    public int SuggestedMatchedFieldCount { get; private init; }
 
     public static NextQuestionResult NotFound() => new() { IsNotFound = true };
 
@@ -18,4 +26,7 @@ public sealed class NextQuestionResult
 
     public static NextQuestionResult NeedMoreInfo(int fieldId, string question) =>
         new() { NextFieldId = fieldId, NextQuestion = question };
+
+    public static NextQuestionResult SuggestDocument(DocumentType documentType, int matchedFieldCount) =>
+        new() { IsSuggestDocument = true, SuggestedDocumentType = documentType, SuggestedMatchedFieldCount = matchedFieldCount };
 }

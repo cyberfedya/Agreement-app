@@ -25,6 +25,7 @@ public sealed class DocumentFieldHintInterviewTests
         var answers = DealAnswersSerializer.Deserialize(null);
 
         var result = await planner.ExecuteAsync(
+            "test",
             "Vehicle sale",
             "en",
             null,
@@ -34,6 +35,7 @@ public sealed class DocumentFieldHintInterviewTests
             Labels(fields),
             answers,
             new Dictionary<string, string>(),
+            new HashSet<string>(),
             CancellationToken.None);
 
         Assert.Equal(32, result.FieldId);
@@ -57,6 +59,7 @@ public sealed class DocumentFieldHintInterviewTests
         var answers = DealAnswersSerializer.Deserialize(null);
 
         var result = await planner.ExecuteAsync(
+            "test",
             "Apartment agreement",
             "en",
             null,
@@ -66,6 +69,7 @@ public sealed class DocumentFieldHintInterviewTests
             Labels(fields),
             answers,
             new Dictionary<string, string>(),
+            new HashSet<string>(),
             CancellationToken.None);
 
         Assert.Equal(32, result.FieldId);
@@ -88,6 +92,7 @@ public sealed class DocumentFieldHintInterviewTests
         var answers = DealAnswersSerializer.Deserialize(null);
 
         var result = await planner.ExecuteAsync(
+            "test",
             "Employment contract",
             "en",
             null,
@@ -97,6 +102,7 @@ public sealed class DocumentFieldHintInterviewTests
             Labels(fields),
             answers,
             new Dictionary<string, string>(),
+            new HashSet<string>(),
             CancellationToken.None);
 
         Assert.Equal(32, result.FieldId);
@@ -118,6 +124,7 @@ public sealed class DocumentFieldHintInterviewTests
         var answers = DealAnswersSerializer.Deserialize(null);
 
         var result = await planner.ExecuteAsync(
+            "test",
             "Vehicle sale",
             "en",
             null,
@@ -127,6 +134,7 @@ public sealed class DocumentFieldHintInterviewTests
             Labels(fields),
             answers,
             new Dictionary<string, string>(),
+            new HashSet<string>(),
             CancellationToken.None);
 
         Assert.Equal(21, result.FieldId);

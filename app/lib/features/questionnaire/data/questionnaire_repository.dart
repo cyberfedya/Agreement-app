@@ -18,6 +18,10 @@ abstract class QuestionnaireRepository {
   /// exact text of the question [answer] is replying to - the backend
   /// uses it to tell a real answer apart from a side remark.
   Future<Result<InterviewStep>> nextQuestion(String dealId, {int? fieldId, String? answer, String? question});
+
+  /// Records "Continue without document" so this [documentType]'s
+  /// suggestion never resurfaces for the rest of this deal's interview.
+  Future<Result<void>> dismissDocumentSuggestion(String dealId, String documentType);
 }
 
 class ApiQuestionnaireRepository implements QuestionnaireRepository {
@@ -47,6 +51,16 @@ class ApiQuestionnaireRepository implements QuestionnaireRepository {
   Future<Result<InterviewStep>> nextQuestion(String dealId, {int? fieldId, String? answer, String? question}) async {
     try {
       return Success(await _api.nextQuestion(dealId, fieldId: fieldId, answer: answer, question: question));
+    } on ApiException catch (e) {
+      return Failure(e.message);
+    }
+  }
+
+  @override
+  Future<Result<void>> dismissDocumentSuggestion(String dealId, String documentType) async {
+    try {
+      await _api.dismissDocumentSuggestion(dealId, documentType);
+      return const Success(null);
     } on ApiException catch (e) {
       return Failure(e.message);
     }

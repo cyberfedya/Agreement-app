@@ -89,6 +89,12 @@ class ApiService {
     return InterviewStep.fromJson(json as Map<String, dynamic>);
   }
 
+  /// Records "Continue without document" for [documentType] (the
+  /// `DocumentType` enum name, e.g. `"VehicleRegistration"`, echoed back
+  /// from the suggestion) so it never resurfaces for the rest of this deal.
+  Future<void> dismissDocumentSuggestion(String dealId, String documentType) =>
+      _client.postJson('/api/deals/$dealId/document-suggestions/dismiss', body: {'documentType': documentType});
+
   Future<Agreement> generateFromDeal(String dealId, Map<int, String> answers) async {
     try {
       final json = await _client.postJson(

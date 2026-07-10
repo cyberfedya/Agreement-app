@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:app/core/router/app_router.dart';
 import 'package:app/core/services/tts_service.dart';
@@ -8,6 +9,8 @@ import 'package:app/core/widgets/app_widgets.dart';
 import 'package:app/core/widgets/bottom_action_bar.dart';
 import 'package:app/core/widgets/skeletons.dart';
 import 'package:app/features/agreement/providers/agreement_provider.dart';
+import 'package:app/features/documents/providers/document_upload_provider.dart';
+import 'package:app/features/questionnaire/domain/interview_step.dart';
 import 'package:app/features/questionnaire/domain/question.dart';
 import 'package:app/features/questionnaire/presentation/widgets/agreement_preview_sheet.dart';
 import 'package:app/features/questionnaire/presentation/widgets/question_card.dart';
@@ -155,7 +158,10 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
       body: SafeArea(
         child: Consumer<QuestionnaireProvider>(
           builder: (context, provider, _) {
-            if (provider.isLoading && provider.currentQuestion == null && !provider.readyToGenerate) {
+            if (provider.isLoading &&
+                provider.currentQuestion == null &&
+                !provider.readyToGenerate &&
+                provider.documentSuggestion == null) {
               return const CenteredContent(
                 child: Padding(
                   padding: EdgeInsets.all(Insets.x20),
@@ -174,7 +180,10 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                 ),
               );
             }
-            if (provider.errorMessage != null && provider.currentQuestion == null && !provider.readyToGenerate) {
+            if (provider.errorMessage != null &&
+                provider.currentQuestion == null &&
+                !provider.readyToGenerate &&
+                provider.documentSuggestion == null) {
               return AppErrorView(
                 message: provider.errorMessage!,
                 onRetry: () => provider.start(widget.dealId),
@@ -198,7 +207,9 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                               Text(widget.templateTitle, style: theme.textTheme.titleMedium),
                               const SizedBox(height: Insets.x8),
                               Text(
-                                provider.readyToGenerate
+                                provider.documentSuggestion != null
+                                    ? 'Загрузка документа'
+                                    : provider.readyToGenerate
                                     ? 'Готово к созданию'
                                     : 'Вопрос ${provider.position}',
                                 style: theme.textTheme.labelLarge?.copyWith(
@@ -228,7 +239,9 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                   Expanded(
                     child: Stack(
                       children: [
-                        if (provider.readyToGenerate)
+                        if (provider.documentSuggestion != null)
+                          _DocumentSuggestionView(suggestion: provider.documentSuggestion!)
+                        else if (provider.readyToGenerate)
                           _ReviewConfirmView(templateTitle: widget.templateTitle)
                         else if (field != null)
                           QuestionCard(
@@ -406,6 +419,115 @@ class _ReviewConfirmView extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+/// Non-mandatory "upload this instead of typing N fields" screen - shown
+/// in place of the next question, never mixed into the same screen as one.
+/// Uploading resumes the interview (skipping whatever got filled);
+/// "Продолжить без документа" dismisses it for good and resumes normally.
+class _DocumentSuggestionView extends StatefulWidget {
+  const _DocumentSuggestionView({required this.suggestion});
+
+  final DocumentSuggestion suggestion;
+
+  @override
+  State<_DocumentSuggestionView> createState() => _DocumentSuggestionViewState();
+}
+
+class _DocumentSuggestionViewState extends State<_DocumentSuggestionView> {
+  final _picker = ImagePicker();
+  bool _uploading = false;
+
+  Future<void> _pickFromCamera() async {
+    final photo = await _picker.pickImage(source: ImageSource.camera, imageQuality: 85);
+    if (photo == null || !mounted) return;
+    await _upload([photo]);
+  }
+
+  Future<void> _pickFromGallery() async {
+    final photos = await _picker.pickMultiImage(imageQuality: 85);
+    if (photos.isEmpty || !mounted) return;
+    await _upload(photos);
+  }
+
+  Future<void> _upload(List<XFile> files) async {
+    final entries = <(String, String, List<int>)>[];
+    for (final file in files) {
+      final bytes = await file.readAsBytes();
+      entries.add((file.name, file.mimeType ?? 'image/jpeg', bytes));
+    }
+    if (!mounted) return;
+
+    setState(() => _uploading = true);
+    final uploadProvider = context.read<DocumentUploadProvider>();
+    final success = await uploadProvider.upload(entries);
+    if (!mounted) return;
+    setState(() => _uploading = false);
+
+    if (success) {
+      await context.read<QuestionnaireProvider>().resumeAfterDocumentUpload();
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(uploadProvider.errorMessage ?? 'Не удалось загрузить документ.')));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final suggestion = widget.suggestion;
+
+    return CenteredContent(
+      child: Padding(
+        padding: const EdgeInsets.all(Insets.x20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Icon(Icons.camera_alt_outlined, size: 56, color: theme.colorScheme.primary),
+            const SizedBox(height: Insets.x20),
+            Text(suggestion.title, style: theme.textTheme.titleLarge, textAlign: TextAlign.center),
+            const SizedBox(height: Insets.x8),
+            Text(
+              suggestion.description,
+              style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: Insets.x32),
+            if (_uploading)
+              const Center(child: CircularProgressIndicator())
+            else ...[
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: _pickFromCamera,
+                      icon: const Icon(Icons.photo_camera_outlined, size: 20),
+                      label: const Text('Камера'),
+                    ),
+                  ),
+                  const SizedBox(width: Insets.x12),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: _pickFromGallery,
+                      icon: const Icon(Icons.photo_library_outlined, size: 20),
+                      label: const Text('Галерея'),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: Insets.x12),
+              TextButton(
+                onPressed: () => context.read<QuestionnaireProvider>().dismissDocumentSuggestion(),
+                child: const Text('Продолжить без документа'),
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }
