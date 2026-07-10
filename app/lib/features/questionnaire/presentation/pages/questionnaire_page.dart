@@ -9,6 +9,7 @@ import 'package:app/core/widgets/app_widgets.dart';
 import 'package:app/core/widgets/bottom_action_bar.dart';
 import 'package:app/core/widgets/skeletons.dart';
 import 'package:app/features/agreement/providers/agreement_provider.dart';
+import 'package:app/features/questionnaire/domain/question.dart';
 import 'package:app/features/questionnaire/presentation/widgets/agreement_preview_sheet.dart';
 import 'package:app/features/questionnaire/presentation/widgets/question_card.dart';
 import 'package:app/features/questionnaire/providers/questionnaire_provider.dart';
@@ -233,7 +234,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                     child: Stack(
                       children: [
                         if (provider.readyToGenerate)
-                          _ReadyToGenerateView(templateTitle: widget.templateTitle)
+                          _ReviewConfirmView(templateTitle: widget.templateTitle)
                         else if (field != null)
                           QuestionCard(
                             key: ValueKey(field.fieldId),
@@ -315,37 +316,119 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
   }
 }
 
-class _ReadyToGenerateView extends StatelessWidget {
-  const _ReadyToGenerateView({required this.templateTitle});
+/// Shown once the interview has everything it needs, before the "Создать
+/// договор" button does anything irreversible - every collected answer is
+/// listed and editable in place, so a misheard or misread value can be
+/// fixed without restarting the interview from scratch.
+class _ReviewConfirmView extends StatelessWidget {
+  const _ReviewConfirmView({required this.templateTitle});
 
   final String templateTitle;
+
+  Future<void> _editField(BuildContext context, QuestionnaireProvider provider, Question field) async {
+    final controller = TextEditingController(text: provider.answerFor(field.fieldId));
+    final newValue = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(field.fieldName),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          minLines: 1,
+          maxLines: 4,
+          decoration: const InputDecoration(border: OutlineInputBorder()),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Отмена')),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(controller.text),
+            child: const Text('Сохранить'),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (newValue == null || !context.mounted) return;
+
+    final messenger = ScaffoldMessenger.of(context);
+    final ok = await provider.editAnswer(field.fieldId, field.fieldName, newValue);
+    if (!ok && context.mounted) {
+      messenger.showSnackBar(const SnackBar(content: Text('Не удалось сохранить изменение')));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(Insets.x32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+    return Consumer<QuestionnaireProvider>(
+      builder: (context, provider, _) {
+        final collected = provider.allFields.where((f) => provider.answers.containsKey(f.fieldId)).toList();
+
+        return ListView(
+          padding: const EdgeInsets.fromLTRB(Insets.x20, Insets.x8, Insets.x20, Insets.x32),
           children: [
-            Container(
-              width: 72,
-              height: 72,
-              decoration: BoxDecoration(color: theme.colorScheme.primaryContainer, shape: BoxShape.circle),
-              child: Icon(Icons.check_rounded, color: theme.colorScheme.onPrimaryContainer, size: 36),
+            Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(color: theme.colorScheme.primaryContainer, shape: BoxShape.circle),
+                  child: Icon(Icons.check_rounded, color: theme.colorScheme.onPrimaryContainer, size: 24),
+                ),
+                const SizedBox(width: Insets.x12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Проверьте данные', style: theme.textTheme.titleLarge),
+                      Text(
+                        'Прежде чем создать «$templateTitle», убедитесь, что всё верно',
+                        style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: Insets.x20),
-            Text('Достаточно информации', style: theme.textTheme.headlineSmall, textAlign: TextAlign.center),
-            const SizedBox(height: Insets.x8),
-            Text(
-              'Мы собрали всё необходимое для «$templateTitle». Можно создавать договор.',
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-            ),
+            const SizedBox(height: Insets.x24),
+            for (final field in collected)
+              Padding(
+                padding: const EdgeInsets.only(bottom: Insets.x8),
+                child: Material(
+                  color: theme.colorScheme.surfaceContainerLow,
+                  borderRadius: Corners.lgRadius,
+                  child: InkWell(
+                    borderRadius: Corners.lgRadius,
+                    onTap: () => _editField(context, provider, field),
+                    child: Padding(
+                      padding: const EdgeInsets.all(Insets.x16),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  field.fieldName,
+                                  style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                                ),
+                                const SizedBox(height: Insets.x4),
+                                Text(provider.answerFor(field.fieldId), style: theme.textTheme.bodyLarge),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: Insets.x8),
+                          Icon(Icons.edit_outlined, size: 18, color: theme.colorScheme.primary),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
           ],
-        ),
-      ),
+        );
+      },
     );
   }
 }

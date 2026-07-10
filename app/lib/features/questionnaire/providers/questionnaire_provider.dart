@@ -92,6 +92,37 @@ class QuestionnaireProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Corrects an already-collected answer from the Review & Confirm
+  /// screen - persists it the same way a normal answer is, but without
+  /// treating this as "moving on" to a new question the way [submitAnswer]
+  /// does, since the interview has already finished by the time this is
+  /// reachable.
+  Future<bool> editAnswer(int fieldId, String label, String value) async {
+    final dealId = _dealId;
+    final trimmed = value.trim();
+    if (dealId == null || trimmed.isEmpty) return false;
+
+    _isLoading = true;
+    notifyListeners();
+
+    switch (await _repository.nextQuestion(dealId, fieldId: fieldId, answer: trimmed, question: label)) {
+      case Success(value: var result):
+        _answers[fieldId] = trimmed;
+        _readyToGenerate = result.readyToGenerate;
+        _currentQuestion = result.question;
+        _closingMessage = result.closingMessage;
+        _errorMessage = null;
+        _isLoading = false;
+        notifyListeners();
+        return true;
+      case Failure(:final message):
+        _errorMessage = message;
+        _isLoading = false;
+        notifyListeners();
+        return false;
+    }
+  }
+
   /// Re-shows the previous question (its answer stays editable via
   /// [answerFor]) without a network round-trip.
   void goBack() {
