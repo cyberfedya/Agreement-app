@@ -35,6 +35,12 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator)
         Dictionary<int, string> answers,
         CancellationToken cancellationToken)
     {
+        // Deterministic, zero-LLM pass first: anything the document
+        // clearly answers by keyword gets written before the model is
+        // ever asked to match anything, so it can never be dropped by an
+        // incomplete model response.
+        DocumentFieldMapper.ApplyMatches(fields, labels, documentHints, answers);
+
         var classified = FieldEligibilityEngine.Classify(fields, labels);
         var isFirstTurn = currentMessage is null;
 
