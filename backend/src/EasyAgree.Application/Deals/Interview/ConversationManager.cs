@@ -55,6 +55,10 @@ public sealed class ConversationManager(
                 return await interviewPlanner.ExecuteAsync(
                         templateTitle, language, userRequest, answerText, documentHints, fields, labels, answers, cancellationToken);
 
+            case ConversationIntent.DontKnow:
+                return InterviewPlanResult.NeedMoreInfo(
+                    fieldId, $"{ConversationReplies.DontKnowNotice(language)} {currentQuestionText}");
+
             case ConversationIntent.Question:
             case ConversationIntent.Help:
                 var explanation = await sideAnswerer.AnswerAsync(currentQuestionText, answerText, language, cancellationToken);

@@ -10,12 +10,18 @@ class HoldToTalkMicButton extends StatefulWidget {
   const HoldToTalkMicButton({
     super.key,
     required this.onTextChanged,
+    this.onFinalResult,
     this.permissionService,
     this.size = 72,
   });
 
   /// Called with the live-recognized text as speech is transcribed.
   final ValueChanged<String> onTextChanged;
+
+  /// Called once with the finalized transcript when recognition settles
+  /// after the user releases the button - lets the caller auto-advance
+  /// without waiting for a separate confirmation tap.
+  final ValueChanged<String>? onFinalResult;
   final PermissionService? permissionService;
   final double size;
 
@@ -44,7 +50,12 @@ class _HoldToTalkMicButtonState extends State<HoldToTalkMicButton> {
 
     setState(() => _listening = true);
     await _speech.listen(
-      onResult: (result) => widget.onTextChanged(result.recognizedWords),
+      onResult: (result) {
+        widget.onTextChanged(result.recognizedWords);
+        if (result.finalResult && result.recognizedWords.trim().isNotEmpty) {
+          widget.onFinalResult?.call(result.recognizedWords);
+        }
+      },
       listenOptions: SpeechListenOptions(partialResults: true),
     );
   }

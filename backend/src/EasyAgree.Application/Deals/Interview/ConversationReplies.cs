@@ -27,6 +27,20 @@ public static class ConversationReplies
         _ => "Пока продолжим - если хотите отменить или начать заново, можно вернуться на главный экран.",
     };
 
+    /// <summary>
+    /// Shown when the user says they don't know/don't have the fact just
+    /// asked - acknowledges it instead of silently re-asking, points at the
+    /// uploaded-document path as a way to still answer, and repeats the
+    /// question. The field is deliberately left unanswered rather than
+    /// filled with the literal "I don't know".
+    /// </summary>
+    public static string DontKnowNotice(string language) => language switch
+    {
+        "uz" => "Ҳечқиси йўқ - агар қўлингизда тегишли ҳужжат бўлса, унинг суратини юклаб қўйишингиз мумкин, шунда бу маълумотни ўзим топиб оламан. Акс ҳолда, имкон қадар аниқроқ жавоб беришга ҳаракат қилинг.",
+        "en" => "No problem - if you have the relevant document handy, you can upload a photo of it and I'll pick this up from there. Otherwise, please give your best answer.",
+        _ => "Ничего страшного - если под рукой есть соответствующий документ, можно загрузить его фото, и я сам найду там эту информацию. Либо попробуйте ответить как можно точнее.",
+    };
+
     public static string Resume(string language) => language switch
     {
         "uz" => "Давом этамиз.",

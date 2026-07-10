@@ -19,6 +19,13 @@ public enum ConversationIntent
     /// <summary>Says they don't understand / need help.</summary>
     Help,
 
+    /// <summary>Says they don't know/don't have the specific fact asked
+    /// ("не знаю", "не помню", "нет данных") - distinct from Help (doesn't
+    /// understand the question) and from Answer (a real, if imperfect,
+    /// value). Must never be written into the answer set as if it were the
+    /// field's value.</summary>
+    DontKnow,
+
     /// <summary>Unrelated to the agreement or the question entirely.</summary>
     OffTopic,
 

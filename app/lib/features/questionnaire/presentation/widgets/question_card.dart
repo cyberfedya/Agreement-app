@@ -14,6 +14,7 @@ class QuestionCard extends StatelessWidget {
     required this.onChanged,
     this.autofocus = false,
     this.onSpeak,
+    this.onVoiceSubmit,
   });
 
   final Question question;
@@ -23,6 +24,10 @@ class QuestionCard extends StatelessWidget {
 
   /// Replays the question aloud; the speaker button is hidden when null.
   final VoidCallback? onSpeak;
+
+  /// Called with the finalized voice transcript once the user releases the
+  /// mic - lets the page auto-advance without a separate "Далее" tap.
+  final ValueChanged<String>? onVoiceSubmit;
 
   void _onVoiceText(String text) {
     controller.value = TextEditingValue(text: text, selection: TextSelection.collapsed(offset: text.length));
@@ -96,7 +101,7 @@ class QuestionCard extends StatelessWidget {
         ),
         Padding(
           padding: const EdgeInsets.only(bottom: Insets.x32),
-          child: HoldToTalkMicButton(onTextChanged: _onVoiceText, size: 96),
+          child: HoldToTalkMicButton(onTextChanged: _onVoiceText, onFinalResult: onVoiceSubmit, size: 96),
         ),
       ],
     );

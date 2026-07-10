@@ -16,6 +16,9 @@ public sealed class IntentClassifier(IAiChatClient aiChatClient)
 
         ANSWER - the message answers CURRENT_QUESTION: a value, a date, a name, "да"/"нет", a description -
         anything that could plausibly be the requested information, even if informal or incomplete.
+        DONT_KNOW - the user says they don't know, don't have, or can't recall the specific fact being asked
+        ("не знаю", "не помню", "без понятия", "нет данных", "хз", "затрудняюсь ответить", "понятия не
+        имею") - this is NOT a value for the field, even though it's a direct reply to the question.
         QUESTION - the user is asking something about the process, a term, or a consequence instead of
         answering ("а зачем это нужно?", "что означает этот пункт?", "какие будут последствия?").
         HELP - the user says they don't understand or need help ("помоги", "я не понимаю", "объясни").
@@ -24,10 +27,13 @@ public sealed class IntentClassifier(IAiChatClient aiChatClient)
         а аренду", "давай оформим продажу машины").
         CANCEL - the user wants to stop, restart, or exit ("отмена", "начать сначала", "выход").
 
-        When genuinely ambiguous, prefer ANSWER - a real answer wrongly classified as something else would
-        incorrectly interrupt the interview, which is worse than accepting an imperfect answer.
+        When genuinely ambiguous between ANSWER and any other category, prefer ANSWER - a real answer wrongly
+        classified as something else would incorrectly interrupt the interview, which is worse than accepting
+        an imperfect answer. This does NOT apply to DONT_KNOW: a message that plainly states the user doesn't
+        know/have the fact must never be classified as ANSWER, since writing "не знаю" into a legal document
+        as if it were a VIN, price, or date is worse than asking again.
 
-        Output exactly one of: ANSWER, QUESTION, HELP, OFF_TOPIC, CHANGE_TOPIC, CANCEL
+        Output exactly one of: ANSWER, DONT_KNOW, QUESTION, HELP, OFF_TOPIC, CHANGE_TOPIC, CANCEL
         """;
 
     public async Task<ConversationIntent> ClassifyAsync(string currentQuestion, string message, CancellationToken cancellationToken)
@@ -48,6 +54,7 @@ public sealed class IntentClassifier(IAiChatClient aiChatClient)
         if (trimmed.Contains("CANCEL")) return ConversationIntent.Cancel;
         if (trimmed.Contains("HELP")) return ConversationIntent.Help;
         if (trimmed.Contains("QUESTION")) return ConversationIntent.Question;
+        if (trimmed.Contains("DONT_KNOW")) return ConversationIntent.DontKnow;
         return ConversationIntent.Answer;
     }
 }

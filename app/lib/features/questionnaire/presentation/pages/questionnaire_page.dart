@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:app/core/router/app_router.dart';
@@ -102,14 +104,23 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
     _tts?.speak(field.fieldName);
   }
 
-  Future<void> _submitAnswer(QuestionnaireProvider provider) async {
-    final text = _controller.text.trim();
+  Future<void> _submitAnswer(QuestionnaireProvider provider, {String? textOverride}) async {
+    final text = (textOverride ?? _controller.text).trim();
     if (text.isEmpty) return;
     setState(() => _showCheck = true);
     await Future<void>.delayed(const Duration(milliseconds: 220));
     if (!mounted) return;
     setState(() => _showCheck = false);
     await provider.submitAnswer(text);
+  }
+
+  /// Fired when speech recognition settles on a final transcript - answers
+  /// the question immediately, the same as tapping "Далее", so a spoken
+  /// answer never waits on a separate confirmation tap.
+  void _onVoiceSubmit(String text) {
+    final provider = context.read<QuestionnaireProvider>();
+    if (provider.isLoading) return;
+    unawaited(_submitAnswer(provider, textOverride: text));
   }
 
   void _showHelp(String question) {
@@ -230,6 +241,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                             controller: _controller,
                             onChanged: (_) {},
                             onSpeak: () => _tts?.speak(field.fieldName),
+                            onVoiceSubmit: _onVoiceSubmit,
                           ),
                         IgnorePointer(
                           child: AnimatedOpacity(
