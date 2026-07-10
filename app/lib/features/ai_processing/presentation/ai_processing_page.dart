@@ -5,7 +5,6 @@ import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/core/widgets/app_widgets.dart';
 import 'package:app/features/deal/data/deal_repository.dart';
 import 'package:app/features/deal/domain/deal.dart';
-import 'package:app/features/documents/data/document_repository.dart';
 import 'package:app/shared/models/result.dart';
 class AiProcessingPage extends StatefulWidget {
   const AiProcessingPage({super.key, required this.requestText});
@@ -56,16 +55,11 @@ class _AiProcessingPageState extends State<AiProcessingPage> with SingleTickerPr
 
     switch (results[1] as Result<Deal?>) {
       case Success(value: final deal?):
-        final documentsResult = await context.read<DocumentRepository>().getRequiredDocuments(deal.id);
-        if (!mounted) return;
-        final hasSuggestions = switch (documentsResult) {
-          Success(:final value) => value.isNotEmpty,
-          Failure() => false,
-        };
+        // Document suggestions are now handled contextually mid-interview
+        // (DocumentSuggestionEngine, backend-driven) instead of a blanket
+        // pre-interview screen - go straight to the interview.
         final args = QuestionnaireRouteArgs(dealId: deal.id, templateTitle: deal.templateTitle);
-        Navigator.of(
-          context,
-        ).pushReplacementNamed(hasSuggestions ? AppRoutes.documentUpload : AppRoutes.questionnaire, arguments: args);
+        Navigator.of(context).pushReplacementNamed(AppRoutes.questionnaire, arguments: args);
       case Success():
         setState(() => _phase = _Phase.noMatch);
       case Failure(:final message):

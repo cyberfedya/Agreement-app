@@ -44,7 +44,11 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
     super.initState();
     _controller.addListener(_onControllerChanged);
     final provider = context.read<QuestionnaireProvider>();
-    Future.microtask(() => provider.start(widget.dealId));
+    final documentUploadProvider = context.read<DocumentUploadProvider>();
+    Future.microtask(() {
+      documentUploadProvider.attachDeal(widget.dealId);
+      return provider.start(widget.dealId);
+    });
   }
 
   @override
