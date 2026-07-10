@@ -126,6 +126,58 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
     unawaited(_submitAnswer(provider, textOverride: text));
   }
 
+  /// Lets the user attach a photo/scan for the current question instead of
+  /// typing it - available on every question, not just when
+  /// [QuestionnaireProvider.documentSuggestion] proactively suggests one.
+  Future<void> _attachDocument() async {
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      builder: (sheetContext) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_camera_outlined),
+              title: const Text('Камера'),
+              onTap: () => Navigator.pop(sheetContext, ImageSource.camera),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: const Text('Галерея'),
+              onTap: () => Navigator.pop(sheetContext, ImageSource.gallery),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (source == null || !mounted) return;
+
+    final picker = ImagePicker();
+    final files = source == ImageSource.camera
+        ? await picker.pickImage(source: ImageSource.camera, imageQuality: 85).then((f) => f == null ? <XFile>[] : [f])
+        : await picker.pickMultiImage(imageQuality: 85);
+    if (files.isEmpty || !mounted) return;
+
+    final entries = <(String, String, List<int>)>[];
+    for (final file in files) {
+      final bytes = await file.readAsBytes();
+      entries.add((file.name, file.mimeType ?? 'image/jpeg', bytes));
+    }
+    if (!mounted) return;
+
+    final uploadProvider = context.read<DocumentUploadProvider>();
+    final questionnaireProvider = context.read<QuestionnaireProvider>();
+    final success = await uploadProvider.upload(entries);
+    if (!mounted) return;
+
+    if (success) {
+      await questionnaireProvider.resumeAfterDocumentUpload();
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(uploadProvider.errorMessage ?? 'Не удалось загрузить документ.')));
+    }
+  }
+
   void _showHelp(String question) {
     showDialog<void>(
       context: context,
@@ -255,6 +307,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                             onChanged: (_) {},
                             onSpeak: () => _tts?.speak(field.fieldName),
                             onVoiceSubmit: _onVoiceSubmit,
+                            onAttach: _attachDocument,
                           ),
                         IgnorePointer(
                           child: AnimatedOpacity(

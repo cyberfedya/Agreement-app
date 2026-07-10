@@ -15,6 +15,7 @@ class QuestionCard extends StatelessWidget {
     this.autofocus = false,
     this.onSpeak,
     this.onVoiceSubmit,
+    this.onAttach,
   });
 
   final Question question;
@@ -28,6 +29,10 @@ class QuestionCard extends StatelessWidget {
   /// Called with the finalized voice transcript once the user releases the
   /// mic - lets the page auto-advance without a separate "Далее" tap.
   final ValueChanged<String>? onVoiceSubmit;
+
+  /// Lets the user attach a photo/scan instead of typing this (or several)
+  /// fields by hand - the attach icon is hidden when null.
+  final VoidCallback? onAttach;
 
   void _onVoiceText(String text) {
     controller.value = TextEditingValue(text: text, selection: TextSelection.collapsed(offset: text.length));
@@ -78,21 +83,36 @@ class QuestionCard extends StatelessWidget {
                     borderRadius: Corners.lgRadius,
                     border: Border.all(color: theme.colorScheme.outlineVariant),
                   ),
-                  child: TextField(
-                    controller: controller,
-                    onChanged: onChanged,
-                    autofocus: autofocus,
-                    minLines: 1,
-                    maxLines: 6,
-                    style: theme.textTheme.bodyLarge,
-                    decoration: const InputDecoration(
-                      hintText: 'Ваш ответ…',
-                      filled: false,
-                      border: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      contentPadding: EdgeInsets.zero,
-                    ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: controller,
+                          onChanged: onChanged,
+                          autofocus: autofocus,
+                          minLines: 1,
+                          maxLines: 6,
+                          style: theme.textTheme.bodyLarge,
+                          decoration: const InputDecoration(
+                            hintText: 'Ваш ответ…',
+                            filled: false,
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            contentPadding: EdgeInsets.zero,
+                          ),
+                        ),
+                      ),
+                      if (onAttach != null)
+                        IconButton(
+                          onPressed: onAttach,
+                          icon: const Icon(Icons.attach_file_rounded),
+                          tooltip: 'Прикрепить документ',
+                          color: theme.colorScheme.onSurfaceVariant,
+                          visualDensity: VisualDensity.compact,
+                        ),
+                    ],
                   ),
                 ),
               ],
