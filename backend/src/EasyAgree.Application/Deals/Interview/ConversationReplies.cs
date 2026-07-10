@@ -89,4 +89,35 @@ public static class ConversationReplies
         "en" => "Just to come back to this:",
         _ => "Ещё раз уточню:",
     };
+
+    /// <summary>
+    /// Strips a leading notice this class itself generated, if present -
+    /// the client always echoes back exactly what it last displayed as
+    /// <c>currentQuestionText</c>, so without this a second wrong-shaped
+    /// answer in a row would wrap an already-noticed question in another
+    /// notice, stacking indefinitely on repeated wrong answers.
+    /// </summary>
+    public static string StripLeadingNotice(string language, string questionText)
+    {
+        string[] notices =
+        [
+            AnswerShapeMismatchNotice(language),
+            DontKnowNotice(language),
+            OffTopicRedirect(language),
+            ChangeTopicNotice(language),
+            CancelNotice(language),
+        ];
+
+        foreach (var notice in notices)
+        {
+            if (questionText.StartsWith(notice, StringComparison.Ordinal))
+            {
+                var stripped = questionText[notice.Length..].TrimStart();
+                if (stripped.Length > 0)
+                    return stripped;
+            }
+        }
+
+        return questionText;
+    }
 }

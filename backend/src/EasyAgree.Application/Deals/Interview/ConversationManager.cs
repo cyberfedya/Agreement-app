@@ -45,6 +45,12 @@ public sealed class ConversationManager(
 
         var intent = await intentClassifier.ClassifyAsync(currentQuestionText, answerText, cancellationToken);
 
+        // The client always echoes back exactly what it last displayed -
+        // if that was itself a notice-wrapped question (e.g. a prior wrong
+        // answer), strip the notice back off before wrapping it again, or
+        // consecutive wrong answers would stack notices indefinitely.
+        var bareQuestionText = ConversationReplies.StripLeadingNotice(language, currentQuestionText);
+
         switch (intent)
         {
             case ConversationIntent.Answer:
@@ -57,7 +63,7 @@ public sealed class ConversationManager(
                     !AnswerShapeValidator.LooksPlausible(answeredLabel, answerText))
                 {
                     return InterviewPlanResult.NeedMoreInfo(
-                        fieldId, $"{ConversationReplies.AnswerShapeMismatchNotice(language)} {currentQuestionText}");
+                        fieldId, $"{ConversationReplies.AnswerShapeMismatchNotice(language)} {bareQuestionText}");
                 }
 
                 // Record the literal answer verbatim before planning -
@@ -70,25 +76,25 @@ public sealed class ConversationManager(
 
             case ConversationIntent.DontKnow:
                 return InterviewPlanResult.NeedMoreInfo(
-                    fieldId, $"{ConversationReplies.DontKnowNotice(language)} {currentQuestionText}");
+                    fieldId, $"{ConversationReplies.DontKnowNotice(language)} {bareQuestionText}");
 
             case ConversationIntent.Question:
             case ConversationIntent.Help:
-                var explanation = await sideAnswerer.AnswerAsync(currentQuestionText, answerText, language, cancellationToken);
+                var explanation = await sideAnswerer.AnswerAsync(bareQuestionText, answerText, language, cancellationToken);
                 return InterviewPlanResult.NeedMoreInfo(
-                    fieldId, $"{explanation} {ConversationReplies.Resume(language)} {currentQuestionText}");
+                    fieldId, $"{explanation} {ConversationReplies.Resume(language)} {bareQuestionText}");
 
             case ConversationIntent.OffTopic:
                 return InterviewPlanResult.NeedMoreInfo(
-                    fieldId, $"{ConversationReplies.OffTopicRedirect(language)} {currentQuestionText}");
+                    fieldId, $"{ConversationReplies.OffTopicRedirect(language)} {bareQuestionText}");
 
             case ConversationIntent.ChangeTopic:
                 return InterviewPlanResult.NeedMoreInfo(
-                    fieldId, $"{ConversationReplies.ChangeTopicNotice(language)} {currentQuestionText}");
+                    fieldId, $"{ConversationReplies.ChangeTopicNotice(language)} {bareQuestionText}");
 
             case ConversationIntent.Cancel:
                 return InterviewPlanResult.NeedMoreInfo(
-                    fieldId, $"{ConversationReplies.CancelNotice(language)} {currentQuestionText}");
+                    fieldId, $"{ConversationReplies.CancelNotice(language)} {bareQuestionText}");
 
             default:
                 return await interviewPlanner.ExecuteAsync(

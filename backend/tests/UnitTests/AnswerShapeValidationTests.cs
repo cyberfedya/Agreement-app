@@ -52,6 +52,47 @@ public sealed class AnswerShapeValidationTests
     }
 
     [Fact]
+    public async Task Repeated_implausible_answers_do_not_stack_the_clarification_notice()
+    {
+        var manager = new ConversationManager(
+            new IntentClassifier(new StaticChatClient("ANSWER")),
+            new SideQuestionAnswerer(new StaticChatClient("n/a")),
+            new InterviewPlanner(new QuestionGenerator(new StaticChatClient("n/a"))));
+
+        var fields = RequiredFields((1, "сумма"));
+        var answers = DealAnswersSerializer.Deserialize(null);
+
+        var first = await manager.ExecuteAsync(
+            "Loan agreement", "ru", null, DocumentFieldHintCollection.Empty,
+            1, "Тестовый ответ", "Какая сумма займа?",
+            fields, Labels(fields), answers, new Dictionary<string, string>(), CancellationToken.None);
+
+        // The client echoes back exactly what it was just shown - which is
+        // already notice-wrapped from the first mismatch.
+        var second = await manager.ExecuteAsync(
+            "Loan agreement", "ru", null, DocumentFieldHintCollection.Empty,
+            1, "Ещё один нерелевантный ответ", first.Question!,
+            fields, Labels(fields), answers, new Dictionary<string, string>(), CancellationToken.None);
+
+        Assert.Equal(first.Question, second.Question);
+        var noticeCount = CountOccurrences(second.Question!, "Уточните, пожалуйста:");
+        Assert.Equal(1, noticeCount);
+    }
+
+    private static int CountOccurrences(string text, string substring)
+    {
+        var count = 0;
+        var index = 0;
+        while ((index = text.IndexOf(substring, index, StringComparison.Ordinal)) != -1)
+        {
+            count++;
+            index += substring.Length;
+        }
+
+        return count;
+    }
+
+    [Fact]
     public async Task Plausible_direct_answer_is_recorded_and_interview_advances()
     {
         var fields = RequiredFields((1, "сумма"), (2, "объект"));
