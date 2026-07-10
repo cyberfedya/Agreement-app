@@ -94,11 +94,11 @@ public static class DealEndpoints
             var result = await useCase.ExecuteAsync(id, request.ProfileId, ct);
             return result.Outcome switch
             {
-                AcceptInviteOutcome.Accepted => Results.NoContent(),
+                AcceptInviteOutcome.Accepted => Results.Ok(new { success = true }),
                 AcceptInviteOutcome.DealNotFound => Results.NotFound(),
                 AcceptInviteOutcome.AlreadyResponded => Results.Conflict(new { error = "already_responded" }),
-                AcceptInviteOutcome.OwnInvite => Results.BadRequest(new { error = "own_invite" }),
-                AcceptInviteOutcome.Expired => Results.BadRequest(new { error = "expired" }),
+                AcceptInviteOutcome.OwnInvite => Results.Conflict(new { error = "own_invite" }),
+                AcceptInviteOutcome.Expired => Results.Json(new { error = "expired" }, statusCode: StatusCodes.Status410Gone),
                 _ => Results.Problem(),
             };
         })

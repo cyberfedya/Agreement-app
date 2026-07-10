@@ -63,13 +63,11 @@ class ApiAgreementRepository implements AgreementRepository {
       return const Success(null);
     } on ServerException catch (e) {
       final body = e.body;
-      if (e.statusCode == 409) return const Failure('Вы уже ответили на это приглашение.');
-      if (e.statusCode == 400 && body is Map && body['error'] == 'own_invite') {
+      if (e.statusCode == 409 && body is Map && body['error'] == 'own_invite') {
         return const Failure('Нельзя принять собственное приглашение.');
       }
-      if (e.statusCode == 400 && body is Map && body['error'] == 'expired') {
-        return const Failure('Срок действия приглашения истёк.');
-      }
+      if (e.statusCode == 409) return const Failure('Вы уже ответили на это приглашение.');
+      if (e.statusCode == 410) return const Failure('Срок действия приглашения истёк.');
       return Failure(e.message);
     } on ApiException catch (e) {
       return Failure(e.message);
