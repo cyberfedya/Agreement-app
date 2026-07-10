@@ -25,6 +25,7 @@ public static class DependencyInjection
         services.AddScoped<SideQuestionAnswerer>();
         services.AddScoped<ConversationManager>();
         services.AddScoped<GetNextQuestionUseCase>();
+        services.AddScoped<PartyRoleClassifier>();
         services.AddScoped<GenerateFromDealUseCase>();
         services.AddScoped<GetDealAgreementUseCase>();
         services.AddScoped<SignDealSecondPartyUseCase>();

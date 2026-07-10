@@ -23,23 +23,35 @@ public sealed class GenerateFromDealUseCase(
     IDealRepository dealRepository,
     IAgreementTemplateRepository templateRepository,
     IUserProfileRepository profileRepository,
+    PartyRoleClassifier roleClassifier,
     GenerateAgreementUseCase generateAgreement)
 {
     private const string PendingPlaceholder = "____________";
 
-    /// <summary>Field labels naming the deal's first party — the role the creator plays.</summary>
-    private static readonly string[] CreatorPartyKeywords =
+    /// <summary>
+    /// Every role pair a template might name its two parties with. A
+    /// template only ever uses one of these pairs; whichever pair actually
+    /// appears in its labels gets classified to find which side the
+    /// creator is on. Order matters only as a tie-break when a template
+    /// somehow matches more than one pair.
+    /// </summary>
+    private static readonly (string[] RoleA, string[] RoleB)[] RolePairs =
     [
-        "сотувчи", "продав",
-        "ижарага берувчи", "арендодател",
-        "қарз берувчи", "займодав", "кредитор",
-        "иш берувчи", "работодател",
-        "буюртмачи", "заказчик",
-        "ҳадя қилувчи", "дарител",
-        "аризачи", "даъвогар", "талабнома берувчи",
-        // generic wording some templates use instead of role names
-        "биринчи томон", "первой стороны", "первая сторона", "биринчи тараф",
+        (["сотувчи", "продав"], ["сотиб олувчи", "харидор", "покупател"]),
+        (["ижарага берувчи", "арендодател"], ["ижарага олувчи", "арендатор"]),
+        (["қарз берувчи", "займодав"], ["қарз олувчи", "заемщик", "заёмщик"]),
+        (["иш берувчи", "работодател"], ["ходим", "работник"]),
+        (["буюртмачи", "заказчик"], ["пудратчи", "подрядчик", "исполнител", "бажарувчи"]),
+        (["ҳадя қилувчи", "дарител"], ["ҳадя олувчи", "одаряем"]),
+        (
+            ["биринчи томон", "первой стороны", "первая сторона", "биринчи тараф"],
+            ["иккинчи томон", "второй стороны", "вторая сторона", "иккинчи тараф"]
+        ),
     ];
+
+    /// <summary>Fallback when no role pair from the list above matches this template's labels at all.</summary>
+    private static readonly string[] FallbackCreatorKeywords =
+        ["аризачи", "даъвогар", "талабнома берувчи"];
 
     public async Task<GenerateFromDealResult> ExecuteAsync(
         Guid dealId, IReadOnlyDictionary<int, string> answers, CancellationToken cancellationToken = default)
@@ -61,6 +73,7 @@ public sealed class GenerateFromDealUseCase(
 
         var labels = AgreementPlaceholderParser.ExtractLabels(template.HtmlTemplate);
         var profile = deal.ProfileId is null ? null : await profileRepository.GetAsync(deal.ProfileId, cancellationToken);
+        var creatorKeywords = await ResolveCreatorKeywordsAsync(labels, deal.RequestText, cancellationToken);
 
         foreach (var field in template.Fields)
         {
@@ -68,7 +81,7 @@ public sealed class GenerateFromDealUseCase(
                 continue;
 
             var label = labels.GetValueOrDefault(field.FieldId, string.Empty);
-            var resolved = profile is null ? null : ResolveFromProfile(label, profile);
+            var resolved = profile is null ? null : ResolveFromProfile(label, profile, creatorKeywords);
             merged[field.FieldId] = string.IsNullOrWhiteSpace(resolved) ? PendingPlaceholder : resolved;
         }
 
@@ -88,14 +101,39 @@ public sealed class GenerateFromDealUseCase(
     }
 
     /// <summary>
+    /// Finds which role-pair (if any) this template's field labels use,
+    /// and asks <see cref="PartyRoleClassifier"/> which side the creator
+    /// is on. Returns the keyword set for that side, so
+    /// <see cref="ResolveFromProfile"/> only fills the role the creator
+    /// actually described themselves as - not always the role hardcoded
+    /// as "first" regardless of what they said.
+    /// </summary>
+    private async Task<string[]> ResolveCreatorKeywordsAsync(
+        IReadOnlyDictionary<int, string> labels, string? requestText, CancellationToken cancellationToken)
+    {
+        var allLabels = string.Join(' ', labels.Values).ToLowerInvariant();
+
+        foreach (var (roleA, roleB) in RolePairs)
+        {
+            if (!roleA.Any(allLabels.Contains) || !roleB.Any(allLabels.Contains))
+                continue;
+
+            var creatorIsA = await roleClassifier.CreatorIsRoleAAsync(requestText, roleA[0], roleB[0], cancellationToken);
+            return creatorIsA ? roleA : roleB;
+        }
+
+        return FallbackCreatorKeywords;
+    }
+
+    /// <summary>
     /// Maps a creator-party field label to the corresponding profile value,
     /// or null when the field belongs to someone else (second party,
     /// notary) or names an attribute the profile doesn't carry.
     /// </summary>
-    private static string? ResolveFromProfile(string label, UserProfile profile)
+    private static string? ResolveFromProfile(string label, UserProfile profile, string[] creatorKeywords)
     {
         var lower = label.ToLowerInvariant();
-        if (!CreatorPartyKeywords.Any(lower.Contains))
+        if (!creatorKeywords.Any(lower.Contains))
             return null;
 
         if (lower.Contains("ф.и.о") || lower.Contains("фио"))
