@@ -1,9 +1,11 @@
 import 'package:flutter/foundation.dart';
-
 import 'package:app/features/questionnaire/data/questionnaire_repository.dart';
 import 'package:app/features/questionnaire/domain/question.dart';
 import 'package:app/shared/models/result.dart';
 
+/// Drives a one-question-at-a-time interview: each answer is sent to the
+/// backend's Interview Planner, which decides the next question (or that
+/// enough is known to generate) — the field list is never fetched upfront.
 class QuestionnaireProvider extends ChangeNotifier {
   QuestionnaireProvider(this._repository);
 
