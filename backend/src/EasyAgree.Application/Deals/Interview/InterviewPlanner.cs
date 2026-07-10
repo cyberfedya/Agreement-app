@@ -74,8 +74,17 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator)
 
             foreach (var (fieldId, value) in generated.Extracted)
             {
-                if (allowedExtractionIds.Contains(fieldId) && !string.IsNullOrWhiteSpace(value) && !answers.ContainsKey(fieldId))
-                    answers[fieldId] = value;
+                if (!allowedExtractionIds.Contains(fieldId) || string.IsNullOrWhiteSpace(value) || answers.ContainsKey(fieldId))
+                    continue;
+
+                // Same shape check as the direct-answer path - an
+                // implausible extracted value is simply dropped rather
+                // than blocking the turn, since the field will just be
+                // asked about normally on a later iteration/turn.
+                if (labels.TryGetValue(fieldId, out var extractedLabel) && !AnswerShapeValidator.LooksPlausible(extractedLabel, value))
+                    continue;
+
+                answers[fieldId] = value;
             }
 
             var firstMissing = group.FirstOrDefault(f => !answers.ContainsKey(f.FieldId));

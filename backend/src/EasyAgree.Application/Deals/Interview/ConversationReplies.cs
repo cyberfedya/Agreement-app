@@ -61,4 +61,17 @@ public static class ConversationReplies
         "en" => "Sorry, could you tell me a bit more about that for the agreement?",
         _ => "Извините, уточните, пожалуйста, эту деталь для договора ещё раз.",
     };
+
+    /// <summary>
+    /// Shown when the answer's shape clearly doesn't match what the field
+    /// needs (e.g. no digits at all for a money/date field) - asks for a
+    /// concrete value instead of silently accepting it or rephrasing the
+    /// same question, per <see cref="AnswerShapeValidator"/>.
+    /// </summary>
+    public static string AnswerShapeMismatchNotice(string language) => language switch
+    {
+        "uz" => "Жавобингизда бу майдон учун керакли аниқ маълумот (рақам ёки сана) кўринмаяпти. Илтимос, аниқроқ жавоб беринг:",
+        "en" => "That answer doesn't seem to include the specific number or date this field needs. Could you clarify:",
+        _ => "В ответе не видно конкретного числа или даты, которые нужны для этого поля. Уточните, пожалуйста:",
+    };
 }

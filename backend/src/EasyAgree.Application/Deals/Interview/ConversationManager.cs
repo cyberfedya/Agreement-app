@@ -47,6 +47,18 @@ public sealed class ConversationManager(
         switch (intent)
         {
             case ConversationIntent.Answer:
+                // Before recording it, check the answer even looks like
+                // what this field is asking for (a money/date field with
+                // no digits at all, etc.) - catches the case where the
+                // intent classifier correctly sees this as an answer, but
+                // not to the actual question asked.
+                if (labels.TryGetValue(fieldId, out var answeredLabel) &&
+                    !AnswerShapeValidator.LooksPlausible(answeredLabel, answerText))
+                {
+                    return InterviewPlanResult.NeedMoreInfo(
+                        fieldId, $"{ConversationReplies.AnswerShapeMismatchNotice(language)} {currentQuestionText}");
+                }
+
                 // Record the literal answer verbatim before planning -
                 // exactly as the pre-classification code always did. The
                 // planner only ever deals with what's left to ask; it
