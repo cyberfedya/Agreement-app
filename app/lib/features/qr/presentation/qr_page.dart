@@ -7,7 +7,7 @@ import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/features/agreement/domain/agreement_qr.dart';
 
 /// Camera QR scanner for the second party: scan the first party's QR code
-/// to open [AppRoutes.agreementSign] for that document.
+/// to open [AppRoutes.dealInvite] for that deal.
 class QrPage extends StatefulWidget {
   const QrPage({super.key, this.permissionService});
 
@@ -60,7 +60,7 @@ class _QrPageState extends State<QrPage> {
     }
 
     _handled = true;
-    Navigator.of(context).pushReplacementNamed(AppRoutes.agreementSign, arguments: key);
+    Navigator.of(context).pushReplacementNamed(AppRoutes.dealInvite, arguments: key);
   }
 
   @override

@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:app/core/router/app_router.dart';
@@ -15,9 +14,7 @@ import 'package:app/features/questionnaire/presentation/widgets/question_card.da
 import 'package:app/features/questionnaire/providers/questionnaire_provider.dart';
 import 'package:app/shared/widgets/primary_button.dart';
 
-/// One question at a time, chosen live by the backend's Interview Planner
-/// — there's no fixed list or total, so the flow just keeps going until the
-/// planner says "ready_to_generate".
+
 class QuestionnairePage extends StatefulWidget {
   const QuestionnairePage({super.key, required this.dealId, required this.templateTitle});
 
@@ -36,8 +33,6 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
   bool _closingSpoken = false;
   String? _lastSpokenQuestionText;
 
-  // Cached rather than looked up via context.read() in dispose(): by then
-  // the element is deactivated and ancestor lookups are unsafe.
   QuestionnaireProvider? _provider;
   TtsService? _tts;
 

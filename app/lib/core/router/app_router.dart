@@ -4,6 +4,7 @@ import 'package:app/core/widgets/app_widgets.dart';
 import 'package:app/features/agreement/presentation/agreement_completed_page.dart';
 import 'package:app/features/agreement/presentation/agreement_page.dart';
 import 'package:app/features/agreement/presentation/agreement_sign_page.dart';
+import 'package:app/features/agreement/presentation/deal_invite_page.dart';
 import 'package:app/features/ai_processing/presentation/ai_processing_page.dart';
 import 'package:app/features/auth/presentation/auth_page.dart';
 import 'package:app/features/documents/presentation/document_upload_page.dart';
@@ -22,6 +23,7 @@ abstract class AppRoutes {
   static const String home = '/home';
 
   /// Optional [TemplatesRouteArgs] argument.
+  
   static const String templates = '/templates';
 
   /// Required `String` argument: template key.
@@ -35,6 +37,11 @@ abstract class AppRoutes {
   static const String documentUpload = '/documents/upload';
 
   static const String agreement = '/agreement';
+
+  /// Required `String` argument: the deal id from the scanned QR code.
+  /// Invite metadata (type, roles, who invited) shown before any
+  /// agreement HTML - accepting hands off to [agreementSign].
+  static const String dealInvite = '/deal/invite';
 
   /// Required `String` argument: the scanned agreement key. Second-party
   /// document view + demo MyID identification + signing.
@@ -100,6 +107,8 @@ class AppRouter {
         );
       case AppRoutes.agreement:
         return _fadeRoute(const AgreementPage(), settings);
+      case AppRoutes.dealInvite:
+        return _fadeRoute(DealInvitePage(dealId: settings.arguments as String), settings);
       case AppRoutes.agreementSign:
         return _fadeRoute(AgreementSignPage(agreementKey: settings.arguments as String), settings);
       case AppRoutes.agreementCompleted:
@@ -126,7 +135,6 @@ class AppRouter {
     }
   }
 
-  /// Subtle fade + upward slide shared by every route (200–300ms).
   static Route<dynamic> _fadeRoute(Widget page, RouteSettings settings) {
     return PageRouteBuilder(
       settings: settings,

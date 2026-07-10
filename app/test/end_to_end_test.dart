@@ -6,6 +6,7 @@ import 'package:app/core/router/app_router.dart';
 import 'package:app/core/services/tts_service.dart';
 import 'package:app/features/agreement/data/agreement_repository.dart';
 import 'package:app/features/agreement/domain/agreement.dart';
+import 'package:app/features/agreement/domain/deal_invite.dart';
 import 'package:app/features/agreement/presentation/agreement_page.dart';
 import 'package:app/features/agreement/providers/agreement_provider.dart';
 import 'package:app/features/ai_processing/presentation/ai_processing_page.dart';
@@ -83,6 +84,9 @@ class FakeAgreementRepository implements AgreementRepository {
 
   @override
   Future<Result<void>> signAsSecondParty(String dealId, String fullName) async => const Success(null);
+
+  @override
+  Future<Result<DealInvite>> getInvite(String dealId) async => const Failure('not used in these tests');
 }
 
 /// Defaults to a matched deal for both entry points, mirroring the happy

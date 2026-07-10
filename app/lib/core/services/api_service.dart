@@ -1,6 +1,7 @@
 import 'package:app/core/network/api_client.dart';
 import 'package:app/core/network/api_exception.dart';
 import 'package:app/features/agreement/domain/agreement.dart';
+import 'package:app/features/agreement/domain/deal_invite.dart';
 import 'package:app/features/deal/domain/deal.dart';
 import 'package:app/features/documents/domain/interview_preview.dart';
 import 'package:app/features/documents/domain/required_document.dart';
@@ -112,6 +113,13 @@ class ApiService {
   Future<Agreement> getDealAgreement(String dealId) async {
     final json = await _client.getJson('/api/deals/$dealId/agreement');
     return Agreement.fromJson(json as Map<String, dynamic>);
+  }
+
+  /// Invite metadata only (type, roles, who invited, status) - shown
+  /// before the second party ever sees the agreement's HTML.
+  Future<DealInvite> getDealInvite(String dealId, {String lang = 'ru'}) async {
+    final json = await _client.getJson('/api/deals/$dealId/invite', query: {'lang': lang});
+    return DealInvite.fromJson(json as Map<String, dynamic>);
   }
 
   Future<void> signDealSecondParty(String dealId, String fullName) =>
