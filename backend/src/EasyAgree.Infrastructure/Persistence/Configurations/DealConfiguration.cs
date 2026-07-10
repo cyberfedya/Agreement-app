@@ -38,6 +38,16 @@ public sealed class DealConfiguration : IEntityTypeConfiguration<Deal>
         builder.Property(d => d.SecondPartyName)
             .HasMaxLength(300);
 
+        builder.Property(d => d.InviteStatus)
+            .HasConversion<string>()
+            .HasMaxLength(20);
+
+        builder.Property(d => d.FirstPartyRole)
+            .HasMaxLength(50);
+
+        builder.Property(d => d.ExpectedSecondPartyRole)
+            .HasMaxLength(50);
+
         builder.Property(d => d.CreatedAt);
         builder.Property(d => d.UpdatedAt);
 

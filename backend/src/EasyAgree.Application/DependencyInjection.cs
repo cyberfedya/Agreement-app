@@ -28,6 +28,7 @@ public static class DependencyInjection
         services.AddScoped<PartyRoleClassifier>();
         services.AddScoped<GenerateFromDealUseCase>();
         services.AddScoped<GetDealAgreementUseCase>();
+        services.AddScoped<GetDealInviteUseCase>();
         services.AddScoped<SignDealSecondPartyUseCase>();
 
         services.AddScoped<GetUserProfileUseCase>();

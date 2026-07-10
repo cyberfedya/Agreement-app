@@ -33,19 +33,22 @@ public sealed class GenerateFromDealUseCase(
     /// template only ever uses one of these pairs; whichever pair actually
     /// appears in its labels gets classified to find which side the
     /// creator is on. Order matters only as a tie-break when a template
-    /// somehow matches more than one pair.
+    /// somehow matches more than one pair. RoleACode/RoleBCode are stable
+    /// language-neutral identifiers (stored on Deal, not shown directly to
+    /// users) - the invite screen is responsible for translating them.
     /// </summary>
-    private static readonly (string[] RoleA, string[] RoleB)[] RolePairs =
+    private static readonly (string[] RoleA, string[] RoleB, string RoleACode, string RoleBCode)[] RolePairs =
     [
-        (["сотувчи", "продав"], ["сотиб олувчи", "харидор", "покупател"]),
-        (["ижарага берувчи", "арендодател"], ["ижарага олувчи", "арендатор"]),
-        (["қарз берувчи", "займодав"], ["қарз олувчи", "заемщик", "заёмщик"]),
-        (["иш берувчи", "работодател"], ["ходим", "работник"]),
-        (["буюртмачи", "заказчик"], ["пудратчи", "подрядчик", "исполнител", "бажарувчи"]),
-        (["ҳадя қилувчи", "дарител"], ["ҳадя олувчи", "одаряем"]),
+        (["сотувчи", "продав"], ["сотиб олувчи", "харидор", "покупател"], "seller", "buyer"),
+        (["ижарага берувчи", "арендодател"], ["ижарага олувчи", "арендатор"], "landlord", "tenant"),
+        (["қарз берувчи", "займодав"], ["қарз олувчи", "заемщик", "заёмщик"], "lender", "borrower"),
+        (["иш берувчи", "работодател"], ["ходим", "работник"], "employer", "employee"),
+        (["буюртмачи", "заказчик"], ["пудратчи", "подрядчик", "исполнител", "бажарувчи"], "customer", "contractor"),
+        (["ҳадя қилувчи", "дарител"], ["ҳадя олувчи", "одаряем"], "donor", "recipient"),
         (
             ["биринчи томон", "первой стороны", "первая сторона", "биринчи тараф"],
-            ["иккинчи томон", "второй стороны", "вторая сторона", "иккинчи тараф"]
+            ["иккинчи томон", "второй стороны", "вторая сторона", "иккинчи тараф"],
+            "first_party", "second_party"
         ),
     ];
 
@@ -73,7 +76,7 @@ public sealed class GenerateFromDealUseCase(
 
         var labels = AgreementPlaceholderParser.ExtractLabels(template.HtmlTemplate);
         var profile = deal.ProfileId is null ? null : await profileRepository.GetAsync(deal.ProfileId, cancellationToken);
-        var creatorKeywords = await ResolveCreatorKeywordsAsync(labels, deal.RequestText, cancellationToken);
+        var roleResolution = await ResolveCreatorRoleAsync(labels, deal.RequestText, cancellationToken);
 
         foreach (var field in template.Fields)
         {
@@ -81,7 +84,7 @@ public sealed class GenerateFromDealUseCase(
                 continue;
 
             var label = labels.GetValueOrDefault(field.FieldId, string.Empty);
-            var resolved = profile is null ? null : ResolveFromProfile(label, profile, creatorKeywords);
+            var resolved = profile is null ? null : ResolveFromProfile(label, profile, roleResolution.CreatorKeywords);
             merged[field.FieldId] = string.IsNullOrWhiteSpace(resolved) ? PendingPlaceholder : resolved;
         }
 
@@ -94,11 +97,15 @@ public sealed class GenerateFromDealUseCase(
         deal.AnswersJson = DealAnswersSerializer.Serialize(merged);
         deal.GeneratedHtml = result.Html;
         deal.Status = DealStatus.Completed;
+        deal.FirstPartyRole = roleResolution.CreatorRoleCode;
+        deal.ExpectedSecondPartyRole = roleResolution.SecondPartyRoleCode;
         deal.UpdatedAt = DateTime.UtcNow;
         await dealRepository.UpdateAsync(deal, cancellationToken);
 
         return GenerateFromDealResult.Success(result.Html!);
     }
+
+    private sealed record RoleResolution(string[] CreatorKeywords, string? CreatorRoleCode, string? SecondPartyRoleCode);
 
     /// <summary>
     /// Finds which role-pair (if any) this template's field labels use,
@@ -106,23 +113,26 @@ public sealed class GenerateFromDealUseCase(
     /// is on. Returns the keyword set for that side, so
     /// <see cref="ResolveFromProfile"/> only fills the role the creator
     /// actually described themselves as - not always the role hardcoded
-    /// as "first" regardless of what they said.
+    /// as "first" regardless of what they said - plus the stable role
+    /// codes for both sides, persisted on the deal for the invite endpoint.
     /// </summary>
-    private async Task<string[]> ResolveCreatorKeywordsAsync(
+    private async Task<RoleResolution> ResolveCreatorRoleAsync(
         IReadOnlyDictionary<int, string> labels, string? requestText, CancellationToken cancellationToken)
     {
         var allLabels = string.Join(' ', labels.Values).ToLowerInvariant();
 
-        foreach (var (roleA, roleB) in RolePairs)
+        foreach (var (roleA, roleB, roleACode, roleBCode) in RolePairs)
         {
             if (!roleA.Any(allLabels.Contains) || !roleB.Any(allLabels.Contains))
                 continue;
 
             var creatorIsA = await roleClassifier.CreatorIsRoleAAsync(requestText, roleA[0], roleB[0], cancellationToken);
-            return creatorIsA ? roleA : roleB;
+            return creatorIsA
+                ? new RoleResolution(roleA, roleACode, roleBCode)
+                : new RoleResolution(roleB, roleBCode, roleACode);
         }
 
-        return FallbackCreatorKeywords;
+        return new RoleResolution(FallbackCreatorKeywords, null, null);
     }
 
     /// <summary>
@@ -142,12 +152,6 @@ public sealed class GenerateFromDealUseCase(
             return profile.Address;
         if (lower.Contains("туғилган") || lower.Contains("рожден"))
             return profile.BirthDate;
-
-        // "паспорт берган"/"паспорт берилган" (who issued it / when it was
-        // issued) are NOT the passport number - UserProfile doesn't carry
-        // either, so these must fall through to null (blank placeholder)
-        // rather than matching the broader "паспорт" check below and
-        // getting the number stamped into the wrong field.
         if (lower.Contains("паспорт берган") || lower.Contains("паспорт берилган"))
             return null;
         if (lower.Contains("паспорт"))

@@ -44,6 +44,18 @@ public class Deal
 
     public DateTime? SecondPartySignedAt { get; set; }
 
+    /// <summary>Where the second party is in accepting the QR invite (never asked/shown to the first party).</summary>
+    public InviteStatus InviteStatus { get; set; } = InviteStatus.Pending;
+
+    /// <summary>The creator's role in this deal (e.g. "seller"), resolved once at generation time.</summary>
+    public string? FirstPartyRole { get; set; }
+
+    /// <summary>The role the invite expects whoever scans the QR to play (e.g. "buyer").</summary>
+    public string? ExpectedSecondPartyRole { get; set; }
+
+    /// <summary>Null for now (no expiry enforced yet) - reserved so the invite endpoint's shape doesn't change later.</summary>
+    public DateTime? InviteExpiresAt { get; set; }
+
     public DateTime CreatedAt { get; set; }
 
     public DateTime UpdatedAt { get; set; }

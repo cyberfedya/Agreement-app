@@ -73,6 +73,18 @@ public static class DealEndpoints
         })
         .WithName("GetDealAgreement");
 
+        group.MapGet("/{id:guid}/invite", async (Guid id, string? lang, GetDealInviteUseCase useCase, CancellationToken ct) =>
+        {
+            var result = await useCase.ExecuteAsync(id, lang, ct);
+            if (result is null)
+                return Results.NotFound();
+
+            return Results.Ok(new DealInviteDto(
+                result.DealId, result.TransactionType, result.FirstPartyRole, result.ExpectedSecondPartyRole,
+                result.InvitedBy, result.InviteStatus, result.ExpiresAt));
+        })
+        .WithName("GetDealInvite");
+
         group.MapPost("/{id:guid}/sign", async (
             Guid id, SignDealRequest request, SignDealSecondPartyUseCase useCase, CancellationToken ct) =>
         {
