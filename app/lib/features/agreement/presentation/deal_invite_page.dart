@@ -5,6 +5,8 @@ import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/core/widgets/app_widgets.dart';
 import 'package:app/features/agreement/data/agreement_repository.dart';
 import 'package:app/features/agreement/domain/deal_invite.dart';
+import 'package:app/features/agreement/providers/agreement_provider.dart';
+import 'package:app/features/profile/data/profile_repository.dart';
 import 'package:app/shared/models/result.dart';
 import 'package:app/shared/widgets/primary_button.dart';
 
@@ -22,6 +24,7 @@ class _DealInvitePageState extends State<DealInvitePage> {
   String? _errorMessage;
   DealInvite? _invite;
   bool _declined = false;
+  bool _isAccepting = false;
 
   @override
   void initState() {
@@ -45,8 +48,30 @@ class _DealInvitePageState extends State<DealInvitePage> {
     }
   }
 
-  void _accept() {
-    Navigator.of(context).pushReplacementNamed(AppRoutes.agreementSign, arguments: widget.dealId);
+  Future<void> _accept() async {
+    setState(() => _isAccepting = true);
+
+    final agreementRepository = context.read<AgreementRepository>();
+    final profileRepository = context.read<ProfileRepository>();
+    final agreementProvider = context.read<AgreementProvider>();
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+
+    final profileId = await profileRepository.getProfileId();
+    switch (await agreementRepository.acceptInvite(widget.dealId, profileId)) {
+      case Success():
+        // The agreement was generated before this device was linked, so
+        // its fields were still blank placeholders - regenerate now that
+        // this profile is attached, so the document picks it up before
+        // it's shown.
+        await agreementProvider.generate(widget.dealId, const {});
+        if (!mounted) return;
+        navigator.pushReplacementNamed(AppRoutes.agreementSign, arguments: widget.dealId);
+      case Failure(:final message):
+        if (!mounted) return;
+        setState(() => _isAccepting = false);
+        messenger.showSnackBar(SnackBar(content: Text(message)));
+    }
   }
 
   void _decline() {
@@ -107,11 +132,18 @@ class _DealInvitePageState extends State<DealInvitePage> {
                 child: Row(
                   children: [
                     Expanded(
-                      child: OutlinedButton(onPressed: _decline, child: const Text('Отклонить')),
+                      child: OutlinedButton(
+                        onPressed: _isAccepting ? null : _decline,
+                        child: const Text('Отклонить'),
+                      ),
                     ),
                     const SizedBox(width: Insets.x12),
                     Expanded(
-                      child: PrimaryButton(label: 'Принять', onPressed: _accept),
+                      child: PrimaryButton(
+                        label: 'Принять',
+                        loading: _isAccepting,
+                        onPressed: _isAccepting ? null : _accept,
+                      ),
                     ),
                   ],
                 ),

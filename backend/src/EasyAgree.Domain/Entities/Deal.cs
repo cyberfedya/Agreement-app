@@ -56,6 +56,16 @@ public class Deal
     /// <summary>Null for now (no expiry enforced yet) - reserved so the invite endpoint's shape doesn't change later.</summary>
     public DateTime? InviteExpiresAt { get; set; }
 
+    /// <summary>
+    /// The second party's own <see cref="UserProfile.Id"/>, set once they
+    /// accept the invite - lets generation resolve their identity fields
+    /// (name, address, passport) from their real profile instead of only
+    /// ever having a bare name captured at sign time.
+    /// </summary>
+    public string? SecondPartyProfileId { get; set; }
+
+    public DateTime? AcceptedAt { get; set; }
+
     public DateTime CreatedAt { get; set; }
 
     public DateTime UpdatedAt { get; set; }

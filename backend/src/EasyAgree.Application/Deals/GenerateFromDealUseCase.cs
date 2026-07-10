@@ -9,15 +9,20 @@ namespace EasyAgree.Application.Deals;
 /// <summary>
 /// Finalizes a deal into a first draft. The interview deliberately asks
 /// only about the agreement's object and terms, so the full required-field
-/// set is assembled here from four sources, in priority order:
+/// set is assembled here from three sources, in priority order:
 ///   1. answers persisted on the deal (interview answers + AI-extracted
-///      values from the original request),
-///   2. answers sent by the client with this call,
-///   3. the creator's profile (their own party details — never asked;
-///      blank if the creator hasn't filled in their profile yet),
-///   4. a visible blank placeholder for everything still pending: the
-///      second party's details (filled via the QR-sign flow) and notarial
-///      metadata (filled at the notarization stage).
+///      values from the original request) and answers sent with this call,
+///   2. the creator's profile (their own party details — never asked),
+///   3. the second party's profile, once they've accepted the invite via
+///      <see cref="AcceptDealInviteUseCase"/> (null until then),
+///   4. a visible blank placeholder for whatever's still missing (notarial
+///      metadata, or a party whose profile isn't linked/filled in yet).
+///
+/// Profile-resolved values and placeholders are deliberately never written
+/// back into <c>Deal.AnswersJson</c> - only genuine answers are - so this
+/// use case can be called again later (e.g. right after the second party
+/// accepts) and pick up newly-available profile data instead of being
+/// stuck with whatever placeholder got persisted the first time.
 /// </summary>
 public sealed class GenerateFromDealUseCase(
     IDealRepository dealRepository,
@@ -75,20 +80,29 @@ public sealed class GenerateFromDealUseCase(
         }
 
         var labels = AgreementPlaceholderParser.ExtractLabels(template.HtmlTemplate);
-        var profile = deal.ProfileId is null ? null : await profileRepository.GetAsync(deal.ProfileId, cancellationToken);
+        var creatorProfile = deal.ProfileId is null ? null : await profileRepository.GetAsync(deal.ProfileId, cancellationToken);
+        var secondPartyProfile = deal.SecondPartyProfileId is null
+            ? null
+            : await profileRepository.GetAsync(deal.SecondPartyProfileId, cancellationToken);
         var roleResolution = await ResolveCreatorRoleAsync(labels, deal.RequestText, cancellationToken);
 
+        // Everything from here on is only for rendering this document -
+        // never persisted back to deal.AnswersJson, so a later call (once
+        // the second party's profile is linked) can freely re-resolve.
+        var forRender = new Dictionary<int, string>(merged);
         foreach (var field in template.Fields)
         {
-            if (field.Mode != AgreementFieldMode.Required || merged.ContainsKey(field.FieldId))
+            if (field.Mode != AgreementFieldMode.Required || forRender.ContainsKey(field.FieldId))
                 continue;
 
             var label = labels.GetValueOrDefault(field.FieldId, string.Empty);
-            var resolved = profile is null ? null : ResolveFromProfile(label, profile, roleResolution.CreatorKeywords);
-            merged[field.FieldId] = string.IsNullOrWhiteSpace(resolved) ? PendingPlaceholder : resolved;
+            var resolved =
+                (creatorProfile is null ? null : ResolveFromProfile(label, creatorProfile, roleResolution.CreatorKeywords))
+                ?? (secondPartyProfile is null ? null : ResolveFromProfile(label, secondPartyProfile, roleResolution.SecondPartyKeywords));
+            forRender[field.FieldId] = string.IsNullOrWhiteSpace(resolved) ? PendingPlaceholder : resolved;
         }
 
-        var result = await generateAgreement.ExecuteAsync(deal.TemplateKey, merged, cancellationToken);
+        var result = await generateAgreement.ExecuteAsync(deal.TemplateKey, forRender, cancellationToken);
         if (result.IsNotFound)
             return GenerateFromDealResult.NotFound();
         if (result.MissingFieldIds is { Count: > 0 })
@@ -105,16 +119,17 @@ public sealed class GenerateFromDealUseCase(
         return GenerateFromDealResult.Success(result.Html!);
     }
 
-    private sealed record RoleResolution(string[] CreatorKeywords, string? CreatorRoleCode, string? SecondPartyRoleCode);
+    private sealed record RoleResolution(
+        string[] CreatorKeywords, string[] SecondPartyKeywords, string? CreatorRoleCode, string? SecondPartyRoleCode);
 
     /// <summary>
     /// Finds which role-pair (if any) this template's field labels use,
     /// and asks <see cref="PartyRoleClassifier"/> which side the creator
-    /// is on. Returns the keyword set for that side, so
-    /// <see cref="ResolveFromProfile"/> only fills the role the creator
-    /// actually described themselves as - not always the role hardcoded
-    /// as "first" regardless of what they said - plus the stable role
-    /// codes for both sides, persisted on the deal for the invite endpoint.
+    /// is on. Returns the keyword set for each side, so
+    /// <see cref="ResolveFromProfile"/> only fills the role each person
+    /// actually occupies - not always the role hardcoded as "first"
+    /// regardless of what the creator said - plus the stable role codes
+    /// for both sides, persisted on the deal for the invite endpoint.
     /// </summary>
     private async Task<RoleResolution> ResolveCreatorRoleAsync(
         IReadOnlyDictionary<int, string> labels, string? requestText, CancellationToken cancellationToken)
@@ -128,22 +143,22 @@ public sealed class GenerateFromDealUseCase(
 
             var creatorIsA = await roleClassifier.CreatorIsRoleAAsync(requestText, roleA[0], roleB[0], cancellationToken);
             return creatorIsA
-                ? new RoleResolution(roleA, roleACode, roleBCode)
-                : new RoleResolution(roleB, roleBCode, roleACode);
+                ? new RoleResolution(roleA, roleB, roleACode, roleBCode)
+                : new RoleResolution(roleB, roleA, roleBCode, roleACode);
         }
 
-        return new RoleResolution(FallbackCreatorKeywords, null, null);
+        return new RoleResolution(FallbackCreatorKeywords, [], null, null);
     }
 
     /// <summary>
-    /// Maps a creator-party field label to the corresponding profile value,
-    /// or null when the field belongs to someone else (second party,
-    /// notary) or names an attribute the profile doesn't carry.
+    /// Maps a party field label to the corresponding profile value, or
+    /// null when the field belongs to someone else (notary, or the other
+    /// party) or names an attribute the profile doesn't carry.
     /// </summary>
-    private static string? ResolveFromProfile(string label, UserProfile profile, string[] creatorKeywords)
+    private static string? ResolveFromProfile(string label, UserProfile profile, string[] roleKeywords)
     {
         var lower = label.ToLowerInvariant();
-        if (!creatorKeywords.Any(lower.Contains))
+        if (roleKeywords.Length == 0 || !roleKeywords.Any(lower.Contains))
             return null;
 
         if (lower.Contains("ф.и.о") || lower.Contains("фио"))
@@ -152,6 +167,12 @@ public sealed class GenerateFromDealUseCase(
             return profile.Address;
         if (lower.Contains("туғилган") || lower.Contains("рожден"))
             return profile.BirthDate;
+
+        // "паспорт берган"/"паспорт берилган" (who issued it / when it was
+        // issued) are NOT the passport number - UserProfile doesn't carry
+        // either, so these must fall through to null (blank placeholder)
+        // rather than matching the broader "паспорт" check below and
+        // getting the number stamped into the wrong field.
         if (lower.Contains("паспорт берган") || lower.Contains("паспорт берилган"))
             return null;
         if (lower.Contains("паспорт"))

@@ -85,6 +85,25 @@ public static class DealEndpoints
         })
         .WithName("GetDealInvite");
 
+        group.MapPost("/{id:guid}/invite/accept", async (
+            Guid id, AcceptDealInviteRequest request, AcceptDealInviteUseCase useCase, CancellationToken ct) =>
+        {
+            if (string.IsNullOrWhiteSpace(request.ProfileId))
+                return Results.BadRequest();
+
+            var result = await useCase.ExecuteAsync(id, request.ProfileId, ct);
+            return result.Outcome switch
+            {
+                AcceptInviteOutcome.Accepted => Results.NoContent(),
+                AcceptInviteOutcome.DealNotFound => Results.NotFound(),
+                AcceptInviteOutcome.AlreadyResponded => Results.Conflict(new { error = "already_responded" }),
+                AcceptInviteOutcome.OwnInvite => Results.BadRequest(new { error = "own_invite" }),
+                AcceptInviteOutcome.Expired => Results.BadRequest(new { error = "expired" }),
+                _ => Results.Problem(),
+            };
+        })
+        .WithName("AcceptDealInvite");
+
         group.MapPost("/{id:guid}/sign", async (
             Guid id, SignDealRequest request, SignDealSecondPartyUseCase useCase, CancellationToken ct) =>
         {

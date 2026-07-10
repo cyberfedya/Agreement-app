@@ -122,6 +122,12 @@ class ApiService {
     return DealInvite.fromJson(json as Map<String, dynamic>);
   }
 
+  /// Links [profileId] to the deal as the second party - no HTML, no
+  /// regeneration; the caller re-runs [generateFromDeal] afterwards if it
+  /// wants the document to reflect the newly-linked profile.
+  Future<void> acceptDealInvite(String dealId, String profileId) =>
+      _client.postJson('/api/deals/$dealId/invite/accept', body: {'profileId': profileId});
+
   Future<void> signDealSecondParty(String dealId, String fullName) =>
       _client.postJson('/api/deals/$dealId/sign', body: {'fullName': fullName});
 

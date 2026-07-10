@@ -87,6 +87,9 @@ class FakeAgreementRepository implements AgreementRepository {
 
   @override
   Future<Result<DealInvite>> getInvite(String dealId) async => const Failure('not used in these tests');
+
+  @override
+  Future<Result<void>> acceptInvite(String dealId, String profileId) async => const Success(null);
 }
 
 /// Defaults to a matched deal for both entry points, mirroring the happy

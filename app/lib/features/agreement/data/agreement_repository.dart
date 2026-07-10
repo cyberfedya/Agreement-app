@@ -9,6 +9,9 @@ abstract class AgreementRepository {
   Future<Result<Agreement>> getByDealId(String dealId);
   Future<Result<void>> signAsSecondParty(String dealId, String fullName);
   Future<Result<DealInvite>> getInvite(String dealId);
+
+  /// Links [profileId] to the deal as the second party.
+  Future<Result<void>> acceptInvite(String dealId, String profileId);
 }
 
 class ApiAgreementRepository implements AgreementRepository {
@@ -49,6 +52,25 @@ class ApiAgreementRepository implements AgreementRepository {
       return Success(await _api.getDealInvite(dealId));
     } on NotFoundException {
       return const Failure('Это приглашение не найдено или уже недействительно.');
+    } on ApiException catch (e) {
+      return Failure(e.message);
+    }
+  }
+  @override
+  Future<Result<void>> acceptInvite(String dealId, String profileId) async {
+    try {
+      await _api.acceptDealInvite(dealId, profileId);
+      return const Success(null);
+    } on ServerException catch (e) {
+      final body = e.body;
+      if (e.statusCode == 409) return const Failure('Вы уже ответили на это приглашение.');
+      if (e.statusCode == 400 && body is Map && body['error'] == 'own_invite') {
+        return const Failure('Нельзя принять собственное приглашение.');
+      }
+      if (e.statusCode == 400 && body is Map && body['error'] == 'expired') {
+        return const Failure('Срок действия приглашения истёк.');
+      }
+      return Failure(e.message);
     } on ApiException catch (e) {
       return Failure(e.message);
     }
