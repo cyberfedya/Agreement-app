@@ -4,9 +4,6 @@ import 'package:app/features/questionnaire/data/questionnaire_repository.dart';
 import 'package:app/features/questionnaire/domain/question.dart';
 import 'package:app/shared/models/result.dart';
 
-/// Drives a one-question-at-a-time interview: each answer is sent to the
-/// backend's Interview Planner, which decides the next question (or that
-/// enough is known to generate) — the field list is never fetched upfront.
 class QuestionnaireProvider extends ChangeNotifier {
   QuestionnaireProvider(this._repository);
 
@@ -106,7 +103,7 @@ class QuestionnaireProvider extends ChangeNotifier {
     notifyListeners();
 
     switch (await _repository.nextQuestion(dealId, fieldId: fieldId, answer: trimmed, question: label)) {
-      case Success(value: var result):
+      case Success(value: final result):
         _answers[fieldId] = trimmed;
         _readyToGenerate = result.readyToGenerate;
         _currentQuestion = result.question;
