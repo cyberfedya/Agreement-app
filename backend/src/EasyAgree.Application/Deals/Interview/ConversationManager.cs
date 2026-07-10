@@ -27,6 +27,7 @@ public sealed class ConversationManager(
         IReadOnlyList<AgreementTemplateField> fields,
         IReadOnlyDictionary<int, string> labels,
         Dictionary<int, string> answers,
+        Dictionary<string, string> askedQuestions,
         CancellationToken cancellationToken)
     {
         // Nothing to classify against yet - either the very first turn, or
@@ -39,7 +40,7 @@ public sealed class ConversationManager(
                 answers[fallbackFieldId] = answerText;
 
             return await interviewPlanner.ExecuteAsync(
-                templateTitle, language, userRequest, answerText, documentHints, fields, labels, answers, cancellationToken);
+                templateTitle, language, userRequest, answerText, documentHints, fields, labels, answers, askedQuestions, cancellationToken);
         }
 
         var intent = await intentClassifier.ClassifyAsync(currentQuestionText, answerText, cancellationToken);
@@ -65,7 +66,7 @@ public sealed class ConversationManager(
                 // never needs to see the field that was just filled.
                 answers[fieldId] = answerText;
                 return await interviewPlanner.ExecuteAsync(
-                        templateTitle, language, userRequest, answerText, documentHints, fields, labels, answers, cancellationToken);
+                        templateTitle, language, userRequest, answerText, documentHints, fields, labels, answers, askedQuestions, cancellationToken);
 
             case ConversationIntent.DontKnow:
                 return InterviewPlanResult.NeedMoreInfo(
@@ -91,7 +92,7 @@ public sealed class ConversationManager(
 
             default:
                 return await interviewPlanner.ExecuteAsync(
-                    templateTitle, language, userRequest, answerText, documentHints, fields, labels, answers, cancellationToken);
+                    templateTitle, language, userRequest, answerText, documentHints, fields, labels, answers, askedQuestions, cancellationToken);
         }
     }
 }

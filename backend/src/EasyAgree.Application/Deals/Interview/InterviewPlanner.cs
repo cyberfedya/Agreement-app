@@ -33,6 +33,7 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator)
         IReadOnlyList<AgreementTemplateField> fields,
         IReadOnlyDictionary<int, string> labels,
         Dictionary<int, string> answers,
+        Dictionary<string, string> askedQuestions,
         CancellationToken cancellationToken)
     {
         // Deterministic, zero-LLM pass first: anything the document
@@ -52,20 +53,37 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator)
 
             var ordered = QuestionPriorityEngine.Order(askable);
             var group = QuestionGroupingEngine.BuildGroups(ordered)[0];
+            var groupKey = GroupKey(group);
 
-            // Nothing to acknowledge on the very first question - the user
-            // hasn't answered anything yet, only stated their request.
-            var acknowledgement = isFirstTurn ? null : AcknowledgementPhrases.Pick(language, answers.Count);
-            var context = new InterviewContext(
-                templateTitle, language, userRequest, currentMessage, group, answers, ordered, acknowledgement, documentHints);
-            var generated = await questionGenerator.GenerateAsync(context, cancellationToken);
-            if (string.IsNullOrWhiteSpace(generated.Question) && generated.Extracted.Count == 0)
+            // Exactly this set of fields was already asked about and is
+            // still unanswered - reuse that wording verbatim instead of
+            // calling the model for yet another rephrasing, which is what
+            // full-template testing surfaced as the interview appearing to
+            // loop ("Номер дела?" / "Уточните номер дела." / "Подскажите
+            // номер дела." for the same unfilled field across turns).
+            var isRepeat = askedQuestions.TryGetValue(groupKey, out var previousQuestion);
+
+            GeneratedQuestion generated;
+            if (isRepeat)
             {
-                // A blank result usually means a transient failure (timeout,
-                // unparseable JSON) rather than "everything got extracted" -
-                // one retry clears most of those before we resort to a
-                // generic fallback question.
+                generated = new GeneratedQuestion(null, new Dictionary<int, string>());
+            }
+            else
+            {
+                // Nothing to acknowledge on the very first question - the
+                // user hasn't answered anything yet, only stated their request.
+                var acknowledgement = isFirstTurn ? null : AcknowledgementPhrases.Pick(language, answers.Count);
+                var context = new InterviewContext(
+                    templateTitle, language, userRequest, currentMessage, group, answers, ordered, acknowledgement, documentHints);
                 generated = await questionGenerator.GenerateAsync(context, cancellationToken);
+                if (string.IsNullOrWhiteSpace(generated.Question) && generated.Extracted.Count == 0)
+                {
+                    // A blank result usually means a transient failure (timeout,
+                    // unparseable JSON) rather than "everything got extracted" -
+                    // one retry clears most of those before we resort to a
+                    // generic fallback question.
+                    generated = await questionGenerator.GenerateAsync(context, cancellationToken);
+                }
             }
 
             var allowedExtractionIds = group.Select(f => f.FieldId).ToHashSet();
@@ -90,9 +108,22 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator)
             var firstMissing = group.FirstOrDefault(f => !answers.ContainsKey(f.FieldId));
             if (firstMissing is not null)
             {
-                var question = string.IsNullOrWhiteSpace(generated.Question)
-                    ? ConversationReplies.GenericFallbackQuestion(language)
-                    : generated.Question!;
+                string question;
+                if (isRepeat)
+                {
+                    // Reuse the prior wording as-is (never re-cache the
+                    // notice-wrapped text - the cache always holds the bare
+                    // question so a third+ ask doesn't stack notices).
+                    question = $"{ConversationReplies.RepeatedQuestionNotice(language)} {previousQuestion}";
+                }
+                else
+                {
+                    question = string.IsNullOrWhiteSpace(generated.Question)
+                        ? ConversationReplies.GenericFallbackQuestion(language)
+                        : generated.Question!;
+                    askedQuestions[groupKey] = question;
+                }
+
                 return InterviewPlanResult.NeedMoreInfo(firstMissing.FieldId, question);
             }
 
@@ -116,4 +147,7 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator)
             .Where(f => f.Category is FieldCategory.RequiredObject or FieldCategory.RequiredCommercial or FieldCategory.RequiredTime)
             .Where(f => !answers.ContainsKey(f.FieldId))
             .ToList();
+
+    private static string GroupKey(IEnumerable<ClassifiedField> group) =>
+        string.Join(",", group.Select(f => f.FieldId).OrderBy(id => id));
 }

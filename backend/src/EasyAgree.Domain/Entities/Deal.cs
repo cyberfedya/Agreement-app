@@ -31,6 +31,17 @@ public class Deal
     public string? AnswersJson { get; set; }
 
     /// <summary>
+    /// Exact wording last used to ask about each still-unanswered field
+    /// group so far, keyed by sorted-fieldId group signature (e.g.
+    /// <c>"18,19"</c>), serialized as JSON. Lets the interview planner
+    /// recognize "I already asked about exactly this" across HTTP turns
+    /// and repeat the same wording instead of generating a fresh
+    /// rephrasing every time - without this, a field that stays unfilled
+    /// for several turns reads to the user as the model looping.
+    /// </summary>
+    public string? AskedQuestionsJson { get; set; }
+
+    /// <summary>
     /// Pre-interview field map produced from documents/profile/memory,
     /// keyed by template field id and preserving source/confidence so the
     /// intake can be refreshed without losing user-entered answers.

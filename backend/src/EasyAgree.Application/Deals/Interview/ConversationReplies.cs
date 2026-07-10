@@ -74,4 +74,19 @@ public static class ConversationReplies
         "en" => "That answer doesn't seem to include the specific number or date this field needs. Could you clarify:",
         _ => "В ответе не видно конкретного числа или даты, которые нужны для этого поля. Уточните, пожалуйста:",
     };
+
+    /// <summary>
+    /// Prefixes a question that's being repeated verbatim because the
+    /// exact same field group was already asked about and still isn't
+    /// answered - deliberately reuses the prior wording instead of asking
+    /// the model for a fresh rephrasing, which is what previously read to
+    /// the user as the interview looping ("Номер дела?" / "Уточните номер
+    /// дела." / "Подскажите номер дела." for the same unfilled field).
+    /// </summary>
+    public static string RepeatedQuestionNotice(string language) => language switch
+    {
+        "uz" => "Яна бир бор сўрайман:",
+        "en" => "Just to come back to this:",
+        _ => "Ещё раз уточню:",
+    };
 }

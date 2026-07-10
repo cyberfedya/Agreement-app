@@ -29,6 +29,9 @@ public sealed class DealConfiguration : IEntityTypeConfiguration<Deal>
         builder.Property(d => d.AnswersJson)
             .HasColumnType("jsonb");
 
+        builder.Property(d => d.AskedQuestionsJson)
+            .HasColumnType("jsonb");
+
         builder.Property(d => d.PreprocessedFieldsJson)
             .HasColumnType("jsonb");
 

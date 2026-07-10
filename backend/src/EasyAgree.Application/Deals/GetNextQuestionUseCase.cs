@@ -35,6 +35,7 @@ public sealed class GetNextQuestionUseCase(
             return NextQuestionResult.NotFound();
 
         var answers = DealAnswersSerializer.Deserialize(deal.AnswersJson);
+        var askedQuestions = DealAskedQuestionsSerializer.Deserialize(deal.AskedQuestionsJson);
 
         var labels = AgreementPlaceholderParser.ExtractLabels(template.HtmlTemplate);
         var (title, _) = TranslationResolver.Resolve(template.Translations, language);
@@ -44,18 +45,20 @@ public sealed class GetNextQuestionUseCase(
 
         var result = await conversationManager.ExecuteAsync(
             title, language, deal.RequestText, documentHints, answeredFieldId, answerText, currentQuestionText,
-            template.Fields, labels, answers, cancellationToken);
+            template.Fields, labels, answers, askedQuestions, cancellationToken);
 
-        await SaveAnswersAsync(deal, answers, cancellationToken);
+        await SaveAsync(deal, answers, askedQuestions, cancellationToken);
 
         return result.IsReady
             ? NextQuestionResult.ReadyToGenerate(result.Question!)
             : NextQuestionResult.NeedMoreInfo(result.FieldId!.Value, result.Question!);
     }
 
-    private async Task SaveAnswersAsync(Deal deal, Dictionary<int, string> answers, CancellationToken cancellationToken)
+    private async Task SaveAsync(
+        Deal deal, Dictionary<int, string> answers, Dictionary<string, string> askedQuestions, CancellationToken cancellationToken)
     {
         deal.AnswersJson = DealAnswersSerializer.Serialize(answers);
+        deal.AskedQuestionsJson = DealAskedQuestionsSerializer.Serialize(askedQuestions);
         deal.UpdatedAt = DateTime.UtcNow;
         await dealRepository.UpdateAsync(deal, cancellationToken);
     }

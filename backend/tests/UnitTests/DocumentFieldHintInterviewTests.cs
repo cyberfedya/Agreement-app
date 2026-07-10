@@ -33,6 +33,7 @@ public sealed class DocumentFieldHintInterviewTests
             fields,
             Labels(fields),
             answers,
+            new Dictionary<string, string>(),
             CancellationToken.None);
 
         Assert.Equal(32, result.FieldId);
@@ -64,6 +65,7 @@ public sealed class DocumentFieldHintInterviewTests
             fields,
             Labels(fields),
             answers,
+            new Dictionary<string, string>(),
             CancellationToken.None);
 
         Assert.Equal(32, result.FieldId);
@@ -94,6 +96,7 @@ public sealed class DocumentFieldHintInterviewTests
             fields,
             Labels(fields),
             answers,
+            new Dictionary<string, string>(),
             CancellationToken.None);
 
         Assert.Equal(32, result.FieldId);
@@ -123,6 +126,7 @@ public sealed class DocumentFieldHintInterviewTests
             fields,
             Labels(fields),
             answers,
+            new Dictionary<string, string>(),
             CancellationToken.None);
 
         Assert.Equal(21, result.FieldId);

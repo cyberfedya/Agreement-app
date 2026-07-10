@@ -43,6 +43,7 @@ public sealed class AnswerShapeValidationTests
             fields,
             Labels(fields),
             answers,
+            new Dictionary<string, string>(),
             CancellationToken.None);
 
         Assert.Equal(1, result.FieldId);
@@ -72,6 +73,7 @@ public sealed class AnswerShapeValidationTests
             fields,
             Labels(fields),
             answers,
+            new Dictionary<string, string>(),
             CancellationToken.None);
 
         Assert.Equal("15 000 000 сум", answers[1]);
