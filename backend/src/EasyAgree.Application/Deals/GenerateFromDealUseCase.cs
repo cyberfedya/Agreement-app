@@ -142,6 +142,14 @@ public sealed class GenerateFromDealUseCase(
             return profile.Address;
         if (lower.Contains("туғилган") || lower.Contains("рожден"))
             return profile.BirthDate;
+
+        // "паспорт берган"/"паспорт берилган" (who issued it / when it was
+        // issued) are NOT the passport number - UserProfile doesn't carry
+        // either, so these must fall through to null (blank placeholder)
+        // rather than matching the broader "паспорт" check below and
+        // getting the number stamped into the wrong field.
+        if (lower.Contains("паспорт берган") || lower.Contains("паспорт берилган"))
+            return null;
         if (lower.Contains("паспорт"))
             return profile.PassportNumber;
 
