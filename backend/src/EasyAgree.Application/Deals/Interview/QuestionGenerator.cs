@@ -68,7 +68,10 @@ public sealed class QuestionGenerator(IAiChatClient aiChatClient)
           force-fit a value when the key does not match. Be precise: vehicle_make/model/year/vin/body_number/
           chassis_number/engine_number/plate_number/issued_date are different fields. A date must never be
           used as make/model; chassis_number must never be used as year; model must never be used as
-          VIN/body/chassis number.
+          VIN/body/chassis number. When two fields both name an issuing authority (e.g. one asks which
+          traffic-police division "ИИБ ЙХХБ" issued a certificate, another asks which "ТРИБ" issued it),
+          they are two different organizations even on the same document - never copy one authority's name
+          into the other field just because both are "who issued this".
         - If CURRENT_MESSAGE (the user's answer to the question you asked last turn) states the value of a
           field in CURRENT_QUESTION_GROUP, return it in "extracted" too. Never use CURRENT_MESSAGE to fill a
           field outside CURRENT_QUESTION_GROUP, even if it superficially resembles one - an answer about one
