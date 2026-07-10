@@ -31,7 +31,7 @@ public static class DocumentEndpoints
                 files.Add(new UploadedFile(file.FileName, file.ContentType, stream.ToArray()));
             }
 
-            var results = await useCase.ExecuteAsync(id, files, ct);
+            var results = await useCase.ExecuteAsync(id, files, request.Query["lang"].FirstOrDefault() ?? DefaultLanguage, ct);
             return results is null ? Results.NotFound() : Results.Ok(results.Select(ToDto));
         })
         .WithName("UploadDocuments")
@@ -100,6 +100,7 @@ public static class DocumentEndpoints
             document.TypeConfidence,
             document.Status.ToString(),
             document.ErrorMessage,
+            document.MismatchWarning,
             fields);
     }
 }

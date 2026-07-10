@@ -22,6 +22,7 @@ class DocumentUploadProvider extends ChangeNotifier {
   List<RequiredDocument> _requiredDocuments = const [];
   final List<UploadedDocument> _uploadedDocuments = [];
   InterviewPreview? _preview;
+  List<String> _pendingMismatchWarnings = const [];
 
   bool get isLoadingRequirements => _isLoadingRequirements;
   bool get isUploading => _isUploading;
@@ -30,6 +31,17 @@ class DocumentUploadProvider extends ChangeNotifier {
   List<RequiredDocument> get requiredDocuments => List.unmodifiable(_requiredDocuments);
   List<UploadedDocument> get uploadedDocuments => List.unmodifiable(_uploadedDocuments);
   InterviewPreview? get preview => _preview;
+
+  /// Warnings from the most recent [upload] call for documents that seem
+  /// to be about a different subject than what's already known (e.g. a
+  /// different car brand) - the page shows these once, then clears them.
+  List<String> get pendingMismatchWarnings => List.unmodifiable(_pendingMismatchWarnings);
+
+  void clearMismatchWarnings() {
+    if (_pendingMismatchWarnings.isEmpty) return;
+    _pendingMismatchWarnings = const [];
+    notifyListeners();
+  }
 
   /// True once required-document suggestions have loaded and there's
   /// actually at least one worth showing - callers use this to decide
@@ -72,6 +84,10 @@ class DocumentUploadProvider extends ChangeNotifier {
     switch (await _repository.upload(dealId, files)) {
       case Success(:final value):
         _uploadedDocuments.addAll(value);
+        _pendingMismatchWarnings = value
+            .map((d) => d.mismatchWarning)
+            .whereType<String>()
+            .toList(growable: false);
         success = true;
       case Failure(:final message):
         _errorMessage = message;

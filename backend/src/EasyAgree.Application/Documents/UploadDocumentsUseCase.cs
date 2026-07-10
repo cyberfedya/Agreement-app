@@ -1,4 +1,5 @@
 using EasyAgree.Application.Common.Interfaces;
+using EasyAgree.Application.Deals;
 using EasyAgree.Domain.Entities;
 using EasyAgree.Domain.Enums;
 
@@ -17,10 +18,11 @@ public sealed class UploadDocumentsUseCase(
     IUploadedDocumentRepository documentRepository,
     IFileStorage fileStorage,
     IDocumentAnalysisService analysisService,
+    DocumentConsistencyChecker consistencyChecker,
     IntakePreprocessingService preprocessingService)
 {
     public async Task<List<UploadedDocument>?> ExecuteAsync(
-        Guid dealId, IReadOnlyList<UploadedFile> files, CancellationToken cancellationToken = default)
+        Guid dealId, IReadOnlyList<UploadedFile> files, string language = "ru", CancellationToken cancellationToken = default)
     {
         var deal = await dealRepository.GetByIdAsync(dealId, cancellationToken);
         if (deal is null)
@@ -52,6 +54,10 @@ public sealed class UploadDocumentsUseCase(
                 document.OcrText = analysis.OcrText;
                 document.ExtractedFieldsJson = ExtractedDocumentFieldsSerializer.Serialize(analysis.Fields);
                 document.Status = DocumentProcessingStatus.Processed;
+
+                var knownContext = BuildKnownContext(deal);
+                document.MismatchWarning = await consistencyChecker.CheckAsync(
+                    knownContext, analysis.OcrText, analysis.Fields, language, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -66,5 +72,15 @@ public sealed class UploadDocumentsUseCase(
 
         await preprocessingService.RefreshAsync(dealId, cancellationToken);
         return results;
+    }
+
+    private static string? BuildKnownContext(Deal deal)
+    {
+        var answers = DealAnswersSerializer.Deserialize(deal.AnswersJson);
+        var parts = new List<string>();
+        if (!string.IsNullOrWhiteSpace(deal.RequestText))
+            parts.Add(deal.RequestText);
+        parts.AddRange(answers.Values.Where(v => !string.IsNullOrWhiteSpace(v)));
+        return parts.Count == 0 ? null : string.Join(". ", parts);
     }
 }

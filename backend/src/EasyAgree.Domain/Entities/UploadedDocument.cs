@@ -44,6 +44,16 @@ public class UploadedDocument
 
     public string? ErrorMessage { get; set; }
 
+    /// <summary>
+    /// Set when this document appears to be about a different real-world
+    /// subject than what the user already told the system (e.g. a
+    /// different car brand) - null otherwise. Purely informational: the
+    /// document is still saved and its fields still show up in the
+    /// editable-fields sheet, they're just not silently used to fill the
+    /// interview.
+    /// </summary>
+    public string? MismatchWarning { get; set; }
+
     public DateTime UploadedAt { get; set; }
 
     public DateTime? ProcessedAt { get; set; }

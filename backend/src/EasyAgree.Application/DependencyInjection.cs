@@ -39,6 +39,7 @@ public static class DependencyInjection
         services.AddScoped<GetInterviewPreviewUseCase>();
         services.AddScoped<UpdateDocumentFieldUseCase>();
         services.AddScoped<IntakePreprocessingService>();
+        services.AddScoped<DocumentConsistencyChecker>();
 
         return services;
     }

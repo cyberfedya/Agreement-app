@@ -17,6 +17,7 @@ class UploadedDocument {
     required this.status,
     required this.fields,
     this.errorMessage,
+    this.mismatchWarning,
   });
 
   final String id;
@@ -27,6 +28,12 @@ class UploadedDocument {
   /// "Pending" | "Processed" | "Failed"
   final String status;
   final String? errorMessage;
+
+  /// Non-null when this document appears to be about a different
+  /// real-world subject than what the user already told the system (e.g.
+  /// a different car). The document and its fields are still saved and
+  /// editable - they're just not silently used to fill the interview.
+  final String? mismatchWarning;
   final Map<String, ExtractedField> fields;
 
   bool get isProcessed => status == 'Processed';
@@ -44,6 +51,7 @@ class UploadedDocument {
       typeConfidence: typeConfidence,
       status: status,
       errorMessage: errorMessage,
+      mismatchWarning: mismatchWarning,
       fields: updated,
     );
   }
@@ -55,6 +63,7 @@ class UploadedDocument {
     typeConfidence: (json['typeConfidence'] as num).toDouble(),
     status: json['status'] as String,
     errorMessage: json['errorMessage'] as String?,
+    mismatchWarning: json['mismatchWarning'] as String?,
     fields: (json['fields'] as Map<String, dynamic>).map(
       (key, value) => MapEntry(key, ExtractedField.fromJson(value as Map<String, dynamic>)),
     ),

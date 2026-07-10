@@ -41,6 +41,9 @@ public sealed class UploadedDocumentConfiguration : IEntityTypeConfiguration<Upl
         builder.Property(d => d.ErrorMessage)
             .HasColumnType("text");
 
+        builder.Property(d => d.MismatchWarning)
+            .HasColumnType("text");
+
         builder.HasIndex(d => d.DealId);
     }
 }

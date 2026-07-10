@@ -64,7 +64,15 @@ class _DocumentUploadPageState extends State<DocumentUploadPage> {
   /// of silently filling fields in the background.
   void _onProviderChanged() {
     final provider = _provider;
-    if (provider == null || provider.isLoadingPreview) return;
+    if (provider == null) return;
+
+    final warnings = provider.pendingMismatchWarnings;
+    if (warnings.isNotEmpty) {
+      provider.clearMismatchWarnings();
+      _showMismatchWarning(warnings);
+    }
+
+    if (provider.isLoadingPreview) return;
     final preview = provider.preview;
     if (preview == null) return;
 
@@ -80,6 +88,28 @@ class _DocumentUploadPageState extends State<DocumentUploadPage> {
         : 'Готово. Распознано документов: $recognized. Извлечено ${provider.extractedFieldCount} '
               'полей автоматически. Осталось уточнить ещё ${_questionsWord(remaining)}.';
     _tts?.speak(summary);
+  }
+
+  /// Shown right after upload when a document appears to be about a
+  /// different subject than what's already known (wrong car, wrong
+  /// property, etc.) - explains why its data won't be used automatically,
+  /// instead of leaving the user guessing why the interview still asks.
+  void _showMismatchWarning(List<String> warnings) {
+    if (!mounted) return;
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Проверьте документ'),
+        content: Text(
+          warnings.length == 1
+              ? warnings.first
+              : warnings.map((w) => '• $w').join('\n'),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Понятно')),
+        ],
+      ),
+    );
   }
 
   static String _questionsWord(int count) {

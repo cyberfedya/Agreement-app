@@ -7,6 +7,7 @@ public sealed record UploadedDocumentDto(
     double TypeConfidence,
     string Status,
     string? ErrorMessage,
+    string? MismatchWarning,
     IReadOnlyDictionary<string, ExtractedFieldDto> Fields);
 
 public sealed record ExtractedFieldDto(string Value, double Confidence);
