@@ -326,28 +326,10 @@ class _ReviewConfirmView extends StatelessWidget {
   final String templateTitle;
 
   Future<void> _editField(BuildContext context, QuestionnaireProvider provider, Question field) async {
-    final controller = TextEditingController(text: provider.answerFor(field.fieldId));
     final newValue = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(field.fieldName),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          minLines: 1,
-          maxLines: 4,
-          decoration: const InputDecoration(border: OutlineInputBorder()),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Отмена')),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(controller.text),
-            child: const Text('Сохранить'),
-          ),
-        ],
-      ),
+      builder: (context) => _EditFieldDialog(label: field.fieldName, initialValue: provider.answerFor(field.fieldId)),
     );
-    controller.dispose();
     if (newValue == null || !context.mounted) return;
 
     final messenger = ScaffoldMessenger.of(context);
@@ -429,6 +411,52 @@ class _ReviewConfirmView extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+/// Owns its `TextEditingController` for the whole dialog route lifetime -
+/// disposing it eagerly right after `showDialog` resolves (rather than
+/// letting this widget's own `dispose()` do it once the exit animation
+/// actually finishes) crashes the framework, because the still-animating
+/// `TextField` tries to rebuild against an already-disposed controller.
+class _EditFieldDialog extends StatefulWidget {
+  const _EditFieldDialog({required this.label, required this.initialValue});
+
+  final String label;
+  final String initialValue;
+
+  @override
+  State<_EditFieldDialog> createState() => _EditFieldDialogState();
+}
+
+class _EditFieldDialogState extends State<_EditFieldDialog> {
+  late final TextEditingController _controller = TextEditingController(text: widget.initialValue);
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(widget.label),
+      content: TextField(
+        controller: _controller,
+        autofocus: true,
+        minLines: 1,
+        maxLines: 4,
+        decoration: const InputDecoration(border: OutlineInputBorder()),
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Отмена')),
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop(_controller.text),
+          child: const Text('Сохранить'),
+        ),
+      ],
     );
   }
 }
