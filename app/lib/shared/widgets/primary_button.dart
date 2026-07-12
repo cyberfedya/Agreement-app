@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:app/core/theme/app_tokens.dart';
+import 'package:app/shared/widgets/pressable_scale.dart';
 
 /// Full-width primary CTA. Supports a disabled state (null [onPressed])
 /// and an inline loading spinner.
@@ -22,6 +23,7 @@ class PrimaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final child = loading
         ? Row(
+            key: const ValueKey('loading'),
             mainAxisSize: MainAxisSize.min,
             children: [
               SizedBox.square(
@@ -37,14 +39,21 @@ class PrimaryButton extends StatelessWidget {
           )
         : icon != null
             ? Row(
+                key: const ValueKey('icon'),
                 mainAxisSize: MainAxisSize.min,
                 children: [Icon(icon, size: 18), const SizedBox(width: Insets.x8), Text(label)],
               )
-            : Text(label);
+            : Text(label, key: const ValueKey('label'));
 
     return SizedBox(
       width: double.infinity,
-      child: FilledButton(onPressed: loading ? null : onPressed, child: child),
+      child: PressableScale(
+        enabled: !loading && onPressed != null,
+        child: FilledButton(
+          onPressed: loading ? null : onPressed,
+          child: AnimatedSwitcher(duration: Motion.fast, child: child),
+        ),
+      ),
     );
   }
 }

@@ -4,6 +4,8 @@ import 'package:app/core/config/app_config.dart';
 import 'package:app/core/router/app_router.dart';
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/core/widgets/app_widgets.dart';
+import 'package:app/shared/animation/entrance.dart';
+import 'package:app/shared/widgets/primary_button.dart';
 
 /// Demo identification screen. There is no real MyID integration yet — this
 /// screen exists to show users *how* sign-in will work once MyID is wired
@@ -44,14 +46,14 @@ class _AuthPageState extends State<AuthPage> {
                     borderRadius: Corners.lgRadius,
                   ),
                   child: Icon(Icons.verified_user_outlined, size: 34, color: theme.colorScheme.onPrimaryContainer),
-                ),
+                ).animateEntranceStaggered(0),
                 const SizedBox(height: Insets.x20),
-                Text(AppConfig.appName, style: theme.textTheme.headlineMedium),
+                Text(AppConfig.appName, style: theme.textTheme.headlineMedium).animateEntranceStaggered(1),
                 const SizedBox(height: Insets.x8),
                 Text(
                   'Договоры с юридической силой',
                   style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-                ),
+                ).animateEntranceStaggered(2),
                 const Spacer(flex: 2),
                 Container(
                   width: double.infinity,
@@ -82,20 +84,12 @@ class _AuthPageState extends State<AuthPage> {
                       ),
                     ],
                   ),
-                ),
+                ).animateEntranceStaggered(3),
                 const SizedBox(height: Insets.x20),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    onPressed: _verifying ? null : _continueWithMyId,
-                    child: _verifying
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2.4, color: Colors.white),
-                          )
-                        : const Text('Продолжить с MyID'),
-                  ),
+                PrimaryButton(
+                  label: 'Продолжить с MyID',
+                  loading: _verifying,
+                  onPressed: _continueWithMyId,
                 ),
                 const SizedBox(height: Insets.x12),
                 Text(

@@ -15,6 +15,7 @@ import 'package:app/features/questionnaire/domain/question.dart';
 import 'package:app/features/questionnaire/presentation/widgets/agreement_preview_sheet.dart';
 import 'package:app/features/questionnaire/presentation/widgets/question_card.dart';
 import 'package:app/features/questionnaire/providers/questionnaire_provider.dart';
+import 'package:app/shared/animation/entrance.dart';
 import 'package:app/shared/widgets/primary_button.dart';
 
 
@@ -319,7 +320,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                             onSpeak: () => _tts?.speak(field.fieldName),
                             onVoiceSubmit: _onVoiceSubmit,
                             onAttach: _attaching ? null : _attachDocument,
-                          ),
+                          ).animateEntrance(),
                         IgnorePointer(
                           child: AnimatedOpacity(
                             opacity: _showCheck ? 1 : 0,
@@ -470,7 +471,7 @@ class _ReviewConfirmView extends StatelessWidget {
               ],
             ),
             const SizedBox(height: Insets.x24),
-            for (final field in collected)
+            for (final (index, field) in collected.indexed)
               Padding(
                 padding: const EdgeInsets.only(bottom: Insets.x8),
                 child: Material(
@@ -504,7 +505,7 @@ class _ReviewConfirmView extends StatelessWidget {
                     ),
                   ),
                 ),
-              ),
+              ).animateEntranceStaggered(index.clamp(0, 8)),
           ],
         );
       },

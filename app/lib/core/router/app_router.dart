@@ -135,8 +135,11 @@ class AppRouter {
         return FadeTransition(
           opacity: curved,
           child: SlideTransition(
-            position: Tween(begin: const Offset(0, 0.02), end: Offset.zero).animate(curved),
-            child: child,
+            position: Tween(begin: const Offset(0, 0.03), end: Offset.zero).animate(curved),
+            child: ScaleTransition(
+              scale: Tween(begin: 0.98, end: 1.0).animate(curved),
+              child: child,
+            ),
           ),
         );
       },

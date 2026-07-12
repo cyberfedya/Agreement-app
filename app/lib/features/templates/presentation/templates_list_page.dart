@@ -10,6 +10,7 @@ import 'package:app/features/templates/domain/template.dart';
 import 'package:app/features/templates/presentation/widgets/agreement_card.dart';
 import 'package:app/features/templates/presentation/widgets/category_chip.dart';
 import 'package:app/features/templates/providers/templates_list_provider.dart';
+import 'package:app/shared/animation/entrance.dart';
 
 class TemplatesListPage extends StatefulWidget {
   const TemplatesListPage({super.key, this.initialCategory, this.initialQuery});
@@ -114,7 +115,7 @@ class _TemplatesListPageState extends State<TemplatesListPage> {
                           template: template,
                           onTap: () => Navigator.of(context)
                               .pushNamed(AppRoutes.templateDetail, arguments: template.key),
-                        );
+                        ).animateEntranceStaggered(index.clamp(0, 8));
                       },
                     ),
                   );

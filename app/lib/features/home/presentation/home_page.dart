@@ -4,6 +4,8 @@ import 'package:app/core/router/app_router.dart';
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/core/widgets/app_widgets.dart';
 import 'package:app/core/widgets/hold_to_talk_mic_button.dart';
+import 'package:app/shared/animation/entrance.dart';
+import 'package:app/shared/widgets/primary_button.dart';
 
 /// "О чём договариваемся?" — the entire product starts here. One input,
 /// one microphone, one action. Everything else is a distraction.
@@ -80,7 +82,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ],
-                ),
+                ).animateEntrance(),
                 Expanded(
                   child: Center(
                     child: Column(
@@ -110,20 +112,14 @@ class _HomePageState extends State<HomePage> {
                               contentPadding: EdgeInsets.zero,
                             ),
                           ),
-                        ),
+                        ).animateEntranceStaggered(1),
                         const SizedBox(height: Insets.x32),
-                        HoldToTalkMicButton(onTextChanged: _onVoiceText),
+                        HoldToTalkMicButton(onTextChanged: _onVoiceText).animateEntranceStaggered(2),
                       ],
                     ),
                   ),
                 ),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    onPressed: _hasText ? _createAgreement : null,
-                    child: const Text('Создать договор'),
-                  ),
-                ),
+                PrimaryButton(label: 'Создать договор', onPressed: _hasText ? _createAgreement : null),
               ],
             ),
           ),
