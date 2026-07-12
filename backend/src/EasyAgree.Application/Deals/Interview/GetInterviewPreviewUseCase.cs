@@ -16,7 +16,8 @@ public sealed record InterviewPreviewResult(int TotalAskableFields, int Estimate
 /// </summary>
 public sealed class GetInterviewPreviewUseCase(
     IDealRepository dealRepository,
-    IAgreementTemplateRepository templateRepository)
+    IAgreementTemplateRepository templateRepository,
+    IUploadedDocumentRepository documentRepository)
 {
     public async Task<InterviewPreviewResult?> ExecuteAsync(
         Guid dealId, string language, CancellationToken cancellationToken = default)
@@ -31,6 +32,12 @@ public sealed class GetInterviewPreviewUseCase(
 
         var answers = DealAnswersSerializer.Deserialize(deal.AnswersJson);
         var labels = AgreementPlaceholderParser.ExtractLabels(template.HtmlTemplate);
+        var documents = await documentRepository.GetByDealIdAsync(dealId, cancellationToken);
+        var documentHints = DocumentFieldHintCollection.FromDocuments(documents);
+
+        // Match the deterministic part of the next-question path so the
+        // post-upload estimate does not count fields already known from a document.
+        DocumentFieldMapper.ApplyMatches(template.Fields, labels, documentHints, answers);
 
         var classified = FieldEligibilityEngine.Classify(template.Fields, labels);
         var askable = classified

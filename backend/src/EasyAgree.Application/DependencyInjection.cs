@@ -32,12 +32,16 @@ public static class DependencyInjection
         services.AddScoped<PartyRoleClassifier>();
         services.AddScoped<GenerateFromDealUseCase>();
         services.AddScoped<GetDealAgreementUseCase>();
+        services.AddScoped<GetDealFieldStatesUseCase>();
         services.AddScoped<GetDealReviewUseCase>();
         services.AddScoped<GetDealQualityUseCase>();
         services.AddScoped<GetDealAgreementValidationUseCase>();
         services.AddScoped<GetDealRiskAssessmentUseCase>();
         services.AddScoped<GetDealInviteUseCase>();
         services.AddScoped<AcceptDealInviteUseCase>();
+        services.AddScoped<DeclineDealInviteUseCase>();
+        services.AddScoped<ProposeDealFieldChangeUseCase>();
+        services.AddScoped<RequestDealClarificationUseCase>();
         services.AddScoped<SignDealSecondPartyUseCase>();
         services.AddScoped<DismissDocumentSuggestionUseCase>();
 

@@ -3,6 +3,7 @@ using System;
 using EasyAgree.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EasyAgree.Infrastructure.Migrations
 {
     [DbContext(typeof(EasyAgreeDbContext))]
-    partial class EasyAgreeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260712194320_AddDealPartyResponses")]
+    partial class AddDealPartyResponses
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

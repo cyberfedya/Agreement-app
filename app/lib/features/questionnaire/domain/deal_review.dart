@@ -37,6 +37,48 @@ class DealReviewField {
   );
 }
 
+class DealFieldState {
+  const DealFieldState({
+    required this.fieldId,
+    required this.label,
+    required this.value,
+    required this.required,
+    required this.source,
+    required this.confidence,
+    required this.confirmationStatus,
+    required this.party,
+    required this.dispute,
+    required this.status,
+    required this.reason,
+  });
+
+  final int fieldId;
+  final String label;
+  final String? value;
+  final bool required;
+  final String source;
+  final double confidence;
+  final String confirmationStatus;
+  final String party;
+  final bool dispute;
+  final String status;
+  final String reason;
+
+  factory DealFieldState.fromJson(Map<String, dynamic> json) => DealFieldState(
+    fieldId: json['fieldId'] as int,
+    label: json['label'] as String,
+    value: json['value'] as String?,
+    required: json['required'] as bool? ?? false,
+    source: json['source'] as String,
+    confidence: (json['confidence'] as num).toDouble(),
+    confirmationStatus: json['confirmationStatus'] as String,
+    party: json['party'] as String,
+    dispute: json['dispute'] as bool? ?? false,
+    status: json['status'] as String,
+    reason: json['reason'] as String,
+  );
+}
+
 /// Mirrors the backend's `DealReviewDto`: the deterministic, read-only
 /// pre-generation review, already grouped by the backend.
 class DealReview {
@@ -46,6 +88,9 @@ class DealReview {
     required this.corrected,
     required this.missing,
     required this.skipped,
+    required this.fieldStates,
+    required this.workflowStatus,
+    required this.workflowReason,
   });
 
   final List<DealReviewField> autoFilled;
@@ -53,6 +98,9 @@ class DealReview {
   final List<DealReviewField> corrected;
   final List<DealReviewField> missing;
   final List<DealReviewField> skipped;
+  final List<DealFieldState> fieldStates;
+  final String? workflowStatus;
+  final String? workflowReason;
 
   /// How many fields the user never had to type (backend-classified).
   int get autoFilledCount => autoFilled.length + corrected.length;
@@ -66,6 +114,12 @@ class DealReview {
       corrected: parse('corrected'),
       missing: parse('missing'),
       skipped: parse('skipped'),
+      fieldStates: (json['fieldStates'] as List? ?? const [])
+          .cast<Map<String, dynamic>>()
+          .map(DealFieldState.fromJson)
+          .toList(),
+      workflowStatus: json['workflowStatus'] as String?,
+      workflowReason: json['workflowReason'] as String?,
     );
   }
 }

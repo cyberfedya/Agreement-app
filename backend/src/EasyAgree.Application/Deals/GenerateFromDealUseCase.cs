@@ -75,6 +75,13 @@ public sealed class GenerateFromDealUseCase(
         if (template is null)
             return GenerateFromDealResult.NotFound();
 
+        if (DealPartyResponseSerializer.Deserialize(deal.PartyResponsesJson).Any(response =>
+                response.Type is DealPartyResponseTypes.ProposedChange or DealPartyResponseTypes.Clarification) ||
+            deal.InviteStatus is InviteStatus.ChangeRequested or InviteStatus.ClarificationRequested)
+        {
+            return GenerateFromDealResult.LegalReviewRequired();
+        }
+
         var merged = DealAnswersSerializer.Deserialize(deal.AnswersJson);
         foreach (var (fieldId, value) in answers)
         {
@@ -88,6 +95,9 @@ public sealed class GenerateFromDealUseCase(
         // complete document set and generate immediately without having to
         // trigger a redundant interview turn first.
         var documents = await documentRepository.GetByDealIdAsync(dealId, cancellationToken);
+        if (DocumentConflictEngine.Detect(documents).Any(conflict => conflict.Severity == "HIGH"))
+            return GenerateFromDealResult.LegalReviewRequired();
+
         var documentHints = DocumentFieldHintCollection.FromDocuments(documents);
         DocumentFieldMapper.ApplyMatches(template.Fields, labels, documentHints, merged);
         var creatorProfile = deal.ProfileId is null ? null : await profileRepository.GetAsync(deal.ProfileId, cancellationToken);

@@ -18,6 +18,8 @@ namespace EasyAgree.Application.Deals.Interview;
 /// </summary>
 public static class DocumentFieldMapper
 {
+    public const double MinimumAutoFillConfidence = 0.75;
+
     public sealed record Mapping(int FieldId, string Value, string Source, double Confidence, IReadOnlyList<string> HintKeys);
     // Ordered by specificity where labels could otherwise collide (e.g.
     // "берилган сана" alone would also match inside a longer phrase, so
@@ -108,7 +110,9 @@ public static class DocumentFieldMapper
 
                 var values = hintKeys
                     .Select(key => hintByKey.GetValueOrDefault(key))
-                    .Where(hint => hint is not null && !string.IsNullOrWhiteSpace(hint.Value))
+                    .Where(hint => hint is not null &&
+                        hint.Confidence >= MinimumAutoFillConfidence &&
+                        !string.IsNullOrWhiteSpace(hint.Value))
                     .Cast<DocumentFieldHint>()
                     .ToList();
 

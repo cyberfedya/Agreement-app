@@ -55,7 +55,14 @@ class ServerException extends ApiException {
 /// were left unanswered.
 class MissingFieldsException extends ApiException {
   MissingFieldsException(this.fieldIds)
-    : super('Please answer all required questions before generating.');
+    : super('Сначала ответьте на все обязательные вопросы.');
 
   final List<int> fieldIds;
+}
+
+/// Thrown when the backend blocks generation because the deal needs a
+/// legal review first (HTTP 409 `legal_review_required`).
+class LegalReviewRequiredException extends ApiException {
+  const LegalReviewRequiredException()
+    : super('Договор требует юридической проверки — сформировать его пока нельзя.');
 }

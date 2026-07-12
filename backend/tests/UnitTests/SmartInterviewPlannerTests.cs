@@ -5,7 +5,7 @@ namespace UnitTests;
 public sealed class SmartInterviewPlannerTests
 {
     [Fact]
-    public void Groups_three_related_vehicle_fields_but_not_an_unrelated_object_field()
+    public void Groups_at_most_two_related_vehicle_fields_for_short_questions()
     {
         var fields = new List<ClassifiedField>
         {
@@ -17,8 +17,9 @@ public sealed class SmartInterviewPlannerTests
 
         var groups = QuestionGroupingEngine.BuildGroups(fields);
 
-        Assert.Equal(new[] { 1, 2, 3 }, groups[0].Select(field => field.FieldId));
-        Assert.Equal(new[] { 4 }, groups[1].Select(field => field.FieldId));
+        Assert.Equal(new[] { 1, 2 }, groups[0].Select(field => field.FieldId));
+        Assert.Equal(new[] { 3 }, groups[1].Select(field => field.FieldId));
+        Assert.Equal(new[] { 4 }, groups[2].Select(field => field.FieldId));
     }
 
     [Fact]

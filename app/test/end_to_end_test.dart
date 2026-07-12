@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:app/core/router/app_router.dart';
 import 'package:app/core/services/tts_service.dart';
+import 'package:app/core/storage/local_storage.dart';
+import 'package:app/features/onboarding/onboarding_page.dart';
 import 'package:app/features/agreement/data/agreement_repository.dart';
 import 'package:app/features/agreement/domain/agreement.dart';
 import 'package:app/features/agreement/domain/deal_invite.dart';
@@ -96,6 +98,9 @@ class FakeQuestionnaireRepository implements QuestionnaireRepository {
       corrected: const [],
       missing: const [],
       skipped: const [],
+      fieldStates: const [],
+      workflowStatus: 'READY_TO_GENERATE',
+      workflowReason: 'All mandatory terms have trusted values.',
     ),
   );
 }
@@ -119,6 +124,39 @@ class FakeAgreementRepository implements AgreementRepository {
 
   @override
   Future<Result<void>> acceptInvite(String dealId, String profileId) async => const Success(null);
+
+  @override
+  Future<Result<void>> declineInvite(String dealId, {String? reason, String? profileId}) async =>
+      const Success(null);
+
+  @override
+  Future<Result<void>> proposeFieldChange(
+    String dealId, {
+    required int fieldId,
+    required String proposedValue,
+    String? reason,
+    String? profileId,
+  }) async => const Success(null);
+
+  @override
+  Future<Result<void>> requestClarification(String dealId, {required String message, String? profileId}) async =>
+      const Success(null);
+}
+
+/// In-memory [LocalStorage] so tests never touch SharedPreferences.
+/// Starts with onboarding already seen - the first-launch intro has its
+/// own test value, but every flow test starts from the login screen.
+class FakeLocalStorage implements LocalStorage {
+  final Map<String, String> _values = {OnboardingPage.seenKey: 'true'};
+
+  @override
+  Future<String?> read(String key) async => _values[key];
+
+  @override
+  Future<void> write(String key, String value) async => _values[key] = value;
+
+  @override
+  Future<void> delete(String key) async => _values.remove(key);
 }
 
 /// Defaults to a matched deal for both entry points, mirroring the happy
@@ -209,6 +247,7 @@ Widget buildTestApp({
       Provider<TemplateRepository>.value(value: templates),
       Provider<DealRepository>.value(value: dealRepository ?? FakeDealRepository()),
       Provider<DocumentRepository>.value(value: documents),
+      Provider<LocalStorage>(create: (_) => FakeLocalStorage()),
       Provider<TtsService>(create: (_) => TtsService()),
       ChangeNotifierProvider(create: (_) => TemplatesListProvider(templates)),
       ChangeNotifierProvider(create: (_) => TemplateDetailProvider(templates, questionnaire)),
@@ -310,7 +349,11 @@ void main() {
     // Planner says it has enough — the review phase offers to generate.
     expect(find.text('Договор готов к созданию'), findsOneWidget);
     await tester.tap(find.widgetWithText(FilledButton, 'Создать договор'));
-    await tester.pumpAndSettle();
+    // Bounded pumps instead of pumpAndSettle: the generation checklist is
+    // finite, but the agreement page it lands on hosts an endless
+    // waiting-for-signature pulse that would never settle.
+    await tester.pump(const Duration(milliseconds: 1600));
+    await tester.pump(const Duration(milliseconds: 400));
 
     expect(find.byType(AgreementPage), findsOneWidget);
     // The QR/status header pushes the document preview below the sliver's
@@ -355,7 +398,7 @@ void main() {
 
     // Retry succeeds once the network is back.
     dealRepository.createFromTextResult = const Success(_matchedDeal);
-    await tester.tap(find.text('Try again'));
+    await tester.tap(find.text('Повторить'));
     await tester.pumpAndSettle();
     await tester.pump(const Duration(milliseconds: 2650));
     await tester.pumpAndSettle();

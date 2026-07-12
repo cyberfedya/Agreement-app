@@ -143,6 +143,36 @@ public sealed class DocumentFieldHintInterviewTests
     }
 
     [Fact]
+    public async Task Low_confidence_document_value_is_not_auto_filled()
+    {
+        var fields = RequiredFields((24, "vehicle VIN"));
+        var hints = DocumentFieldHintCollection.FromDocuments(Documents(new Dictionary<string, ExtractedFieldValue>
+        {
+            ["vin"] = new("XW8ZZZ61ZHG000001", 0.74),
+        }));
+        var planner = new InterviewPlanner(new QuestionGenerator(new StaticChatClient(
+            """{"question":"What VIN?","extracted":{}}""")));
+        var answers = DealAnswersSerializer.Deserialize(null);
+
+        var result = await planner.ExecuteAsync(
+            "test",
+            "Vehicle sale",
+            "en",
+            null,
+            null,
+            hints,
+            fields,
+            Labels(fields),
+            answers,
+            new Dictionary<string, string>(),
+            new HashSet<string>(),
+            CancellationToken.None);
+
+        Assert.Equal(24, result.FieldId);
+        Assert.False(answers.ContainsKey(24));
+    }
+
+    [Fact]
     public void Raw_document_hints_keep_semantic_keys_without_template_mapping()
     {
         var hints = DocumentFieldHintCollection.FromDocuments(Documents(new Dictionary<string, ExtractedFieldValue>

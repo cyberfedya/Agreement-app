@@ -1,10 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'package:app/core/config/app_config.dart';
 import 'package:app/core/router/app_router.dart';
+import 'package:app/core/storage/local_storage.dart';
 import 'package:app/core/theme/app_tokens.dart';
+import 'package:app/features/onboarding/onboarding_page.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -21,8 +24,14 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
   @override
   void initState() {
     super.initState();
-    _timer = Timer(const Duration(milliseconds: 700), () {
-      Navigator.of(context).pushReplacementNamed(AppRoutes.login);
+    // Kick off the onboarding-seen read immediately; the 700ms logo beat
+    // almost always outlasts a SharedPreferences read, so the navigation
+    // decision is ready by the time the timer fires.
+    final seenFuture = context.read<LocalStorage>().read(OnboardingPage.seenKey);
+    _timer = Timer(const Duration(milliseconds: 700), () async {
+      final seen = await seenFuture;
+      if (!mounted) return;
+      Navigator.of(context).pushReplacementNamed(seen == 'true' ? AppRoutes.login : AppRoutes.onboarding);
     });
   }
 

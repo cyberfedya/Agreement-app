@@ -88,6 +88,9 @@ public static class DealEndpoints
             if (result.MissingFieldIds is { Count: > 0 })
                 return Results.BadRequest(new GenerateAgreementErrorDto("missing_required_fields", result.MissingFieldIds));
 
+            if (result.IsLegalReviewRequired)
+                return Results.Conflict(new { error = "legal_review_required" });
+
             return Results.Ok(new GenerateAgreementResponse(id.ToString(), result.Html!, DateTime.UtcNow));
         })
         .WithName("GenerateFromDeal");
@@ -109,7 +112,10 @@ public static class DealEndpoints
                     review.Manual.Select(ToReviewField).ToList(),
                     review.Corrected.Select(ToReviewField).ToList(),
                     review.Missing.Select(ToReviewField).ToList(),
-                    review.Skipped.Select(ToReviewField).ToList()));
+                    review.Skipped.Select(ToReviewField).ToList(),
+                    review.FieldStates.Select(ToFieldState).ToList(),
+                    review.WorkflowStatus,
+                    review.WorkflowReason));
         })
         .WithName("GetDealReview");
 
@@ -188,6 +194,49 @@ public static class DealEndpoints
         })
         .WithName("AcceptDealInvite");
 
+        group.MapPost("/{id:guid}/invite/decline", async (
+            Guid id, DeclineDealInviteRequest request, DeclineDealInviteUseCase useCase, CancellationToken ct) =>
+        {
+            var result = await useCase.ExecuteAsync(id, request.Reason, request.ProfileId, ct);
+            return result.Outcome switch
+            {
+                DeclineInviteOutcome.Declined => Results.Ok(new { success = true }),
+                DeclineInviteOutcome.DealNotFound => Results.NotFound(),
+                DeclineInviteOutcome.AlreadyAccepted => Results.Conflict(new { error = "already_accepted" }),
+                _ => Results.Problem(),
+            };
+        })
+        .WithName("DeclineDealInvite");
+
+        group.MapPost("/{id:guid}/invite/propose-change", async (
+            Guid id, ProposeDealFieldChangeRequest request, ProposeDealFieldChangeUseCase useCase, CancellationToken ct) =>
+        {
+            var result = await useCase.ExecuteAsync(
+                id, request.FieldId, request.ProposedValue, request.Reason, request.ProfileId, ct);
+            return result.Outcome switch
+            {
+                ProposeFieldChangeOutcome.Recorded => Results.Ok(new { success = true }),
+                ProposeFieldChangeOutcome.DealNotFound => Results.NotFound(),
+                ProposeFieldChangeOutcome.InvalidField => Results.BadRequest(new { error = "invalid_field" }),
+                _ => Results.Problem(),
+            };
+        })
+        .WithName("ProposeDealFieldChange");
+
+        group.MapPost("/{id:guid}/invite/clarification", async (
+            Guid id, RequestDealClarificationRequest request, RequestDealClarificationUseCase useCase, CancellationToken ct) =>
+        {
+            var result = await useCase.ExecuteAsync(id, request.Message, request.ProfileId, ct);
+            return result.Outcome switch
+            {
+                RequestClarificationOutcome.Recorded => Results.Ok(new { success = true }),
+                RequestClarificationOutcome.DealNotFound => Results.NotFound(),
+                RequestClarificationOutcome.EmptyMessage => Results.BadRequest(new { error = "empty_message" }),
+                _ => Results.Problem(),
+            };
+        })
+        .WithName("RequestDealClarification");
+
         group.MapPost("/{id:guid}/sign", async (
             Guid id, SignDealRequest request, SignDealSecondPartyUseCase useCase, CancellationToken ct) =>
         {
@@ -204,4 +253,8 @@ public static class DealEndpoints
 
     private static DealReviewFieldDto ToReviewField(DealReviewField field) =>
         new(field.FieldId, field.Label, field.Value, field.Source, field.Confidence, field.Status, field.Reason);
+
+    private static DealFieldStateDto ToFieldState(DealFieldState field) =>
+        new(field.FieldId, field.Label, field.Value, field.Required, field.Source, field.Confidence,
+            field.ConfirmationStatus, field.Party, field.Dispute, field.Status, field.Reason);
 }

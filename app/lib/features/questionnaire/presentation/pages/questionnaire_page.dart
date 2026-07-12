@@ -11,6 +11,7 @@ import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/core/widgets/app_widgets.dart';
 import 'package:app/core/widgets/bottom_action_bar.dart';
 import 'package:app/features/agreement/providers/agreement_provider.dart';
+import 'package:app/features/documents/presentation/uploaded_documents_sheet.dart';
 import 'package:app/features/documents/providers/document_upload_provider.dart';
 import 'package:app/features/questionnaire/domain/question.dart';
 import 'package:app/features/questionnaire/presentation/document_hint_matcher.dart';
@@ -284,7 +285,8 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
   }
 
   Future<void> _attachFromComposer() async {
-    final source = await showModalBottomSheet<ImageSource>(
+    final documentCount = context.read<DocumentUploadProvider>().uploadedDocuments.length;
+    final choice = await showModalBottomSheet<String>(
       context: context,
       backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
@@ -298,20 +300,41 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
               ListTile(
                 leading: const Icon(Icons.photo_camera_outlined),
                 title: const Text('Камера'),
-                onTap: () => Navigator.pop(sheetContext, ImageSource.camera),
+                onTap: () => Navigator.pop(sheetContext, 'camera'),
               ),
               ListTile(
                 leading: const Icon(Icons.photo_library_outlined),
                 title: const Text('Галерея'),
-                onTap: () => Navigator.pop(sheetContext, ImageSource.gallery),
+                onTap: () => Navigator.pop(sheetContext, 'gallery'),
               ),
+              if (documentCount > 0)
+                ListTile(
+                  leading: const Icon(Icons.folder_copy_outlined),
+                  title: Text('Мои документы ($documentCount)'),
+                  subtitle: const Text('Посмотреть, исправить или удалить'),
+                  onTap: () => Navigator.pop(sheetContext, 'documents'),
+                ),
             ],
           ),
         ),
       ),
     );
-    if (source == null || !mounted) return;
-    await _pickAndUpload(source);
+    if (choice == null || !mounted) return;
+
+    switch (choice) {
+      case 'camera':
+        await _pickAndUpload(ImageSource.camera);
+      case 'gallery':
+        await _pickAndUpload(ImageSource.gallery);
+      case 'documents':
+        final questionnaire = context.read<QuestionnaireProvider>();
+        await UploadedDocumentsSheet.show(
+          context,
+          // Fixing/removing a document changes what the backend can fill -
+          // refresh progress/review so the interview reflects it.
+          onChanged: () => unawaited(questionnaire.refreshDerivedState()),
+        );
+    }
   }
 
   void _showWhySheet(String question) {

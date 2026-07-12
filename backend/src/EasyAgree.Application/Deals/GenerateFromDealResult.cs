@@ -7,12 +7,16 @@ public sealed class GenerateFromDealResult
 
     public IReadOnlyList<int>? MissingFieldIds { get; private init; }
 
+    public bool IsLegalReviewRequired { get; private init; }
+
     public string? Html { get; private init; }
 
     public static GenerateFromDealResult NotFound() => new() { IsNotFound = true };
 
     public static GenerateFromDealResult MissingFields(IReadOnlyList<int> fieldIds) =>
         new() { MissingFieldIds = fieldIds };
+
+    public static GenerateFromDealResult LegalReviewRequired() => new() { IsLegalReviewRequired = true };
 
     public static GenerateFromDealResult Success(string html) => new() { Html = html };
 }

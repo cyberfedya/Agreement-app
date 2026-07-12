@@ -8,7 +8,7 @@ namespace EasyAgree.Application.Deals.Interview;
 /// </summary>
 public static class QuestionGroupingEngine
 {
-    private const int MaxGroupSize = 3;
+    private const int MaxGroupSize = 2;
 
     public static IReadOnlyList<IReadOnlyList<ClassifiedField>> BuildGroups(IReadOnlyList<ClassifiedField> ordered)
     {

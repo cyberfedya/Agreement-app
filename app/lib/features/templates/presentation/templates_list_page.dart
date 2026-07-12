@@ -90,7 +90,7 @@ class _TemplatesListPageState extends State<TemplatesListPage> {
                   final templates = _filter(provider.templates);
                   if (templates.isEmpty) {
                     return AppEmptyView(
-                      title: 'No matches',
+                      title: 'Ничего не найдено',
                       message: 'Try a different search or category.',
                       action: (_query.isNotEmpty || _selectedCategory != null)
                           ? OutlinedButton(

@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 
 import 'package:app/core/services/cloud_tts_service.dart';
+import 'package:app/core/storage/local_storage.dart';
 
 /// Speaks interview questions aloud. Tries the premium Cloud voice first
 /// (Chirp3-HD Charon, Russian — requires GOOGLE_TTS_KEY at build time) and
@@ -9,17 +10,36 @@ import 'package:app/core/services/cloud_tts_service.dart';
 /// cloud path is unavailable or fails.
 ///
 /// Every call is best-effort: TTS must never break the interview, so all
-/// engine errors are swallowed.
+/// engine errors are swallowed. Can be muted entirely via [setEnabled]
+/// (persisted across launches when a [LocalStorage] was provided).
 class TtsService {
-  TtsService();
+  TtsService({LocalStorage? storage}) : _storage = storage; // ignore: prefer_initializing_formals
+
+  static const String _enabledKey = 'tts_enabled';
+
+  final LocalStorage? _storage;
+
+  /// Loaded lazily on first use; defaults to on.
+  bool? _enabled;
 
   // Created lazily: just_audio's player binds platform channels on
   // construction, which don't exist in widget tests.
   CloudTtsService? _cloud;
   final FlutterTts _device = FlutterTts();
 
+  Future<bool> isEnabled() async {
+    _enabled ??= (await _storage?.read(_enabledKey)) != 'false';
+    return _enabled!;
+  }
+
+  Future<void> setEnabled(bool value) async {
+    _enabled = value;
+    await _storage?.write(_enabledKey, value.toString());
+    if (!value) await stop();
+  }
+
   Future<void> speak(String text, {String lang = 'ru'}) async {
-    if (text.trim().isEmpty) return;
+    if (text.trim().isEmpty || !await isEnabled()) return;
 
     try {
       _cloud ??= CloudTtsService();

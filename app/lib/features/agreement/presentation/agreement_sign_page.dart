@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:provider/provider.dart';
 
+import 'package:app/features/agreement/data/agreement_repository.dart';
 import 'package:app/features/agreement/domain/agreement_html.dart';
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/core/widgets/app_widgets.dart';
 import 'package:app/core/widgets/bottom_action_bar.dart';
+import 'package:app/features/agreement/presentation/widgets/negotiation_sheets.dart';
 import 'package:app/features/agreement/providers/agreement_provider.dart';
+import 'package:app/features/profile/data/profile_repository.dart';
+import 'package:app/shared/models/result.dart';
 import 'package:app/shared/widgets/primary_button.dart';
 
 /// Second party's view after scanning the QR code: fetches the agreement
@@ -26,11 +31,63 @@ class AgreementSignPage extends StatefulWidget {
 class _AgreementSignPageState extends State<AgreementSignPage> {
   bool _verifying = false;
 
+  /// Set after a proposal or clarification was successfully recorded -
+  /// shows a "передано первой стороне" banner instead of pretending
+  /// nothing happened. Signing stays available: the parties may agree
+  /// verbally and sign as-is.
+  String? _negotiationNotice;
+
   @override
   void initState() {
     super.initState();
     final provider = context.read<AgreementProvider>();
     Future.microtask(() => provider.loadByDealId(widget.agreementKey));
+  }
+
+  Future<void> _proposeChange() async {
+    final proposal = await ProposeChangeSheet.show(context, dealId: widget.agreementKey);
+    if (proposal == null || !mounted) return;
+
+    final repository = context.read<AgreementRepository>();
+    final profileId = await context.read<ProfileRepository>().getProfileId();
+    if (!mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+
+    switch (await repository.proposeFieldChange(
+      widget.agreementKey,
+      fieldId: proposal.fieldId,
+      proposedValue: proposal.proposedValue,
+      reason: proposal.reason,
+      profileId: profileId,
+    )) {
+      case Success():
+        if (!mounted) return;
+        HapticFeedback.mediumImpact();
+        setState(() => _negotiationNotice = 'Предложение по «${proposal.label}» передано второй стороне.');
+      case Failure(:final message):
+        if (!mounted) return;
+        messenger.showSnackBar(SnackBar(content: Text(message)));
+    }
+  }
+
+  Future<void> _askClarification() async {
+    final message = await ClarificationSheet.show(context);
+    if (message == null || !mounted) return;
+
+    final repository = context.read<AgreementRepository>();
+    final profileId = await context.read<ProfileRepository>().getProfileId();
+    if (!mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+
+    switch (await repository.requestClarification(widget.agreementKey, message: message, profileId: profileId)) {
+      case Success():
+        if (!mounted) return;
+        HapticFeedback.mediumImpact();
+        setState(() => _negotiationNotice = 'Вопрос передан второй стороне.');
+      case Failure(:final message):
+        if (!mounted) return;
+        messenger.showSnackBar(SnackBar(content: Text(message)));
+    }
   }
 
   Future<void> _identifyAndSign() async {
@@ -78,6 +135,23 @@ class _AgreementSignPageState extends State<AgreementSignPage> {
             child: ListView(
               padding: const EdgeInsets.all(Insets.x20),
               children: [
+                if (_negotiationNotice != null)
+                  Container(
+                    padding: const EdgeInsets.all(Insets.x16),
+                    margin: const EdgeInsets.only(bottom: Insets.x16),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surfaceContainerLow,
+                      borderRadius: Corners.lgRadius,
+                      border: Border.all(color: theme.colorScheme.outlineVariant),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.forward_to_inbox_outlined, size: 20, color: theme.colorScheme.primary),
+                        const SizedBox(width: Insets.x12),
+                        Expanded(child: Text(_negotiationNotice!, style: theme.textTheme.bodyMedium)),
+                      ],
+                    ),
+                  ),
                 if (provider.isFullySigned)
                   Container(
                     padding: const EdgeInsets.all(Insets.x16),
@@ -140,6 +214,26 @@ class _AgreementSignPageState extends State<AgreementSignPage> {
                           ],
                         ),
                       ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: _verifying ? null : _proposeChange,
+                              icon: const Icon(Icons.edit_note_rounded, size: 20),
+                              label: const Text('Изменить условие'),
+                            ),
+                          ),
+                          const SizedBox(width: Insets.x12),
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: _verifying ? null : _askClarification,
+                              icon: const Icon(Icons.help_outline_rounded, size: 20),
+                              label: const Text('Задать вопрос'),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: Insets.x12),
                       PrimaryButton(
                         label: 'Пройти MyID и подписать',
                         loading: _verifying,

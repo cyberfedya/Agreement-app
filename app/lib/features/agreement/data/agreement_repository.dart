@@ -12,6 +12,22 @@ abstract class AgreementRepository {
 
   /// Links [profileId] to the deal as the second party.
   Future<Result<void>> acceptInvite(String dealId, String profileId);
+
+  /// Declines the invite with an optional reason for the first party.
+  Future<Result<void>> declineInvite(String dealId, {String? reason, String? profileId});
+
+  /// Second party's counter-offer on one field - shows up as a dispute in
+  /// the first party's review.
+  Future<Result<void>> proposeFieldChange(
+    String dealId, {
+    required int fieldId,
+    required String proposedValue,
+    String? reason,
+    String? profileId,
+  });
+
+  /// Second party's free-form question to the first party.
+  Future<Result<void>> requestClarification(String dealId, {required String message, String? profileId});
 }
 
 class ApiAgreementRepository implements AgreementRepository {
@@ -69,6 +85,57 @@ class ApiAgreementRepository implements AgreementRepository {
       if (e.statusCode == 409) return const Failure('Вы уже ответили на это приглашение.');
       if (e.statusCode == 410) return const Failure('Срок действия приглашения истёк.');
       return Failure(e.message);
+    } on ApiException catch (e) {
+      return Failure(e.message);
+    }
+  }
+
+  @override
+  Future<Result<void>> declineInvite(String dealId, {String? reason, String? profileId}) async {
+    try {
+      await _api.declineDealInvite(dealId, reason: reason, profileId: profileId);
+      return const Success(null);
+    } on ServerException catch (e) {
+      if (e.statusCode == 409) return const Failure('Приглашение уже принято — отклонить его нельзя.');
+      return Failure(e.message);
+    } on ApiException catch (e) {
+      return Failure(e.message);
+    }
+  }
+
+  @override
+  Future<Result<void>> proposeFieldChange(
+    String dealId, {
+    required int fieldId,
+    required String proposedValue,
+    String? reason,
+    String? profileId,
+  }) async {
+    try {
+      await _api.proposeDealFieldChange(
+        dealId,
+        fieldId: fieldId,
+        proposedValue: proposedValue,
+        reason: reason,
+        profileId: profileId,
+      );
+      return const Success(null);
+    } on ServerException catch (e) {
+      final body = e.body;
+      if (e.statusCode == 400 && body is Map && body['error'] == 'invalid_field') {
+        return const Failure('Это условие изменить нельзя.');
+      }
+      return Failure(e.message);
+    } on ApiException catch (e) {
+      return Failure(e.message);
+    }
+  }
+
+  @override
+  Future<Result<void>> requestClarification(String dealId, {required String message, String? profileId}) async {
+    try {
+      await _api.requestDealClarification(dealId, message: message, profileId: profileId);
+      return const Success(null);
     } on ApiException catch (e) {
       return Failure(e.message);
     }

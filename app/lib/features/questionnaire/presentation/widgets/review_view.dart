@@ -25,15 +25,24 @@ class ReviewView extends StatelessWidget {
   /// rotating decorative line) so it doesn't reroll on every rebuild.
   final String? fallbackMessage;
 
-  Future<void> _editField(BuildContext context, QuestionnaireProvider provider, DealReviewField field) async {
+  Future<void> _editField(BuildContext context, QuestionnaireProvider provider, DealReviewField field) =>
+      _editRaw(context, provider, fieldId: field.fieldId, label: field.label, value: field.value);
+
+  Future<void> _editRaw(
+    BuildContext context,
+    QuestionnaireProvider provider, {
+    required int fieldId,
+    required String label,
+    required String? value,
+  }) async {
     final newValue = await showDialog<String>(
       context: context,
-      builder: (context) => _EditFieldDialog(label: field.label, initialValue: field.value ?? ''),
+      builder: (context) => _EditFieldDialog(label: label, initialValue: value ?? ''),
     );
     if (newValue == null || newValue.trim().isEmpty || !context.mounted) return;
 
     final messenger = ScaffoldMessenger.of(context);
-    final ok = await provider.editAnswer(field.fieldId, field.label, newValue);
+    final ok = await provider.editAnswer(fieldId, label, newValue);
     if (ok) {
       HapticFeedback.selectionClick();
     } else if (context.mounted) {
@@ -50,6 +59,7 @@ class ReviewView extends StatelessWidget {
         if (review == null) return const _ReviewSkeleton();
 
         final manualCount = review.manual.length;
+        final disputed = review.fieldStates.where((field) => field.dispute).toList();
         var section = 0;
 
         return ListView(
@@ -85,7 +95,10 @@ class ReviewView extends StatelessWidget {
                         ),
                         const SizedBox(height: Insets.x4),
                         Text(
-                          provider.closingMessage ?? fallbackMessage ?? 'Проверьте детали — и я подготовлю «$templateTitle».',
+                          review.workflowReason ??
+                              provider.closingMessage ??
+                              fallbackMessage ??
+                              'Проверьте детали — и я подготовлю «$templateTitle».',
                           style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onPrimaryContainer),
                         ),
                       ],
@@ -94,6 +107,10 @@ class ReviewView extends StatelessWidget {
                 ],
               ),
             ).animateEntrance(),
+            if (review.workflowStatus case final status? when status != 'READY_TO_GENERATE') ...[
+              const SizedBox(height: Insets.x12),
+              _WorkflowStatusPill(status: status).animateEntranceStaggered(1),
+            ],
             if (review.autoFilledCount > 0 || manualCount > 0) ...[
               const SizedBox(height: Insets.x12),
               Row(
@@ -129,6 +146,30 @@ class ReviewView extends StatelessWidget {
                       field: field,
                       emphasizeMissing: true,
                       onTap: () => _editField(context, provider, field),
+                    ),
+                ],
+              ),
+            if (disputed.isNotEmpty)
+              _Section(
+                index: ++section,
+                title: '⚠️ Нужно согласовать',
+                subtitle: 'Есть спорное значение или предложение второй стороны — нажмите, чтобы указать итоговое',
+                children: [
+                  for (final state in disputed)
+                    _FieldCard(
+                      field: DealReviewField(
+                        fieldId: state.fieldId,
+                        label: state.label,
+                        value: state.value,
+                        source: state.source,
+                        confidence: state.confidence,
+                        status: state.status,
+                        reason: state.reason,
+                      ),
+                      emphasizeMissing: true,
+                      showReason: true,
+                      onTap: () =>
+                          _editRaw(context, provider, fieldId: state.fieldId, label: state.label, value: state.value),
                     ),
                 ],
               ),
@@ -168,6 +209,50 @@ class ReviewView extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+/// The backend's `workflowStatus` constant rendered as a calm status pill.
+/// Pure label mapping of the six known constants; an unknown future value
+/// falls back to the raw string rather than crashing or hiding.
+class _WorkflowStatusPill extends StatelessWidget {
+  const _WorkflowStatusPill({required this.status});
+
+  final String status;
+
+  static String _label(String status) => switch (status) {
+    'WAITING_FOR_SECOND_PARTY' => 'Ожидаем вторую сторону',
+    'WAITING_FOR_OBJECT_DOCUMENT' => 'Нужен документ на объект сделки',
+    'MISSING_MANDATORY_TERMS' => 'Не хватает обязательных условий',
+    'WAITING_FOR_PARTY_AGREEMENT' => 'Стороны согласуют условия',
+    'LEGAL_REVIEW_REQUIRED' => 'Требуется юридическая проверка',
+    _ => status,
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: Insets.x16, vertical: Insets.x12),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerLow,
+        borderRadius: Corners.mdRadius,
+        border: Border.all(color: theme.colorScheme.outline),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.pending_actions_rounded, size: 20, color: theme.colorScheme.onSurfaceVariant),
+          const SizedBox(width: Insets.x12),
+          Expanded(
+            child: Text(
+              _label(status),
+              style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -257,6 +342,7 @@ class _FieldCard extends StatelessWidget {
     this.showConfidence = false,
     this.emphasizeMissing = false,
     this.muted = false,
+    this.showReason = false,
   });
 
   final DealReviewField field;
@@ -264,6 +350,10 @@ class _FieldCard extends StatelessWidget {
   final bool showConfidence;
   final bool emphasizeMissing;
   final bool muted;
+
+  /// Also print the backend's reason line under the value - used for
+  /// disputes, where the reason carries the other party's proposal.
+  final bool showReason;
 
   @override
   Widget build(BuildContext context) {
@@ -312,6 +402,14 @@ class _FieldCard extends StatelessWidget {
                           ? theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.primary)
                           : valueStyle,
                     ),
+                    if (showReason && field.value != null && field.reason.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: Insets.x4),
+                        child: Text(
+                          field.reason,
+                          style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                        ),
+                      ),
                   ],
                 ),
               ),

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'package:app/core/config/app_config.dart';
 import 'package:app/core/router/app_router.dart';
+import 'package:app/core/services/tts_service.dart';
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/features/profile/data/profile_repository.dart';
 
@@ -46,6 +47,8 @@ class SettingsPage extends StatelessWidget {
             subtitle: 'Русский',
             onTap: () => _showLanguageInfo(context),
           ),
+          const SizedBox(height: Insets.x12),
+          const _TtsToggleCard(),
           const SizedBox(height: Insets.x12),
           const _SettingsCard(icon: Icons.palette_outlined, title: 'Тема', subtitle: 'Светлая'),
           const SizedBox(height: Insets.x12),
@@ -92,6 +95,55 @@ class SettingsPage extends StatelessWidget {
       context: context,
       applicationName: AppConfig.appName,
       applicationVersion: 'Демо-версия',
+    );
+  }
+}
+
+/// On/off switch for the assistant's voice - persisted via [TtsService],
+/// so muting survives restarts. The interview keeps working identically,
+/// just silently.
+class _TtsToggleCard extends StatefulWidget {
+  const _TtsToggleCard();
+
+  @override
+  State<_TtsToggleCard> createState() => _TtsToggleCardState();
+}
+
+class _TtsToggleCardState extends State<_TtsToggleCard> {
+  bool? _enabled;
+
+  @override
+  void initState() {
+    super.initState();
+    final tts = context.read<TtsService>();
+    Future.microtask(() async {
+      final enabled = await tts.isEnabled();
+      if (mounted) setState(() => _enabled = enabled);
+    });
+  }
+
+  Future<void> _toggle(bool value) async {
+    final tts = context.read<TtsService>();
+    setState(() => _enabled = value);
+    await tts.setEnabled(value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerLow,
+        borderRadius: Corners.lgRadius,
+        border: Border.all(color: theme.colorScheme.outlineVariant),
+      ),
+      child: SwitchListTile(
+        secondary: Icon(Icons.record_voice_over_outlined, color: theme.colorScheme.primary),
+        title: const Text('Озвучка вопросов'),
+        subtitle: Text(_enabled == false ? 'Выключена' : 'Ассистент читает вопросы вслух'),
+        value: _enabled ?? true,
+        onChanged: _enabled == null ? null : _toggle,
+      ),
     );
   }
 }

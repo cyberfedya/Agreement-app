@@ -52,6 +52,8 @@ dependencies:
   printing: ^5.14.2
   pdf: ^3.13.0
   flutter_animate: ^4.5.2
+  google_fonts: ^8.1.0
+  confetti: ^0.8.0
 
 dev_dependencies:
   flutter_test:

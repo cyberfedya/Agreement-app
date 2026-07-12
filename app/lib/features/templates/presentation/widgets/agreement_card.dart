@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/features/templates/domain/template.dart';
+import 'package:app/features/templates/presentation/widgets/domain_visuals.dart';
 import 'package:app/shared/extensions/string_extensions.dart';
 
 /// List card for one agreement template: leading category glyph, title,
@@ -23,17 +24,17 @@ class AgreementCard extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 44,
-                height: 44,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primaryContainer,
-                  borderRadius: Corners.smRadius,
-                ),
-                child: Text(
-                  template.domain.substring(0, 1).toUpperCase(),
-                  style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.onPrimaryContainer),
+              Hero(
+                tag: templateHeroTag(template.key),
+                child: Container(
+                  width: 44,
+                  height: 44,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primaryContainer,
+                    borderRadius: Corners.smRadius,
+                  ),
+                  child: Icon(iconForDomain(template.domain), size: 22, color: theme.colorScheme.onPrimaryContainer),
                 ),
               ),
               const SizedBox(width: Insets.x12),

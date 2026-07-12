@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'package:app/core/theme/app_tokens.dart';
 
@@ -77,16 +78,20 @@ class AppTheme {
   static ThemeData _build(ColorScheme scheme) {
     final base = ThemeData(useMaterial3: true, colorScheme: scheme);
 
-    final textTheme = base.textTheme.copyWith(
-      displaySmall: base.textTheme.displaySmall?.copyWith(fontWeight: FontWeight.w700, letterSpacing: -0.5),
-      headlineMedium: base.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w700, letterSpacing: -0.5),
-      headlineSmall: base.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700, letterSpacing: -0.25),
-      titleLarge: base.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
-      titleMedium: base.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
-      titleSmall: base.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
-      bodyLarge: base.textTheme.bodyLarge?.copyWith(height: 1.5),
-      bodyMedium: base.textTheme.bodyMedium?.copyWith(height: 1.5),
-      labelLarge: base.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
+    // Inter: neutral, highly legible, full Cyrillic - the single family
+    // for the whole app, so nothing ever falls back to the stock Material
+    // look. Weight/tracking tweaks are applied on top of it.
+    final interTheme = GoogleFonts.interTextTheme(base.textTheme);
+    final textTheme = interTheme.copyWith(
+      displaySmall: interTheme.displaySmall?.copyWith(fontWeight: FontWeight.w700, letterSpacing: -0.5),
+      headlineMedium: interTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w700, letterSpacing: -0.5),
+      headlineSmall: interTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700, letterSpacing: -0.25),
+      titleLarge: interTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+      titleMedium: interTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+      titleSmall: interTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+      bodyLarge: interTheme.bodyLarge?.copyWith(height: 1.5),
+      bodyMedium: interTheme.bodyMedium?.copyWith(height: 1.5),
+      labelLarge: interTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
     );
 
     return base.copyWith(

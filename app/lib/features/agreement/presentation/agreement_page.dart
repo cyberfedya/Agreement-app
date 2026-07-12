@@ -88,7 +88,7 @@ class _AgreementPageState extends State<AgreementPage> {
   Future<void> _copy(BuildContext context, Agreement agreement) async {
     final messenger = ScaffoldMessenger.of(context);
     await Clipboard.setData(ClipboardData(text: _plainText(agreement.html)));
-    messenger.showSnackBar(const SnackBar(content: Text('Agreement copied to clipboard')));
+    messenger.showSnackBar(const SnackBar(content: Text('Договор скопирован')));
   }
 
   Future<void> _exportPdf(BuildContext context, String html) => exportAgreementAsPdf(context, html);
@@ -103,8 +103,8 @@ class _AgreementPageState extends State<AgreementPage> {
           final agreement = provider.agreement;
           if (agreement == null) {
             return const AppEmptyView(
-              title: 'Nothing to preview',
-              message: 'Generate an agreement to see it here.',
+              title: 'Договор ещё не создан',
+              message: 'Пройдите интервью и создайте договор — он появится здесь.',
             );
           }
 
@@ -112,25 +112,7 @@ class _AgreementPageState extends State<AgreementPage> {
             child: ListView(
               padding: const EdgeInsets.all(Insets.x20),
               children: [
-                Container(
-                  padding: const EdgeInsets.all(Insets.x16),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.primaryContainer,
-                    borderRadius: Corners.lgRadius,
-                  ),
-                  child: Row( 
-                    children: [
-                      Icon(Icons.hourglass_top_rounded, size: 20, color: theme.colorScheme.onPrimaryContainer),
-                      const SizedBox(width: Insets.x12),
-                      Expanded(
-                        child: Text(
-                          'Ожидает подпись второй стороны',
-                          style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.onPrimaryContainer),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                const _DealStepsIndicator(),
                 const SizedBox(height: Insets.x24),
 
                 Center(
@@ -164,12 +146,12 @@ class _AgreementPageState extends State<AgreementPage> {
                       ),
                     ),
                     IconButton(
-                      tooltip: 'Copy text',
+                      tooltip: 'Скопировать текст',
                       icon: const Icon(Icons.copy_outlined, size: 20),
                       onPressed: () => _copy(context, agreement),
                     ),
                     IconButton(
-                      tooltip: 'Share / Export PDF',
+                      tooltip: 'Поделиться / PDF',
                       icon: const Icon(Icons.ios_share_outlined, size: 20),
                       onPressed: () => _exportPdf(context, agreement.html),
                     ),
@@ -208,7 +190,7 @@ class _AgreementPageState extends State<AgreementPage> {
                       child: OutlinedButton.icon(
                         onPressed: () => _copy(context, agreement),
                         icon: const Icon(Icons.copy_outlined, size: 18),
-                        label: const Text('Copy'),
+                        label: const Text('Копировать'),
                       ),
                     ),
                     const SizedBox(width: Insets.x12),
@@ -232,6 +214,146 @@ class _AgreementPageState extends State<AgreementPage> {
           );
         },
       ),
+    );
+  }
+}
+
+/// Where the deal is right now, as three calm steps: created ✓, waiting
+/// for the second party's signature (active, gently pulsing while this
+/// page polls the backend), completed. The page auto-advances to the
+/// completed screen the moment the backend reports a signature, so the
+/// third step never shows as done here - it's the promise of what's next.
+class _DealStepsIndicator extends StatelessWidget {
+  const _DealStepsIndicator();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: Insets.x16, vertical: Insets.x16),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerLow,
+        borderRadius: Corners.lgRadius,
+        border: Border.all(color: theme.colorScheme.outlineVariant),
+      ),
+      child: Row(
+        children: [
+          const Expanded(child: _DealStep(label: 'Создан', state: _StepState.done)),
+          _StepConnector(color: theme.colorScheme.primary),
+          const Expanded(flex: 2, child: _DealStep(label: 'Подпись второй стороны', state: _StepState.active)),
+          _StepConnector(color: theme.colorScheme.outlineVariant),
+          const Expanded(child: _DealStep(label: 'Завершено', state: _StepState.pending)),
+        ],
+      ),
+    );
+  }
+}
+
+enum _StepState { done, active, pending }
+
+class _DealStep extends StatefulWidget {
+  const _DealStep({required this.label, required this.state});
+
+  final String label;
+  final _StepState state;
+
+  @override
+  State<_DealStep> createState() => _DealStepState();
+}
+
+class _DealStepState extends State<_DealStep> with SingleTickerProviderStateMixin {
+  // Created eagerly in initState: a `late final` initializer would run on
+  // first *access*, and for non-active steps that first access is
+  // dispose() itself - where creating a ticker (ancestor lookup on a
+  // deactivated element) crashes the framework.
+  late final AnimationController _pulse;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulse = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+      lowerBound: 0.55,
+      upperBound: 1,
+    );
+    if (widget.state == _StepState.active) _pulse.repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _pulse.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final color = switch (widget.state) {
+      _StepState.done || _StepState.active => theme.colorScheme.primary,
+      _StepState.pending => theme.colorScheme.outline,
+    };
+
+    return Column(
+      children: [
+        SizedBox(
+          width: 24,
+          height: 24,
+          child: switch (widget.state) {
+            _StepState.done => Container(
+              decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+              child: Icon(Icons.check_rounded, size: 14, color: theme.colorScheme.onPrimary),
+            ),
+            _StepState.active => FadeTransition(
+              opacity: _pulse,
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: color, width: 2),
+                ),
+                child: Center(
+                  child: Container(
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+                  ),
+                ),
+              ),
+            ),
+            _StepState.pending => Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: theme.colorScheme.outlineVariant, width: 2),
+              ),
+            ),
+          },
+        ),
+        const SizedBox(height: Insets.x8),
+        Text(
+          widget.label,
+          textAlign: TextAlign.center,
+          style: theme.textTheme.labelSmall?.copyWith(
+            color: widget.state == _StepState.pending ? theme.colorScheme.outline : theme.colorScheme.onSurface,
+            fontWeight: widget.state == _StepState.active ? FontWeight.w600 : FontWeight.w400,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _StepConnector extends StatelessWidget {
+  const _StepConnector({required this.color});
+
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 24,
+      height: 2,
+      margin: const EdgeInsets.only(bottom: Insets.x24),
+      color: color,
     );
   }
 }

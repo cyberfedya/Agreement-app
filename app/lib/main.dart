@@ -52,7 +52,10 @@ class EasyAgreeApp extends StatelessWidget {
           create: (ctx) => ApiDealRepository(ctx.read<ApiService>(), ctx.read<ProfileRepository>()),
         ),
         Provider<DocumentRepository>(create: (ctx) => ApiDocumentRepository(ctx.read<ApiService>())),
-        Provider<TtsService>(create: (_) => TtsService(), dispose: (_, tts) => tts.dispose()),
+        Provider<TtsService>(
+          create: (ctx) => TtsService(storage: ctx.read<LocalStorage>()),
+          dispose: (_, tts) => tts.dispose(),
+        ),
         ChangeNotifierProvider(create: (ctx) => TemplatesListProvider(ctx.read<TemplateRepository>())),
         ChangeNotifierProvider(
           create: (ctx) => TemplateDetailProvider(

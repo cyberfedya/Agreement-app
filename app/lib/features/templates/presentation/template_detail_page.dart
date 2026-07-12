@@ -7,6 +7,7 @@ import 'package:app/core/widgets/app_widgets.dart';
 import 'package:app/core/widgets/bottom_action_bar.dart';
 import 'package:app/core/widgets/skeletons.dart';
 import 'package:app/features/deal/data/deal_repository.dart';
+import 'package:app/features/templates/presentation/widgets/domain_visuals.dart';
 import 'package:app/features/templates/providers/template_detail_provider.dart';
 import 'package:app/shared/extensions/string_extensions.dart';
 import 'package:app/shared/models/result.dart';
@@ -52,7 +53,7 @@ class _TemplateDetailPageState extends State<TemplateDetailPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Template')),
+      appBar: AppBar(title: const Text('Шаблон договора')),
       body: Consumer<TemplateDetailProvider>(
         builder: (context, provider, _) {
           if (provider.isLoading) {
@@ -67,7 +68,7 @@ class _TemplateDetailPageState extends State<TemplateDetailPage> {
 
           final template = provider.template;
           if (template == null) {
-            return const AppEmptyView(title: 'Not found', message: 'This agreement template is unavailable.');
+            return const AppEmptyView(title: 'Шаблон не найден', message: 'Этот шаблон договора недоступен.');
           }
 
           return CenteredContent(
@@ -75,15 +76,18 @@ class _TemplateDetailPageState extends State<TemplateDetailPage> {
               padding: const EdgeInsets.fromLTRB(Insets.x20, Insets.x16, Insets.x20, Insets.x32),
               children: [
                 // Hero
-                Container(
-                  width: 56,
-                  height: 56,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.primaryContainer,
-                    borderRadius: Corners.mdRadius,
+                Hero(
+                  tag: templateHeroTag(template.key),
+                  child: Container(
+                    width: 56,
+                    height: 56,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primaryContainer,
+                      borderRadius: Corners.mdRadius,
+                    ),
+                    child: Icon(iconForDomain(template.domain), size: 28, color: theme.colorScheme.onPrimaryContainer),
                   ),
-                  child: Icon(Icons.description_outlined, size: 28, color: theme.colorScheme.onPrimaryContainer),
                 ),
                 const SizedBox(height: Insets.x16),
                 Text(template.title, style: theme.textTheme.headlineSmall),
@@ -95,7 +99,7 @@ class _TemplateDetailPageState extends State<TemplateDetailPage> {
                     Expanded(
                       child: InfoTile(
                         icon: Icons.category_outlined,
-                        label: 'Category',
+                        label: 'Категория',
                         value: template.domain.asCategoryLabel,
                       ),
                     ),
@@ -104,7 +108,7 @@ class _TemplateDetailPageState extends State<TemplateDetailPage> {
                       Expanded(
                         child: InfoTile(
                           icon: Icons.quiz_outlined,
-                          label: 'Questions',
+                          label: 'Вопросов',
                           value: '${provider.questionCount}',
                         ),
                       ),
@@ -114,8 +118,8 @@ class _TemplateDetailPageState extends State<TemplateDetailPage> {
                       Expanded(
                         child: InfoTile(
                           icon: Icons.schedule_outlined,
-                          label: 'Est. time',
-                          value: '~${provider.estimatedMinutes} min',
+                          label: 'Время',
+                          value: '~${provider.estimatedMinutes} мин',
                         ),
                       ),
                     ],
@@ -124,13 +128,13 @@ class _TemplateDetailPageState extends State<TemplateDetailPage> {
                 const SizedBox(height: Insets.x24),
 
                 // Description
-                const SectionTitle(title: 'About this agreement'),
+                const SectionTitle(title: 'Об этом договоре'),
                 const SizedBox(height: Insets.x8),
                 Text(template.description, style: theme.textTheme.bodyLarge),
 
                 if (template.sourceUrl != null) ...[
                   const SizedBox(height: Insets.x24),
-                  const SectionTitle(title: 'Source'),
+                  const SectionTitle(title: 'Источник'),
                   const SizedBox(height: Insets.x8),
                   Text(
                     template.sourceUrl!,
@@ -147,7 +151,7 @@ class _TemplateDetailPageState extends State<TemplateDetailPage> {
           if (provider.template == null) return const SizedBox.shrink();
           return BottomActionBar(
             child: PrimaryButton(
-              label: 'Continue',
+              label: 'Продолжить',
               icon: Icons.arrow_forward,
               loading: _creatingDeal,
               onPressed: () => _continue(provider.template!.title),

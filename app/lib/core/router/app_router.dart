@@ -8,6 +8,7 @@ import 'package:app/features/agreement/presentation/deal_invite_page.dart';
 import 'package:app/features/ai_processing/presentation/ai_processing_page.dart';
 import 'package:app/features/auth/presentation/auth_page.dart';
 import 'package:app/features/home/presentation/home_page.dart';
+import 'package:app/features/onboarding/onboarding_page.dart';
 import 'package:app/features/profile/profile_page.dart';
 import 'package:app/features/profile/settings_page.dart';
 import 'package:app/features/questionnaire/presentation/pages/questionnaire_page.dart';
@@ -18,6 +19,7 @@ import 'package:app/features/templates/presentation/templates_list_page.dart';
 
 abstract class AppRoutes {
   static const String splash = '/';
+  static const String onboarding = '/onboarding';
   static const String login = '/login';
   static const String home = '/home';
 
@@ -76,6 +78,8 @@ class AppRouter {
     switch (settings.name) {
       case AppRoutes.splash:
         return _fadeRoute(const SplashPage(), settings);
+      case AppRoutes.onboarding:
+        return _fadeRoute(const OnboardingPage(), settings);
       case AppRoutes.login:
         return _fadeRoute(const AuthPage(), settings);
       case AppRoutes.home:
@@ -115,8 +119,8 @@ class AppRouter {
           Scaffold(
             appBar: AppBar(),
             body: AppEmptyView(
-              title: 'Page not found',
-              message: 'The screen "${settings.name}" does not exist in this build.',
+              title: 'Страница не найдена',
+              message: 'Экран "${settings.name}" не существует в этой сборке.',
             ),
           ),
           settings,

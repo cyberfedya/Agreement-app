@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_html/flutter_html.dart';
@@ -10,8 +13,31 @@ import 'package:app/core/widgets/app_widgets.dart';
 import 'package:app/core/widgets/bottom_action_bar.dart';
 import 'package:app/features/agreement/providers/agreement_provider.dart';
 import 'package:app/shared/widgets/primary_button.dart';
-class AgreementCompletedPage extends StatelessWidget {
+
+class AgreementCompletedPage extends StatefulWidget {
   const AgreementCompletedPage({super.key});
+
+  @override
+  State<AgreementCompletedPage> createState() => _AgreementCompletedPageState();
+}
+
+class _AgreementCompletedPageState extends State<AgreementCompletedPage> {
+  /// One short celebratory burst when the page opens - a signed agreement
+  /// is the product's finish line; it deserves a moment.
+  late final ConfettiController _confetti = ConfettiController(duration: const Duration(milliseconds: 900));
+
+  @override
+  void initState() {
+    super.initState();
+    _confetti.play();
+    HapticFeedback.mediumImpact();
+  }
+
+  @override
+  void dispose() {
+    _confetti.dispose();
+    super.dispose();
+  }
 
   Future<void> _copy(BuildContext context, String html) async {
     final messenger = ScaffoldMessenger.of(context);
@@ -50,11 +76,31 @@ class AgreementCompletedPage extends StatelessWidget {
                 padding: const EdgeInsets.all(Insets.x20),
                 children: [
                   Center(
-                    child: Container(
-                      width: 72,
-                      height: 72,
-                      decoration: BoxDecoration(color: theme.colorScheme.primary, shape: BoxShape.circle),
-                      child: const Icon(Icons.check_rounded, color: Colors.white, size: 40),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        ConfettiWidget(
+                          confettiController: _confetti,
+                          blastDirection: -pi / 2,
+                          blastDirectionality: BlastDirectionality.explosive,
+                          emissionFrequency: 0.35,
+                          numberOfParticles: 12,
+                          maxBlastForce: 18,
+                          minBlastForce: 6,
+                          gravity: 0.25,
+                          colors: [
+                            theme.colorScheme.primary,
+                            theme.colorScheme.primaryContainer,
+                            theme.colorScheme.inversePrimary,
+                          ],
+                        ),
+                        Container(
+                          width: 72,
+                          height: 72,
+                          decoration: BoxDecoration(color: theme.colorScheme.primary, shape: BoxShape.circle),
+                          child: const Icon(Icons.check_rounded, color: Colors.white, size: 40),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: Insets.x20),

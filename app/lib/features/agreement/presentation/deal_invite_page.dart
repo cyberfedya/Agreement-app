@@ -74,8 +74,39 @@ class _DealInvitePageState extends State<DealInvitePage> {
     }
   }
 
-  void _decline() {
-    setState(() => _declined = true);
+  /// Declining is a real backend action now (the first party sees it),
+  /// so ask for an optional reason first and only show the declined view
+  /// once the server has recorded it.
+  Future<void> _decline() async {
+    final reason = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(Corners.xl)),
+      ),
+      builder: (sheetContext) => const _DeclineReasonSheet(),
+    );
+    if (reason == null || !mounted) return;
+
+    final repository = context.read<AgreementRepository>();
+    final profileRepository = context.read<ProfileRepository>();
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _isAccepting = true);
+
+    final profileId = await profileRepository.getProfileId();
+    switch (await repository.declineInvite(widget.dealId, reason: reason.isEmpty ? null : reason, profileId: profileId)) {
+      case Success():
+        if (!mounted) return;
+        setState(() {
+          _isAccepting = false;
+          _declined = true;
+        });
+      case Failure(:final message):
+        if (!mounted) return;
+        setState(() => _isAccepting = false);
+        messenger.showSnackBar(SnackBar(content: Text(message)));
+    }
   }
 
   @override
@@ -157,8 +188,82 @@ class _DealInvitePageState extends State<DealInvitePage> {
     'Opened' => 'Открыто',
     'Accepted' => 'Принято',
     'Declined' => 'Отклонено',
+    'ChangeRequested' => 'Предложены изменения',
+    'ClarificationRequested' => 'Запрошено уточнение',
     _ => status,
   };
+}
+
+/// Optional-reason prompt before declining: pops with `''` for "decline
+/// without a reason", a non-empty string for a reason, or null if the
+/// user backs out entirely.
+class _DeclineReasonSheet extends StatefulWidget {
+  const _DeclineReasonSheet();
+
+  @override
+  State<_DeclineReasonSheet> createState() => _DeclineReasonSheetState();
+}
+
+class _DeclineReasonSheetState extends State<_DeclineReasonSheet> {
+  final _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return SafeArea(
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(
+          Insets.x24,
+          Insets.x24,
+          Insets.x24,
+          Insets.x24 + MediaQuery.viewInsetsOf(context).bottom,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Отклонить приглашение?', style: theme.textTheme.titleLarge),
+            const SizedBox(height: Insets.x8),
+            Text(
+              'Вторая сторона увидит ваш ответ. Можете коротко объяснить почему — это необязательно.',
+              style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant, height: 1.4),
+            ),
+            const SizedBox(height: Insets.x16),
+            TextField(
+              controller: _controller,
+              minLines: 2,
+              maxLines: 4,
+              decoration: const InputDecoration(hintText: 'Причина (необязательно)…'),
+            ),
+            const SizedBox(height: Insets.x16),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Назад'),
+                  ),
+                ),
+                const SizedBox(width: Insets.x12),
+                Expanded(
+                  child: FilledButton(
+                    onPressed: () => Navigator.pop(context, _controller.text.trim()),
+                    child: const Text('Отклонить'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _InfoRow extends StatelessWidget {

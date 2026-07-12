@@ -126,6 +126,9 @@ class ApiService {
         final ids = _parse(() => (body['missingFieldIds'] as List).cast<int>());
         throw MissingFieldsException(ids);
       }
+      if (e.statusCode == 409 && body is Map && body['error'] == 'legal_review_required') {
+        throw const LegalReviewRequiredException();
+      }
       rethrow;
     }
   }
@@ -160,6 +163,32 @@ class ApiService {
   /// wants the document to reflect the newly-linked profile.
   Future<void> acceptDealInvite(String dealId, String profileId) =>
       _client.postJson('/api/deals/$dealId/invite/accept', body: {'profileId': profileId});
+
+  /// Declines the invite, optionally with a human-readable [reason] the
+  /// first party will see. 409 `already_accepted` when it's too late.
+  Future<void> declineDealInvite(String dealId, {String? reason, String? profileId}) =>
+      _client.postJson('/api/deals/$dealId/invite/decline', body: {'reason': reason, 'profileId': profileId});
+
+  /// Second party's counter-offer on one field ("не 18 000, а 17 500") -
+  /// recorded on the deal; the first party sees it as a dispute in the
+  /// review's field states.
+  Future<void> proposeDealFieldChange(
+    String dealId, {
+    required int fieldId,
+    required String proposedValue,
+    String? reason,
+    String? profileId,
+  }) =>
+      _client.postJson(
+        '/api/deals/$dealId/invite/propose-change',
+        body: {'fieldId': fieldId, 'proposedValue': proposedValue, 'reason': reason, 'profileId': profileId},
+      );
+
+  /// Second party asks the first party a free-form question before
+  /// deciding - recorded on the deal (invite status becomes
+  /// ClarificationRequested).
+  Future<void> requestDealClarification(String dealId, {required String message, String? profileId}) =>
+      _client.postJson('/api/deals/$dealId/invite/clarification', body: {'message': message, 'profileId': profileId});
 
   Future<void> signDealSecondParty(String dealId, String fullName) =>
       _client.postJson('/api/deals/$dealId/sign', body: {'fullName': fullName});

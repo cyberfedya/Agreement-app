@@ -166,18 +166,18 @@ class AppErrorView extends StatelessWidget {
   Widget build(BuildContext context) {
     return _StateScaffold(
       icon: Icons.cloud_off_outlined,
-      title: 'Something went wrong',
+      title: 'Что-то пошло не так',
       message: message,
       action: onRetry == null
           ? null
-          : FilledButton.icon(onPressed: onRetry, icon: const Icon(Icons.refresh, size: 18), label: const Text('Try again')),
+          : FilledButton.icon(onPressed: onRetry, icon: const Icon(Icons.refresh, size: 18), label: const Text('Повторить')),
     );
   }
 }
 
 /// Empty state with a short explanation and optional action.
 class AppEmptyView extends StatelessWidget {
-  const AppEmptyView({super.key, required this.message, this.title = 'Nothing here yet', this.action});
+  const AppEmptyView({super.key, required this.message, this.title = 'Здесь пока пусто', this.action});
 
   final String title;
   final String message;

@@ -12,4 +12,6 @@ public enum InviteStatus
     Opened = 1,
     Accepted = 2,
     Declined = 3,
+    ChangeRequested = 4,
+    ClarificationRequested = 5,
 }

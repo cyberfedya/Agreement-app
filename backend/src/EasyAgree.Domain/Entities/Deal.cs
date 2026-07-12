@@ -56,6 +56,14 @@ public class Deal
     /// </summary>
     public string? PreprocessedFieldsJson { get; set; }
 
+    /// <summary>
+    /// Counterparty responses that must not silently overwrite the
+    /// creator's terms: proposed field changes, clarification requests
+    /// and decline reasons. Serialized as JSON and resolved explicitly in
+    /// review instead of keeping parallel hidden values.
+    /// </summary>
+    public string? PartyResponsesJson { get; set; }
+
     public string? GeneratedHtml { get; set; }
 
     /// <summary>Second party's legal name, set once they complete the QR-sign flow (null until then).</summary>
