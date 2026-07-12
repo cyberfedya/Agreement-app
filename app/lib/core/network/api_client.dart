@@ -34,7 +34,10 @@ class ApiClient {
   }
 
   /// Uploads one or more files as multipart/form-data. Each entry in
-  /// [files] is (fieldName, fileName, contentType, bytes).
+  /// [files] is (fieldName, fileName, contentType, bytes). Uses a longer
+  /// timeout than [AppConstants.defaultTimeout] - the backend OCRs each
+  /// file synchronously before responding (no background job queue), so
+  /// this can genuinely take much longer than a normal JSON call.
   Future<dynamic> postMultipart(
     String path, {
     required List<(String field, String fileName, String contentType, List<int> bytes)> files,
@@ -54,7 +57,7 @@ class ApiClient {
       }
       final streamed = await _http.send(request);
       return http.Response.fromStream(streamed);
-    });
+    }, timeout: AppConstants.uploadTimeout);
     return _decode(response);
   }
 
@@ -90,9 +93,9 @@ class ApiClient {
     return Uri.parse('$baseUrl$normalized').replace(queryParameters: query);
   }
 
-  Future<http.Response> _send(Future<http.Response> Function() request) async {
+  Future<http.Response> _send(Future<http.Response> Function() request, {Duration? timeout}) async {
     try {
-      return await request().timeout(AppConstants.defaultTimeout);
+      return await request().timeout(timeout ?? AppConstants.defaultTimeout);
     } on ApiException {
       rethrow;
     } catch (_) {

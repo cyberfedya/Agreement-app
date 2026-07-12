@@ -36,6 +36,12 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
   bool _closingSpoken = false;
   String? _lastSpokenQuestionText;
 
+  /// True while a document picked via the attach icon is being uploaded
+  /// and OCR-processed - this can take several seconds, so the attach
+  /// icon disables and an overlay makes the wait visible instead of the
+  /// screen looking stuck.
+  bool _attaching = false;
+
   QuestionnaireProvider? _provider;
   TtsService? _tts;
 
@@ -164,17 +170,22 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
     }
     if (!mounted) return;
 
+    setState(() => _attaching = true);
     final uploadProvider = context.read<DocumentUploadProvider>();
     final questionnaireProvider = context.read<QuestionnaireProvider>();
-    final success = await uploadProvider.upload(entries);
-    if (!mounted) return;
+    try {
+      final success = await uploadProvider.upload(entries);
+      if (!mounted) return;
 
-    if (success) {
-      await questionnaireProvider.resumeAfterDocumentUpload();
-    } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(uploadProvider.errorMessage ?? 'Не удалось загрузить документ.')));
+      if (success) {
+        await questionnaireProvider.resumeAfterDocumentUpload();
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(uploadProvider.errorMessage ?? 'Не удалось загрузить документ.')));
+      }
+    } finally {
+      if (mounted) setState(() => _attaching = false);
     }
   }
 
@@ -307,7 +318,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                             onChanged: (_) {},
                             onSpeak: () => _tts?.speak(field.fieldName),
                             onVoiceSubmit: _onVoiceSubmit,
-                            onAttach: _attachDocument,
+                            onAttach: _attaching ? null : _attachDocument,
                           ),
                         IgnorePointer(
                           child: AnimatedOpacity(
@@ -323,6 +334,27 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                             ),
                           ),
                         ),
+                        if (_attaching)
+                          IgnorePointer(
+                            child: Container(
+                              color: theme.colorScheme.surface.withValues(alpha: 0.85),
+                              child: Center(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const CircularProgressIndicator(),
+                                    const SizedBox(height: Insets.x16),
+                                    Text(
+                                      'Обрабатываю документ…',
+                                      style: theme.textTheme.bodyMedium?.copyWith(
+                                        color: theme.colorScheme.onSurfaceVariant,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
                       ],
                     ),
                   ),
