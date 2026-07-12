@@ -31,6 +31,9 @@ public sealed class UploadedDocumentConfiguration : IEntityTypeConfiguration<Upl
         builder.Property(d => d.ExtractedFieldsJson)
             .HasColumnType("jsonb");
 
+        builder.Property(d => d.NormalizedFieldsJson)
+            .HasColumnType("jsonb");
+
         builder.Property(d => d.OcrText)
             .HasColumnType("text");
 

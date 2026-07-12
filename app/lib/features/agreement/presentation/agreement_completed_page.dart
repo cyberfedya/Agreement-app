@@ -36,7 +36,14 @@ class AgreementCompletedPage extends StatelessWidget {
           builder: (context, provider, _) {
             final agreement = provider.agreement;
             if (agreement == null) {
-              return const AppEmptyView(title: 'Нет договора', message: 'Ничего не найдено.');
+              return AppEmptyView(
+                title: 'Договор не найден',
+                message: 'Похоже, вы попали сюда напрямую. Начните новую сделку с главного экрана.',
+                action: FilledButton(
+                  onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.home, (route) => false),
+                  child: const Text('На главную'),
+                ),
+              );
             }
             return CenteredContent(
               child: ListView(

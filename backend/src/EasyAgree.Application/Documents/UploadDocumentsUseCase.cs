@@ -28,6 +28,10 @@ public sealed class UploadDocumentsUseCase(
         if (deal is null)
             return null;
 
+        var validation = DocumentUploadValidator.Validate(files);
+        if (!validation.IsValid)
+            throw new DocumentUploadValidationException(validation);
+
         var results = new List<UploadedDocument>();
 
         foreach (var file in files)
@@ -83,4 +87,10 @@ public sealed class UploadDocumentsUseCase(
         parts.AddRange(answers.Values.Where(v => !string.IsNullOrWhiteSpace(v)));
         return parts.Count == 0 ? null : string.Join(". ", parts);
     }
+}
+
+public sealed class DocumentUploadValidationException(DocumentUploadValidationResult validation)
+    : Exception(validation.Message)
+{
+    public DocumentUploadValidationResult Validation { get; } = validation;
 }

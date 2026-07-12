@@ -244,6 +244,9 @@ namespace EasyAgree.Infrastructure.Migrations
                     b.Property<string>("MismatchWarning")
                         .HasColumnType("text");
 
+                    b.Property<string>("NormalizedFieldsJson")
+                        .HasColumnType("jsonb");
+
                     b.Property<string>("OcrText")
                         .HasColumnType("text");
 

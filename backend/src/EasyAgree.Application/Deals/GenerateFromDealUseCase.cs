@@ -1,6 +1,8 @@
 using EasyAgree.Application.Common;
 using EasyAgree.Application.Common.Interfaces;
 using EasyAgree.Application.Templates;
+using EasyAgree.Application.Deals.Interview;
+using EasyAgree.Application.Documents;
 using EasyAgree.Domain.Entities;
 using EasyAgree.Domain.Enums;
 
@@ -28,6 +30,7 @@ public sealed class GenerateFromDealUseCase(
     IDealRepository dealRepository,
     IAgreementTemplateRepository templateRepository,
     IUserProfileRepository profileRepository,
+    IUploadedDocumentRepository documentRepository,
     PartyRoleClassifier roleClassifier,
     GenerateAgreementUseCase generateAgreement)
 {
@@ -80,6 +83,13 @@ public sealed class GenerateFromDealUseCase(
         }
 
         var labels = AgreementPlaceholderParser.ExtractLabels(template.HtmlTemplate);
+        // Documents are a first-class deterministic answer source. Apply the
+        // mapper here as well as in the interview, so a user can upload a
+        // complete document set and generate immediately without having to
+        // trigger a redundant interview turn first.
+        var documents = await documentRepository.GetByDealIdAsync(dealId, cancellationToken);
+        var documentHints = DocumentFieldHintCollection.FromDocuments(documents);
+        DocumentFieldMapper.ApplyMatches(template.Fields, labels, documentHints, merged);
         var creatorProfile = deal.ProfileId is null ? null : await profileRepository.GetAsync(deal.ProfileId, cancellationToken);
         var secondPartyProfile = deal.SecondPartyProfileId is null
             ? null

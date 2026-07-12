@@ -36,6 +36,7 @@ public sealed class GetInterviewPreviewUseCase(
         var askable = classified
             .Where(f => f.Category is FieldCategory.RequiredObject or FieldCategory.RequiredCommercial or FieldCategory.RequiredTime)
             .Where(f => !answers.ContainsKey(f.FieldId))
+            .Where(f => !FieldDependencyEngine.IsObsolete(f, answers, labels))
             .ToList();
 
         if (askable.Count == 0)

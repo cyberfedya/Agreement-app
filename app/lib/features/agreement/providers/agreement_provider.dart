@@ -14,6 +14,11 @@ class AgreementProvider extends ChangeNotifier {
   Agreement? _agreement;
   String? _secondPartyName;
 
+  /// Guards [signAsSecondParty] against a double tap firing two concurrent
+  /// sign requests - separate from [_isLoading], which tracks
+  /// generate/load instead.
+  bool _isSigning = false;
+
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   Agreement? get agreement => _agreement;
@@ -22,6 +27,7 @@ class AgreementProvider extends ChangeNotifier {
   bool get isFullySigned => secondPartyName != null;
 
   Future<bool> generate(String templateKey, Map<int, String> answers) async {
+    if (_isLoading) return false;
     _isLoading = true;
     _errorMessage = null;
     _secondPartyName = null;
@@ -76,15 +82,21 @@ class AgreementProvider extends ChangeNotifier {
   /// local state, so it survives on the deal regardless of which device
   /// looks at it afterwards.
   Future<bool> signAsSecondParty(String dealId, String fullName) async {
-    switch (await _repository.signAsSecondParty(dealId, fullName)) {
-      case Success():
-        _secondPartyName = fullName;
-        notifyListeners();
-        return true;
-      case Failure(:final message):
-        _errorMessage = message;
-        notifyListeners();
-        return false;
+    if (_isSigning) return false;
+    _isSigning = true;
+    try {
+      switch (await _repository.signAsSecondParty(dealId, fullName)) {
+        case Success():
+          _secondPartyName = fullName;
+          notifyListeners();
+          return true;
+        case Failure(:final message):
+          _errorMessage = message;
+          notifyListeners();
+          return false;
+      }
+    } finally {
+      _isSigning = false;
     }
   }
 }

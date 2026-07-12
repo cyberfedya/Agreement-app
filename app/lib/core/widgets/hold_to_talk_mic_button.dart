@@ -11,6 +11,7 @@ class HoldToTalkMicButton extends StatefulWidget {
     super.key,
     required this.onTextChanged,
     this.onFinalResult,
+    this.onListeningChanged,
     this.permissionService,
     this.size = 72,
   });
@@ -22,6 +23,10 @@ class HoldToTalkMicButton extends StatefulWidget {
   /// after the user releases the button - lets the caller auto-advance
   /// without waiting for a separate confirmation tap.
   final ValueChanged<String>? onFinalResult;
+
+  /// Fires when recording starts/stops, so the surrounding UI can swap
+  /// itself into a "Слушаю…" state while the mic is held.
+  final ValueChanged<bool>? onListeningChanged;
   final PermissionService? permissionService;
   final double size;
 
@@ -34,6 +39,12 @@ class _HoldToTalkMicButtonState extends State<HoldToTalkMicButton> {
   final SpeechToText _speech = SpeechToText();
   bool _listening = false;
   bool _available = false;
+
+  void _setListening(bool value) {
+    if (_listening == value) return;
+    setState(() => _listening = value);
+    widget.onListeningChanged?.call(value);
+  }
 
   @override
   void dispose() {
@@ -48,7 +59,7 @@ class _HoldToTalkMicButtonState extends State<HoldToTalkMicButton> {
     _available = await _speech.initialize(onStatus: _onStatus, onError: (_) {});
     if (!_available || !mounted) return;
 
-    setState(() => _listening = true);
+    _setListening(true);
     await _speech.listen(
       onResult: (result) {
         widget.onTextChanged(result.recognizedWords);
@@ -62,14 +73,14 @@ class _HoldToTalkMicButtonState extends State<HoldToTalkMicButton> {
 
   void _onStatus(String status) {
     if (status == 'done' || status == 'notListening') {
-      if (mounted) setState(() => _listening = false);
+      if (mounted) _setListening(false);
     }
   }
 
   Future<void> _stop() async {
     if (!_listening) return;
     await _speech.stop();
-    if (mounted) setState(() => _listening = false);
+    if (mounted) _setListening(false);
   }
 
   @override

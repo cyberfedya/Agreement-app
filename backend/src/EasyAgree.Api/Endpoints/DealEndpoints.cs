@@ -2,6 +2,9 @@ using EasyAgree.Application.Deals;
 using EasyAgree.Application.Deals.Interview;
 using EasyAgree.Contracts.Deals;
 using EasyAgree.Contracts.Templates;
+using EasyAgree.Application.Quality;
+using EasyAgree.Application.Validation;
+using EasyAgree.Application.Risk;
 
 namespace EasyAgree.Api.Endpoints;
 
@@ -96,6 +99,64 @@ public static class DealEndpoints
         })
         .WithName("GetDealAgreement");
 
+        group.MapGet("/{id:guid}/review", async (Guid id, GetDealReviewUseCase useCase, CancellationToken ct) =>
+        {
+            var review = await useCase.ExecuteAsync(id, ct);
+            return review is null
+                ? Results.NotFound()
+                : Results.Ok(new DealReviewDto(
+                    review.AutoFilled.Select(ToReviewField).ToList(),
+                    review.Manual.Select(ToReviewField).ToList(),
+                    review.Corrected.Select(ToReviewField).ToList(),
+                    review.Missing.Select(ToReviewField).ToList(),
+                    review.Skipped.Select(ToReviewField).ToList()));
+        })
+        .WithName("GetDealReview");
+
+        group.MapGet("/{id:guid}/quality", async (Guid id, GetDealQualityUseCase useCase, CancellationToken ct) =>
+        {
+            var quality = await useCase.ExecuteAsync(id, ct);
+            return quality is null
+                ? Results.NotFound()
+                : Results.Ok(new AgreementQualityDto(
+                    quality.Score,
+                    quality.RequiredCompletion,
+                    quality.AutomaticCompletion,
+                    quality.ManualCompletion,
+                    quality.Consistency,
+                    quality.DocumentConfidence,
+                    quality.Recommendations.Select(recommendation =>
+                        new QualityRecommendationDto(recommendation.Code, recommendation.Message, recommendation.Importance)).ToList()));
+        })
+        .WithName("GetDealQuality");
+
+        group.MapGet("/{id:guid}/validation", async (Guid id, GetDealAgreementValidationUseCase useCase, CancellationToken ct) =>
+        {
+            var validation = await useCase.ExecuteAsync(id, ct);
+            return validation is null
+                ? Results.NotFound()
+                : Results.Ok(new AgreementValidationDto(validation.IsValid,
+                    validation.Issues.Select(issue => new AgreementValidationIssueDto(
+                        issue.Code, issue.Severity, issue.FieldId, issue.Label, issue.Message, issue.RecommendedAction)).ToList()));
+        })
+        .WithName("GetDealAgreementValidation");
+
+        group.MapGet("/{id:guid}/risk", async (Guid id, GetDealRiskAssessmentUseCase useCase, CancellationToken ct) =>
+        {
+            var risk = await useCase.ExecuteAsync(id, ct);
+            return risk is null
+                ? Results.NotFound()
+                : Results.Ok(new AgreementRiskDto(
+                    risk.OverallRisk, risk.RiskLevel, risk.Confidence, risk.Summary,
+                    risk.Categories.Select(category => new RiskCategoryDto(category.Name, category.Risk, category.Reason)).ToList(),
+                    risk.Issues.Select(issue => new AgreementRiskIssueDto(
+                        issue.Code, issue.Severity, issue.Field, issue.Title, issue.Description,
+                        issue.RecommendedAction, issue.CanAutoFix)).ToList(),
+                    risk.Recommendations.Select(recommendation => new AgreementRiskRecommendationDto(
+                        recommendation.IssueCode, recommendation.Message, recommendation.Importance)).ToList()));
+        })
+        .WithName("GetDealRiskAssessment");
+
         group.MapGet("/{id:guid}/invite", async (Guid id, string? lang, GetDealInviteUseCase useCase, CancellationToken ct) =>
         {
             var result = await useCase.ExecuteAsync(id, lang, ct);
@@ -140,4 +201,7 @@ public static class DealEndpoints
 
         return app;
     }
+
+    private static DealReviewFieldDto ToReviewField(DealReviewField field) =>
+        new(field.FieldId, field.Label, field.Value, field.Source, field.Confidence, field.Status, field.Reason);
 }

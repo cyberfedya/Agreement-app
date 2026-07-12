@@ -23,20 +23,37 @@ abstract final class Corners {
   static const double md = 16;
   static const double lg = 20;
   static const double xl = 24;
+  static const double x2l = 28;
 
   static final BorderRadius smRadius = BorderRadius.circular(sm);
   static final BorderRadius mdRadius = BorderRadius.circular(md);
   static final BorderRadius lgRadius = BorderRadius.circular(lg);
   static final BorderRadius xlRadius = BorderRadius.circular(xl);
+  static final BorderRadius x2lRadius = BorderRadius.circular(x2l);
 }
 
-/// Motion durations. Keep everything between 200–300ms.
+/// Motion durations. Keep UI transitions between 200–300ms.
 abstract final class Motion {
   static const Duration fast = Duration(milliseconds: 200);
   static const Duration normal = Duration(milliseconds: 250);
   static const Duration slow = Duration(milliseconds: 300);
 
+  /// Minimum time the "Обновляю договор…" thinking state stays visible
+  /// after an answer, even when the backend replies instantly - the pause
+  /// is what makes the assistant feel like it actually did something.
+  static const Duration thinkingMin = Duration(milliseconds: 450);
+
   static const Curve curve = Curves.easeOutCubic;
+
+  /// For hero moments (progress bar sweeps, celebration reveals) that
+  /// deserve a longer, softer settle than the standard [curve].
+  static const Curve emphasized = Curves.easeOutQuint;
+
+  /// Per-step reveal pace for the premium "Проверяю ответы → Формирую
+  /// структуру → …" generation sequence - deliberately short (300–500ms
+  /// range from the spec) so a fast backend response never feels like a
+  /// manufactured wait.
+  static const Duration generationStep = Duration(milliseconds: 320);
 }
 
 /// Content width cap so desktop/tablet/web layouts stay readable.

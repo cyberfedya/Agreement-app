@@ -1,5 +1,6 @@
 using EasyAgree.Domain.Entities;
 using EasyAgree.Application.Documents;
+using EasyAgree.Application.Legal;
 
 namespace EasyAgree.Application.Deals.Interview;
 
@@ -13,7 +14,7 @@ namespace EasyAgree.Application.Deals.Interview;
 /// previously let it end the interview while real fields were still
 /// unanswered.
 /// </summary>
-public sealed class InterviewPlanner(QuestionGenerator questionGenerator)
+public sealed class InterviewPlanner(QuestionGenerator questionGenerator, LegalKnowledgeEngine? legalKnowledgeEngine = null)
 {
     /// <summary>
     /// Caps how many times a single HTTP turn can loop back to the model
@@ -38,18 +39,21 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator)
         ISet<string> dismissedDocumentSuggestions,
         CancellationToken cancellationToken)
     {
-        DocumentFieldMapper.ApplyMatches(fields, labels, documentHints, answers);
+        var enrichedHints = legalKnowledgeEngine is null
+            ? documentHints
+            : new DocumentFieldHintCollection(legalKnowledgeEngine.Enrich(documentHints.Fields));
+        DocumentFieldMapper.ApplyMatches(fields, labels, enrichedHints, answers);
 
         var classified = FieldEligibilityEngine.Classify(fields, labels);
         var isFirstTurn = currentMessage is null;
 
         for (var iteration = 0; iteration < MaxPlanningIterations; iteration++)
         {
-            var askable = Askable(classified, answers);
+            var askable = Askable(classified, answers, labels);
             if (askable.Count == 0)
                 return InterviewPlanResult.Ready(ClosingPhrases.Pick(language)); 
                 
-            var suggestion = DocumentSuggestionEngine.Evaluate(templateDomain, askable, documentHints, dismissedDocumentSuggestions);
+            var suggestion = DocumentSuggestionEngine.Evaluate(templateDomain, askable, enrichedHints, dismissedDocumentSuggestions);
             if (suggestion is not null)
                 return InterviewPlanResult.SuggestDocument(suggestion.DocumentType, suggestion.MatchedFieldCount);
 
@@ -67,7 +71,7 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator)
             {
                 var acknowledgement = isFirstTurn ? null : AcknowledgementPhrases.Pick(language, answers.Count);
                 var context = new InterviewContext(
-                    templateTitle, language, userRequest, currentMessage, group, answers, ordered, acknowledgement, documentHints);
+                    templateTitle, language, userRequest, currentMessage, group, answers, ordered, acknowledgement, enrichedHints);
                 generated = await questionGenerator.GenerateAsync(context, cancellationToken);
                 if (string.IsNullOrWhiteSpace(generated.Question) && generated.Extracted.Count == 0)
                 {
@@ -110,7 +114,7 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator)
 
         }
 
-        var remaining = Askable(classified, answers);
+        var remaining = Askable(classified, answers, labels);
         if (remaining.Count == 0)
             return InterviewPlanResult.Ready(ClosingPhrases.Pick(language));
 
@@ -118,10 +122,14 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator)
         return InterviewPlanResult.NeedMoreInfo(next.FieldId, next.Label);
     }
 
-    private static List<ClassifiedField> Askable(IReadOnlyList<ClassifiedField> classified, Dictionary<int, string> answers) =>
+    private static List<ClassifiedField> Askable(
+        IReadOnlyList<ClassifiedField> classified,
+        Dictionary<int, string> answers,
+        IReadOnlyDictionary<int, string> labels) =>
         classified
             .Where(f => f.Category is FieldCategory.RequiredObject or FieldCategory.RequiredCommercial or FieldCategory.RequiredTime)
             .Where(f => !answers.ContainsKey(f.FieldId))
+            .Where(f => !FieldDependencyEngine.IsObsolete(f, answers, labels))
             .ToList();
 
     private static string GroupKey(IEnumerable<ClassifiedField> group) =>

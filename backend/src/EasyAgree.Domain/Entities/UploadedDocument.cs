@@ -37,6 +37,14 @@ public class UploadedDocument
     /// </summary>
     public string? ExtractedFieldsJson { get; set; }
 
+    /// <summary>
+    /// Effective fields created after raw extraction (manual corrections,
+    /// deterministic mapping and validation). This is deliberately separate
+    /// from <see cref="ExtractedFieldsJson"/> so extraction can be replayed
+    /// when mapping rules evolve without calling OCR/Vision again.
+    /// </summary>
+    public string? NormalizedFieldsJson { get; set; }
+
     /// <summary>Raw text read off the document - kept for transparency/debugging, not itself fed to the interview.</summary>
     public string? OcrText { get; set; }
 

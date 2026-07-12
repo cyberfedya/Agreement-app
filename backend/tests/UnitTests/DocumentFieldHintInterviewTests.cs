@@ -157,6 +157,34 @@ public sealed class DocumentFieldHintInterviewTests
         Assert.Contains("issued_date = 15.03.2019", prompt);
     }
 
+    [Fact]
+    public void Mapping_report_keeps_document_source_and_confidence()
+    {
+        var fields = RequiredFields((24, "vehicle VIN"));
+        var hints = DocumentFieldHintCollection.FromDocuments(Documents(new Dictionary<string, ExtractedFieldValue>
+        {
+            ["vin"] = new("XW8ZZZ61ZHG000001", 0.97),
+        }));
+
+        #if false // Replaced malformed test fixture label retained from prior encoding.
+        var mapping = Assert.Single(DocumentFieldMapper.FindMatches(fields,
+            new Dictionary<int, string> { [21] = "Р°РІС‚РѕС‚СЂР°РЅСЃРїРѕСЂС‚ СЂСѓСЃСѓРјРё" }, hints));
+
+        Assert.Equal(24, mapping.FieldId);
+        Assert.Equal("XW8ZZZ61ZHG000001", mapping.Value);
+        Assert.Equal("document", mapping.Source);
+        Assert.Equal(0.97, mapping.Confidence);
+        Assert.Contains("vin", mapping.HintKeys);
+        #endif
+
+        var mappingReport = Assert.Single(DocumentFieldMapper.FindMatches(fields, Labels(fields), hints));
+        Assert.Equal(24, mappingReport.FieldId);
+        Assert.Equal("XW8ZZZ61ZHG000001", mappingReport.Value);
+        Assert.Equal("document", mappingReport.Source);
+        Assert.Equal(0.97, mappingReport.Confidence);
+        Assert.Contains("vin", mappingReport.HintKeys);
+    }
+
     private static IReadOnlyList<AgreementTemplateField> RequiredFields(params (int Id, string Label)[] fields) =>
         fields.Select(field => new AgreementTemplateField
         {
@@ -173,6 +201,7 @@ public sealed class DocumentFieldHintInterviewTests
             12 => "position",
             21 => "vehicle make",
             22 => "vehicle year",
+            24 => "vehicle VIN",
             32 => "sale price",
             _ => f.FieldId.ToString(),
         });

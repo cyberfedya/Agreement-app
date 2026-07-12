@@ -1,5 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
+import 'package:app/features/documents/data/document_repository.dart';
+import 'package:app/features/documents/domain/interview_preview.dart';
 import 'package:app/features/questionnaire/data/questionnaire_repository.dart';
+import 'package:app/features/questionnaire/domain/deal_review.dart';
 import 'package:app/features/questionnaire/domain/interview_step.dart';
 import 'package:app/features/questionnaire/domain/question.dart';
 import 'package:app/shared/models/result.dart';
@@ -7,10 +12,16 @@ import 'package:app/shared/models/result.dart';
 /// Drives a one-question-at-a-time interview: each answer is sent to the
 /// backend's Interview Planner, which decides the next question (or that
 /// enough is known to generate) — the field list is never fetched upfront.
+///
+/// Also the single owner of the backend-computed progress state: the
+/// interview preview (remaining questions / coverage) and, once the
+/// planner says ready, the pre-generation review. Both are re-fetched
+/// after every state change - nothing progress-related is derived locally.
 class QuestionnaireProvider extends ChangeNotifier {
-  QuestionnaireProvider(this._repository);
+  QuestionnaireProvider(this._repository, this._documentRepository);
 
   final QuestionnaireRepository _repository;
+  final DocumentRepository _documentRepository;
 
   String? _dealId;
   bool _isLoading = false;
@@ -20,6 +31,8 @@ class QuestionnaireProvider extends ChangeNotifier {
   String? _closingMessage;
   DocumentSuggestion? _documentSuggestion;
   List<Question> _allFields = const [];
+  InterviewPreview? _preview;
+  DealReview? _review;
   final Map<int, String> _answers = {};
   final List<Question> _history = [];
 
@@ -28,6 +41,17 @@ class QuestionnaireProvider extends ChangeNotifier {
   Question? get currentQuestion => _currentQuestion;
   bool get readyToGenerate => _readyToGenerate;
   String? get closingMessage => _closingMessage;
+
+  /// Backend-computed progress (`GET /interview-preview`): how many fields
+  /// are askable and how many questions genuinely remain, accounting for
+  /// documents, profile data and dependencies. Null until the first fetch.
+  InterviewPreview? get preview => _preview;
+
+  /// Backend-computed pre-generation review (`GET /review`): every field
+  /// grouped into auto-filled/manual/corrected/missing/skipped with
+  /// source, confidence and reason. Non-null shortly after
+  /// [readyToGenerate] turns true (fetched asynchronously).
+  DealReview? get review => _review;
 
   /// Non-mandatory "upload this instead of typing N fields" suggestion for
   /// the current turn - non-null only while it hasn't been resolved yet
@@ -57,6 +81,8 @@ class QuestionnaireProvider extends ChangeNotifier {
       _currentQuestion = null;
       _readyToGenerate = false;
       _documentSuggestion = null;
+      _preview = null;
+      _review = null;
     }
     _dealId = dealId;
     _isLoading = true;
@@ -74,6 +100,7 @@ class QuestionnaireProvider extends ChangeNotifier {
     await _advance();
     _isLoading = false;
     notifyListeners();
+    unawaited(refreshDerivedState());
   }
 
   /// Submits [text] as the answer to the current question and fetches the
@@ -84,7 +111,7 @@ class QuestionnaireProvider extends ChangeNotifier {
   /// answers once the interview has genuinely moved past this field.
   Future<void> submitAnswer(String text) async {
     final field = _currentQuestion;
-    if (field == null) return;
+    if (field == null || _isLoading) return;
 
     _isLoading = true;
     notifyListeners();
@@ -98,6 +125,7 @@ class QuestionnaireProvider extends ChangeNotifier {
       _history.add(field);
     }
     notifyListeners();
+    unawaited(refreshDerivedState());
   }
 
   /// Corrects an already-collected answer from the Review & Confirm
@@ -108,7 +136,7 @@ class QuestionnaireProvider extends ChangeNotifier {
   Future<bool> editAnswer(int fieldId, String label, String value) async {
     final dealId = _dealId;
     final trimmed = value.trim();
-    if (dealId == null || trimmed.isEmpty) return false;
+    if (dealId == null || trimmed.isEmpty || _isLoading) return false;
 
     _isLoading = true;
     notifyListeners();
@@ -122,6 +150,7 @@ class QuestionnaireProvider extends ChangeNotifier {
         _errorMessage = null;
         _isLoading = false;
         notifyListeners();
+        unawaited(refreshDerivedState());
         return true;
       case Failure(:final message):
         _errorMessage = message;
@@ -132,11 +161,13 @@ class QuestionnaireProvider extends ChangeNotifier {
   }
 
   /// Re-shows the previous question (its answer stays editable via
-  /// [answerFor]) without a network round-trip.
+  /// [answerFor]) without a network round-trip. The stale review is
+  /// dropped - the backend recomputes it when the interview is ready again.
   void goBack() {
     if (_history.isEmpty) return;
     _currentQuestion = _history.removeLast();
     _readyToGenerate = false;
+    _review = null;
     notifyListeners();
   }
 
@@ -144,7 +175,7 @@ class QuestionnaireProvider extends ChangeNotifier {
   /// (e.g. via `DocumentUploadProvider.upload`) - re-asks the planner for
   /// the next step, which now skips whatever the upload just filled.
   Future<void> resumeAfterDocumentUpload() async {
-    if (_dealId == null) return;
+    if (_dealId == null || _isLoading) return;
 
     _documentSuggestion = null;
     _isLoading = true;
@@ -153,6 +184,7 @@ class QuestionnaireProvider extends ChangeNotifier {
     await _advance();
     _isLoading = false;
     notifyListeners();
+    unawaited(refreshDerivedState());
   }
 
   /// "Continue without document" - never shows this document's suggestion
@@ -160,7 +192,7 @@ class QuestionnaireProvider extends ChangeNotifier {
   Future<void> dismissDocumentSuggestion() async {
     final dealId = _dealId;
     final suggestion = _documentSuggestion;
-    if (dealId == null || suggestion == null) return;
+    if (dealId == null || suggestion == null || _isLoading) return;
 
     _isLoading = true;
     notifyListeners();
@@ -170,6 +202,31 @@ class QuestionnaireProvider extends ChangeNotifier {
     await _advance();
     _isLoading = false;
     notifyListeners();
+    unawaited(refreshDerivedState());
+  }
+
+  /// Re-fetches everything the backend derives about this deal's progress:
+  /// the interview preview always, and the pre-generation review once the
+  /// planner has declared the interview ready. Failures are non-fatal -
+  /// the UI keeps the last known values rather than blocking the flow.
+  Future<void> refreshDerivedState() async {
+    final dealId = _dealId;
+    if (dealId == null) return;
+
+    final previewResult = await _documentRepository.getInterviewPreview(dealId);
+    if (_dealId != dealId) return;
+    if (previewResult case Success(:final value)) {
+      _preview = value;
+      notifyListeners();
+    }
+
+    if (!_readyToGenerate) return;
+    final reviewResult = await _repository.getReview(dealId);
+    if (_dealId != dealId || !_readyToGenerate) return;
+    if (reviewResult case Success(:final value)) {
+      _review = value;
+      notifyListeners();
+    }
   }
 
   Future<void> _advance({int? fieldId, String? answer, String? question}) async {

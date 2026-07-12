@@ -34,6 +34,17 @@ public sealed class DocumentFieldHintCollection
                 if (!merged.TryGetValue(key, out var existing) || field.Confidence > existing.Confidence)
                     merged[key] = new DocumentFieldHint(key, field.Value, field.Confidence, "document");
             }
+
+            // Normalized values are a separate layer over immutable raw
+            // extraction. User corrections win for the same document key;
+            // raw OCR/Vision data remains untouched and can be remapped.
+            foreach (var (key, field) in NormalizedDocumentFieldsSerializer.Deserialize(document.NormalizedFieldsJson))
+            {
+                if (string.IsNullOrWhiteSpace(field.Value))
+                    continue;
+
+                merged[key] = new DocumentFieldHint(key, field.Value, field.Confidence, field.Source);
+            }
         }
 
         return new DocumentFieldHintCollection(merged.Values.OrderBy(f => f.Key).ToList());

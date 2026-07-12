@@ -1,15 +1,19 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import 'package:app/features/documents/data/document_repository.dart';
-import 'package:app/features/documents/domain/interview_preview.dart';
 import 'package:app/features/documents/domain/uploaded_document.dart';
 import 'package:app/shared/models/result.dart';
 
-/// Drives document upload for a deal: what's been uploaded so far, and how
-/// many fields the AI managed to read off them. Used by the mid-interview
-/// document-suggestion card (`QuestionnaireProvider.documentSuggestion`) -
-/// registered once at the app root, so [attachDeal] must be called before
+/// Drives document upload for a deal: what's been uploaded so far and the
+/// per-document extraction results, exactly as the backend reported them.
+/// Registered once at the app root, so [attachDeal] must be called before
 /// [upload] to point it at the right deal.
+///
+/// Deliberately holds no derived progress state - remaining questions,
+/// coverage and review classification all live in `QuestionnaireProvider`
+/// (fetched from the backend), so the same fact is never stored twice.
 class DocumentUploadProvider extends ChangeNotifier {
   DocumentUploadProvider(this._repository);
 
@@ -17,17 +21,18 @@ class DocumentUploadProvider extends ChangeNotifier {
 
   String? _dealId;
   bool _isUploading = false;
-  bool _isLoadingPreview = false;
   String? _errorMessage;
   final List<UploadedDocument> _uploadedDocuments = [];
-  InterviewPreview? _preview;
+  List<UploadedDocument> _lastUploadBatch = const [];
   List<String> _pendingMismatchWarnings = const [];
 
   bool get isUploading => _isUploading;
-  bool get isLoadingPreview => _isLoadingPreview;
   String? get errorMessage => _errorMessage;
   List<UploadedDocument> get uploadedDocuments => List.unmodifiable(_uploadedDocuments);
-  InterviewPreview? get preview => _preview;
+
+  /// Just the documents from the most recent [upload] call - what the
+  /// post-OCR celebration screen shows ("I filled these fields for you").
+  List<UploadedDocument> get lastUploadBatch => List.unmodifiable(_lastUploadBatch);
 
   /// Warnings from the most recent [upload] call for documents that seem
   /// to be about a different subject than what's already known (e.g. a
@@ -40,27 +45,36 @@ class DocumentUploadProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  int get extractedFieldCount =>
-      _uploadedDocuments.where((d) => d.isProcessed).fold(0, (sum, d) => sum + d.fields.length);
-
-  /// Points this provider at [dealId] - resets per-deal state when
-  /// switching to a different deal (this provider is registered once at
-  /// the app root, so without this guard, starting a fresh deal would
-  /// keep showing the previous deal's uploaded documents/preview).
+  /// Points this provider at [dealId] and restores the deal's documents
+  /// from the backend, so re-entering an existing deal shows what was
+  /// already uploaded instead of pretending nothing happened.
   void attachDeal(String dealId) {
     if (_dealId == dealId) return;
     _dealId = dealId;
     _uploadedDocuments.clear();
-    _preview = null;
+    _lastUploadBatch = const [];
     _pendingMismatchWarnings = const [];
     notifyListeners();
+    unawaited(_restoreDocuments(dealId));
   }
 
-  /// Uploads [files], then refreshes the remaining-questions preview so
-  /// the summary card (and its TTS narration) reflects the new documents.
+  Future<void> _restoreDocuments(String dealId) async {
+    switch (await _repository.getDealDocuments(dealId)) {
+      case Success(:final value):
+        if (_dealId != dealId) return;
+        _uploadedDocuments
+          ..clear()
+          ..addAll(value);
+        notifyListeners();
+      case Failure():
+        // Non-fatal: uploads still work, the history just starts empty.
+        break;
+    }
+  }
+
   Future<bool> upload(List<(String fileName, String contentType, List<int> bytes)> files) async {
     final dealId = _dealId;
-    if (dealId == null || files.isEmpty) return false;
+    if (dealId == null || files.isEmpty || _isUploading) return false;
 
     _isUploading = true;
     _errorMessage = null;
@@ -70,6 +84,7 @@ class DocumentUploadProvider extends ChangeNotifier {
     switch (await _repository.upload(dealId, files)) {
       case Success(:final value):
         _uploadedDocuments.addAll(value);
+        _lastUploadBatch = value;
         _pendingMismatchWarnings = value
             .map((d) => d.mismatchWarning)
             .whereType<String>()
@@ -81,8 +96,6 @@ class DocumentUploadProvider extends ChangeNotifier {
 
     _isUploading = false;
     notifyListeners();
-
-    if (success) await _refreshPreview();
     return success;
   }
 
@@ -94,7 +107,6 @@ class DocumentUploadProvider extends ChangeNotifier {
       case Success():
         _uploadedDocuments.removeWhere((d) => d.id == documentId);
         notifyListeners();
-        await _refreshPreview();
       case Failure(:final message):
         _errorMessage = message;
         notifyListeners();
@@ -102,8 +114,7 @@ class DocumentUploadProvider extends ChangeNotifier {
   }
 
   /// Corrects a field the AI misread - updates locally first so the UI
-  /// reflects the fix immediately, then persists it (and refreshes the
-  /// preview count, since the corrected value can now cover a question).
+  /// reflects the fix immediately, then persists it.
   Future<void> updateField(String documentId, String key, String value) async {
     final dealId = _dealId;
     if (dealId == null) return;
@@ -116,28 +127,10 @@ class DocumentUploadProvider extends ChangeNotifier {
 
     switch (await _repository.updateField(dealId, documentId, key, value)) {
       case Success():
-        await _refreshPreview();
+        break;
       case Failure(:final message):
         _errorMessage = message;
         notifyListeners();
     }
-  }
-
-  Future<void> _refreshPreview() async {
-    final dealId = _dealId;
-    if (dealId == null) return;
-
-    _isLoadingPreview = true;
-    notifyListeners();
-
-    switch (await _repository.getInterviewPreview(dealId)) {
-      case Success(:final value):
-        _preview = value;
-      case Failure():
-        _preview = null;
-    }
-
-    _isLoadingPreview = false;
-    notifyListeners();
   }
 }

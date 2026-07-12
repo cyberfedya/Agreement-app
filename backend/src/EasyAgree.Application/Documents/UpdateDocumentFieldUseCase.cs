@@ -18,9 +18,14 @@ public sealed class UpdateDocumentFieldUseCase(
         if (document is null || document.DealId != dealId)
             return false;
 
-        var fields = ExtractedDocumentFieldsSerializer.Deserialize(document.ExtractedFieldsJson);
-        fields[fieldKey] = new ExtractedFieldValue(value, 1.0);
-        document.ExtractedFieldsJson = ExtractedDocumentFieldsSerializer.Serialize(fields);
+        var fields = NormalizedDocumentFieldsSerializer.Deserialize(document.NormalizedFieldsJson);
+        fields[fieldKey] = new NormalizedDocumentFieldValue(
+            value,
+            1.0,
+            "user_override",
+            "CONFIRMED",
+            fieldKey);
+        document.NormalizedFieldsJson = NormalizedDocumentFieldsSerializer.Serialize(fields);
 
         await documentRepository.UpdateAsync(document, cancellationToken);
         await preprocessingService.RefreshAsync(dealId, cancellationToken);

@@ -19,10 +19,11 @@ import 'package:app/features/documents/domain/uploaded_document.dart';
 import 'package:app/features/documents/providers/document_upload_provider.dart';
 import 'package:app/features/home/presentation/home_page.dart';
 import 'package:app/features/questionnaire/data/questionnaire_repository.dart';
+import 'package:app/features/questionnaire/domain/deal_review.dart';
 import 'package:app/features/questionnaire/domain/interview_step.dart';
 import 'package:app/features/questionnaire/domain/question.dart';
 import 'package:app/features/questionnaire/presentation/pages/questionnaire_page.dart';
-import 'package:app/features/questionnaire/presentation/widgets/question_card.dart';
+import 'package:app/features/questionnaire/presentation/widgets/answer_composer.dart';
 import 'package:app/features/questionnaire/providers/questionnaire_provider.dart';
 import 'package:app/features/templates/data/template_repository.dart';
 import 'package:app/features/templates/domain/template.dart';
@@ -72,6 +73,31 @@ class FakeQuestionnaireRepository implements QuestionnaireRepository {
 
   @override
   Future<Result<void>> dismissDocumentSuggestion(String dealId, String documentType) async => const Success(null);
+
+  /// A minimal but honest stand-in: every scripted field the interview
+  /// walked through is reported back as "manual" - good enough for the
+  /// review screen to render without asserting on its exact grouping.
+  @override
+  Future<Result<DealReview>> getReview(String dealId) async => Success(
+    DealReview(
+      autoFilled: const [],
+      manual: [
+        for (final question in _questions)
+          DealReviewField(
+            fieldId: question.fieldId,
+            label: question.fieldName,
+            value: 'answered',
+            source: 'manual',
+            confidence: 1,
+            status: 'CONFIRMED',
+            reason: 'Recorded interview answer',
+          ),
+      ],
+      corrected: const [],
+      missing: const [],
+      skipped: const [],
+    ),
+  );
 }
 
 class FakeAgreementRepository implements AgreementRepository {
@@ -186,7 +212,7 @@ Widget buildTestApp({
       Provider<TtsService>(create: (_) => TtsService()),
       ChangeNotifierProvider(create: (_) => TemplatesListProvider(templates)),
       ChangeNotifierProvider(create: (_) => TemplateDetailProvider(templates, questionnaire)),
-      ChangeNotifierProvider(create: (_) => QuestionnaireProvider(questionnaire)),
+      ChangeNotifierProvider(create: (_) => QuestionnaireProvider(questionnaire, documents)),
       ChangeNotifierProvider(create: (_) => AgreementProvider(agreements)),
       ChangeNotifierProvider(create: (_) => DocumentUploadProvider(documents)),
     ],
@@ -228,8 +254,19 @@ Future<void> _submitRequest(WidgetTester tester, [String text = 'Я хочу п�
   await tester.pumpAndSettle();
 }
 
-FilledButton _button(WidgetTester tester, String label) =>
-    tester.widget<FilledButton>(find.widgetWithText(FilledButton, label));
+/// The composer's answer field (idle mode).
+Finder _answerField() => find.descendant(of: find.byType(AnswerComposer), matching: find.byType(TextField));
+
+/// Types [text] and sends it, then pumps through the thinking beat
+/// (Motion.thinkingMin) and the next question's entrance.
+Future<void> _answer(WidgetTester tester, String text) async {
+  await tester.enterText(_answerField(), text);
+  // Settle first: the send button scales in via AnimatedSwitcher and is
+  // not hit-testable mid-transition.
+  await tester.pumpAndSettle();
+  await tester.tap(find.byTooltip('Отправить'));
+  await tester.pumpAndSettle();
+}
 
 void main() {
   testWidgets('happy path: splash -> login -> home -> AI match -> interview -> agreement', (tester) async {
@@ -247,35 +284,31 @@ void main() {
     await _submitRequest(tester);
 
     // Straight to the interview for the matched deal — the Agreements
-    // template picker is not part of the creation flow.
+    // template picker is not part of the creation flow. The greeting beat
+    // (min 1800ms) has already been pumped through by pumpAndSettle.
     expect(find.byType(QuestionnairePage), findsOneWidget);
     expect(find.byType(TemplatesListPage), findsNothing);
     expect(find.text(_matchedDeal.templateTitle), findsOneWidget);
-    expect(find.byType(QuestionCard), findsOneWidget);
+    expect(find.byType(AnswerComposer), findsOneWidget);
     expect(find.text('Full name'), findsOneWidget);
-    expect(find.text('Вопрос 1'), findsOneWidget);
+    // No questionnaire numbering anywhere in the conversational interview.
+    expect(find.textContaining('Вопрос'), findsNothing);
 
-    // Next ("Далее") is disabled until the field has an answer.
-    expect(_button(tester, 'Далее').onPressed, isNull);
+    // The send button only materializes once there is something to send.
+    expect(find.byTooltip('Отправить'), findsNothing);
+    await tester.enterText(_answerField(), 'Aliyev Vali');
+    await tester.pumpAndSettle();
+    expect(find.byTooltip('Отправить'), findsOneWidget);
 
-    final answerField = find.descendant(of: find.byType(QuestionCard), matching: find.byType(TextField));
-    await tester.enterText(answerField, 'Aliyev Vali');
-    await tester.pump();
-    expect(_button(tester, 'Далее').onPressed, isNotNull);
-
-    await tester.tap(find.widgetWithText(FilledButton, 'Далее'));
+    await tester.tap(find.byTooltip('Отправить'));
     await tester.pumpAndSettle();
 
     expect(find.text('Optional note'), findsOneWidget);
-    expect(find.text('Вопрос 2'), findsOneWidget);
 
-    await tester.enterText(answerField, 'A quick note');
-    await tester.pump();
-    await tester.tap(find.widgetWithText(FilledButton, 'Далее'));
-    await tester.pumpAndSettle();
+    await _answer(tester, 'A quick note');
 
-    // Planner says it has enough — submit button switches to Generate.
-    expect(find.text('Готово к созданию'), findsOneWidget);
+    // Planner says it has enough — the review phase offers to generate.
+    expect(find.text('Договор готов к созданию'), findsOneWidget);
     await tester.tap(find.widgetWithText(FilledButton, 'Создать договор'));
     await tester.pumpAndSettle();
 
@@ -342,16 +375,8 @@ void main() {
     await _completeLogin(tester);
     await _submitRequest(tester);
 
-    final answerField = find.descendant(of: find.byType(QuestionCard), matching: find.byType(TextField));
-    await tester.enterText(answerField, 'Aliyev Vali');
-    await tester.pump();
-    await tester.tap(find.widgetWithText(FilledButton, 'Далее'));
-    await tester.pumpAndSettle();
-
-    await tester.enterText(answerField, 'A quick note');
-    await tester.pump();
-    await tester.tap(find.widgetWithText(FilledButton, 'Далее'));
-    await tester.pumpAndSettle();
+    await _answer(tester, 'Aliyev Vali');
+    await _answer(tester, 'A quick note');
 
     await tester.tap(find.widgetWithText(FilledButton, 'Создать договор'));
     await tester.pumpAndSettle();
@@ -367,17 +392,13 @@ void main() {
     await _completeLogin(tester);
     await _submitRequest(tester);
 
-    final answerField = find.descendant(of: find.byType(QuestionCard), matching: find.byType(TextField));
-    await tester.enterText(answerField, 'Saved answer');
-    await tester.pump();
-    await tester.tap(find.widgetWithText(FilledButton, 'Далее'));
-    await tester.pumpAndSettle();
-    expect(find.text('Вопрос 2'), findsOneWidget);
+    await _answer(tester, 'Saved answer');
+    expect(find.text('Optional note'), findsOneWidget);
 
-    await tester.tap(find.byTooltip('Предыдущий вопрос'));
+    await tester.tap(find.byTooltip('Предыдущий шаг'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Вопрос 1'), findsOneWidget);
+    expect(find.text('Full name'), findsOneWidget);
     expect(find.text('Saved answer'), findsOneWidget);
   });
 }

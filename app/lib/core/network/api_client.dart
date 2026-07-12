@@ -1,5 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:flutter/foundation.dart' show kDebugMode, debugPrint;
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 
@@ -18,12 +21,14 @@ class ApiClient {
   final http.Client _http;
 
   Future<dynamic> getJson(String path, {Map<String, String>? query}) async {
-    final response = await _send(() => _http.get(_uri(path, query)));
+    final response = await _send('GET', path, () => _http.get(_uri(path, query)));
     return _decode(response);
   }
 
   Future<dynamic> postJson(String path, {Object? body, Map<String, String>? query}) async {
     final response = await _send(
+      'POST',
+      path,
       () => _http.post(
         _uri(path, query),
         headers: const {'Content-Type': 'application/json'},
@@ -43,7 +48,7 @@ class ApiClient {
     required List<(String field, String fileName, String contentType, List<int> bytes)> files,
     Map<String, String>? query,
   }) async {
-    final response = await _send(() async {
+    final response = await _send('POST', path, () async {
       final request = http.MultipartRequest('POST', _uri(path, query));
       for (final (field, fileName, contentType, bytes) in files) {
         request.files.add(
@@ -63,6 +68,8 @@ class ApiClient {
 
   Future<dynamic> putJson(String path, {Object? body, Map<String, String>? query}) async {
     final response = await _send(
+      'PUT',
+      path,
       () => _http.put(
         _uri(path, query),
         headers: const {'Content-Type': 'application/json'},
@@ -74,6 +81,8 @@ class ApiClient {
 
   Future<dynamic> patchJson(String path, {Object? body, Map<String, String>? query}) async {
     final response = await _send(
+      'PATCH',
+      path,
       () => _http.patch(
         _uri(path, query),
         headers: const {'Content-Type': 'application/json'},
@@ -84,7 +93,7 @@ class ApiClient {
   }
 
   Future<void> deleteJson(String path, {Map<String, String>? query}) async {
-    final response = await _send(() => _http.delete(_uri(path, query)));
+    final response = await _send('DELETE', path, () => _http.delete(_uri(path, query)));
     _decode(response);
   }
 
@@ -93,19 +102,42 @@ class ApiClient {
     return Uri.parse('$baseUrl$normalized').replace(queryParameters: query);
   }
 
-  Future<http.Response> _send(Future<http.Response> Function() request, {Duration? timeout}) async {
+  Future<http.Response> _send(
+    String method,
+    String path,
+    Future<http.Response> Function() request, {
+    Duration? timeout,
+  }) async {
+    final stopwatch = kDebugMode ? (Stopwatch()..start()) : null;
     try {
-      return await request().timeout(timeout ?? AppConstants.defaultTimeout);
+      final response = await request().timeout(timeout ?? AppConstants.defaultTimeout);
+      _log(method, path, response.statusCode, response.body.length, stopwatch);
+      return response;
     } on ApiException {
       rethrow;
-    } catch (_) {
+    } on TimeoutException {
+      _log(method, path, null, null, stopwatch, error: 'timeout');
+      throw const ApiTimeoutException();
+    } on SocketException {
+      // No route to the server at all - offline or DNS/connection failure.
+      _log(method, path, null, null, stopwatch, error: 'offline');
+      throw const NetworkException();
+    } catch (e) {
+      _log(method, path, null, null, stopwatch, error: e.toString());
       throw const NetworkException();
     }
   }
 
   dynamic _decode(http.Response response) {
     final statusCode = response.statusCode;
-    final dynamic body = response.body.isEmpty ? null : jsonDecode(response.body);
+    final dynamic body;
+    try {
+      body = response.body.isEmpty ? null : jsonDecode(response.body);
+    } on FormatException {
+      // 2xx with a body that isn't valid JSON at all - treat as malformed
+      // rather than letting jsonDecode's raw exception escape to callers.
+      throw const MalformedResponseException();
+    }
 
     if (statusCode >= 200 && statusCode < 300) {
       return body;
@@ -114,5 +146,19 @@ class ApiClient {
       throw const NotFoundException();
     }
     throw ServerException(statusCode: statusCode, body: body);
+  }
+
+  /// Debug-only network trace: method, path, status, response size and
+  /// duration. Compiled out of release builds - [kDebugMode] is a
+  /// compile-time constant, so the release binary never contains this
+  /// branch's string formatting or the [debugPrint] call.
+  void _log(String method, String path, int? statusCode, int? bodyBytes, Stopwatch? stopwatch, {String? error}) {
+    if (!kDebugMode) return;
+    final ms = stopwatch?.elapsedMilliseconds;
+    if (error != null) {
+      debugPrint('[api] $method $path -> $error (${ms}ms)');
+    } else {
+      debugPrint('[api] $method $path -> $statusCode (${bodyBytes}b, ${ms}ms)');
+    }
   }
 }

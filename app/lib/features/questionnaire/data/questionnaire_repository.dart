@@ -1,5 +1,6 @@
 import 'package:app/core/network/api_exception.dart';
 import 'package:app/core/services/api_service.dart';
+import 'package:app/features/questionnaire/domain/deal_review.dart';
 import 'package:app/features/questionnaire/domain/interview_step.dart';
 import 'package:app/features/questionnaire/domain/question.dart';
 import 'package:app/shared/models/result.dart';
@@ -22,6 +23,11 @@ abstract class QuestionnaireRepository {
   /// Records "Continue without document" so this [documentType]'s
   /// suggestion never resurfaces for the rest of this deal's interview.
   Future<Result<void>> dismissDocumentSuggestion(String dealId, String documentType);
+
+  /// The backend's pre-generation review: every field grouped and
+  /// classified server-side (source, confidence, status, reason). The
+  /// review screen renders this verbatim - nothing is derived locally.
+  Future<Result<DealReview>> getReview(String dealId);
 }
 
 class ApiQuestionnaireRepository implements QuestionnaireRepository {
@@ -61,6 +67,15 @@ class ApiQuestionnaireRepository implements QuestionnaireRepository {
     try {
       await _api.dismissDocumentSuggestion(dealId, documentType);
       return const Success(null);
+    } on ApiException catch (e) {
+      return Failure(e.message);
+    }
+  }
+
+  @override
+  Future<Result<DealReview>> getReview(String dealId) async {
+    try {
+      return Success(await _api.getDealReview(dealId));
     } on ApiException catch (e) {
       return Failure(e.message);
     }

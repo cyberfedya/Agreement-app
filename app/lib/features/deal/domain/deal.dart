@@ -1,4 +1,5 @@
-enum DealStatus { draft, pendingSignature, completed }
+/// Mirrors the backend's `DealStatus` enum exactly (Draft = 0, Completed = 1).
+enum DealStatus { draft, completed }
 
 /// A single agreement-creation session, identified once the backend has
 /// matched (or been told) which template it's for. The interview flow is

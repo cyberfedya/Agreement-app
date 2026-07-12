@@ -34,6 +34,7 @@ class _AgreementSignPageState extends State<AgreementSignPage> {
   }
 
   Future<void> _identifyAndSign() async {
+    if (_verifying) return;
     setState(() => _verifying = true);
     await Future<void>.delayed(const Duration(milliseconds: 1400));
     if (!mounted) return;
@@ -142,7 +143,7 @@ class _AgreementSignPageState extends State<AgreementSignPage> {
                       PrimaryButton(
                         label: 'Пройти MyID и подписать',
                         loading: _verifying,
-                        onPressed: _identifyAndSign,
+                        onPressed: _verifying ? null : _identifyAndSign,
                       ),
                     ],
                   ),

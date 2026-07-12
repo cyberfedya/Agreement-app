@@ -61,7 +61,7 @@ class EasyAgreeApp extends StatelessWidget {
           ),
         ),
         ChangeNotifierProvider(
-          create: (ctx) => QuestionnaireProvider(ctx.read<QuestionnaireRepository>()),
+          create: (ctx) => QuestionnaireProvider(ctx.read<QuestionnaireRepository>(), ctx.read<DocumentRepository>()),
         ),
         ChangeNotifierProvider(create: (ctx) => AgreementProvider(ctx.read<AgreementRepository>())),
         ChangeNotifierProvider(create: (ctx) => DocumentUploadProvider(ctx.read<DocumentRepository>())),

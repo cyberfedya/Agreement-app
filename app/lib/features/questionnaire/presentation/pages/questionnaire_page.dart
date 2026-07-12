@@ -1,24 +1,47 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+
 import 'package:app/core/router/app_router.dart';
 import 'package:app/core/services/tts_service.dart';
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/core/widgets/app_widgets.dart';
 import 'package:app/core/widgets/bottom_action_bar.dart';
-import 'package:app/core/widgets/skeletons.dart';
 import 'package:app/features/agreement/providers/agreement_provider.dart';
 import 'package:app/features/documents/providers/document_upload_provider.dart';
-import 'package:app/features/questionnaire/domain/interview_step.dart';
 import 'package:app/features/questionnaire/domain/question.dart';
+import 'package:app/features/questionnaire/presentation/document_hint_matcher.dart';
+import 'package:app/features/questionnaire/presentation/interview_script.dart';
 import 'package:app/features/questionnaire/presentation/widgets/agreement_preview_sheet.dart';
-import 'package:app/features/questionnaire/presentation/widgets/question_card.dart';
+import 'package:app/features/questionnaire/presentation/widgets/answer_composer.dart';
+import 'package:app/features/questionnaire/presentation/widgets/assistant_question_view.dart';
+import 'package:app/features/questionnaire/presentation/widgets/conversation_recap.dart';
+import 'package:app/features/questionnaire/presentation/widgets/document_hint_card.dart';
+import 'package:app/features/questionnaire/presentation/widgets/document_invite_view.dart';
+import 'package:app/features/questionnaire/presentation/widgets/document_scanning_view.dart';
+import 'package:app/features/questionnaire/presentation/widgets/extraction_celebration_view.dart';
+import 'package:app/features/questionnaire/presentation/widgets/generation_sequence_view.dart';
+import 'package:app/features/questionnaire/presentation/widgets/greeting_view.dart';
+import 'package:app/features/questionnaire/presentation/widgets/interview_header.dart';
+import 'package:app/features/questionnaire/presentation/widgets/review_view.dart';
+import 'package:app/features/questionnaire/presentation/widgets/thinking_indicator.dart';
 import 'package:app/features/questionnaire/providers/questionnaire_provider.dart';
 import 'package:app/shared/animation/entrance.dart';
 import 'package:app/shared/widgets/primary_button.dart';
 
-
+/// The Agreement Interview, redesigned as a conversation with an AI legal
+/// assistant rather than a questionnaire:
+///
+///   greeting -> (document invite -> scanning -> celebration) ->
+///   questions with thinking beats -> review -> generate
+///
+/// There is deliberately no "Вопрос N" anywhere. Progress is expressed as
+/// how ready the agreement is, and the live document (header chip) grows
+/// after every answer. All backend contracts are unchanged - this is a
+/// pure presentation/state redesign over the same Interview Planner.
 class QuestionnairePage extends StatefulWidget {
   const QuestionnairePage({super.key, required this.dealId, required this.templateTitle});
 
@@ -31,17 +54,63 @@ class QuestionnairePage extends StatefulWidget {
 
 class _QuestionnairePageState extends State<QuestionnairePage> {
   final TextEditingController _controller = TextEditingController();
-  bool _showCheck = false;
-  bool _hasText = false;
-  int? _controllerBoundToFieldId;
+  final InterviewScript _script = InterviewScript();
+  final ImagePicker _picker = ImagePicker();
+
+  /// Micro-emotion shown above the current question; null before the first
+  /// answer (nothing to acknowledge yet).
+  String? _acknowledgment;
+
+  /// Non-null while the post-answer "Обновляю договор…" beat is showing.
+  String? _thinkingLabel;
+
+  /// True while an upload+OCR round-trip runs (invite or paperclip path).
+  bool _uploadingDocument = false;
+
+  /// True between a successful OCR and the user tapping "Продолжить" on
+  /// the celebration screen.
+  bool _celebrating = false;
+  String _celebrationTitle = '';
+
+  /// Greeting stays up at least this long even when the backend answers
+  /// faster, so the intro actually registers as a sentence, not a flash.
+  bool _greetingHoldDone = false;
+  bool _interviewStarted = false;
+
   bool _closingSpoken = false;
   String? _lastSpokenQuestionText;
+  int? _controllerBoundToFieldId;
 
-  /// True while a document picked via the attach icon is being uploaded
-  /// and OCR-processed - this can take several seconds, so the attach
-  /// icon disables and an overlay makes the wait visible instead of the
-  /// screen looking stuck.
-  bool _attaching = false;
+  /// True from the moment "Создать договор" is tapped until navigation to
+  /// the agreement screen (or a failure reverts to the review).
+  bool _generating = false;
+
+  /// Cached so the progress phrase only re-rolls when the underlying
+  /// [ProgressTier] actually changes, not on every rebuild - see
+  /// [InterviewScript.progressPhrase].
+  ProgressTier? _progressTierCache;
+  String _progressPhraseCache = '';
+
+  /// Decorative fallback for the review hero when the backend didn't send
+  /// a `closingMessage` for this deal - picked once when the interview
+  /// first becomes ready, not re-rolled on every review-screen rebuild.
+  String? _completionFallback;
+
+  /// Minimum number of answered questions between two document-upload
+  /// nudges for the *same* category - "at most once every 2-3 related
+  /// questions", never on every question.
+  static const int _hintCooldownQuestions = 3;
+
+  /// [QuestionnaireProvider.answers] length at which each category was
+  /// last shown, so re-showing it can be rate-limited independently per
+  /// topic (a vehicle nudge doesn't suppress a real-estate one).
+  final Map<DocumentHintCategory, int> _hintShownAtAnswerCount = {};
+
+  /// The nudge currently offered for [QuestionnaireProvider.currentQuestion],
+  /// if any - re-evaluated whenever the field changes, clearable early via
+  /// its own dismiss button without affecting the cooldown above (it was
+  /// already shown once, so it stays cooled down either way).
+  DocumentHintCategory? _activeHint;
 
   QuestionnaireProvider? _provider;
   TtsService? _tts;
@@ -49,12 +118,14 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
   @override
   void initState() {
     super.initState();
-    _controller.addListener(_onControllerChanged);
     final provider = context.read<QuestionnaireProvider>();
     final documentUploadProvider = context.read<DocumentUploadProvider>();
     Future.microtask(() {
       documentUploadProvider.attachDeal(widget.dealId);
       return provider.start(widget.dealId);
+    });
+    Future.delayed(const Duration(milliseconds: 1800), () {
+      if (mounted) setState(() => _greetingHoldDone = true);
     });
   }
 
@@ -77,16 +148,12 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
     super.dispose();
   }
 
-  void _onControllerChanged() {
-    final hasText = _controller.text.trim().isNotEmpty;
-    if (hasText != _hasText) setState(() => _hasText = hasText);
-  }
-
-  /// Keeps the text field in sync with whichever question is current —
+  /// Keeps the composer in sync with whichever question is current -
   /// prefilled when going back to an already-answered one, empty for a
-  /// fresh one from the planner — and reads each new question aloud.
+  /// fresh one - and reads each new question aloud.
   void _onProviderChanged() {
     if (_provider?.readyToGenerate ?? false) {
+      _completionFallback ??= _script.completionFallback();
       final closing = _provider?.closingMessage;
       if (!_closingSpoken && closing != null) {
         _closingSpoken = true;
@@ -107,61 +174,66 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
 
     // A repeated question (side remark handled, interview didn't move on)
     // keeps the same fieldId but comes back with new text woven in -
-    // clear the box instead of reusing the goBack()-style answer prefill,
-    // so the user isn't left staring at the remark they just sent.
+    // clear the box instead of reusing the goBack()-style answer prefill.
     final text = sameField ? '' : _provider!.answerFor(field.fieldId);
     _controller.value = TextEditingValue(text: text, selection: TextSelection.collapsed(offset: text.length));
-    _tts?.speak(field.fieldName);
+
+    _activeHint = _evaluateDocumentHint(field);
+    final hint = _activeHint;
+    if (hint != null) {
+      _hintShownAtAnswerCount[hint] = _provider!.answers.length;
+      _tts?.speak('${field.fieldName} ${InterviewScript.documentHintSuffix(hint)}');
+    } else {
+      _tts?.speak(field.fieldName);
+    }
   }
 
-  Future<void> _submitAnswer(QuestionnaireProvider provider, {String? textOverride}) async {
-    final text = (textOverride ?? _controller.text).trim();
-    if (text.isEmpty) return;
-    setState(() => _showCheck = true);
-    await Future<void>.delayed(const Duration(milliseconds: 220));
-    if (!mounted) return;
-    setState(() => _showCheck = false);
-    await provider.submitAnswer(text);
+  /// Whether to show [DocumentHintCard] for [field]: it must look
+  /// document-friendly, the user must not already have a processed
+  /// document on file (they either skipped the initial upload or it
+  /// didn't cover this), and this topic must not have been nudged in the
+  /// last [_hintCooldownQuestions] answers - never every question.
+  DocumentHintCategory? _evaluateDocumentHint(Question field) {
+    final uploads = context.read<DocumentUploadProvider>();
+    if (uploads.uploadedDocuments.any((d) => d.isProcessed)) return null;
+
+    final category = DocumentHintMatcher.categoryFor(field.fieldName);
+    if (category == null) return null;
+
+    final answeredCount = _provider!.answers.length;
+    final lastShownAt = _hintShownAtAnswerCount[category];
+    if (lastShownAt != null && answeredCount - lastShownAt < _hintCooldownQuestions) return null;
+
+    return category;
   }
 
-  /// Fired when speech recognition settles on a final transcript - answers
-  /// the question immediately, the same as tapping "Далее", so a spoken
-  /// answer never waits on a separate confirmation tap.
-  void _onVoiceSubmit(String text) {
+  void _dismissHint() => setState(() => _activeHint = null);
+
+  /// Answer -> short thinking beat (never shorter than [Motion.thinkingMin])
+  /// -> next question arrives under a fresh acknowledgment.
+  Future<void> _submitAnswer(String text) async {
     final provider = context.read<QuestionnaireProvider>();
-    if (provider.isLoading) return;
-    unawaited(_submitAnswer(provider, textOverride: text));
+    if (provider.isLoading || text.trim().isEmpty) return;
+
+    HapticFeedback.selectionClick();
+    FocusScope.of(context).unfocus();
+    setState(() => _thinkingLabel = _script.thinking());
+
+    await Future.wait([provider.submitAnswer(text.trim()), Future<void>.delayed(Motion.thinkingMin)]);
+    if (!mounted) return;
+
+    setState(() {
+      _thinkingLabel = null;
+      _acknowledgment = _script.acknowledgment();
+    });
   }
 
-  /// Lets the user attach a photo/scan for the current question instead of
-  /// typing it - available on every question, not just when
-  /// [QuestionnaireProvider.documentSuggestion] proactively suggests one.
-  Future<void> _attachDocument() async {
-    final source = await showModalBottomSheet<ImageSource>(
-      context: context,
-      builder: (sheetContext) => SafeArea(
-        child: Wrap(
-          children: [
-            ListTile(
-              leading: const Icon(Icons.photo_camera_outlined),
-              title: const Text('Камера'),
-              onTap: () => Navigator.pop(sheetContext, ImageSource.camera),
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_library_outlined),
-              title: const Text('Галерея'),
-              onTap: () => Navigator.pop(sheetContext, ImageSource.gallery),
-            ),
-          ],
-        ),
-      ),
-    );
-    if (source == null || !mounted) return;
+  // --- Document upload (invite screen + composer paperclip) ---
 
-    final picker = ImagePicker();
+  Future<void> _pickAndUpload(ImageSource source) async {
     final files = source == ImageSource.camera
-        ? await picker.pickImage(source: ImageSource.camera, imageQuality: 85).then((f) => f == null ? <XFile>[] : [f])
-        : await picker.pickMultiImage(imageQuality: 85);
+        ? await _picker.pickImage(source: ImageSource.camera, imageQuality: 85).then((f) => f == null ? <XFile>[] : [f])
+        : await _picker.pickMultiImage(imageQuality: 85);
     if (files.isEmpty || !mounted) return;
 
     final entries = <(String, String, List<int>)>[];
@@ -171,195 +243,258 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
     }
     if (!mounted) return;
 
-    setState(() => _attaching = true);
+    setState(() => _uploadingDocument = true);
     final uploadProvider = context.read<DocumentUploadProvider>();
-    final questionnaireProvider = context.read<QuestionnaireProvider>();
-    try {
-      final success = await uploadProvider.upload(entries);
-      if (!mounted) return;
+    final questionnaire = context.read<QuestionnaireProvider>();
+    final success = await uploadProvider.upload(entries);
+    if (!mounted) return;
 
-      if (success) {
-        await questionnaireProvider.resumeAfterDocumentUpload();
-      } else {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(uploadProvider.errorMessage ?? 'Не удалось загрузить документ.')));
-      }
-    } finally {
-      if (mounted) setState(() => _attaching = false);
+    if (success) {
+      HapticFeedback.mediumImpact();
+      // Refresh the backend's remaining-questions estimate so the
+      // celebration line reflects what the upload just covered.
+      unawaited(questionnaire.refreshDerivedState());
+      setState(() {
+        _uploadingDocument = false;
+        _celebrating = true;
+        _celebrationTitle = _script.celebrationTitle();
+      });
+    } else {
+      setState(() => _uploadingDocument = false);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(uploadProvider.errorMessage ?? 'Не удалось загрузить документ.')));
     }
   }
 
-  void _showHelp(String question) {
-    showDialog<void>(
+  /// "Продолжить" on the celebration screen: let the planner skip
+  /// everything the upload filled. The next question's acknowledgment
+  /// names the document explicitly instead of a generic reaction, so the
+  /// assistant sounds like it noticed the help it just got.
+  Future<void> _continueAfterCelebration() async {
+    final questionnaire = context.read<QuestionnaireProvider>();
+    final uploads = context.read<DocumentUploadProvider>();
+    HapticFeedback.selectionClick();
+    uploads.clearMismatchWarnings();
+    setState(() {
+      _celebrating = false;
+      _acknowledgment = _script.documentFollowUpAcknowledgment();
+    });
+    await questionnaire.resumeAfterDocumentUpload();
+  }
+
+  Future<void> _attachFromComposer() async {
+    final source = await showModalBottomSheet<ImageSource>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Зачем этот вопрос?'),
-        content: Text('«$question» нужно, чтобы точно отразить это условие в договоре.'),
-        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Понятно'))],
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(Corners.xl)),
+      ),
+      builder: (sheetContext) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: Insets.x8),
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_camera_outlined),
+                title: const Text('Камера'),
+                onTap: () => Navigator.pop(sheetContext, ImageSource.camera),
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library_outlined),
+                title: const Text('Галерея'),
+                onTap: () => Navigator.pop(sheetContext, ImageSource.gallery),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (source == null || !mounted) return;
+    await _pickAndUpload(source);
+  }
+
+  void _showWhySheet(String question) {
+    final theme = Theme.of(context);
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: theme.colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(Corners.xl)),
+      ),
+      builder: (context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(Insets.x24, Insets.x24, Insets.x24, Insets.x32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Зачем это нужно?', style: theme.textTheme.titleLarge),
+              const SizedBox(height: Insets.x12),
+              Text(
+                'Эта информация нужна, чтобы точно и однозначно отразить условие '
+                'в договоре. Без неё документ может оказаться юридически неполным.',
+                style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant, height: 1.5),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
 
+  /// Tap "Создать договор" -> premium checklist sequence, paced by
+  /// [Motion.generationStep] per step, running in parallel with the real
+  /// `generate` call - whichever takes longer wins, so a fast backend
+  /// still shows the full sequence and a slow one is never masked by a
+  /// fake progress bar that lies about being done.
   Future<void> _generate() async {
+    if (_generating) return;
     final questionnaire = context.read<QuestionnaireProvider>();
     final agreementProvider = context.read<AgreementProvider>();
     final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
 
-    final success = await agreementProvider.generate(widget.dealId, questionnaire.answers);
+    HapticFeedback.mediumImpact();
+    setState(() => _generating = true);
+
+    final minSequenceDuration = Motion.generationStep * (_script.generationSteps.length - 1);
+    final results = await Future.wait([
+      agreementProvider.generate(widget.dealId, questionnaire.answers),
+      Future<void>.delayed(minSequenceDuration),
+    ]);
     if (!mounted) return;
 
+    final success = results[0] as bool;
     if (success) {
       navigator.pushNamed(AppRoutes.agreement);
     } else {
+      setState(() => _generating = false);
       messenger.showSnackBar(
-        SnackBar(content: Text(agreementProvider.errorMessage ?? 'Could not generate the agreement.')),
+        SnackBar(content: Text(agreementProvider.errorMessage ?? 'Не удалось создать договор.')),
       );
     }
   }
 
+  // --- Progress (backend-computed, presentation scaling only) ---
+
+  /// Renders `GET /interview-preview`'s numbers as a 0..1 bar. The only
+  /// local math is a small visual floor so the bar is never empty and a
+  /// pin to 1 once the backend declares the interview ready.
+  double _progress(QuestionnaireProvider p) {
+    if (p.readyToGenerate) return 1;
+    final preview = p.preview;
+    if (preview == null || preview.totalAskableFields == 0) return 0.08;
+    final covered = preview.totalAskableFields - preview.estimatedRemainingQuestions;
+    return (0.08 + 0.92 * covered / preview.totalAskableFields).clamp(0.0, 1.0);
+  }
+
+  /// Progress phrase, re-rolled only when the underlying [ProgressTier]
+  /// changes - reading it every rebuild without caching would pick a new
+  /// synonym on every frame for the exact same state, which reads as
+  /// noise rather than a calm, steady assistant.
+  String _statusText(QuestionnaireProvider provider) {
+    if (provider.readyToGenerate) return 'Договор готов к созданию';
+    final tier = InterviewScript.progressTier(
+      firstQuestion: provider.answers.isEmpty,
+      remaining: provider.preview?.estimatedRemainingQuestions,
+      answeredCount: provider.answers.length,
+    );
+    if (tier != _progressTierCache) {
+      _progressTierCache = tier;
+      _progressPhraseCache = _script.progressPhrase(tier);
+    }
+    return _progressPhraseCache;
+  }
+
+  /// Labels of every field already answered, in the order they were
+  /// answered - [QuestionnaireProvider.answers] is a `Map` populated in
+  /// insertion order, and [QuestionnaireProvider.allFields] supplies the
+  /// human labels. Pure formatting of two already-fetched backend lists,
+  /// nothing computed.
+  List<String> _answeredLabels(QuestionnaireProvider provider) {
+    final labelsById = {for (final q in provider.allFields) q.fieldId: q.fieldName};
+    return [
+      for (final fieldId in provider.answers.keys) ?labelsById[fieldId],
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Scaffold(
       body: SafeArea(
-        child: Consumer<QuestionnaireProvider>(
-          builder: (context, provider, _) {
-            if (provider.isLoading &&
-                provider.currentQuestion == null &&
-                !provider.readyToGenerate &&
-                provider.documentSuggestion == null) {
-              return const CenteredContent(
-                child: Padding(
-                  padding: EdgeInsets.all(Insets.x20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Skeleton(width: 120, height: 14),
-                      SizedBox(height: Insets.x32),
-                      Skeleton(height: 24),
-                      SizedBox(height: Insets.x8),
-                      Skeleton(width: 240, height: 24),
-                      SizedBox(height: Insets.x24),
-                      Skeleton(height: 56, radius: Corners.sm),
-                    ],
-                  ),
-                ),
+        child: Consumer2<QuestionnaireProvider, DocumentUploadProvider>(
+          builder: (context, provider, uploads, _) {
+            final hasContent = provider.currentQuestion != null ||
+                provider.readyToGenerate ||
+                provider.documentSuggestion != null ||
+                provider.errorMessage != null;
+            final showGreeting = !_interviewStarted && (!_greetingHoldDone || !hasContent);
+            if (!showGreeting && hasContent) _interviewStarted = true;
+
+            final Widget content;
+            if (_generating) {
+              content = GenerationSequenceView(key: const ValueKey('generating'), steps: _script.generationSteps);
+            } else if (_uploadingDocument) {
+              content = DocumentScanningView(key: const ValueKey('scanning'), steps: _script.scanningSteps);
+            } else if (_celebrating) {
+              content = ExtractionCelebrationView(
+                key: const ValueKey('celebration'),
+                title: _celebrationTitle,
+                documents: uploads.lastUploadBatch,
+                remainingQuestions: provider.preview?.estimatedRemainingQuestions,
+                warnings: uploads.pendingMismatchWarnings,
+                onContinue: _continueAfterCelebration,
               );
-            }
-            if (provider.errorMessage != null &&
-                provider.currentQuestion == null &&
-                !provider.readyToGenerate &&
-                provider.documentSuggestion == null) {
-              return AppErrorView(
+            } else if (showGreeting) {
+              content = GreetingView(
+                key: const ValueKey('greeting'),
+                title: _script.greetingTitle(widget.templateTitle),
+                body: _script.greetingBody,
+              );
+            } else if (provider.errorMessage != null && provider.currentQuestion == null && !provider.readyToGenerate) {
+              content = AppErrorView(
+                key: const ValueKey('error'),
                 message: provider.errorMessage!,
                 onRetry: () => provider.start(widget.dealId),
               );
+            } else if (provider.documentSuggestion != null) {
+              content = DocumentInviteView(
+                key: const ValueKey('invite'),
+                suggestion: provider.documentSuggestion!,
+                onCamera: () => _pickAndUpload(ImageSource.camera),
+                onGallery: () => _pickAndUpload(ImageSource.gallery),
+                onSkip: () => provider.dismissDocumentSuggestion(),
+              );
+            } else if (provider.readyToGenerate) {
+              content = _withHeader(
+                provider,
+                ReviewView(templateTitle: widget.templateTitle, fallbackMessage: _completionFallback),
+              );
+            } else if (provider.currentQuestion != null) {
+              content = _questionPhase(provider);
+            } else {
+              // Between phases (e.g. right after dismissing the document
+              // invite) while the planner decides the next step.
+              content = const Center(
+                key: ValueKey('inter-step'),
+                child: ThinkingIndicator(label: 'Готовлю следующий шаг…'),
+              );
             }
 
-            final field = provider.currentQuestion;
-
             return CenteredContent(
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(Insets.x20, Insets.x12, Insets.x20, 0),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(widget.templateTitle, style: theme.textTheme.titleMedium),
-                              const SizedBox(height: Insets.x8),
-                              Text(
-                                provider.documentSuggestion != null
-                                    ? 'Загрузка документа'
-                                    : provider.readyToGenerate
-                                    ? 'Готово к созданию'
-                                    : 'Вопрос ${provider.position}',
-                                style: theme.textTheme.labelLarge?.copyWith(
-                                  color: theme.colorScheme.onSurfaceVariant,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: Insets.x8),
-                        IconButton(
-                          onPressed: () => AgreementPreviewSheet.show(
-                            context,
-                            questions: provider.allFields,
-                            answers: provider.answers,
-                          ),
-                          icon: const Icon(Icons.description_outlined),
-                          tooltip: 'Предпросмотр договора',
-                          style: IconButton.styleFrom(
-                            backgroundColor: theme.colorScheme.surfaceContainerHigh,
-                            foregroundColor: theme.colorScheme.onSurface,
-                          ),
-                        ),
-                      ],
-                    ),
+              child: AnimatedSwitcher(
+                duration: Motion.slow,
+                switchInCurve: Motion.curve,
+                switchOutCurve: Motion.curve,
+                transitionBuilder: (child, animation) => FadeTransition(
+                  opacity: animation,
+                  child: SlideTransition(
+                    position: Tween(begin: const Offset(0, 0.015), end: Offset.zero).animate(animation),
+                    child: child,
                   ),
-                  Expanded(
-                    child: Stack(
-                      children: [
-                        if (provider.documentSuggestion != null)
-                          _DocumentSuggestionView(suggestion: provider.documentSuggestion!)
-                        else if (provider.readyToGenerate)
-                          _ReviewConfirmView(templateTitle: widget.templateTitle)
-                        else if (field != null)
-                          QuestionCard(
-                            key: ValueKey(field.fieldId),
-                            question: field,
-                            controller: _controller,
-                            onChanged: (_) {},
-                            onSpeak: () => _tts?.speak(field.fieldName),
-                            onVoiceSubmit: _onVoiceSubmit,
-                            onAttach: _attaching ? null : _attachDocument,
-                          ).animateEntrance(),
-                        IgnorePointer(
-                          child: AnimatedOpacity(
-                            opacity: _showCheck ? 1 : 0,
-                            duration: Motion.fast,
-                            child: Center(
-                              child: Container(
-                                width: 88,
-                                height: 88,
-                                decoration: BoxDecoration(shape: BoxShape.circle, color: theme.colorScheme.primary),
-                                child: const Icon(Icons.check_rounded, color: Colors.white, size: 44),
-                              ),
-                            ),
-                          ),
-                        ),
-                        if (_attaching)
-                          IgnorePointer(
-                            child: Container(
-                              color: theme.colorScheme.surface.withValues(alpha: 0.85),
-                              child: Center(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const CircularProgressIndicator(),
-                                    const SizedBox(height: Insets.x16),
-                                    Text(
-                                      'Обрабатываю документ…',
-                                      style: theme.textTheme.bodyMedium?.copyWith(
-                                        color: theme.colorScheme.onSurfaceVariant,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
+                ),
+                child: content,
               ),
             );
           },
@@ -367,303 +502,102 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
       ),
       bottomNavigationBar: Consumer<QuestionnaireProvider>(
         builder: (context, provider, _) {
-          if (provider.currentQuestion == null && !provider.readyToGenerate) return const SizedBox.shrink();
-
+          if (!provider.readyToGenerate || _celebrating || _uploadingDocument || _generating) {
+            return const SizedBox.shrink();
+          }
           return BottomActionBar(
-            child: Row(
-              children: [
-                IconButton(
-                  onPressed: provider.canGoBack ? provider.goBack : null,
-                  icon: const Icon(Icons.arrow_back_rounded),
-                  tooltip: 'Предыдущий вопрос',
-                ),
-                if (!provider.readyToGenerate)
-                  IconButton(
-                    onPressed: provider.currentQuestion == null
-                        ? null
-                        : () => _showHelp(provider.currentQuestion!.fieldName),
-                    icon: const Icon(Icons.help_outline_rounded),
-                    tooltip: 'Помощь',
-                  ),
-                const SizedBox(width: Insets.x8),
-                Expanded(
-                  child: Consumer<AgreementProvider>(
-                    builder: (context, agreementProvider, _) {
-                      if (provider.readyToGenerate) {
-                        return PrimaryButton(
-                          label: 'Создать договор',
-                          loading: agreementProvider.isLoading,
-                          onPressed: _generate,
-                        );
-                      }
-                      return PrimaryButton(
-                        label: 'Далее',
-                        icon: Icons.arrow_forward,
-                        loading: provider.isLoading,
-                        onPressed: _hasText ? () => _submitAnswer(provider) : null,
-                      );
-                    },
-                  ),
-                ),
-              ],
+            child: Consumer<AgreementProvider>(
+              builder: (context, agreementProvider, _) => PrimaryButton(
+                label: 'Создать договор',
+                loading: agreementProvider.isLoading,
+                onPressed: _generate,
+              ),
             ),
           );
         },
       ),
     );
   }
-}
 
-/// Shown once the interview has everything it needs, before the "Создать
-/// договор" button does anything irreversible - every collected answer is
-/// listed and editable in place, so a misheard or misread value can be
-/// fixed without restarting the interview from scratch.
-class _ReviewConfirmView extends StatelessWidget {
-  const _ReviewConfirmView({required this.templateTitle});
-
-  final String templateTitle;
-
-  Future<void> _editField(BuildContext context, QuestionnaireProvider provider, Question field) async {
-    final newValue = await showDialog<String>(
-      context: context,
-      builder: (context) => _EditFieldDialog(label: field.fieldName, initialValue: provider.answerFor(field.fieldId)),
-    );
-    if (newValue == null || !context.mounted) return;
-
-    final messenger = ScaffoldMessenger.of(context);
-    final ok = await provider.editAnswer(field.fieldId, field.fieldName, newValue);
-    if (!ok && context.mounted) {
-      messenger.showSnackBar(const SnackBar(content: Text('Не удалось сохранить изменение')));
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Consumer<QuestionnaireProvider>(
-      builder: (context, provider, _) {
-        final collected = provider.allFields.where((f) => provider.answers.containsKey(f.fieldId)).toList();
-
-        return ListView(
-          padding: const EdgeInsets.fromLTRB(Insets.x20, Insets.x8, Insets.x20, Insets.x32),
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(color: theme.colorScheme.primaryContainer, shape: BoxShape.circle),
-                  child: Icon(Icons.check_rounded, color: theme.colorScheme.onPrimaryContainer, size: 24),
-                ),
-                const SizedBox(width: Insets.x12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Проверьте данные', style: theme.textTheme.titleLarge),
-                      Text(
-                        'Прежде чем создать «$templateTitle», убедитесь, что всё верно',
-                        style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: Insets.x24),
-            for (final (index, field) in collected.indexed)
-              Padding(
-                padding: const EdgeInsets.only(bottom: Insets.x8),
-                child: Material(
-                  color: theme.colorScheme.surfaceContainerLow,
-                  borderRadius: Corners.lgRadius,
-                  child: InkWell(
-                    borderRadius: Corners.lgRadius,
-                    onTap: () => _editField(context, provider, field),
-                    child: Padding(
-                      padding: const EdgeInsets.all(Insets.x16),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  field.fieldName,
-                                  style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-                                ),
-                                const SizedBox(height: Insets.x4),
-                                Text(provider.answerFor(field.fieldId), style: theme.textTheme.bodyLarge),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: Insets.x8),
-                          Icon(Icons.edit_outlined, size: 18, color: theme.colorScheme.primary),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ).animateEntranceStaggered(index.clamp(0, 8)),
-          ],
-        );
-      },
-    );
-  }
-}
-
-/// Non-mandatory "upload this instead of typing N fields" screen - shown
-/// in place of the next question, never mixed into the same screen as one.
-/// Uploading resumes the interview (skipping whatever got filled);
-/// "Продолжить без документа" dismisses it for good and resumes normally.
-class _DocumentSuggestionView extends StatefulWidget {
-  const _DocumentSuggestionView({required this.suggestion});
-
-  final DocumentSuggestion suggestion;
-
-  @override
-  State<_DocumentSuggestionView> createState() => _DocumentSuggestionViewState();
-}
-
-class _DocumentSuggestionViewState extends State<_DocumentSuggestionView> {
-  final _picker = ImagePicker();
-  bool _uploading = false;
-
-  Future<void> _pickFromCamera() async {
-    final photo = await _picker.pickImage(source: ImageSource.camera, imageQuality: 85);
-    if (photo == null || !mounted) return;
-    await _upload([photo]);
-  }
-
-  Future<void> _pickFromGallery() async {
-    final photos = await _picker.pickMultiImage(imageQuality: 85);
-    if (photos.isEmpty || !mounted) return;
-    await _upload(photos);
-  }
-
-  Future<void> _upload(List<XFile> files) async {
-    final entries = <(String, String, List<int>)>[];
-    for (final file in files) {
-      final bytes = await file.readAsBytes();
-      entries.add((file.name, file.mimeType ?? 'image/jpeg', bytes));
-    }
-    if (!mounted) return;
-
-    setState(() => _uploading = true);
-    final uploadProvider = context.read<DocumentUploadProvider>();
-    final success = await uploadProvider.upload(entries);
-    if (!mounted) return;
-    setState(() => _uploading = false);
-
-    if (success) {
-      await context.read<QuestionnaireProvider>().resumeAfterDocumentUpload();
-    } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(uploadProvider.errorMessage ?? 'Не удалось загрузить документ.')));
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final suggestion = widget.suggestion;
-
-    return CenteredContent(
-      child: Padding(
-        padding: const EdgeInsets.all(Insets.x20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Icon(Icons.camera_alt_outlined, size: 56, color: theme.colorScheme.primary),
-            const SizedBox(height: Insets.x20),
-            Text(suggestion.title, style: theme.textTheme.titleLarge, textAlign: TextAlign.center),
-            const SizedBox(height: Insets.x8),
-            Text(
-              suggestion.description,
-              style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: Insets.x32),
-            if (_uploading)
-              const Center(child: CircularProgressIndicator())
-            else ...[
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: _pickFromCamera,
-                      icon: const Icon(Icons.photo_camera_outlined, size: 20),
-                      label: const Text('Камера'),
-                    ),
-                  ),
-                  const SizedBox(width: Insets.x12),
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: _pickFromGallery,
-                      icon: const Icon(Icons.photo_library_outlined, size: 20),
-                      label: const Text('Галерея'),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: Insets.x12),
-              TextButton(
-                onPressed: () => context.read<QuestionnaireProvider>().dismissDocumentSuggestion(),
-                child: const Text('Продолжить без документа'),
-              ),
-            ],
-          ],
+  /// Header (status + live progress + document chip) over any phase that
+  /// is part of the "agreement is being built" narrative. Keyed by phase,
+  /// not by question - the header must stay mounted across questions so
+  /// its progress bar sweeps forward instead of restarting from zero.
+  Widget _withHeader(QuestionnaireProvider provider, Widget child) {
+    return Column(
+      key: ValueKey(provider.readyToGenerate ? 'phase-review' : 'phase-question'),
+      children: [
+        InterviewHeader(
+          title: widget.templateTitle,
+          status: _statusText(provider),
+          estimate: provider.readyToGenerate || provider.preview?.estimatedRemainingQuestions == null
+              ? null
+              : InterviewScript.remainingEstimate(provider.preview!.estimatedRemainingQuestions),
+          progress: _progress(provider),
+          onOpenDocument: () => AgreementPreviewSheet.show(context, title: widget.templateTitle),
+          onBack: provider.canGoBack ? provider.goBack : () => Navigator.of(context).maybePop(),
         ),
-      ),
-    );
-  }
-}
-
-/// Owns its `TextEditingController` for the whole dialog route lifetime -
-/// disposing it eagerly right after `showDialog` resolves (rather than
-/// letting this widget's own `dispose()` do it once the exit animation
-/// actually finishes) crashes the framework, because the still-animating
-/// `TextField` tries to rebuild against an already-disposed controller.
-class _EditFieldDialog extends StatefulWidget {
-  const _EditFieldDialog({required this.label, required this.initialValue});
-
-  final String label;
-  final String initialValue;
-
-  @override
-  State<_EditFieldDialog> createState() => _EditFieldDialogState();
-}
-
-class _EditFieldDialogState extends State<_EditFieldDialog> {
-  late final TextEditingController _controller = TextEditingController(text: widget.initialValue);
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(widget.label),
-      content: TextField(
-        controller: _controller,
-        autofocus: true,
-        minLines: 1,
-        maxLines: 4,
-        decoration: const InputDecoration(border: OutlineInputBorder()),
-      ),
-      actions: [
-        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Отмена')),
-        FilledButton(
-          onPressed: () => Navigator.of(context).pop(_controller.text),
-          child: const Text('Сохранить'),
-        ),
+        Expanded(child: child),
       ],
+    );
+  }
+
+  Widget _questionPhase(QuestionnaireProvider provider) {
+    final field = provider.currentQuestion!;
+    final thinking = _thinkingLabel != null;
+
+    return _withHeader(
+      provider,
+      Column(
+        children: [
+          Expanded(
+            child: AnimatedSwitcher(
+              duration: Motion.normal,
+              switchInCurve: Motion.curve,
+              switchOutCurve: Motion.curve,
+              transitionBuilder: (child, animation) => FadeTransition(
+                opacity: animation,
+                child: SlideTransition(
+                  position: Tween(begin: const Offset(0, 0.02), end: Offset.zero).animate(animation),
+                  child: child,
+                ),
+              ),
+              child: thinking
+                  ? Center(key: const ValueKey('thinking'), child: ThinkingIndicator(label: _thinkingLabel!))
+                  : AssistantQuestionView(
+                      key: ValueKey('q-${field.fieldId}-${field.fieldName}'),
+                      question: field,
+                      acknowledgment: _acknowledgment,
+                      onSpeak: () => _tts?.speak(
+                        _activeHint == null
+                            ? field.fieldName
+                            : '${field.fieldName} ${InterviewScript.documentHintSuffix(_activeHint!)}',
+                      ),
+                      onWhy: () => _showWhySheet(field.fieldName),
+                      recap: provider.answers.isEmpty
+                          ? null
+                          : ConversationRecap(answeredLabels: _answeredLabels(provider)),
+                      documentHint: _activeHint == null
+                          ? null
+                          : DocumentHintCard(
+                              key: ValueKey('hint-${_activeHint!.name}'),
+                              onUpload: _attachFromComposer,
+                              onDismiss: _dismissHint,
+                            ),
+                    ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(Insets.x20, 0, Insets.x20, Insets.x16),
+            child: AnswerComposer(
+              controller: _controller,
+              enabled: !provider.isLoading && !thinking,
+              onSubmit: _submitAnswer,
+              onAttach: _uploadingDocument ? null : _attachFromComposer,
+            ),
+          ).animateEntrance(delay: const Duration(milliseconds: 150)),
+        ],
+      ),
     );
   }
 }

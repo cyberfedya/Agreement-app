@@ -3,6 +3,10 @@ using EasyAgree.Application.Deals.Interview;
 using EasyAgree.Application.Documents;
 using EasyAgree.Application.Profile;
 using EasyAgree.Application.Templates;
+using EasyAgree.Application.Legal;
+using EasyAgree.Application.Quality;
+using EasyAgree.Application.Validation;
+using EasyAgree.Application.Risk;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace EasyAgree.Application;
@@ -28,6 +32,10 @@ public static class DependencyInjection
         services.AddScoped<PartyRoleClassifier>();
         services.AddScoped<GenerateFromDealUseCase>();
         services.AddScoped<GetDealAgreementUseCase>();
+        services.AddScoped<GetDealReviewUseCase>();
+        services.AddScoped<GetDealQualityUseCase>();
+        services.AddScoped<GetDealAgreementValidationUseCase>();
+        services.AddScoped<GetDealRiskAssessmentUseCase>();
         services.AddScoped<GetDealInviteUseCase>();
         services.AddScoped<AcceptDealInviteUseCase>();
         services.AddScoped<SignDealSecondPartyUseCase>();
@@ -38,12 +46,19 @@ public static class DependencyInjection
 
         services.AddScoped<UploadDocumentsUseCase>();
         services.AddScoped<GetDealDocumentsUseCase>();
+        services.AddScoped<GetDealDocumentConflictsUseCase>();
         services.AddScoped<GetRequiredDocumentsUseCase>();
         services.AddScoped<DeleteDocumentUseCase>();
         services.AddScoped<GetInterviewPreviewUseCase>();
         services.AddScoped<UpdateDocumentFieldUseCase>();
         services.AddScoped<IntakePreprocessingService>();
         services.AddScoped<DocumentConsistencyChecker>();
+        services.AddSingleton<ILegalKnowledgeProvider, MoneyKnowledgeProvider>();
+        services.AddSingleton<ILegalKnowledgeProvider, VehicleKnowledgeProvider>();
+        services.AddSingleton<ILegalKnowledgeProvider, AddressKnowledgeProvider>();
+        services.AddSingleton<ILegalKnowledgeProvider, PropertyKnowledgeProvider>();
+        services.AddSingleton<ILegalKnowledgeProvider>(new DateKnowledgeProvider(TimeProvider.System));
+        services.AddSingleton<LegalKnowledgeEngine>();
 
         return services;
     }

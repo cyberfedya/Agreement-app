@@ -18,6 +18,7 @@ namespace EasyAgree.Application.Deals.Interview;
 /// </summary>
 public static class DocumentFieldMapper
 {
+    public sealed record Mapping(int FieldId, string Value, string Source, double Confidence, IReadOnlyList<string> HintKeys);
     // Ordered by specificity where labels could otherwise collide (e.g.
     // "берилган сана" alone would also match inside a longer phrase, so
     // the more specific phrase must be listed - and checked - first).
@@ -38,6 +39,18 @@ public static class DocumentFieldMapper
         (["қавати"], ["floor"], false),
     ];
 
+    // Stable English aliases are kept separate from the source-language
+    // rules so translated templates use the same deterministic mapper.
+    private static readonly (string[] LabelKeywords, string[] HintKeys, bool JoinValues)[] EnglishRules =
+    [
+        (["vehicle vin", "vin number"], ["vin", "body_number"], false),
+        (["vehicle make", "vehicle model"], ["brand", "model"], true),
+        (["vehicle year", "manufacture year"], ["year"], false),
+        (["plate number", "vehicle plate"], ["plate_number"], false),
+        (["cadastre number"], ["cadastre_number"], false),
+        (["price", "sale price", "amount"], ["normalized_amount", "price", "amount"], false),
+    ];
+
     /// <summary>
     /// Writes every high-confidence deterministic match straight into
     /// <paramref name="answers"/>. Never overwrites a field the user (or
@@ -52,41 +65,67 @@ public static class DocumentFieldMapper
         DocumentFieldHintCollection hints,
         Dictionary<int, string> answers)
     {
-        if (hints.Fields.Count == 0)
-            return;
+        foreach (var mapping in FindMatches(fields, labels, hints, answers.Keys))
+            answers[mapping.FieldId] = mapping.Value;
+    }
 
-        var hintByKey = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+    /// <summary>
+    /// Produces the deterministic mapping decision without mutating the
+    /// answer set. This is shared by the interview, review API and
+    /// generation path so all surfaces explain the same result.
+    /// </summary>
+    public static IReadOnlyList<Mapping> FindMatches(
+        IReadOnlyList<AgreementTemplateField> fields,
+        IReadOnlyDictionary<int, string> labels,
+        DocumentFieldHintCollection hints,
+        IEnumerable<int>? existingFieldIds = null)
+    {
+        if (hints.Fields.Count == 0)
+            return [];
+
+        var existing = existingFieldIds?.ToHashSet() ?? [];
+        var hintByKey = new Dictionary<string, DocumentFieldHint>(StringComparer.OrdinalIgnoreCase);
         foreach (var hint in hints.Fields)
         {
             if (!hintByKey.ContainsKey(hint.Key))
-                hintByKey[hint.Key] = hint.Value;
+                hintByKey[hint.Key] = hint;
         }
 
+        var matches = new List<Mapping>();
         foreach (var field in fields)
         {
-            if (answers.ContainsKey(field.FieldId))
+            if (existing.Contains(field.FieldId))
                 continue;
             if (!labels.TryGetValue(field.FieldId, out var label) || label.Length == 0)
                 continue;
 
             var lower = label.ToLowerInvariant();
 
-            foreach (var (labelKeywords, hintKeys, joinValues) in Rules)
+            foreach (var (labelKeywords, hintKeys, joinValues) in Rules.Concat(EnglishRules))
             {
                 if (!labelKeywords.Any(lower.Contains))
                     continue;
 
                 var values = hintKeys
-                    .Select(key => hintByKey.TryGetValue(key, out var value) ? value : null)
-                    .Where(value => !string.IsNullOrWhiteSpace(value))
+                    .Select(key => hintByKey.GetValueOrDefault(key))
+                    .Where(hint => hint is not null && !string.IsNullOrWhiteSpace(hint.Value))
+                    .Cast<DocumentFieldHint>()
                     .ToList();
 
                 if (values.Count == 0)
                     break; // Label matched a rule but the document has no data for it - leave for the LLM path.
 
-                answers[field.FieldId] = joinValues ? string.Join(" ", values) : values[0]!;
+                var chosen = joinValues ? values : [values[0]];
+                matches.Add(new Mapping(
+                    field.FieldId,
+                    string.Join(" ", chosen.Select(value => value.Value)),
+                    chosen[0].Source,
+                    chosen.Min(value => value.Confidence),
+                    chosen.Select(value => value.Key).ToList()));
                 break;
             }
         }
+
+        return matches;
     }
 }
