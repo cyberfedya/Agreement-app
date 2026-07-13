@@ -3,7 +3,6 @@ using EasyAgree.Application.Common.Interfaces;
 using EasyAgree.Application.Deals;
 using EasyAgree.Application.Deals.Interview;
 using EasyAgree.Application.Documents;
-using EasyAgree.Domain.Enums;
 
 namespace EasyAgree.Application.Validation;
 
@@ -25,9 +24,14 @@ public sealed class GetDealAgreementValidationUseCase(
         var hints = DocumentFieldHintCollection.FromDocuments(documents);
         DocumentFieldMapper.ApplyMatches(template.Fields, labels, hints, answers);
 
-        var required = template.Fields
-            .Where(field => field.Mode == AgreementFieldMode.Required)
-            .Select(field => (field.FieldId, labels.GetValueOrDefault(field.FieldId, $"field #{field.FieldId}")))
+        // Same eligibility rule the interview itself uses: technical
+        // characteristics (FieldCategory.DocumentOnly) are never asked and
+        // must never count as "required" here either - a missing engine
+        // number must not fail validation or read as a risk when no
+        // document was ever expected to be uploaded.
+        var required = FieldEligibilityEngine.Classify(template.Fields, labels)
+            .Where(field => field.Category is FieldCategory.RequiredObject or FieldCategory.RequiredCommercial or FieldCategory.RequiredTime)
+            .Select(field => (field.FieldId, field.Label))
             .ToList();
         return AgreementValidationEngine.Validate(required, answers, DocumentConflictEngine.Detect(documents));
     }
