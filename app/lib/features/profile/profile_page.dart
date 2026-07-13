@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:app/core/network/api_exception.dart';
 import 'package:app/core/router/app_router.dart';
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/core/widgets/app_widgets.dart';
@@ -34,8 +35,20 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _load() async {
-    final profile = await context.read<ProfileRepository>().getCurrent();
+    final repository = context.read<ProfileRepository>();
+    UserProfile? profile;
+    String? loadError;
+    try {
+      profile = await repository.getCurrent();
+    } on ApiException catch (e) {
+      // A saved profile not loading must never trap the user on an
+      // infinite spinner - fall through to an empty, editable form (they
+      // can still fill it in and save) instead of hanging on a network
+      // blip that a bare `NotFoundException` catch didn't cover.
+      loadError = e.message;
+    }
     if (!mounted) return;
+
     if (profile != null) {
       _fullName.text = profile.fullName;
       _passportNumber.text = profile.passportNumber;
@@ -43,6 +56,12 @@ class _ProfilePageState extends State<ProfilePage> {
       _address.text = profile.address;
     }
     setState(() => _isLoading = false);
+
+    if (loadError != null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Не удалось загрузить сохранённый профиль: $loadError')));
+    }
   }
 
   Future<void> _save() async {
