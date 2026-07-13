@@ -34,18 +34,31 @@ public static class QuestionGroupingEngine
         return firstTopic != FieldTopic.Unknown && firstTopic == Topic(candidate.Label);
     }
 
+    /// <summary>
+    /// Real template field labels are Uzbek/Russian (the interview's actual
+    /// question text, generated from them, follows suit) - the English-only
+    /// keyword lists here matched nothing in production, silently defeating
+    /// grouping for every real deal and turning what should be one combined
+    /// question into several separate ones. Keeping both languages so
+    /// English test fixtures keep working too.
+    /// </summary>
     private static FieldTopic Topic(string label)
     {
         var lower = label.ToLowerInvariant();
-        if (ContainsAny(lower, "vin", "vehicle", "car", "plate", "engine", "chassis", "body", "brand", "model", "manufacture year"))
+        if (ContainsAny(lower, "vin", "vehicle", "car", "plate", "engine", "chassis", "body", "brand", "model", "manufacture year",
+                "автотранспорт", "автомашина", "автомобил", "русуми", "давлат рақам", "госномер", "гос. номер"))
             return FieldTopic.Vehicle;
-        if (ContainsAny(lower, "cadastre", "property", "address", "area", "room", "floor", "apartment", "building"))
+        if (ContainsAny(lower, "cadastre", "property", "address", "area", "room", "floor", "apartment", "building",
+                "кадастр", "манзил", "адрес", "уй", "хонадон", "квартир", "этаж", "бино"))
             return FieldTopic.Property;
-        if (ContainsAny(lower, "price", "amount", "payment", "bank account", "interest", "installment", "salary"))
+        if (ContainsAny(lower, "price", "amount", "payment", "bank account", "interest", "installment", "salary",
+                "нарх", "баҳо", "қиймат", "стоимост", "цена", "сумма", "тўлов", "оплат", "фоиз", "процент", "рассроч", "маош"))
             return FieldTopic.Payment;
-        if (ContainsAny(lower, "date", "deadline", "term", "duration", "repayment", "start", "end"))
+        if (ContainsAny(lower, "date", "deadline", "term", "duration", "repayment", "start", "end",
+                "сана", "муддат", "срок", "дата", "бошлан", "тугаш"))
             return FieldTopic.Timing;
-        if (ContainsAny(lower, "service", "work", "goods", "product", "delivery"))
+        if (ContainsAny(lower, "service", "work", "goods", "product", "delivery",
+                "хизмат", "маҳсулот", "товар", "топшир"))
             return FieldTopic.Subject;
 
         return FieldTopic.Unknown;

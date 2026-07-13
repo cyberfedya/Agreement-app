@@ -1,11 +1,9 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-
 import 'package:app/core/router/app_router.dart';
 import 'package:app/features/agreement/domain/agreement_html.dart';
 import 'package:app/features/agreement/domain/agreement_pdf.dart';
@@ -30,8 +28,6 @@ class AgreementPage extends StatefulWidget {
 }
 
 class _AgreementPageState extends State<AgreementPage> {
-  // Cached rather than looked up via context.read() in dispose(): by then
-  // the element is deactivated and ancestor lookups are unsafe.
   AgreementProvider? _provider;
   Timer? _pollTimer;
   bool _signing = false;
@@ -46,17 +42,12 @@ class _AgreementPageState extends State<AgreementPage> {
       _startPollingIfNeeded();
     }
   }
-
   @override
   void dispose() {
     _pollTimer?.cancel();
     _provider?.removeListener(_onProviderChanged);
     super.dispose();
   }
-
-  /// The second party signs on their own device after scanning the QR
-  /// code - there's no push mechanism, so this device has to periodically
-  /// ask the backend whether that's happened yet.
   void _startPollingIfNeeded() {
     final agreement = _provider?.agreement;
     if (agreement == null || _provider!.isFullySigned) return;
@@ -65,7 +56,6 @@ class _AgreementPageState extends State<AgreementPage> {
       if (dealId != null) _provider?.refreshStatus(dealId);
     });
   }
-
   void _onProviderChanged() {
     _startPollingIfNeeded();
     if (_provider!.isFullySigned) {
@@ -73,8 +63,6 @@ class _AgreementPageState extends State<AgreementPage> {
       Navigator.of(context).pushReplacementNamed(AppRoutes.agreementCompleted);
     }
   }
-
-  /// Rough HTML → plain-text conversion for the clipboard.
   static String _plainText(String html) => html
       .replaceAll(RegExp(r'<style[^>]*>.*?</style>', dotAll: true), ' ')
       .replaceAll(RegExp(r'</p>|<br\s*/?>', caseSensitive: false), '\n')
@@ -94,10 +82,6 @@ class _AgreementPageState extends State<AgreementPage> {
   }
 
   Future<void> _exportPdf(BuildContext context, String html) => exportAgreementAsPdf(context, html);
-
-  /// Signs as the first party (creator) using the name saved on this
-  /// device's profile - the same identity already rendered into the
-  /// agreement's first-party fields.
   Future<void> _signAsFirstParty() async {
     if (_signing) return;
     setState(() => _signing = true);

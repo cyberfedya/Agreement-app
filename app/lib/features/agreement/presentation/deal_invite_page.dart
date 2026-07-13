@@ -48,7 +48,31 @@ class _DealInvitePageState extends State<DealInvitePage> {
     }
   }
 
+  /// Root cause of "buyer fields render blank after accept": nothing ever
+  /// forced the second party to fill in their name/passport/address before
+  /// their (empty) profile id got linked as [Deal.SecondPartyProfileId] -
+  /// the rendering pipeline was correct, there was simply no profile row to
+  /// render. Gate acceptance on a filled-in profile so it always exists by
+  /// the time [AgreementRepository.acceptInvite] links it.
+  Future<bool> _ensureProfileIsFilled() async {
+    final profileRepository = context.read<ProfileRepository>();
+    final profile = await profileRepository.getCurrent();
+    if (profile != null && profile.fullName.trim().isNotEmpty) return true;
+    if (!mounted) return false;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Сначала заполните свои данные — они будут указаны в договоре.')),
+    );
+    await Navigator.of(context).pushNamed(AppRoutes.profile);
+    if (!mounted) return false;
+
+    final updated = await profileRepository.getCurrent();
+    return updated != null && updated.fullName.trim().isNotEmpty;
+  }
+
   Future<void> _accept() async {
+    if (!await _ensureProfileIsFilled()) return;
+    if (!mounted) return;
     setState(() => _isAccepting = true);
 
     final agreementRepository = context.read<AgreementRepository>();
@@ -63,9 +87,19 @@ class _DealInvitePageState extends State<DealInvitePage> {
         // The agreement was generated before this device was linked, so
         // its fields were still blank placeholders - regenerate now that
         // this profile is attached, so the document picks it up before
-        // it's shown.
-        await agreementProvider.generate(widget.dealId, const {});
+        // it's shown. Surfacing a failure here (rather than ignoring it)
+        // matters: silently navigating on would show the stale,
+        // placeholder-filled document with no indication anything went
+        // wrong.
+        final regenerated = await agreementProvider.generate(widget.dealId, const {});
         if (!mounted) return;
+        if (!regenerated) {
+          setState(() => _isAccepting = false);
+          messenger.showSnackBar(
+            SnackBar(content: Text(agreementProvider.errorMessage ?? 'Не удалось обновить договор вашими данными.')),
+          );
+          return;
+        }
         navigator.pushReplacementNamed(AppRoutes.agreementSign, arguments: widget.dealId);
       case Failure(:final message):
         if (!mounted) return;

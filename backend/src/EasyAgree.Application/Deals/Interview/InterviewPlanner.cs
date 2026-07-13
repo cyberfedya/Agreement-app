@@ -25,6 +25,20 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator, LegalK
     /// </summary>
     private const int MaxPlanningIterations = 20;
 
+    /// <summary>
+    /// Hard ceiling on distinct questions asked over the life of one deal -
+    /// a simple agreement (e.g. a vehicle sale with no uploaded documents)
+    /// must never turn into an interrogation. Counted via
+    /// <c>askedQuestions</c> (already persisted per-deal across HTTP turns),
+    /// so it holds regardless of how many fields a template declares
+    /// required. Repeats of an already-asked question (a side remark that
+    /// didn't move the interview on) don't count against it - only genuinely
+    /// new questions do. Anything past the cap is left for the same
+    /// blank-placeholder treatment <see cref="FieldCategory.DocumentOnly"/>
+    /// fields already get - it never blocks generation.
+    /// </summary>
+    private const int MaxQuestionsPerInterview = 8;
+
     public async Task<InterviewPlanResult> ExecuteAsync(
         string templateDomain,
         string templateTitle,
@@ -64,6 +78,9 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator, LegalK
             var group = QuestionGroupingEngine.BuildGroups(ordered)[0];
             var groupKey = GroupKey(group);
             var isRepeat = askedQuestions.TryGetValue(groupKey, out var previousQuestion);
+
+            if (!isRepeat && askedQuestions.Count >= MaxQuestionsPerInterview)
+                return InterviewPlanResult.Ready(ClosingPhrases.Pick(language));
 
             GeneratedQuestion generated;
             if (isRepeat)

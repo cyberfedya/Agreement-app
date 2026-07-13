@@ -9,8 +9,8 @@ using EasyAgree.Domain.Enums;
 namespace UnitTests;
 
 /// <summary>
-/// The architectural rule: a technical vehicle characteristic (engine
-/// number, chassis number, ...) must never count toward "required" in
+/// The architectural rule: a technical vehicle characteristic (emissions
+/// class, chassis number, ...) must never count toward "required" in
 /// readiness/quality/risk-feeding validation unless it actually has a
 /// trusted value - not just because the template marks its
 /// <see cref="AgreementFieldMode"/> as Required. Both
@@ -31,7 +31,7 @@ public sealed class DocumentOnlyReadinessTests
         Id = Guid.NewGuid(),
         Domain = "vehicle",
         Key = "vehicle-sale",
-        HtmlTemplate = "<span>{#10}цена автомобиля</span><span>{#20}номер двигателя</span>",
+        HtmlTemplate = "<span>{#10}цена автомобиля</span><span>{#20}экологический класс</span>",
         IsActive = true,
         CreatedAt = DateTime.UtcNow,
         UpdatedAt = DateTime.UtcNow,
@@ -60,7 +60,7 @@ public sealed class DocumentOnlyReadinessTests
 
         Assert.NotNull(score);
         Assert.Equal(1.0, score.RequiredCompletion);
-        Assert.DoesNotContain(score.Recommendations, r => r.Message.Contains("двигателя", StringComparison.OrdinalIgnoreCase));
+        Assert.DoesNotContain(score.Recommendations, r => r.Message.Contains("класс", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]

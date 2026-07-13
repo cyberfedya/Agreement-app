@@ -49,4 +49,45 @@ public sealed class SmartInterviewPlannerTests
 
         Assert.False(FieldDependencyEngine.IsObsolete(candidate, answers, labels));
     }
+
+    [Fact]
+    public void Full_payment_date_is_obsolete_once_payment_method_is_known_and_is_not_installments()
+    {
+        var candidate = new ClassifiedField(38, "Бўлиб тўлаш ҳолатида тўлиқ тўлов амалга ошириладиган сана", FieldCategory.RequiredCommercial);
+        var labels = new Dictionary<int, string>
+        {
+            [37] = "Тўлов қандай амалга оширилади",
+            [38] = "Бўлиб тўлаш ҳолатида тўлиқ тўлов амалга ошириладиган сана",
+        };
+        var answers = new Dictionary<int, string> { [37] = "Нақд" };
+
+        Assert.True(FieldDependencyEngine.IsObsolete(candidate, answers, labels));
+    }
+
+    [Fact]
+    public void Full_payment_date_stays_askable_when_installments_were_chosen()
+    {
+        var candidate = new ClassifiedField(38, "Бўлиб тўлаш ҳолатида тўлиқ тўлов амалга ошириладиган сана", FieldCategory.RequiredCommercial);
+        var labels = new Dictionary<int, string>
+        {
+            [37] = "Тўлов қандай амалга оширилади",
+            [38] = "Бўлиб тўлаш ҳолатида тўлиқ тўлов амалга ошириладиган сана",
+        };
+        var answers = new Dictionary<int, string> { [37] = "Рассрочка" };
+
+        Assert.False(FieldDependencyEngine.IsObsolete(candidate, answers, labels));
+    }
+
+    [Fact]
+    public void Full_payment_date_stays_askable_before_payment_method_is_answered()
+    {
+        var candidate = new ClassifiedField(38, "Бўлиб тўлаш ҳолатида тўлиқ тўлов амалга ошириладиган сана", FieldCategory.RequiredCommercial);
+        var labels = new Dictionary<int, string>
+        {
+            [37] = "Тўлов қандай амалга оширилади",
+            [38] = "Бўлиб тўлаш ҳолатида тўлиқ тўлов амалга ошириладиган сана",
+        };
+
+        Assert.False(FieldDependencyEngine.IsObsolete(candidate, answers: new Dictionary<int, string>(), labels));
+    }
 }

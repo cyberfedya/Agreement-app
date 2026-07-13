@@ -21,12 +21,9 @@ public sealed class FieldEligibilityDocumentOnlyTests
     }
 
     [Theory]
-    [InlineData("номер двигателя")]
-    [InlineData("двигатель рақами")]
     [InlineData("мощность двигателя (л.с.)")]
     [InlineData("объем двигателя")]
     [InlineData("шасси рақами")]
-    [InlineData("номер кузова")]
     [InlineData("снаряженная масса")]
     [InlineData("количество мест для сидения")]
     [InlineData("экологический класс")]
@@ -41,7 +38,10 @@ public sealed class FieldEligibilityDocumentOnlyTests
     [InlineData("VIN рақами")]
     [InlineData("русуми (марка, модель)")]
     [InlineData("давлат рақам белгиси")]
-    public void Vin_brand_model_and_plate_stay_askable_when_required(string label)
+    [InlineData("номер двигателя")]
+    [InlineData("двигатель рақами")]
+    [InlineData("номер кузова")]
+    public void Vin_brand_model_plate_engine_and_body_number_stay_askable_when_required(string label)
     {
         Assert.Equal(FieldCategory.RequiredObject, Classify(label));
     }
@@ -106,5 +106,29 @@ public sealed class FieldEligibilityDocumentOnlyTests
         Assert.Equal(
             FieldCategory.RequiredTime,
             Classify("Товар белгисининг номи гувоҳномасининг рақами, берилган санаси, амал қилиш муддати"));
+    }
+
+    /// <summary>
+    /// The new vehicle_sale_agreement.json fields (VIN, color, special
+    /// marks, transfer date, payment method) added for a richer interview
+    /// flow - all genuinely askable, and the VIN label deliberately avoids
+    /// the word "рама" (frame), which would otherwise collide with the
+    /// chassis/frame-number DocumentOnly keyword.
+    /// </summary>
+    [Theory]
+    [InlineData("Автотранспорт воситасининг VIN рақами")]
+    [InlineData("Автотранспорт воситасининг ранги")]
+    [InlineData("Автотранспорт воситасининг ажралиб турувчи белгилари")]
+    [InlineData("Битимнинг қўшимча шартлари")]
+    public void New_vehicle_sale_fields_stay_askable_as_required_object(string label)
+    {
+        Assert.Equal(FieldCategory.RequiredObject, Classify(label));
+    }
+
+    [Fact]
+    public void New_vehicle_sale_time_and_commercial_fields_classify_correctly()
+    {
+        Assert.Equal(FieldCategory.RequiredTime, Classify("Автотранспорт воситасини топшириш санаси"));
+        Assert.Equal(FieldCategory.RequiredCommercial, Classify("Тўлов қандай амалга оширилади"));
     }
 }

@@ -27,14 +27,20 @@ public sealed class GenerateFromDealSecondPartyRenderingTests
         Id = Guid.NewGuid(),
         Domain = "vehicle",
         Key = "vehicle-sale",
-        HtmlTemplate = "<span>{#10}Сотувчининг Ф.И.О</span><span>{#16}Сотиб олувчининг Ф.И.О</span>",
+        HtmlTemplate =
+            "<span>{#9}Сотувчининг манзили</span><span>{#10}Сотувчининг Ф.И.О</span><span>{#11}Сотувчининг паспорт серияси</span>" +
+            "<span>{#15}Сотиб олувчининг манзили</span><span>{#16}Сотиб олувчининг Ф.И.О</span><span>{#17}Сотиб олувчининг паспорт серияси</span>",
         IsActive = true,
         CreatedAt = DateTime.UtcNow,
         UpdatedAt = DateTime.UtcNow,
         Fields =
         [
+            new AgreementTemplateField { Id = Guid.NewGuid(), AgreementTemplateId = Guid.NewGuid(), FieldId = 9, Mode = AgreementFieldMode.Required },
             new AgreementTemplateField { Id = Guid.NewGuid(), AgreementTemplateId = Guid.NewGuid(), FieldId = 10, Mode = AgreementFieldMode.Required },
+            new AgreementTemplateField { Id = Guid.NewGuid(), AgreementTemplateId = Guid.NewGuid(), FieldId = 11, Mode = AgreementFieldMode.Required },
+            new AgreementTemplateField { Id = Guid.NewGuid(), AgreementTemplateId = Guid.NewGuid(), FieldId = 15, Mode = AgreementFieldMode.Required },
             new AgreementTemplateField { Id = Guid.NewGuid(), AgreementTemplateId = Guid.NewGuid(), FieldId = 16, Mode = AgreementFieldMode.Required },
+            new AgreementTemplateField { Id = Guid.NewGuid(), AgreementTemplateId = Guid.NewGuid(), FieldId = 17, Mode = AgreementFieldMode.Required },
         ],
     };
 
@@ -54,8 +60,20 @@ public sealed class GenerateFromDealSecondPartyRenderingTests
         var deal = NewDeal();
         var dealRepo = new DealRepo(deal);
         var profileRepo = new ProfileRepo(
-            new UserProfile { Id = "seller-profile", FullName = "Продавцов Продавец Продавцович" },
-            new UserProfile { Id = "buyer-profile", FullName = "Покупателев Покупатель Покупателевич" });
+            new UserProfile
+            {
+                Id = "seller-profile",
+                FullName = "Продавцов Продавец Продавцович",
+                PassportNumber = "AC7654321",
+                Address = "г. Самарканд, ул. Образцовая, 5",
+            },
+            new UserProfile
+            {
+                Id = "buyer-profile",
+                FullName = "Покупателев Покупатель Покупателевич",
+                PassportNumber = "AD1234567",
+                Address = "г. Ташкент, ул. Примерная, 1",
+            });
         // Always says "A" (creator is role A / seller) - a deterministic
         // classifier only used to seed the first call's persisted role.
         var aiClient = new FlippingAiChatClient(firstAnswer: "A", subsequentAnswer: "B");
@@ -80,8 +98,46 @@ public sealed class GenerateFromDealSecondPartyRenderingTests
 
         Assert.NotNull(second.Html);
         Assert.Equal(1, aiClient.CallCount); // classifier not called again - persisted role reused
+
+        // Full name, passport and address must all render from
+        // SecondPartyProfile, exactly like FirstPartyProfile's own fields -
+        // not just the name.
         Assert.Contains("Покупателев Покупатель Покупателевич", second.Html);
+        Assert.Contains("AD1234567", second.Html);
+        Assert.Contains("г. Ташкент, ул. Примерная, 1", second.Html);
         Assert.DoesNotContain("____________", second.Html);
+
+        // Seller's own fields must be unaffected.
+        Assert.Contains("Продавцов Продавец Продавцович", second.Html);
+    }
+
+    /// <summary>
+    /// Signing (<see cref="SignDealSecondPartyUseCase"/>) never touches
+    /// <see cref="Deal.GeneratedHtml"/> - the rendered buyer data from the
+    /// post-accept regenerate must still be there afterwards, not reset to
+    /// placeholders by the sign step.
+    /// </summary>
+    [Fact]
+    public async Task Second_party_data_survives_signing()
+    {
+        var deal = NewDeal();
+        var dealRepo = new DealRepo(deal);
+        var profileRepo = new ProfileRepo(
+            new UserProfile { Id = "seller-profile", FullName = "Продавцов Продавец Продавцович" },
+            new UserProfile { Id = "buyer-profile", FullName = "Покупателев Покупатель Покупателевич", PassportNumber = "AD1234567" });
+        var useCase = BuildUseCase(dealRepo, profileRepo, new FlippingAiChatClient(firstAnswer: "A", subsequentAnswer: "A"));
+
+        await useCase.ExecuteAsync(DealId, new Dictionary<int, string>());
+        deal.SecondPartyProfileId = "buyer-profile";
+        deal.AcceptedAt = DateTime.UtcNow;
+        await useCase.ExecuteAsync(DealId, new Dictionary<int, string>());
+
+        Assert.Contains("Покупателев Покупатель Покупателевич", deal.GeneratedHtml);
+
+        await new SignDealSecondPartyUseCase(dealRepo).ExecuteAsync(DealId, "Покупателев Покупатель Покупателевич");
+
+        Assert.Contains("Покупателев Покупатель Покупателевич", deal.GeneratedHtml);
+        Assert.Contains("AD1234567", deal.GeneratedHtml);
     }
 
     private static GenerateFromDealUseCase BuildUseCase(DealRepo dealRepo, ProfileRepo profileRepo, IAiChatClient aiClient) =>

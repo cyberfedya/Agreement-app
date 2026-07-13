@@ -2,8 +2,9 @@ namespace EasyAgree.Application.Deals.Interview;
 
 /// <summary>
 /// Orders askable fields the way a lawyer would raise them: what the
-/// agreement is about first, then money, then dates, then (if ever) the
-/// optional extras.
+/// agreement is about first, then logistics (dates), then money last -
+/// price and payment terms are only asked once everything else about the
+/// deal is already settled, not up front.
 /// </summary>
 public static class QuestionPriorityEngine
 {
@@ -13,8 +14,8 @@ public static class QuestionPriorityEngine
     private static int Rank(FieldCategory category) => category switch
     {
         FieldCategory.RequiredObject => 0,
-        FieldCategory.RequiredCommercial => 1,
-        FieldCategory.RequiredTime => 2,
+        FieldCategory.RequiredTime => 1,
+        FieldCategory.RequiredCommercial => 2,
         FieldCategory.Optional => 3,
         _ => 4,
     };
