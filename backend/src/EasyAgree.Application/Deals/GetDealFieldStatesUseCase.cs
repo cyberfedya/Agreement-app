@@ -121,6 +121,17 @@ public sealed class GetDealFieldStatesUseCase(
                 continue;
             }
 
+            if (field.Category == FieldCategory.DocumentOnly)
+            {
+                // Technical characteristics are never asked and never block
+                // anything: required=false keeps them out of the mandatory-
+                // terms workflow gate, and the draft renders them blank
+                // until a document fills them in.
+                states.Add(State(field, null, false, "document", 1.0, "WAITING_SOURCE", Party(field), false,
+                    "DOCUMENT_PENDING", "Fills in automatically from an uploaded document"));
+                continue;
+            }
+
             states.Add(State(field, null, required, "unknown", 0, "MISSING", Party(field), false,
                 "MISSING", "No trusted value available"));
         }

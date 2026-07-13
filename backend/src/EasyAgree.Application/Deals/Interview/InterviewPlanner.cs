@@ -51,9 +51,18 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator, LegalK
         {
             var askable = Askable(classified, answers, labels);
             if (askable.Count == 0)
-                return InterviewPlanResult.Ready(ClosingPhrases.Pick(language)); 
-                
-            var suggestion = DocumentSuggestionEngine.Evaluate(templateDomain, askable, enrichedHints, dismissedDocumentSuggestions);
+                return InterviewPlanResult.Ready(ClosingPhrases.Pick(language));
+
+            // Document-only technical fields are never asked, but they are
+            // the main reason to recommend an upload - count them toward
+            // the suggestion alongside the genuinely askable fields, so
+            // "upload the tech passport instead of typing numbers" still
+            // fires even though those numbers left the question queue.
+            var suggestionCandidates = askable
+                .Concat(classified.Where(f => f.Category == FieldCategory.DocumentOnly && !answers.ContainsKey(f.FieldId)))
+                .ToList();
+            var suggestion = DocumentSuggestionEngine.Evaluate(
+                templateDomain, suggestionCandidates, enrichedHints, dismissedDocumentSuggestions);
             if (suggestion is not null)
                 return InterviewPlanResult.SuggestDocument(suggestion.DocumentType, suggestion.MatchedFieldCount);
 

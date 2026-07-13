@@ -64,6 +64,27 @@ public static class FieldEligibilityEngine
         "лавозим", "ташкилий-ҳуқуқий", "директор", "раҳбар", "руководител",
     ];
 
+    // Technical characteristics nobody knows from memory - engine/chassis/
+    // body numbers, engine power and displacement, weight, seating,
+    // emissions class, fuel, manufacturer. These come exclusively from an
+    // uploaded document (tech passport, cadastre, ...); the interview must
+    // never ask them out loud, and their absence must never block a draft.
+    // Deliberately does NOT include VIN, brand, model, year or plate
+    // number - owners genuinely know those, and VIN stays askable when the
+    // template requires it and no document covers it.
+    private static readonly string[] TechnicalDocumentOnlyKeywords =
+    [
+        "двигател", "мотор рақами",
+        "шасси", "рама", "рамка рақами",
+        "номер кузова", "кузов рақами", "кузов раками",
+        "мощност", "лошадин", "от кучи", "қувват",
+        "снаряженн", "масса", "вазни", "оғирлиги", "грузоподъем", "юк кўтариш",
+        "мест для сидения", "ўриндиқ", "пассажиров",
+        "экологич", "экологик",
+        "топлив", "ёқилғи", "ёнилғи",
+        "изготовител", "ишлаб чиқарувчи",
+    ];
+
     // Commercial terms - price, payment, salary, interest, fees - used to
     // prioritize eligible required fields, not to exclude them.
     private static readonly string[] CommercialKeywords =
@@ -113,6 +134,9 @@ public static class FieldEligibilityEngine
         {
             return FieldCategory.NeverAsk;
         }
+
+        if (MatchesAny(lower, TechnicalDocumentOnlyKeywords))
+            return FieldCategory.DocumentOnly;
 
         if (field.Mode == AgreementFieldMode.Optional)
             return FieldCategory.Optional;

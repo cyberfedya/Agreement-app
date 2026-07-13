@@ -6,7 +6,7 @@ class AppSearchBar extends StatelessWidget {
   const AppSearchBar({
     super.key,
     this.controller,
-    this.hint = 'Search agreements…',
+    this.hint = 'Поиск договоров…',
     this.onTap,
     this.autofocus = false,
   });
@@ -36,7 +36,7 @@ class AppSearchBar extends StatelessWidget {
                     : IconButton(
                         icon: const Icon(Icons.close, size: 18),
                         onPressed: controller!.clear,
-                        tooltip: 'Clear',
+                        tooltip: 'Очистить',
                       ),
               )
             : null,

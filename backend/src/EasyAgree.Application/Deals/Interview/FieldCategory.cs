@@ -16,4 +16,13 @@ public enum FieldCategory
     RequiredTime,
     Optional,
     NeverAsk,
+
+    /// <summary>
+    /// Technical characteristics an ordinary person does not know from
+    /// memory (engine number, chassis number, weight, engine power, ...).
+    /// Never asked in the interview; filled exclusively from uploaded
+    /// documents, and left blank - without blocking generation - when no
+    /// document was provided.
+    /// </summary>
+    DocumentOnly,
 }

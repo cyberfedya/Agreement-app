@@ -27,7 +27,7 @@ Future<void> exportAgreementAsPdf(BuildContext context, String html) async {
     if (!context.mounted) return;
     Navigator.of(context, rootNavigator: true).pop();
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Failed to create PDF. Please try again.')),
+      const SnackBar(content: Text('Не удалось создать PDF. Попробуйте ещё раз.')),
     );
   }
 }

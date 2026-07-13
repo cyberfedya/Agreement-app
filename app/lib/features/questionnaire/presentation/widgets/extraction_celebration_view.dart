@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
+import 'package:app/core/localization/backend_phrases.dart';
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/features/documents/domain/uploaded_document.dart';
 import 'package:app/features/questionnaire/presentation/interview_script.dart';
@@ -34,13 +35,7 @@ class ExtractionCelebrationView extends StatelessWidget {
 
   static const int _maxShownFields = 6;
 
-  /// Backend field keys are machine names ("enginenumber", "vin_code") -
-  /// readable enough once underscores go and the first letter is upper.
-  static String humanizeKey(String key) {
-    final spaced = key.replaceAll('_', ' ').replaceAllMapped(RegExp('([a-zа-я])([A-ZА-Я])'), (m) => '${m[1]} ${m[2]}');
-    if (spaced.isEmpty) return spaced;
-    return spaced[0].toUpperCase() + spaced.substring(1).toLowerCase();
-  }
+
 
   String get _remainingLine {
     final n = remainingQuestions;
@@ -129,7 +124,7 @@ class ExtractionCelebrationView extends StatelessWidget {
                                   const SizedBox(width: Insets.x12),
                                   Expanded(
                                     child: Text(
-                                      humanizeKey(entry.key),
+                                      localizeDocumentFieldKey(entry.key),
                                       style: theme.textTheme.bodyMedium?.copyWith(
                                         color: theme.colorScheme.onSurfaceVariant,
                                       ),

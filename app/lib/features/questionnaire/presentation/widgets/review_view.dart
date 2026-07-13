@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
+import 'package:app/core/localization/backend_phrases.dart';
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/core/widgets/skeletons.dart';
 import 'package:app/features/questionnaire/domain/deal_review.dart';
@@ -60,6 +61,7 @@ class ReviewView extends StatelessWidget {
 
         final manualCount = review.manual.length;
         final disputed = review.fieldStates.where((field) => field.dispute).toList();
+        final documentPendingCount = review.fieldStates.where((field) => field.status == 'DOCUMENT_PENDING').length;
         var section = 0;
 
         return ListView(
@@ -95,10 +97,13 @@ class ReviewView extends StatelessWidget {
                         ),
                         const SizedBox(height: Insets.x4),
                         Text(
-                          review.workflowReason ??
+                          switch (review.workflowReason) {
+                            final reason? => localizeBackendPhrase(reason),
+                            null =>
                               provider.closingMessage ??
-                              fallbackMessage ??
-                              'Проверьте детали — и я подготовлю «$templateTitle».',
+                                  fallbackMessage ??
+                                  'Проверьте детали — и я подготовлю «$templateTitle».',
+                          },
                           style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onPrimaryContainer),
                         ),
                       ],
@@ -110,6 +115,36 @@ class ReviewView extends StatelessWidget {
             if (review.workflowStatus case final status? when status != 'READY_TO_GENERATE') ...[
               const SizedBox(height: Insets.x12),
               _WorkflowStatusPill(status: status).animateEntranceStaggered(1),
+            ],
+            // Readiness report for document-only technicals: the agreement
+            // can be generated now; these fields simply stay blank until a
+            // document fills them. Backend-classified (DOCUMENT_PENDING),
+            // rendered here - never a local decision.
+            if (documentPendingCount > 0) ...[
+              const SizedBox(height: Insets.x12),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: Insets.x16, vertical: Insets.x12),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surfaceContainerLow,
+                  borderRadius: Corners.mdRadius,
+                  border: Border.all(color: theme.colorScheme.outlineVariant),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(Icons.document_scanner_outlined, size: 20, color: theme.colorScheme.primary),
+                    const SizedBox(width: Insets.x12),
+                    Expanded(
+                      child: Text(
+                        'Договор уже можно сформировать. Часть технических данных пока не заполнена — '
+                        'если позже загрузите техпаспорт, они подставятся автоматически.',
+                        style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant, height: 1.4),
+                      ),
+                    ),
+                  ],
+                ),
+              ).animateEntranceStaggered(1),
             ],
             if (review.autoFilledCount > 0 || manualCount > 0) ...[
               const SizedBox(height: Insets.x12),
@@ -397,7 +432,8 @@ class _FieldCard extends StatelessWidget {
                       ),
                     const SizedBox(height: Insets.x4),
                     Text(
-                      field.value ?? (emphasizeMissing ? 'Нажмите, чтобы указать' : field.reason),
+                      field.value ??
+                          (emphasizeMissing ? 'Нажмите, чтобы указать' : localizeBackendPhrase(field.reason)),
                       style: field.value == null && emphasizeMissing
                           ? theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.primary)
                           : valueStyle,
@@ -406,7 +442,7 @@ class _FieldCard extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.only(top: Insets.x4),
                         child: Text(
-                          field.reason,
+                          localizeBackendPhrase(field.reason),
                           style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                         ),
                       ),
@@ -438,8 +474,8 @@ class _FieldCard extends StatelessWidget {
   }
 }
 
-/// Shown for the moment between "ready to generate" and the review call
-/// returning - same rhythm as the real list, so nothing jumps.
+  /// Shown for the moment between "ready to generate" and the review call
+  /// returning - same rhythm as the real list, so nothing jumps.
 class _ReviewSkeleton extends StatelessWidget {
   const _ReviewSkeleton();
 

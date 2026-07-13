@@ -64,7 +64,7 @@ class _TemplatesListPageState extends State<TemplatesListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Agreements')),
+      appBar: AppBar(title: const Text('Шаблоны договоров')),
       body: CenteredContent(
         child: Column(
           children: [
@@ -91,14 +91,14 @@ class _TemplatesListPageState extends State<TemplatesListPage> {
                   if (templates.isEmpty) {
                     return AppEmptyView(
                       title: 'Ничего не найдено',
-                      message: 'Try a different search or category.',
+                      message: 'Попробуйте другой запрос или категорию.',
                       action: (_query.isNotEmpty || _selectedCategory != null)
                           ? OutlinedButton(
                               onPressed: () {
                                 _searchController.clear();
                                 setState(() => _selectedCategory = null);
                               },
-                              child: const Text('Clear filters'),
+                              child: const Text('Сбросить фильтры'),
                             )
                           : null,
                     );
@@ -151,7 +151,7 @@ class _CategoryFilterRow extends StatelessWidget {
             itemBuilder: (context, index) {
               if (index == 0) {
                 return FilterChip(
-                  label: const Text('All'),
+                  label: const Text('Все'),
                   selected: selected == null,
                   showCheckmark: false,
                   onSelected: (_) => onChanged(null),

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:app/core/localization/backend_phrases.dart';
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/features/documents/domain/uploaded_document.dart';
 import 'package:app/features/documents/providers/document_upload_provider.dart';
 import 'package:app/features/questionnaire/presentation/widgets/confidence_badge.dart';
-import 'package:app/features/questionnaire/presentation/widgets/extraction_celebration_view.dart' show ExtractionCelebrationView;
 
 /// Everything the deal knows from uploaded documents, in one place: each
 /// document with its recognized fields, an edit affordance per field (a
@@ -33,7 +33,7 @@ class UploadedDocumentsSheet extends StatelessWidget {
     final newValue = await showDialog<String>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: Text(ExtractionCelebrationView.humanizeKey(key)),
+        title: Text(localizeDocumentFieldKey(key)),
         content: TextField(
           controller: controller,
           autofocus: true,
@@ -224,7 +224,7 @@ class _DocumentCard extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              ExtractionCelebrationView.humanizeKey(entry.key),
+                              localizeDocumentFieldKey(entry.key),
                               style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                             ),
                             const SizedBox(height: 2),

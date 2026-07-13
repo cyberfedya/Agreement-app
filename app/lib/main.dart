@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
 import 'package:app/core/config/app_config.dart';
@@ -73,6 +74,12 @@ class EasyAgreeApp extends StatelessWidget {
         title: AppConfig.appName,
         theme: AppTheme.light,
         themeMode: ThemeMode.light,
+        // Russian for Flutter's own widget texts too (text-selection menu,
+        // dialogs, pickers) - without this they'd stay English no matter
+        // how thoroughly the app's strings are translated.
+        locale: const Locale('ru'),
+        supportedLocales: const [Locale('ru'), Locale('uz'), Locale('en')],
+        localizationsDelegates: GlobalMaterialLocalizations.delegates,
         initialRoute: AppRoutes.splash,
         onGenerateRoute: AppRouter.onGenerateRoute,
       ),

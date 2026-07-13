@@ -85,13 +85,21 @@ class AssistantQuestionView extends StatelessWidget {
             const SizedBox(height: Insets.x12),
             GestureDetector(
               onTap: onWhy,
-              child: Text(
-                'Зачем это нужно?',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                  decoration: TextDecoration.underline,
-                  decorationColor: theme.colorScheme.outlineVariant,
-                ),
+              behavior: HitTestBehavior.opaque,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.info_outline_rounded, size: 14, color: theme.colorScheme.onSurfaceVariant),
+                  const SizedBox(width: Insets.x4),
+                  Text(
+                    'Зачем это нужно?',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                      decoration: TextDecoration.underline,
+                      decorationColor: theme.colorScheme.outlineVariant,
+                    ),
+                  ),
+                ],
               ),
             ).animate(delay: 350.ms).fadeIn(duration: 250.ms),
           ],

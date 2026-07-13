@@ -11,7 +11,7 @@ sealed class ApiException implements Exception {
 /// refused. Distinct from [TimeoutException] so the UI can tell "we never
 /// even reached them" apart from "they were too slow to answer".
 class NetworkException extends ApiException {
-  const NetworkException([super.message = 'Could not reach the server. Check your connection.']);
+  const NetworkException([super.message = 'Нет соединения с сервером. Проверьте интернет.']);
 }
 
 /// The request was sent but no response arrived within the configured
@@ -19,7 +19,7 @@ class NetworkException extends ApiException {
 /// unlike [NetworkException] this does not necessarily mean the device is
 /// offline.
 class ApiTimeoutException extends ApiException {
-  const ApiTimeoutException([super.message = 'The server took too long to respond. Please try again.']);
+  const ApiTimeoutException([super.message = 'Сервер долго не отвечает. Попробуйте ещё раз.']);
 }
 
 /// The server responded with 2xx but a shape Flutter's models didn't
@@ -27,11 +27,11 @@ class ApiTimeoutException extends ApiException {
 /// step rather than left to surface as an uncaught TypeError, so callers
 /// see a normal [Failure] instead of a crash.
 class MalformedResponseException extends ApiException {
-  const MalformedResponseException([super.message = 'Received an unexpected response from the server.']);
+  const MalformedResponseException([super.message = 'Сервер вернул неожиданный ответ. Попробуйте обновить.']);
 }
 
 class NotFoundException extends ApiException {
-  const NotFoundException([super.message = 'Not found.']);
+  const NotFoundException([super.message = 'Не найдено.']);
 }
 
 class ServerException extends ApiException {
@@ -47,7 +47,7 @@ class ServerException extends ApiException {
     if (body is Map && body['message'] is String && (body['message'] as String).trim().isNotEmpty) {
       return body['message'] as String;
     }
-    return 'Server error ($statusCode).';
+    return 'Ошибка сервера ($statusCode).';
   }
 }
 

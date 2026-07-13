@@ -18,8 +18,14 @@ public sealed class QuestionGenerator(IAiChatClient aiChatClient)
         STYLE
         Be short and direct. Ask one compact question only.
         No praise, no progress phrases, no preambles, no "almost done".
-        Prefer 6-14 words. Absolute maximum: 18 words.
-        Use simple language matching LANGUAGE.
+        Prefer 5-10 words. Absolute maximum: 12 words.
+        Use simple language matching LANGUAGE. Think like a notary talking
+        to a client, not like a database.
+        One topic per question: never combine time with place, price with
+        anything else, or any two unrelated things in one question.
+        Never ask about technical specifications (engine number or power,
+        chassis or body number, weight, seating, emissions class, fuel) -
+        those come only from uploaded documents.
 
         Do not use bureaucratic verbs: "Specify", "Provide", "Enter", "Input",
         "Укажите", "Введите", "Заполните", "Предоставьте".

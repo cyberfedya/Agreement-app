@@ -16,6 +16,7 @@ import 'package:app/features/documents/providers/document_upload_provider.dart';
 import 'package:app/features/questionnaire/domain/question.dart';
 import 'package:app/features/questionnaire/presentation/document_hint_matcher.dart';
 import 'package:app/features/questionnaire/presentation/interview_script.dart';
+import 'package:app/features/questionnaire/presentation/question_explanations.dart';
 import 'package:app/features/questionnaire/presentation/widgets/agreement_preview_sheet.dart';
 import 'package:app/features/questionnaire/presentation/widgets/answer_composer.dart';
 import 'package:app/features/questionnaire/presentation/widgets/assistant_question_view.dart';
@@ -64,6 +65,11 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
 
   /// Non-null while the post-answer "Обновляю договор…" beat is showing.
   String? _thinkingLabel;
+
+  /// The answer the user just sent, echoed back as "✓ …" during the
+  /// thinking beat - a quiet receipt that the assistant heard exactly
+  /// what was said, before the conversation moves on.
+  String? _submittedEcho;
 
   /// True while an upload+OCR round-trip runs (invite or paperclip path).
   bool _uploadingDocument = false;
@@ -125,7 +131,9 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
       documentUploadProvider.attachDeal(widget.dealId);
       return provider.start(widget.dealId);
     });
-    Future.delayed(const Duration(milliseconds: 1800), () {
+    // Long enough to actually read the two-line greeting (title + promise),
+    // not just glimpse it - 1.8s proved too short in real use.
+    Future.delayed(const Duration(milliseconds: 4000), () {
       if (mounted) setState(() => _greetingHoldDone = true);
     });
   }
@@ -218,7 +226,10 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
 
     HapticFeedback.selectionClick();
     FocusScope.of(context).unfocus();
-    setState(() => _thinkingLabel = _script.thinking());
+    setState(() {
+      _thinkingLabel = _script.thinking();
+      _submittedEcho = text.trim();
+    });
 
     await Future.wait([provider.submitAnswer(text.trim()), Future<void>.delayed(Motion.thinkingMin)]);
     if (!mounted) return;
@@ -355,8 +366,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
               Text('Зачем это нужно?', style: theme.textTheme.titleLarge),
               const SizedBox(height: Insets.x12),
               Text(
-                'Эта информация нужна, чтобы точно и однозначно отразить условие '
-                'в договоре. Без неё документ может оказаться юридически неполным.',
+                QuestionExplanations.forQuestion(question),
                 style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant, height: 1.5),
               ),
             ],
@@ -586,7 +596,10 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                 ),
               ),
               child: thinking
-                  ? Center(key: const ValueKey('thinking'), child: ThinkingIndicator(label: _thinkingLabel!))
+                  ? Center(
+                      key: const ValueKey('thinking'),
+                      child: _AnswerEchoWithThinking(echo: _submittedEcho, label: _thinkingLabel!),
+                    )
                   : AssistantQuestionView(
                       key: ValueKey('q-${field.fieldId}-${field.fieldName}'),
                       question: field,
@@ -619,6 +632,55 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
               onAttach: _uploadingDocument ? null : _attachFromComposer,
             ),
           ).animateEntrance(delay: const Duration(milliseconds: 150)),
+        ],
+      ),
+    );
+  }
+}
+
+/// The post-answer beat: the user's own words echoed back with a check
+/// ("✓ Завтра") above the thinking line - a quiet receipt, then the
+/// conversation moves on. Long answers are clipped, not scrolled.
+class _AnswerEchoWithThinking extends StatelessWidget {
+  const _AnswerEchoWithThinking({required this.echo, required this.label});
+
+  final String? echo;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: Insets.x32),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (echo != null && echo!.isNotEmpty) ...[
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: Insets.x16, vertical: Insets.x8),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primaryContainer.withValues(alpha: 0.5),
+                borderRadius: Corners.x2lRadius,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.check_rounded, size: 16, color: theme.colorScheme.primary),
+                  const SizedBox(width: Insets.x8),
+                  Flexible(
+                    child: Text(
+                      echo!,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: Insets.x16),
+          ],
+          ThinkingIndicator(label: label),
         ],
       ),
     );
