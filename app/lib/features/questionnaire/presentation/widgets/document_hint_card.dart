@@ -57,12 +57,14 @@ class DocumentHintCard extends StatelessWidget {
             padding: const EdgeInsets.only(left: (Insets.x24 + Insets.x4)),
             child: Row(
               children: [
-                OutlinedButton.icon(
-                  onPressed: onUpload,
-                  icon: const Icon(Icons.photo_camera_outlined, size: 18),
-                  label: const Text('Загрузить документ'),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: Insets.x16, vertical: Insets.x8),
+                Flexible(
+                  child: OutlinedButton.icon(
+                    onPressed: onUpload,
+                    icon: const Icon(Icons.photo_camera_outlined, size: 18),
+                    label: const Text('Загрузить документ', overflow: TextOverflow.ellipsis),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: Insets.x16, vertical: Insets.x8),
+                    ),
                   ),
                 ),
               ],

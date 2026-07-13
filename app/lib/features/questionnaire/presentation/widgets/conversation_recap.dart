@@ -110,7 +110,9 @@ class _RecapChip extends StatelessWidget {
         children: [
           Icon(Icons.check_rounded, size: 14, color: theme.colorScheme.primary),
           const SizedBox(width: Insets.x4),
-          Text(label, style: theme.textTheme.bodySmall),
+          Flexible(
+            child: Text(label, style: theme.textTheme.bodySmall, maxLines: 1, overflow: TextOverflow.ellipsis),
+          ),
         ],
       ),
     );

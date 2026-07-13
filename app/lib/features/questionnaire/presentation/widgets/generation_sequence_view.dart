@@ -64,11 +64,13 @@ class _GenerationSequenceViewState extends State<GenerationSequenceView> {
                   children: [
                     _StepIndicator(state: _stateFor(index)),
                     const SizedBox(width: Insets.x12),
-                    Text(
-                      step,
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        color: index <= _activeIndex ? theme.colorScheme.onSurface : theme.colorScheme.outline,
-                        fontWeight: index == _activeIndex ? FontWeight.w600 : FontWeight.w400,
+                    Expanded(
+                      child: Text(
+                        step,
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          color: index <= _activeIndex ? theme.colorScheme.onSurface : theme.colorScheme.outline,
+                          fontWeight: index == _activeIndex ? FontWeight.w600 : FontWeight.w400,
+                        ),
                       ),
                     ),
                   ],

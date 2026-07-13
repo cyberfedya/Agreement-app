@@ -70,7 +70,9 @@ class _AuthPageState extends State<AuthPage> {
                         children: [
                           Icon(Icons.badge_outlined, size: 20, color: theme.colorScheme.primary),
                           const SizedBox(width: Insets.x8),
-                          Text('Идентификация через MyID', style: theme.textTheme.titleSmall),
+                          Expanded(
+                            child: Text('Идентификация через MyID', style: theme.textTheme.titleSmall),
+                          ),
                         ],
                       ),
                       const SizedBox(height: Insets.x8),

@@ -34,16 +34,20 @@ class PrimaryButton extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: Insets.x12),
-              Text(label),
+              Flexible(child: Text(label, overflow: TextOverflow.ellipsis)),
             ],
           )
         : icon != null
             ? Row(
                 key: const ValueKey('icon'),
                 mainAxisSize: MainAxisSize.min,
-                children: [Icon(icon, size: 18), const SizedBox(width: Insets.x8), Text(label)],
+                children: [
+                  Icon(icon, size: 18),
+                  const SizedBox(width: Insets.x8),
+                  Flexible(child: Text(label, overflow: TextOverflow.ellipsis)),
+                ],
               )
-            : Text(label, key: const ValueKey('label'));
+            : Text(label, key: const ValueKey('label'), maxLines: 1, overflow: TextOverflow.ellipsis);
 
     return SizedBox(
       width: double.infinity,

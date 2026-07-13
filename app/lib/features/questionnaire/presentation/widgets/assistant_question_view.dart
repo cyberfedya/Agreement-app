@@ -91,12 +91,15 @@ class AssistantQuestionView extends StatelessWidget {
                 children: [
                   Icon(Icons.info_outline_rounded, size: 14, color: theme.colorScheme.onSurfaceVariant),
                   const SizedBox(width: Insets.x4),
-                  Text(
-                    'Зачем это нужно?',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                      decoration: TextDecoration.underline,
-                      decorationColor: theme.colorScheme.outlineVariant,
+                  Flexible(
+                    child: Text(
+                      'Зачем это нужно?',
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                        decoration: TextDecoration.underline,
+                        decorationColor: theme.colorScheme.outlineVariant,
+                      ),
                     ),
                   ),
                 ],

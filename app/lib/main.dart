@@ -72,6 +72,7 @@ class EasyAgreeApp extends StatelessWidget {
       ],
       child: MaterialApp(
         title: AppConfig.appName,
+        debugShowCheckedModeBanner: false,
         theme: AppTheme.light,
         themeMode: ThemeMode.light,
         // Russian for Flutter's own widget texts too (text-selection menu,

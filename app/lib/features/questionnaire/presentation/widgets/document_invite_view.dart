@@ -78,9 +78,11 @@ class DocumentInviteView extends StatelessWidget {
                   children: [
                     Icon(Icons.bolt_rounded, size: 16, color: theme.colorScheme.primary),
                     const SizedBox(width: Insets.x4 + 2),
-                    Text(
-                      'Заполню около ${suggestion.matchedFieldCount} полей автоматически',
-                      style: theme.textTheme.labelLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                    Flexible(
+                      child: Text(
+                        'Заполню около ${suggestion.matchedFieldCount} полей автоматически',
+                        style: theme.textTheme.labelLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                      ),
                     ),
                   ],
                 ),
