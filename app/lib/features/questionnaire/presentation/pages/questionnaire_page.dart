@@ -32,6 +32,7 @@ import 'package:app/features/questionnaire/presentation/widgets/review_view.dart
 import 'package:app/features/questionnaire/presentation/widgets/thinking_indicator.dart';
 import 'package:app/features/questionnaire/providers/questionnaire_provider.dart';
 import 'package:app/shared/animation/entrance.dart';
+import 'package:app/shared/utils/image_format.dart';
 import 'package:app/shared/widgets/primary_button.dart';
 
 /// The Agreement Interview, redesigned as a conversation with an AI legal
@@ -251,9 +252,22 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
     final entries = <(String, String, List<int>)>[];
     for (final file in files) {
       final bytes = await file.readAsBytes();
-      entries.add((file.name, file.mimeType ?? 'image/jpeg', bytes));
+      // Never trust the OS-reported mime type (frequently null on Android)
+      // or assume jpeg - sniff the real format from the bytes, the same
+      // way the backend will, so the two can never disagree about what
+      // was actually sent.
+      final contentType = sniffImageContentType(bytes);
+      if (contentType == null) continue;
+      entries.add((normalizedFileName(file.name, contentType), contentType, bytes));
     }
     if (!mounted) return;
+
+    if (entries.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Не удалось распознать формат фото. Попробуйте JPEG, PNG или WebP.')),
+      );
+      return;
+    }
 
     setState(() => _uploadingDocument = true);
     final uploadProvider = context.read<DocumentUploadProvider>();

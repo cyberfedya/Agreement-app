@@ -45,18 +45,44 @@ class ApiDocumentRepository implements DocumentRepository {
     }
   }
 
+  /// A blip on a mobile connection (dropped packet, brief backend restart)
+  /// is common mid-upload and looks identical to a real failure from the
+  /// UI's point of view unless we tell them apart here. Retried silently
+  /// under the same "Обрабатываю документ…" animation the caller is
+  /// already showing - the user should see a slow upload, never a flash
+  /// of "server error" for something that fixed itself a second later.
+  static const int _maxUploadAttempts = 3;
+  static const List<Duration> _retryDelays = [Duration(seconds: 1), Duration(seconds: 2)];
+
   @override
   Future<Result<List<UploadedDocument>>> upload(
     String dealId,
     List<(String fileName, String contentType, List<int> bytes)> files,
   ) async {
-    try {
-      return Success(await _api.uploadDocuments(dealId, files));
-    } on ServerException catch (e) {
-      return Failure(_uploadErrorMessage(e));
-    } on ApiException catch (e) {
-      return Failure(e.message);
+    for (var attempt = 1; attempt <= _maxUploadAttempts; attempt++) {
+      try {
+        return Success(await _api.uploadDocuments(dealId, files));
+      } on ServerException catch (e) {
+        // 4xx means the request itself is bad (validation, unsupported
+        // file, ...) - retrying sends the exact same bad request again.
+        // Only a 5xx (backend's own transient trouble) is worth retrying.
+        if (e.statusCode < 500 || attempt == _maxUploadAttempts) {
+          return Failure(_uploadErrorMessage(e));
+        }
+      } on NetworkException catch (e) {
+        // A single dropped connection is common on mobile data; a timeout
+        // is not - the OCR call already took the full budget, so retrying
+        // would just wait that long again instead of surfacing honestly.
+        if (attempt == _maxUploadAttempts) return Failure(e.message);
+      } on ApiException catch (e) {
+        return Failure(e.message);
+      }
+
+      await Future<void>.delayed(_retryDelays[attempt - 1]);
     }
+
+    // Unreachable: the loop always returns or throws on its final attempt.
+    return const Failure('Не удалось загрузить документ.');
   }
 
   /// Russian text for the backend's upload-validation error *codes* (the
