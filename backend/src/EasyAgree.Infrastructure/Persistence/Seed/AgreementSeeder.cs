@@ -34,15 +34,7 @@ public sealed class AgreementSeeder(
         result.TotalFilesScanned = files.Count;
         logger.LogInformation("Discovered {Count} agreement JSON files", files.Count);
 
-        // AsSplitQuery: two collection Includes in one SingleQuery would
-        // cross-join Translations x Fields - harmless for the handful of
-        // fields most templates had, but as vehicle_sale_agreement.json
-        // grew past ~30 fields the resulting row explosion corrupted EF's
-        // result materialization and produced spurious
-        // DbUpdateConcurrencyExceptions ("expected 1 row, affected 0") on
-        // an unrelated template later in the same batch.
         var existingByKey = await db.AgreementTemplates
-            .AsSplitQuery()
             .Include(t => t.Translations)
             .Include(t => t.Fields)
             .ToDictionaryAsync(t => t.Key, StringComparer.Ordinal, cancellationToken);
@@ -169,13 +161,23 @@ public sealed class AgreementSeeder(
             }
             else
             {
-                template.Translations.Add(new AgreementTemplateTranslation
+                var added = new AgreementTemplateTranslation
                 {
                     Id = Guid.NewGuid(),
                     Language = language,
                     Title = title,
                     Description = description
-                });
+                };
+                template.Translations.Add(added);
+                // The Id is client-generated (a fresh Guid), not database-
+                // generated, so EF's automatic change detection cannot tell
+                // from the key value alone that this is a brand new row -
+                // for a template with enough existing children, it has
+                // occasionally inferred Modified instead of Added and then
+                // failed with a DbUpdateConcurrencyException ("expected 1
+                // row, affected 0") since no such row exists yet. Setting
+                // the state explicitly removes the ambiguity.
+                db.Entry(added).State = EntityState.Added;
             }
         }
 
@@ -198,12 +200,16 @@ public sealed class AgreementSeeder(
             }
             else
             {
-                template.Fields.Add(new AgreementTemplateField
+                var added = new AgreementTemplateField
                 {
                     Id = Guid.NewGuid(),
                     FieldId = fieldId,
                     Mode = AgreementFieldMode.Required
-                });
+                };
+                template.Fields.Add(added);
+                // See the matching comment in SyncTranslations - same
+                // client-generated-key ambiguity, same fix.
+                db.Entry(added).State = EntityState.Added;
             }
         }
 
