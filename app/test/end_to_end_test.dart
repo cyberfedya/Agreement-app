@@ -120,6 +120,9 @@ class FakeAgreementRepository implements AgreementRepository {
   Future<Result<void>> signAsSecondParty(String dealId, String fullName) async => const Success(null);
 
   @override
+  Future<Result<void>> signAsFirstParty(String dealId, String fullName) async => const Success(null);
+
+  @override
   Future<Result<DealInvite>> getInvite(String dealId) async => const Failure('not used in these tests');
 
   @override

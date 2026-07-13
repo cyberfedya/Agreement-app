@@ -193,6 +193,9 @@ class ApiService {
   Future<void> signDealSecondParty(String dealId, String fullName) =>
       _client.postJson('/api/deals/$dealId/sign', body: {'fullName': fullName});
 
+  Future<void> signDealFirstParty(String dealId, String fullName) =>
+      _client.postJson('/api/deals/$dealId/sign/first', body: {'fullName': fullName});
+
   /// Documents worth suggesting the user upload for this deal's template -
   /// empty when nothing useful comes to mind (never identity documents).
   Future<List<RequiredDocument>> getRequiredDocuments(String dealId, {String lang = 'ru'}) async {

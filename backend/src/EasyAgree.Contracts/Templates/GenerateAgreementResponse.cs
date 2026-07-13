@@ -1,3 +1,11 @@
 namespace EasyAgree.Contracts.Templates;
 
-public sealed record GenerateAgreementResponse(string Key, string Html, DateTime GeneratedAt, string? SecondPartyName = null);
+public sealed record GenerateAgreementResponse(
+    string Key,
+    string Html,
+    DateTime GeneratedAt,
+    string? SecondPartyName = null,
+    string? FirstPartyName = null,
+    DateTime? FirstPartySignedAt = null,
+    DateTime? SecondPartySignedAt = null,
+    bool IsFullySigned = false);

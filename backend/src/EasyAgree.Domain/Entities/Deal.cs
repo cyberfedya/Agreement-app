@@ -71,6 +71,17 @@ public class Deal
 
     public DateTime? SecondPartySignedAt { get; set; }
 
+    /// <summary>Creator's legal name, set once they sign (null until then).</summary>
+    public string? FirstPartyName { get; set; }
+
+    /// <summary>
+    /// Set independently of <see cref="SecondPartySignedAt"/> - either
+    /// party may sign first, and one signature must never overwrite or
+    /// imply the other. The deal only becomes fully signed
+    /// (<see cref="DealStatus.FullySigned"/>) once both are set.
+    /// </summary>
+    public DateTime? FirstPartySignedAt { get; set; }
+
     /// <summary>Where the second party is in accepting the QR invite (never asked/shown to the first party).</summary>
     public InviteStatus InviteStatus { get; set; } = InviteStatus.Pending;
 

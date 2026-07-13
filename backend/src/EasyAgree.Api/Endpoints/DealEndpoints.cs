@@ -248,6 +248,17 @@ public static class DealEndpoints
         })
         .WithName("SignDealSecondParty");
 
+        group.MapPost("/{id:guid}/sign/first", async (
+            Guid id, SignDealRequest request, SignDealFirstPartyUseCase useCase, CancellationToken ct) =>
+        {
+            if (string.IsNullOrWhiteSpace(request.FullName))
+                return Results.BadRequest();
+
+            var success = await useCase.ExecuteAsync(id, request.FullName, ct);
+            return success ? Results.NoContent() : Results.NotFound();
+        })
+        .WithName("SignDealFirstParty");
+
         return app;
     }
 

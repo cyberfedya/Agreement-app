@@ -104,7 +104,8 @@ public sealed class GenerateFromDealUseCase(
         var secondPartyProfile = deal.SecondPartyProfileId is null
             ? null
             : await profileRepository.GetAsync(deal.SecondPartyProfileId, cancellationToken);
-        var roleResolution = await ResolveCreatorRoleAsync(labels, deal.RequestText, cancellationToken);
+        var roleResolution = await ResolveCreatorRoleAsync(
+            labels, deal.RequestText, deal.FirstPartyRole, deal.ExpectedSecondPartyRole, cancellationToken);
 
         // Everything from here on is only for rendering this document -
         // never persisted back to deal.AnswersJson, so a later call (once
@@ -130,7 +131,11 @@ public sealed class GenerateFromDealUseCase(
 
         deal.AnswersJson = DealAnswersSerializer.Serialize(merged);
         deal.GeneratedHtml = result.Html;
-        deal.Status = DealStatus.Completed;
+        // A regenerate (e.g. after the second party accepts) must never
+        // regress a deal that's already fully signed back to "just
+        // generated".
+        if (deal.Status != DealStatus.FullySigned)
+            deal.Status = DealStatus.Completed;
         deal.FirstPartyRole = roleResolution.CreatorRoleCode;
         deal.ExpectedSecondPartyRole = roleResolution.SecondPartyRoleCode;
         deal.UpdatedAt = DateTime.UtcNow;
@@ -150,10 +155,31 @@ public sealed class GenerateFromDealUseCase(
     /// actually occupies - not always the role hardcoded as "first"
     /// regardless of what the creator said - plus the stable role codes
     /// for both sides, persisted on the deal for the invite endpoint.
+    ///
+    /// When a role has already been persisted from an earlier generate
+    /// call, it's reused as-is instead of asking the classifier again:
+    /// <see cref="PartyRoleClassifier"/> is LLM-backed and not guaranteed
+    /// to answer identically on every call, and re-classifying on the
+    /// regenerate that happens right after the second party accepts the
+    /// invite could silently swap which role's keywords their profile
+    /// gets matched against - making a correctly-linked second-party
+    /// profile fail to render at all.
     /// </summary>
     private async Task<RoleResolution> ResolveCreatorRoleAsync(
-        IReadOnlyDictionary<int, string> labels, string? requestText, CancellationToken cancellationToken)
+        IReadOnlyDictionary<int, string> labels, string? requestText,
+        string? persistedCreatorRoleCode, string? persistedSecondPartyRoleCode, CancellationToken cancellationToken)
     {
+        if (persistedCreatorRoleCode is not null)
+        {
+            foreach (var (roleA, roleB, roleACode, roleBCode) in RolePairs)
+            {
+                if (roleACode == persistedCreatorRoleCode && roleBCode == persistedSecondPartyRoleCode)
+                    return new RoleResolution(roleA, roleB, roleACode, roleBCode);
+                if (roleBCode == persistedCreatorRoleCode && roleACode == persistedSecondPartyRoleCode)
+                    return new RoleResolution(roleB, roleA, roleBCode, roleACode);
+            }
+        }
+
         var allLabels = string.Join(' ', labels.Values).ToLowerInvariant();
 
         foreach (var (roleA, roleB, roleACode, roleBCode) in RolePairs)

@@ -15,6 +15,7 @@ import 'package:app/core/widgets/bottom_action_bar.dart';
 import 'package:app/features/agreement/domain/agreement.dart';
 import 'package:app/features/agreement/domain/agreement_qr.dart';
 import 'package:app/features/agreement/providers/agreement_provider.dart';
+import 'package:app/features/profile/data/profile_repository.dart';
 import 'package:app/shared/widgets/primary_button.dart';
 
 /// Shown right after generation: the document plus a QR code the second
@@ -33,6 +34,7 @@ class _AgreementPageState extends State<AgreementPage> {
   // the element is deactivated and ancestor lookups are unsafe.
   AgreementProvider? _provider;
   Timer? _pollTimer;
+  bool _signing = false;
 
   @override
   void didChangeDependencies() {
@@ -93,6 +95,29 @@ class _AgreementPageState extends State<AgreementPage> {
 
   Future<void> _exportPdf(BuildContext context, String html) => exportAgreementAsPdf(context, html);
 
+  /// Signs as the first party (creator) using the name saved on this
+  /// device's profile - the same identity already rendered into the
+  /// agreement's first-party fields.
+  Future<void> _signAsFirstParty() async {
+    if (_signing) return;
+    setState(() => _signing = true);
+    final provider = context.read<AgreementProvider>();
+    final dealId = provider.agreement?.key;
+    final profile = await context.read<ProfileRepository>().getCurrent();
+    if (!mounted || dealId == null) {
+      if (mounted) setState(() => _signing = false);
+      return;
+    }
+    final fullName = profile?.fullName.trim();
+    final success = await provider.signAsFirstParty(dealId, (fullName == null || fullName.isEmpty) ? 'Первая сторона' : fullName);
+    if (!mounted) return;
+    setState(() => _signing = false);
+    if (!success) {
+      final message = provider.errorMessage ?? 'Не удалось подписать договор.';
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -112,8 +137,24 @@ class _AgreementPageState extends State<AgreementPage> {
             child: ListView(
               padding: const EdgeInsets.all(Insets.x20),
               children: [
-                const _DealStepsIndicator(),
+                _DealStepsIndicator(
+                  firstPartySigned: provider.isFirstPartySigned,
+                  secondPartySigned: provider.isSecondPartySigned,
+                ),
                 const SizedBox(height: Insets.x24),
+
+                if (provider.isFirstPartySigned && !provider.isSecondPartySigned)
+                  _SignStatusBanner(
+                    icon: Icons.check_circle_outline,
+                    message: 'Вы подписали договор.\nОжидание второй стороны.',
+                  ),
+                if (!provider.isFirstPartySigned && provider.isSecondPartySigned)
+                  _SignStatusBanner(
+                    icon: Icons.info_outline,
+                    message: 'Вторая сторона уже подписала договор.\nПодпишите, чтобы завершить договор.',
+                  ),
+                if (provider.isFirstPartySigned || provider.isSecondPartySigned)
+                  const SizedBox(height: Insets.x16),
 
                 Center(
                   child: Container(
@@ -184,6 +225,12 @@ class _AgreementPageState extends State<AgreementPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                PrimaryButton(
+                  label: provider.isFirstPartySigned ? 'Вы подписали договор' : 'Подписать договор',
+                  loading: _signing,
+                  onPressed: (provider.isFirstPartySigned || _signing) ? null : _signAsFirstParty,
+                ),
+                const SizedBox(height: Insets.x8),
                 Row(
                   children: [
                     Expanded(
@@ -195,10 +242,10 @@ class _AgreementPageState extends State<AgreementPage> {
                     ),
                     const SizedBox(width: Insets.x12),
                     Expanded(
-                      child: PrimaryButton(
-                        label: 'На главную',
+                      child: OutlinedButton(
                         onPressed: () => Navigator.of(context)
                             .pushNamedAndRemoveUntil(AppRoutes.home, (route) => false),
+                        child: const Text('На главную'),
                       ),
                     ),
                   ],
@@ -219,16 +266,25 @@ class _AgreementPageState extends State<AgreementPage> {
 }
 
 /// Where the deal is right now, as three calm steps: created ✓, waiting
-/// for the second party's signature (active, gently pulsing while this
-/// page polls the backend), completed. The page auto-advances to the
-/// completed screen the moment the backend reports a signature, so the
-/// third step never shows as done here - it's the promise of what's next.
+/// for both signatures (active, gently pulsing while this page polls the
+/// backend), completed. The page auto-advances to the completed screen the
+/// moment the backend reports BOTH signatures, so the third step never
+/// shows as done here - it's the promise of what's next.
 class _DealStepsIndicator extends StatelessWidget {
-  const _DealStepsIndicator();
+  const _DealStepsIndicator({required this.firstPartySigned, required this.secondPartySigned});
+
+  final bool firstPartySigned;
+  final bool secondPartySigned;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final signedCount = (firstPartySigned ? 1 : 0) + (secondPartySigned ? 1 : 0);
+    final middleLabel = switch (signedCount) {
+      0 => 'Ожидание подписи обеих сторон',
+      1 => 'Ожидание подписи второй стороны',
+      _ => 'Обе стороны подписали',
+    };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: Insets.x16, vertical: Insets.x16),
       decoration: BoxDecoration(
@@ -240,9 +296,45 @@ class _DealStepsIndicator extends StatelessWidget {
         children: [
           const Expanded(child: _DealStep(label: 'Создан', state: _StepState.done)),
           _StepConnector(color: theme.colorScheme.primary),
-          const Expanded(flex: 2, child: _DealStep(label: 'Подпись второй стороны', state: _StepState.active)),
-          _StepConnector(color: theme.colorScheme.outlineVariant),
-          const Expanded(child: _DealStep(label: 'Завершено', state: _StepState.pending)),
+          Expanded(
+            flex: 2,
+            child: _DealStep(label: middleLabel, state: signedCount == 2 ? _StepState.done : _StepState.active),
+          ),
+          _StepConnector(color: signedCount == 2 ? theme.colorScheme.primary : theme.colorScheme.outlineVariant),
+          Expanded(
+            child: _DealStep(label: 'Завершено', state: signedCount == 2 ? _StepState.active : _StepState.pending),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Highlights whichever half of the two-sided signature is already done -
+/// distinct from a generic status message, since which text shows depends
+/// on which party this device belongs to.
+class _SignStatusBanner extends StatelessWidget {
+  const _SignStatusBanner({required this.icon, required this.message});
+
+  final IconData icon;
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(Insets.x16),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.primaryContainer,
+        borderRadius: Corners.lgRadius,
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: theme.colorScheme.onPrimaryContainer),
+          const SizedBox(width: Insets.x12),
+          Expanded(
+            child: Text(message, style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onPrimaryContainer)),
+          ),
         ],
       ),
     );

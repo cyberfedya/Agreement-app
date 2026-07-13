@@ -8,6 +8,7 @@ abstract class AgreementRepository {
   Future<Result<Agreement>> generate(String dealId, Map<int, String> answers);
   Future<Result<Agreement>> getByDealId(String dealId);
   Future<Result<void>> signAsSecondParty(String dealId, String fullName);
+  Future<Result<void>> signAsFirstParty(String dealId, String fullName);
   Future<Result<DealInvite>> getInvite(String dealId);
 
   /// Links [profileId] to the deal as the second party.
@@ -57,6 +58,15 @@ class ApiAgreementRepository implements AgreementRepository {
   Future<Result<void>> signAsSecondParty(String dealId, String fullName) async {
     try {
       await _api.signDealSecondParty(dealId, fullName);
+      return const Success(null);
+    } on ApiException catch (e) {
+      return Failure(e.message);
+    }
+  }
+  @override
+  Future<Result<void>> signAsFirstParty(String dealId, String fullName) async {
+    try {
+      await _api.signDealFirstParty(dealId, fullName);
       return const Success(null);
     } on ApiException catch (e) {
       return Failure(e.message);

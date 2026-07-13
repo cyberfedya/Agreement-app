@@ -17,6 +17,14 @@ public sealed class GetDealAgreementUseCase(IDealRepository dealRepository)
         if (deal?.GeneratedHtml is null)
             return null;
 
-        return new GenerateAgreementResponse(deal.Id.ToString(), deal.GeneratedHtml, deal.UpdatedAt, deal.SecondPartyName);
+        return new GenerateAgreementResponse(
+            deal.Id.ToString(),
+            deal.GeneratedHtml,
+            deal.UpdatedAt,
+            deal.SecondPartyName,
+            deal.FirstPartyName,
+            deal.FirstPartySignedAt,
+            deal.SecondPartySignedAt,
+            deal.FirstPartySignedAt is not null && deal.SecondPartySignedAt is not null);
     }
 }

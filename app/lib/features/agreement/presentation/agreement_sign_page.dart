@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_html/flutter_html.dart';
@@ -17,7 +19,9 @@ import 'package:app/shared/widgets/primary_button.dart';
 /// Second party's view after scanning the QR code: fetches the agreement
 /// by deal id from the backend (so this works from any device, not just
 /// the one that generated it), then a demo MyID identification step
-/// before signing - which is also persisted via the backend.
+/// before signing - which is also persisted via the backend. Polls for the
+/// first party's signature the same way [AgreementPage] polls for this
+/// party's, since either side may sign first.
 class AgreementSignPage extends StatefulWidget {
   const AgreementSignPage({super.key, required this.agreementKey});
 
@@ -30,6 +34,7 @@ class AgreementSignPage extends StatefulWidget {
 
 class _AgreementSignPageState extends State<AgreementSignPage> {
   bool _verifying = false;
+  Timer? _pollTimer;
 
   /// Set after a proposal or clarification was successfully recorded -
   /// shows a "передано первой стороне" banner instead of pretending
@@ -41,7 +46,26 @@ class _AgreementSignPageState extends State<AgreementSignPage> {
   void initState() {
     super.initState();
     final provider = context.read<AgreementProvider>();
-    Future.microtask(() => provider.loadByDealId(widget.agreementKey));
+    Future.microtask(() async {
+      await provider.loadByDealId(widget.agreementKey);
+      if (mounted) _startPollingIfNeeded();
+    });
+  }
+
+  void _startPollingIfNeeded() {
+    final provider = context.read<AgreementProvider>();
+    if (provider.isFullySigned) return;
+    _pollTimer ??= Timer.periodic(const Duration(seconds: 4), (_) async {
+      final provider = context.read<AgreementProvider>();
+      await provider.refreshStatus(widget.agreementKey);
+      if (provider.isFullySigned) _pollTimer?.cancel();
+    });
+  }
+
+  @override
+  void dispose() {
+    _pollTimer?.cancel();
+    super.dispose();
   }
 
   Future<void> _proposeChange() async {
@@ -106,7 +130,9 @@ class _AgreementSignPageState extends State<AgreementSignPage> {
     if (!success) {
       final message = context.read<AgreementProvider>().errorMessage ?? 'Не удалось подписать договор.';
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+      return;
     }
+    _startPollingIfNeeded();
   }
 
   @override
@@ -153,26 +179,22 @@ class _AgreementSignPageState extends State<AgreementSignPage> {
                     ),
                   ),
                 if (provider.isFullySigned)
-                  Container(
-                    padding: const EdgeInsets.all(Insets.x16),
-                    margin: const EdgeInsets.only(bottom: Insets.x16),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.primaryContainer,
-                      borderRadius: Corners.lgRadius,
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.check_circle_outline, size: 20, color: theme.colorScheme.onPrimaryContainer),
-                        const SizedBox(width: Insets.x12),
-                        Expanded(
-                          child: Text(
-                            'Подписано: ${provider.secondPartyName}',
-                            style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.onPrimaryContainer),
-                          ),
-                        ),
-                      ],
-                    ),
+                  _StatusBanner(
+                    icon: Icons.check_circle_outline,
+                    message: 'Договор полностью подписан.',
+                  )
+                else if (provider.isSecondPartySigned)
+                  _StatusBanner(
+                    icon: Icons.check_circle_outline,
+                    message: 'Вы подписали договор.\nОжидание первой стороны.',
+                  )
+                else if (provider.isFirstPartySigned)
+                  _StatusBanner(
+                    icon: Icons.info_outline,
+                    message: 'Первая сторона уже подписала договор.\nПодпишите, чтобы завершить договор.',
                   ),
+                if (provider.isFullySigned || provider.isSecondPartySigned || provider.isFirstPartySigned)
+                  const SizedBox(height: Insets.x4),
                 Container(
                   decoration: BoxDecoration(
                     color: theme.brightness == Brightness.light ? Colors.white : theme.colorScheme.surfaceContainerHigh,
@@ -185,7 +207,7 @@ class _AgreementSignPageState extends State<AgreementSignPage> {
               ],
             ),
           ),
-          bottomNavigationBar: provider.isFullySigned
+          bottomNavigationBar: provider.isSecondPartySigned
               ? null
               : BottomActionBar(
                   child: Column(
@@ -244,6 +266,35 @@ class _AgreementSignPageState extends State<AgreementSignPage> {
                 ),
         );
       },
+    );
+  }
+}
+
+class _StatusBanner extends StatelessWidget {
+  const _StatusBanner({required this.icon, required this.message});
+
+  final IconData icon;
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(Insets.x16),
+      margin: const EdgeInsets.only(bottom: Insets.x16),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.primaryContainer,
+        borderRadius: Corners.lgRadius,
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: theme.colorScheme.onPrimaryContainer),
+          const SizedBox(width: Insets.x12),
+          Expanded(
+            child: Text(message, style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.onPrimaryContainer)),
+          ),
+        ],
+      ),
     );
   }
 }
