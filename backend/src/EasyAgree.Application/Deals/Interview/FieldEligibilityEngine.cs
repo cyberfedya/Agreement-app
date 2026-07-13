@@ -85,6 +85,37 @@ public static class FieldEligibilityEngine
         "изготовител", "ишлаб чиқарувчи",
     ];
 
+    // Metadata about the vehicle/trailer's own registration certificate
+    // ("техпаспорт" - which department issued it, when, and its series or
+    // number) - printed on the physical certificate itself, never
+    // something an owner recalls unprompted, so it gets the same
+    // DocumentOnly treatment as engine/chassis numbers above. An audit of
+    // every agreements/vehicle/*.json template found these phrased around
+    // "гувоҳнома" (also spelled "гувохнома" - missing the ҳ diacritic - in
+    // several templates) rather than the literal word "техпаспорт", so
+    // they weren't caught by TechnicalDocumentOnlyKeywords or the
+    // "техпаспорт" entry in LegalDefaultKeywords. A few sibling fields in
+    // vehicle_exchange_agreement.json describe the same certificate
+    // without the word "гувоҳнома" at all ("Автотранспортнинг ким
+    // томонидан берилган" / "...берилган сана"), so those exact phrases
+    // are matched directly, scoped to "автотранспорт" so they can't catch
+    // unrelated issuance dates (e.g. a power of attorney's own issue date)
+    // elsewhere in the same or other templates.
+    private static readonly string[] RegistrationCertificateKeywords =
+    [
+        "гувоҳномаси берган", "гувохномаси берган",
+        "гувоҳномаси берилган", "гувохномаси берилган",
+        "гувоҳномаси қайд", "гувохномаси қайд",
+        "гувоҳномасига берилган", "гувохномасига берилган",
+        "гувоҳномасининг серия", "гувохномасининг серия",
+        "гувоҳномага берилган", "гувохномага берилган",
+        "воситасини қайд этиш гувоҳномасининг", "воситасига қайд этиш гувоҳномасининг",
+        "автотранспортни қайд этган", "автомашинани қайд этган",
+        "автотранспортнинг ким томонидан берилган", "автотранспорт ким томонидан берилган",
+        "автотранспортнинг берилган сана", "автотранспорт берилган сана",
+        "автотранспорт қайд этилган ҳудуд", "автотранспорт воситаси қайд этилган ҳудуд",
+    ];
+
     // Commercial terms - price, payment, salary, interest, fees - used to
     // prioritize eligible required fields, not to exclude them.
     private static readonly string[] CommercialKeywords =
@@ -135,7 +166,7 @@ public static class FieldEligibilityEngine
             return FieldCategory.NeverAsk;
         }
 
-        if (MatchesAny(lower, TechnicalDocumentOnlyKeywords))
+        if (MatchesAny(lower, TechnicalDocumentOnlyKeywords) || MatchesAny(lower, RegistrationCertificateKeywords))
             return FieldCategory.DocumentOnly;
 
         if (field.Mode == AgreementFieldMode.Optional)
