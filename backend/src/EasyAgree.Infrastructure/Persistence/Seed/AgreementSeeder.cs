@@ -34,7 +34,15 @@ public sealed class AgreementSeeder(
         result.TotalFilesScanned = files.Count;
         logger.LogInformation("Discovered {Count} agreement JSON files", files.Count);
 
+        // AsSplitQuery: two collection Includes in one SingleQuery would
+        // cross-join Translations x Fields - harmless for the handful of
+        // fields most templates had, but as vehicle_sale_agreement.json
+        // grew past ~30 fields the resulting row explosion corrupted EF's
+        // result materialization and produced spurious
+        // DbUpdateConcurrencyExceptions ("expected 1 row, affected 0") on
+        // an unrelated template later in the same batch.
         var existingByKey = await db.AgreementTemplates
+            .AsSplitQuery()
             .Include(t => t.Translations)
             .Include(t => t.Fields)
             .ToDictionaryAsync(t => t.Key, StringComparer.Ordinal, cancellationToken);
