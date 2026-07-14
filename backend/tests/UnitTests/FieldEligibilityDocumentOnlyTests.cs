@@ -21,9 +21,12 @@ public sealed class FieldEligibilityDocumentOnlyTests
     }
 
     [Theory]
+    [InlineData("номер двигателя")]
+    [InlineData("двигатель рақами")]
     [InlineData("мощность двигателя (л.с.)")]
     [InlineData("объем двигателя")]
     [InlineData("шасси рақами")]
+    [InlineData("номер кузова")]
     [InlineData("снаряженная масса")]
     [InlineData("количество мест для сидения")]
     [InlineData("экологический класс")]
@@ -31,6 +34,12 @@ public sealed class FieldEligibilityDocumentOnlyTests
     [InlineData("завод-изготовитель")]
     public void Technical_characteristics_are_document_only(string label)
     {
+        // QuestionGenerator's own system prompt explicitly refuses to ask
+        // about engine/chassis/body numbers - classifying them askable
+        // here without also updating that prompt just makes the model
+        // silently fail to produce a question twice in a row, and the
+        // interview falls back to a vague "please clarify this detail
+        // again" loop. Keep both layers in agreement: never ask.
         Assert.Equal(FieldCategory.DocumentOnly, Classify(label));
     }
 
@@ -38,10 +47,7 @@ public sealed class FieldEligibilityDocumentOnlyTests
     [InlineData("VIN рақами")]
     [InlineData("русуми (марка, модель)")]
     [InlineData("давлат рақам белгиси")]
-    [InlineData("номер двигателя")]
-    [InlineData("двигатель рақами")]
-    [InlineData("номер кузова")]
-    public void Vin_brand_model_plate_engine_and_body_number_stay_askable_when_required(string label)
+    public void Vin_brand_model_and_plate_stay_askable_when_required(string label)
     {
         Assert.Equal(FieldCategory.RequiredObject, Classify(label));
     }

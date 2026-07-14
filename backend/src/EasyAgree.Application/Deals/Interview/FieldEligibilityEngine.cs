@@ -50,16 +50,11 @@ public static class FieldEligibilityEngine
         "ҳисоб рақам", "банк", "мфо",
         "лавозим", "ташкилий-ҳуқуқий", "директор", "раҳбар", "руководител",
     ];
-    // Engine number and body/kuzov number are deliberately NOT here anymore -
-    // unlike engine power/displacement (still below), a person can read
-    // these off the vehicle itself and type them, and the interview now
-    // asks them with an upload-a-photo alternative offered alongside
-    // (see DocumentHintMatcher on the Flutter side). Chassis ("шасси")
-    // stays document-only/unasked, unchanged.
     private static readonly string[] TechnicalDocumentOnlyKeywords =
     [
-        "объем двигателя", "объём двигателя", "двигатель ҳажми",
+        "двигател", "мотор рақами",
         "шасси", "рама", "рамка рақами",
+        "номер кузова", "кузов рақами", "кузов раками",
         "мощност", "лошадин", "от кучи", "қувват",
         "снаряженн", "масса", "вазни", "оғирлиги", "грузоподъем", "юк кўтариш",
         "мест для сидения", "ўриндиқ", "пассажиров",
