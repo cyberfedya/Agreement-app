@@ -24,10 +24,11 @@ public sealed class QuestionGenerator(IAiChatClient aiChatClient)
         One topic per question: never combine time with place, price with
         anything else, or any two unrelated things in one question.
         Never ask about deep technical specifications (engine power or
-        displacement, chassis number, weight, seating, emissions class,
-        fuel) - those come only from uploaded documents. Engine number and
-        body number ARE allowed when they appear in CURRENT_QUESTION_GROUP:
-        ask them as one short question ("Какой номер двигателя?").
+        displacement, weight, seating, emissions class, fuel) - those come
+        only from uploaded documents. VIN, engine number, body number and
+        chassis number ARE allowed when they appear in
+        CURRENT_QUESTION_GROUP: ask them together as one short question
+        ("Какой VIN, номер двигателя, кузова и шасси?").
 
         Do not use bureaucratic verbs: "Specify", "Provide", "Enter", "Input",
         "Укажите", "Введите", "Заполните", "Предоставьте".
@@ -39,8 +40,10 @@ public sealed class QuestionGenerator(IAiChatClient aiChatClient)
         ask a short yes/no question: "Chevrolet Nexia 3, 2019 год — верно?"
 
         GROUPING
-        CURRENT_QUESTION_GROUP contains one or two related fields. Ask only about those fields.
-        If the group has two fields, combine them into one short question.
+        CURRENT_QUESTION_GROUP contains one or more related fields (almost always one - a
+        multi-field group only happens for a documented combined-question set like
+        VIN/engine/body/chassis number). Ask only about those fields.
+        If the group has more than one field, combine them into one short question naming all of them.
         Never ask about ALREADY_KNOWN fields. Never mention known neighboring fields unless needed to disambiguate.
         Never ask a list. Never ask two sentences.
 

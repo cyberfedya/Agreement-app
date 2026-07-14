@@ -1,5 +1,24 @@
 import 'package:app/features/questionnaire/domain/question.dart';
 
+/// Which conversational stage the current question belongs to (e.g. "🚗
+/// Автомобиль" or "📄 Условия сделки"), already localized by the backend.
+/// Two fields with the same [key] are the same stage even across turns -
+/// that's what the UI uses to detect "still in this stage" vs "just moved
+/// to the next one".
+class InterviewStage {
+  const InterviewStage({required this.key, required this.icon, required this.label});
+
+  final String key;
+  final String icon;
+  final String label;
+
+  factory InterviewStage.fromJson(Map<String, dynamic> json) => InterviewStage(
+    key: json['key'] as String,
+    icon: json['icon'] as String,
+    label: json['label'] as String,
+  );
+}
+
 /// Non-mandatory mid-interview upload suggestion - shown instead of the
 /// next question when uploading a photo would fill several fields at
 /// once. [documentType] is the backend's `DocumentType` enum name (e.g.
@@ -29,11 +48,18 @@ class DocumentSuggestion {
 /// "here's the next thing to ask", "you have enough — generate", or
 /// "consider uploading this document before we keep going".
 class InterviewStep {
-  const InterviewStep({required this.readyToGenerate, this.question, this.closingMessage, this.documentSuggestion});
+  const InterviewStep({
+    required this.readyToGenerate,
+    this.question,
+    this.closingMessage,
+    this.documentSuggestion,
+    this.stage,
+  });
 
   final bool readyToGenerate;
   final Question? question;
   final DocumentSuggestion? documentSuggestion;
+  final InterviewStage? stage;
 
   /// Short spoken/shown sign-off for when [readyToGenerate] is true — e.g.
   /// "Спасибо. Этой информации уже достаточно, чтобы подготовить проект
@@ -58,6 +84,7 @@ class InterviewStep {
         required: true,
         type: 'text',
       ),
+      stage: json['stage'] != null ? InterviewStage.fromJson(json['stage'] as Map<String, dynamic>) : null,
     );
   }
 }

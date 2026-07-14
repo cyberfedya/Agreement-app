@@ -1,3 +1,4 @@
+using EasyAgree.Application.Deals.Interview;
 using EasyAgree.Domain.Enums;
 
 namespace EasyAgree.Application.Deals;
@@ -15,6 +16,8 @@ public sealed class NextQuestionResult
 
     public string? NextQuestion { get; private init; }
 
+    public InterviewStage? Stage { get; private init; }
+
     public DocumentType? SuggestedDocumentType { get; private init; }
 
     public int SuggestedMatchedFieldCount { get; private init; }
@@ -24,8 +27,8 @@ public sealed class NextQuestionResult
     public static NextQuestionResult ReadyToGenerate(string closingMessage) =>
         new() { IsReadyToGenerate = true, NextQuestion = closingMessage };
 
-    public static NextQuestionResult NeedMoreInfo(int fieldId, string question) =>
-        new() { NextFieldId = fieldId, NextQuestion = question };
+    public static NextQuestionResult NeedMoreInfo(int fieldId, string question, InterviewStage? stage) =>
+        new() { NextFieldId = fieldId, NextQuestion = question, Stage = stage };
 
     public static NextQuestionResult SuggestDocument(DocumentType documentType, int matchedFieldCount) =>
         new() { IsSuggestDocument = true, SuggestedDocumentType = documentType, SuggestedMatchedFieldCount = matchedFieldCount };

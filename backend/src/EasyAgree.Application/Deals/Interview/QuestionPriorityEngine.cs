@@ -16,8 +16,32 @@ public static class QuestionPriorityEngine
     /// be settled before the final number is named.</summary>
     private static readonly string[] PriceKeywords = ["қиймат", "нарх", "баҳолан", "цена", "стоимост"];
 
-    public static IReadOnlyList<ClassifiedField> Order(IEnumerable<ClassifiedField> fields) =>
-        fields.OrderBy(Rank).ThenBy(f => f.FieldId).ToList();
+    public static IReadOnlyList<ClassifiedField> Order(IEnumerable<ClassifiedField> fields)
+    {
+        var list = fields.ToList();
+
+        // Fields in the same FieldClusterCatalog cluster (e.g. VIN/engine/
+        // kuzov/chassis number) must sort adjacently so QuestionGroupingEngine
+        // can combine them into one question - they take the position of
+        // the lowest FieldId in their cluster instead of their own.
+        var clusterAnchor = list
+            .Select(f => (Field: f, Cluster: FieldClusterCatalog.ClusterOf(f.Label)))
+            .Where(x => x.Cluster is not null)
+            .GroupBy(x => x.Cluster)
+            .ToDictionary(g => g.Key!, g => g.Min(x => x.Field.FieldId));
+
+        return list
+            .OrderBy(Rank)
+            .ThenBy(f => SortKey(f, clusterAnchor))
+            .ThenBy(f => f.FieldId)
+            .ToList();
+    }
+
+    private static int SortKey(ClassifiedField field, IReadOnlyDictionary<string, int> clusterAnchor)
+    {
+        var cluster = FieldClusterCatalog.ClusterOf(field.Label);
+        return cluster is not null && clusterAnchor.TryGetValue(cluster, out var anchor) ? anchor : field.FieldId;
+    }
 
     private static int Rank(ClassifiedField field) => field.Category switch
     {

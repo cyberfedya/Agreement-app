@@ -28,6 +28,7 @@ import 'package:app/features/questionnaire/presentation/widgets/extraction_celeb
 import 'package:app/features/questionnaire/presentation/widgets/generation_sequence_view.dart';
 import 'package:app/features/questionnaire/presentation/widgets/greeting_view.dart';
 import 'package:app/features/questionnaire/presentation/widgets/interview_header.dart';
+import 'package:app/features/questionnaire/presentation/widgets/interview_stage_banner.dart';
 import 'package:app/features/questionnaire/presentation/widgets/review_view.dart';
 import 'package:app/features/questionnaire/presentation/widgets/thinking_indicator.dart';
 import 'package:app/features/questionnaire/providers/questionnaire_provider.dart';
@@ -600,6 +601,10 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
       provider,
       Column(
         children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(Insets.x24, Insets.x8, Insets.x24, 0),
+            child: InterviewStageBanner(stage: provider.currentStage),
+          ),
           Expanded(
             child: AnimatedSwitcher(
               duration: Motion.normal,

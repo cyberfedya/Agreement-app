@@ -53,9 +53,28 @@ public sealed class GetNextQuestionUseCase(
         if (result.IsSuggestDocument)
             return NextQuestionResult.SuggestDocument(result.SuggestedDocumentType!.Value, result.SuggestedMatchedFieldCount);
 
-        return result.IsReady
-            ? NextQuestionResult.ReadyToGenerate(result.Question!)
-            : NextQuestionResult.NeedMoreInfo(result.FieldId!.Value, result.Question!);
+        if (result.IsReady)
+            return NextQuestionResult.ReadyToGenerate(result.Question!);
+
+        var stage = ResolveStage(template.Domain, template.Fields, labels, result.FieldId!.Value, language);
+        return NextQuestionResult.NeedMoreInfo(result.FieldId!.Value, result.Question!, stage);
+    }
+
+    /// <summary>
+    /// Purely a read-side annotation of whichever field the planner already
+    /// chose to ask - reuses the same deterministic classification
+    /// <see cref="GetDealFieldStatesUseCase"/> uses, so it never
+    /// second-guesses <see cref="ConversationManager"/>'s actual decision.
+    /// </summary>
+    private static InterviewStage? ResolveStage(
+        string domain,
+        IReadOnlyList<AgreementTemplateField> fields,
+        IReadOnlyDictionary<int, string> labels,
+        int fieldId,
+        string language)
+    {
+        var classified = FieldEligibilityEngine.Classify(fields, labels).FirstOrDefault(f => f.FieldId == fieldId);
+        return classified is null ? null : InterviewStageCatalog.Resolve(domain, classified.Category, language);
     }
 
     private async Task SaveAsync(

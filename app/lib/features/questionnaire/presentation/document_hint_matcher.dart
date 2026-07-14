@@ -33,6 +33,7 @@ abstract final class DocumentHintMatcher {
       'государственный номер',
       'давлат рақам',
       'номер шасси',
+      'шасси', // covers "шасси рақами" and question phrasings in both languages
       'номер рамы',
       'техпаспорт',
       'технического паспорта',

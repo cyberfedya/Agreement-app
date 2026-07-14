@@ -25,7 +25,12 @@ public static class QuestionGroupingEngine
         foreach (var field in ordered)
         {
             var last = groups.Count > 0 ? groups[^1] : null;
-            if (last is not null && last.Count < MaxGroupSize && AreRelated(last[0], field))
+            var cluster = FieldClusterCatalog.ClusterOf(field.Label);
+            var lastCluster = last is { Count: > 0 } ? FieldClusterCatalog.ClusterOf(last[0].Label) : null;
+
+            if (last is not null && cluster is not null && cluster == lastCluster && last.Count < FieldClusterCatalog.MaxSizeOf(cluster))
+                last.Add(field);
+            else if (last is not null && cluster is null && lastCluster is null && last.Count < MaxGroupSize && AreRelated(last[0], field))
                 last.Add(field);
             else
                 groups.Add([field]);

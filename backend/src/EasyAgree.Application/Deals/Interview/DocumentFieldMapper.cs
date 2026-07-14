@@ -26,7 +26,8 @@ public static class DocumentFieldMapper
     // the more specific phrase must be listed - and checked - first).
     private static readonly (string[] LabelKeywords, string[] HintKeys, bool JoinValues)[] Rules =
     [
-        (["кузов рақами", "кузов раками"], ["vin", "body_number"], false),
+        (["vin рақами"], ["vin"], false),
+        (["кузов рақами", "кузов раками"], ["body_number"], false),
         (["шасси рақами", "шасси раками"], ["chassis_number"], false),
         (["двигатель рақами", "двигател рақами"], ["engine_number"], false),
         (["от кучи", "қуввати"], ["engine_power", "engine_capacity"], false),

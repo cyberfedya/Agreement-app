@@ -18,6 +18,7 @@ class QuestionnaireProvider extends ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
   Question? _currentQuestion;
+  InterviewStage? _currentStage;
   bool _readyToGenerate = false;
   String? _closingMessage;
   DocumentSuggestion? _documentSuggestion;
@@ -26,10 +27,16 @@ class QuestionnaireProvider extends ChangeNotifier {
   DealReview? _review;
   final Map<int, String> _answers = {};
   final List<Question> _history = [];
+  final List<InterviewStage?> _stageHistory = [];
 
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   Question? get currentQuestion => _currentQuestion;
+
+  /// The stage [currentQuestion] belongs to (e.g. "🚗 Автомобиль"), already
+  /// localized by the backend. Null once [readyToGenerate] is true - there
+  /// is no "current field" left to stage.
+  InterviewStage? get currentStage => _currentStage;
   bool get readyToGenerate => _readyToGenerate;
   String? get closingMessage => _closingMessage;
 
@@ -85,7 +92,9 @@ class QuestionnaireProvider extends ChangeNotifier {
     if (_dealId != dealId) {
       _answers.clear();
       _history.clear();
+      _stageHistory.clear();
       _currentQuestion = null;
+      _currentStage = null;
       _readyToGenerate = false;
       _documentSuggestion = null;
       _preview = null;
@@ -119,6 +128,7 @@ class QuestionnaireProvider extends ChangeNotifier {
   Future<void> submitAnswer(String text) async {
     final field = _currentQuestion;
     if (field == null || _isLoading) return;
+    final fieldStage = _currentStage;
 
     _isLoading = true;
     notifyListeners();
@@ -130,6 +140,7 @@ class QuestionnaireProvider extends ChangeNotifier {
     if (movedOn) {
       _answers[field.fieldId] = text;
       _history.add(field);
+      _stageHistory.add(fieldStage);
     }
     notifyListeners();
     unawaited(refreshDerivedState());
@@ -153,6 +164,7 @@ class QuestionnaireProvider extends ChangeNotifier {
         _answers[fieldId] = trimmed;
         _readyToGenerate = result.readyToGenerate;
         _currentQuestion = result.question;
+        _currentStage = result.stage;
         _closingMessage = result.closingMessage;
         _errorMessage = null;
         _isLoading = false;
@@ -173,6 +185,7 @@ class QuestionnaireProvider extends ChangeNotifier {
   void goBack() {
     if (_history.isEmpty) return;
     _currentQuestion = _history.removeLast();
+    _currentStage = _stageHistory.removeLast();
     _readyToGenerate = false;
     _review = null;
     notifyListeners();
@@ -248,6 +261,7 @@ class QuestionnaireProvider extends ChangeNotifier {
       case Success(:final value):
         _readyToGenerate = value.readyToGenerate;
         _currentQuestion = value.question;
+        _currentStage = value.stage;
         _closingMessage = value.closingMessage;
         _documentSuggestion = value.documentSuggestion;
         _errorMessage = null;

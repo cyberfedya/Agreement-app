@@ -23,7 +23,7 @@ public sealed class FieldEligibilityDocumentOnlyTests
     [Theory]
     [InlineData("мощность двигателя (л.с.)")]
     [InlineData("объем двигателя")]
-    [InlineData("шасси рақами")]
+    [InlineData("рама")]
     [InlineData("снаряженная масса")]
     [InlineData("количество мест для сидения")]
     [InlineData("экологический класс")]
@@ -35,13 +35,13 @@ public sealed class FieldEligibilityDocumentOnlyTests
     }
 
     /// <summary>
-    /// Engine number and body/kuzov number are askable - the owner can
-    /// read them off the vehicle/documents, and the interview offers a
-    /// photo-upload alternative alongside. QuestionGenerator's system
-    /// prompt explicitly permits these two (and only these two) technical
-    /// identifiers, so classification and the LLM instruction layer agree -
-    /// a mismatch here previously made the model refuse to phrase the
-    /// question and the interview looped on a vague fallback.
+    /// VIN, engine number, body/kuzov number and chassis number are askable
+    /// - the owner can read them off the vehicle/documents, and the
+    /// interview offers a photo-upload alternative alongside.
+    /// QuestionGenerator's system prompt explicitly permits these four
+    /// technical identifiers, so classification and the LLM instruction
+    /// layer agree - a mismatch here previously made the model refuse to
+    /// phrase the question and the interview looped on a vague fallback.
     /// </summary>
     [Theory]
     [InlineData("VIN рақами")]
@@ -51,7 +51,8 @@ public sealed class FieldEligibilityDocumentOnlyTests
     [InlineData("двигатель рақами")]
     [InlineData("номер кузова")]
     [InlineData("кузов рақами")]
-    public void Vin_brand_plate_engine_and_body_number_stay_askable_when_required(string label)
+    [InlineData("шасси рақами")]
+    public void Vin_brand_plate_engine_body_and_chassis_number_stay_askable_when_required(string label)
     {
         Assert.Equal(FieldCategory.RequiredObject, Classify(label));
     }
@@ -66,8 +67,8 @@ public sealed class FieldEligibilityDocumentOnlyTests
     [Fact]
     public void Technical_fields_are_document_only_even_when_the_template_marks_them_required()
     {
-        Assert.Equal(FieldCategory.DocumentOnly, Classify("номер шасси", AgreementFieldMode.Required));
-        Assert.Equal(FieldCategory.DocumentOnly, Classify("номер шасси", AgreementFieldMode.Optional));
+        Assert.Equal(FieldCategory.DocumentOnly, Classify("рама", AgreementFieldMode.Required));
+        Assert.Equal(FieldCategory.DocumentOnly, Classify("рама", AgreementFieldMode.Optional));
     }
 
     /// <summary>
