@@ -116,6 +116,8 @@ class ReviewView extends StatelessWidget {
               const SizedBox(height: Insets.x12),
               _WorkflowStatusPill(status: status).animateEntranceStaggered(1),
             ],
+            const SizedBox(height: Insets.x12),
+            _RiskBanner(missingCount: review.missing.length).animateEntranceStaggered(1),
             // Readiness report for document-only technicals: the agreement
             // can be generated now; these fields simply stay blank until a
             // document fills them. Backend-classified (DOCUMENT_PENDING),
@@ -284,6 +286,75 @@ class _WorkflowStatusPill extends StatelessWidget {
             child: Text(
               _label(status),
               style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A traffic-light summary of legal risk before generating: how many
+/// required fields are still missing, derived purely from
+/// [DealReview.missing] (already backend-classified - no local field
+/// eligibility logic here). The agreement can always be generated
+/// regardless of this banner's color; it exists so the user makes that
+/// choice knowingly instead of assuming a generated draft is complete.
+class _RiskBanner extends StatelessWidget {
+  const _RiskBanner({required this.missingCount});
+
+  final int missingCount;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final (emoji, label, message, color) = switch (missingCount) {
+      0 => (
+          '🟢',
+          'Низкий риск',
+          'Все ключевые сведения заполнены.',
+          theme.colorScheme.primary,
+        ),
+      1 || 2 => (
+          '🟡',
+          'Средний риск',
+          'Отсутствуют некоторые сведения. Договор можно сформировать сейчас '
+              'или сначала заполнить оставшееся для большей точности.',
+          Colors.amber.shade800,
+        ),
+      _ => (
+          '🔴',
+          'Высокий риск',
+          'Отсутствуют важные условия сделки. Мы можем сформировать договор сейчас, '
+              'но это увеличивает юридический риск.',
+          theme.colorScheme.error,
+        ),
+    };
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: Insets.x16, vertical: Insets.x12),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerLow,
+        borderRadius: Corners.mdRadius,
+        border: Border.all(color: color.withValues(alpha: 0.4)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(emoji, style: const TextStyle(fontSize: 18)),
+          const SizedBox(width: Insets.x12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: theme.textTheme.labelLarge?.copyWith(color: color, fontWeight: FontWeight.w700)),
+                const SizedBox(height: Insets.x4),
+                Text(
+                  message,
+                  style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant, height: 1.4),
+                ),
+              ],
             ),
           ),
         ],

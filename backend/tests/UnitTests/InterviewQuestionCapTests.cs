@@ -8,13 +8,14 @@ namespace UnitTests;
 
 /// <summary>
 /// The architectural rule: a simple agreement must never turn into an
-/// interrogation - the interview asks at most
-/// <c>InterviewPlanner.MaxQuestionsPerInterview</c> distinct questions
-/// before declaring itself ready, no matter how many fields a template
-/// declares required. Fields left unanswered past the cap render as a
-/// blank placeholder at generation time (same as
-/// <see cref="FieldCategory.DocumentOnly"/> fields already do) rather than
-/// blocking the interview.
+/// interrogation - the interview asks at most a per-domain maximum of
+/// distinct questions before declaring itself ready, no matter how many
+/// fields a template declares required. One number doesn't fit every
+/// domain (a construction contract legitimately needs more terms than a
+/// vehicle sale), so the cap is looked up by template domain. Fields left
+/// unanswered past the cap render as a blank placeholder at generation
+/// time (same as <see cref="FieldCategory.DocumentOnly"/> fields already
+/// do) rather than blocking the interview.
 /// </summary>
 public sealed class InterviewQuestionCapTests
 {
@@ -32,8 +33,10 @@ public sealed class InterviewQuestionCapTests
             Task.FromResult("""{"question":"What is it?"}""");
     }
 
-    [Fact]
-    public async Task Interview_never_asks_more_than_the_configured_maximum_of_questions()
+    /// <summary>Runs the fifteen-unrelated-fields interview to completion
+    /// for the given domain, returning how many distinct questions were
+    /// actually asked.</summary>
+    private static async Task<int> RunToCompletion(string templateDomain)
     {
         var planner = new InterviewPlanner(new QuestionGenerator(new StaticQuestionAiClient()));
         var answers = new Dictionary<int, string>();
@@ -44,7 +47,7 @@ public sealed class InterviewQuestionCapTests
         for (var turn = 0; turn < 30; turn++)
         {
             var result = await planner.ExecuteAsync(
-                templateDomain: "test",
+                templateDomain: templateDomain,
                 templateTitle: "Test agreement",
                 language: "ru",
                 userRequest: null,
@@ -62,16 +65,41 @@ public sealed class InterviewQuestionCapTests
 
             Assert.False(result.IsSuggestDocument);
             questionsAsked++;
-            Assert.True(questionsAsked <= 8, $"Interview asked a {questionsAsked}th question - must never exceed 8.");
 
-            // Answer whatever field was just asked about and continue the
-            // "conversation" so the planner moves to the next question.
             answers[result.FieldId!.Value] = "some answer";
             currentMessage = "some answer";
         }
 
-        Assert.True(questionsAsked <= 8);
+        return questionsAsked;
+    }
+
+    [Fact]
+    public async Task Vehicle_domain_caps_at_eight_questions()
+    {
+        var questionsAsked = await RunToCompletion("vehicle");
+        Assert.True(questionsAsked <= 8, $"Vehicle interview asked {questionsAsked} questions - must never exceed 8.");
         Assert.True(questionsAsked > 0);
+    }
+
+    [Fact]
+    public async Task Construction_domain_allows_more_questions_than_vehicle()
+    {
+        var vehicleCount = await RunToCompletion("vehicle");
+        var constructionCount = await RunToCompletion("construction");
+
+        Assert.True(constructionCount <= 15, $"Construction interview asked {constructionCount} questions - must never exceed 15.");
+        Assert.True(
+            constructionCount > vehicleCount,
+            "A construction contract has real 15-question headroom that a vehicle sale (capped at 8) doesn't - " +
+            "the cap must actually vary by domain, not just exist.");
+    }
+
+    [Fact]
+    public async Task Unknown_domain_falls_back_to_the_default_cap()
+    {
+        var questionsAsked = await RunToCompletion("some_future_domain_not_in_the_table");
+        Assert.True(questionsAsked <= 10, $"Unrecognized-domain interview asked {questionsAsked} questions - default cap is 10.");
+        Assert.True(questionsAsked > 8, "Should get the default (10), not silently fall back to vehicle's 8.");
     }
 
     /// <summary>

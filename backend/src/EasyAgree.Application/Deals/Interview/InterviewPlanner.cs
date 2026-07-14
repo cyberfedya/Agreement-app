@@ -36,8 +36,26 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator, LegalK
     /// new questions do. Anything past the cap is left for the same
     /// blank-placeholder treatment <see cref="FieldCategory.DocumentOnly"/>
     /// fields already get - it never blocks generation.
+    ///
+    /// One number doesn't fit every domain: a vehicle sale genuinely has
+    /// fewer material terms than a construction contract, which can
+    /// legitimately need well over a dozen. Falls back to
+    /// <see cref="DefaultMaxQuestions"/> for any domain not listed here.
     /// </summary>
-    private const int MaxQuestionsPerInterview = 8;
+    private static readonly Dictionary<string, int> MaxQuestionsByDomain = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["vehicle"] = 8,
+        ["real_estate"] = 10,
+        ["services"] = 10,
+        ["loan"] = 9,
+        ["construction"] = 15,
+        ["inheritance"] = 12,
+    };
+
+    private const int DefaultMaxQuestions = 10;
+
+    private static int MaxQuestionsFor(string templateDomain) =>
+        MaxQuestionsByDomain.GetValueOrDefault(templateDomain, DefaultMaxQuestions);
 
     public async Task<InterviewPlanResult> ExecuteAsync(
         string templateDomain,
@@ -60,6 +78,7 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator, LegalK
 
         var classified = FieldEligibilityEngine.Classify(fields, labels);
         var isFirstTurn = currentMessage is null;
+        var maxQuestions = MaxQuestionsFor(templateDomain);
 
         for (var iteration = 0; iteration < MaxPlanningIterations; iteration++)
         {
@@ -79,8 +98,8 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator, LegalK
             var groupKey = GroupKey(group);
             var isRepeat = askedQuestions.TryGetValue(groupKey, out var previousQuestion);
 
-            if (!isRepeat && askedQuestions.Count >= MaxQuestionsPerInterview)
-                return InterviewPlanResult.Ready(ClosingPhrases.Pick(language));
+            if (!isRepeat && askedQuestions.Count >= maxQuestions)
+                return InterviewPlanResult.Ready(ClosingPhrases.PickCapReached(language));
 
             GeneratedQuestion generated;
             if (isRepeat)

@@ -22,10 +22,6 @@ namespace UnitTests;
 public sealed class DocumentOnlyReadinessTests
 {
     private static readonly Guid DealId = Guid.NewGuid();
-
-    // Field 10 is a normal, genuinely-required commercial term the owner
-    // knows from memory; field 20 is a technical characteristic that must
-    // only ever come from an uploaded document.
     private static readonly AgreementTemplate Template = new()
     {
         Id = Guid.NewGuid(),
@@ -67,9 +63,7 @@ public sealed class DocumentOnlyReadinessTests
     public async Task Validation_reports_no_missing_field_issue_for_the_technical_field()
     {
         var useCase = new GetDealAgreementValidationUseCase(new DealRepo(DealWithPriceAnswered()), new TemplateRepo(), new DocumentRepo([]));
-
         var result = await useCase.ExecuteAsync(DealId);
-
         Assert.NotNull(result);
         Assert.True(result.IsValid);
         Assert.DoesNotContain(result.Issues, issue => issue.FieldId == 20);
