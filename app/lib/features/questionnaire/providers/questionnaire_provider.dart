@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 import 'package:app/features/documents/data/document_repository.dart';
 import 'package:app/features/documents/domain/interview_preview.dart';
@@ -9,14 +8,6 @@ import 'package:app/features/questionnaire/domain/interview_step.dart';
 import 'package:app/features/questionnaire/domain/question.dart';
 import 'package:app/shared/models/result.dart';
 
-/// Drives a one-question-at-a-time interview: each answer is sent to the
-/// backend's Interview Planner, which decides the next question (or that
-/// enough is known to generate) — the field list is never fetched upfront.
-///
-/// Also the single owner of the backend-computed progress state: the
-/// interview preview (remaining questions / coverage) and, once the
-/// planner says ready, the pre-generation review. Both are re-fetched
-/// after every state change - nothing progress-related is derived locally.
 class QuestionnaireProvider extends ChangeNotifier {
   QuestionnaireProvider(this._repository, this._documentRepository);
 
@@ -64,6 +55,22 @@ class QuestionnaireProvider extends ChangeNotifier {
   List<Question> get allFields => _allFields;
 
   Map<int, String> get answers => Map.unmodifiable(_answers);
+
+  /// [answers] merged with values the backend already knows without
+  /// asking — mainly the creator's own profile fields (name, address,
+  /// passport), resolved by [GetDealFieldStatesUseCase] as soon as the
+  /// deal's template and profile are known, not just once the interview
+  /// finishes. Interview answers win if a field is somehow in both.
+  Map<int, String> get displayValues {
+    final merged = <int, String>{};
+    for (final state in _review?.fieldStates ?? const []) {
+      if (state.value != null && state.value!.trim().isNotEmpty) {
+        merged[state.fieldId] = state.value!;
+      }
+    }
+    merged.addAll(_answers);
+    return merged;
+  }
   bool get canGoBack => _history.isNotEmpty;
 
   /// 1-based position of [currentQuestion] in the sequence shown so far —
@@ -205,10 +212,15 @@ class QuestionnaireProvider extends ChangeNotifier {
     unawaited(refreshDerivedState());
   }
 
-  /// Re-fetches everything the backend derives about this deal's progress:
-  /// the interview preview always, and the pre-generation review once the
-  /// planner has declared the interview ready. Failures are non-fatal -
-  /// the UI keeps the last known values rather than blocking the flow.
+  /// Re-fetches everything the backend derives about this deal's
+  /// progress: the interview preview, and the pre-generation field
+  /// review (deterministic, no LLM calls, safe on every turn — see
+  /// `GetDealReviewUseCase`). The review is fetched from the very first
+  /// turn, not just once ready to generate, so profile-resolved fields
+  /// (name, address, passport) show up in the live document preview
+  /// immediately instead of staying blank until the interview ends.
+  /// Failures are non-fatal - the UI keeps the last known values rather
+  /// than blocking the flow.
   Future<void> refreshDerivedState() async {
     final dealId = _dealId;
     if (dealId == null) return;
@@ -220,9 +232,8 @@ class QuestionnaireProvider extends ChangeNotifier {
       notifyListeners();
     }
 
-    if (!_readyToGenerate) return;
     final reviewResult = await _repository.getReview(dealId);
-    if (_dealId != dealId || !_readyToGenerate) return;
+    if (_dealId != dealId) return;
     if (reviewResult case Success(:final value)) {
       _review = value;
       notifyListeners();

@@ -40,7 +40,7 @@ class AgreementPreviewSheet extends StatelessWidget {
           child: Consumer<QuestionnaireProvider>(
             builder: (context, provider, _) {
               final questions = provider.allFields;
-              final answers = provider.answers;
+              final answers = provider.displayValues;
               final filled = questions.where((q) => (answers[q.fieldId] ?? '').trim().isNotEmpty).length;
               final progress = questions.isEmpty ? 0.0 : filled / questions.length;
 

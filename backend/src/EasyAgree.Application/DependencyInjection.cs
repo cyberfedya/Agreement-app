@@ -30,6 +30,7 @@ public static class DependencyInjection
         services.AddScoped<ConversationManager>();
         services.AddScoped<GetNextQuestionUseCase>();
         services.AddScoped<PartyRoleClassifier>();
+        services.AddScoped<PartyProfileResolver>();
         services.AddScoped<GenerateFromDealUseCase>();
         services.AddScoped<GetDealAgreementUseCase>();
         services.AddScoped<GetDealFieldStatesUseCase>();

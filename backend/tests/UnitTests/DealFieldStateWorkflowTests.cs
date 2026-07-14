@@ -33,7 +33,9 @@ public sealed class DealFieldStateWorkflowTests
         var useCase = new GetDealFieldStatesUseCase(
             new DealRepo(deal),
             new TemplateRepo(template),
-            new DocumentRepo([]));
+            new DocumentRepo([]),
+            new ProfileRepo(),
+            new PartyProfileResolver(new PartyRoleClassifier(new UnusedAiChatClient())));
 
         var result = await useCase.ExecuteAsync(dealId);
 
@@ -60,7 +62,9 @@ public sealed class DealFieldStateWorkflowTests
         var useCase = new GetDealFieldStatesUseCase(
             new DealRepo(deal),
             new TemplateRepo(template),
-            new DocumentRepo([]));
+            new DocumentRepo([]),
+            new ProfileRepo(),
+            new PartyProfileResolver(new PartyRoleClassifier(new UnusedAiChatClient())));
 
         var result = await useCase.ExecuteAsync(dealId);
 
@@ -104,6 +108,23 @@ public sealed class DealFieldStateWorkflowTests
 
         public Task<AgreementTemplate?> GetByKeyAsync(string key, CancellationToken cancellationToken = default) =>
             Task.FromResult(key == template.Key ? template : null);
+    }
+
+    private sealed class ProfileRepo : IUserProfileRepository
+    {
+        public Task<UserProfile?> GetAsync(string id, CancellationToken cancellationToken = default) =>
+            Task.FromResult<UserProfile?>(null);
+
+        public Task<UserProfile> UpsertAsync(UserProfile profile, CancellationToken cancellationToken = default) =>
+            Task.FromResult(profile);
+
+        public Task DeleteAsync(string id, CancellationToken cancellationToken = default) => Task.CompletedTask;
+    }
+
+    private sealed class UnusedAiChatClient : IAiChatClient
+    {
+        public Task<string> CompleteAsync(string systemPrompt, string userMessage, CancellationToken cancellationToken = default) =>
+            throw new InvalidOperationException("Not expected to be called when neither party has a profile.");
     }
 
     private sealed class DocumentRepo(List<UploadedDocument> documents) : IUploadedDocumentRepository

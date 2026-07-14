@@ -28,7 +28,9 @@ public sealed record DealFieldStateResult(
 public sealed class GetDealFieldStatesUseCase(
     IDealRepository dealRepository,
     IAgreementTemplateRepository templateRepository,
-    IUploadedDocumentRepository documentRepository)
+    IUploadedDocumentRepository documentRepository,
+    IUserProfileRepository profileRepository,
+    PartyProfileResolver partyProfileResolver)
 {
     public async Task<DealFieldStateResult?> ExecuteAsync(Guid dealId, CancellationToken cancellationToken = default)
     {
@@ -45,6 +47,19 @@ public sealed class GetDealFieldStatesUseCase(
         var hints = DocumentFieldHintCollection.FromDocuments(documents);
         var answers = DealAnswersSerializer.Deserialize(deal.AnswersJson);
         var classified = FieldEligibilityEngine.Classify(template.Fields, labels);
+
+        // Resolved lazily (only templates with NeverAsk fields need it) -
+        // the same profile lookup and role classification GenerateFromDealUseCase
+        // uses for the final render, so the live review/preview agrees with
+        // what generation will actually fill in.
+        var creatorProfile = deal.ProfileId is null ? null : await profileRepository.GetAsync(deal.ProfileId, cancellationToken);
+        var secondPartyProfile = deal.SecondPartyProfileId is null
+            ? null
+            : await profileRepository.GetAsync(deal.SecondPartyProfileId, cancellationToken);
+        var roleResolution = (creatorProfile is null && secondPartyProfile is null)
+            ? null
+            : await partyProfileResolver.ResolveRoleAsync(
+                labels, deal.RequestText, deal.FirstPartyRole, deal.ExpectedSecondPartyRole, cancellationToken);
         var mapped = DocumentFieldMapper.FindMatches(template.Fields, labels, hints, answers.Keys)
             .ToDictionary(mapping => mapping.FieldId);
         var conflictKeys = DocumentConflictEngine.Detect(documents)
@@ -109,6 +124,18 @@ public sealed class GetDealFieldStatesUseCase(
 
             if (field.Category == FieldCategory.NeverAsk)
             {
+                var profileValue = roleResolution is null
+                    ? null
+                    : (creatorProfile is null ? null : PartyProfileResolver.ResolveFromProfile(field.Label, creatorProfile, roleResolution.CreatorKeywords))
+                        ?? (secondPartyProfile is null ? null : PartyProfileResolver.ResolveFromProfile(field.Label, secondPartyProfile, roleResolution.SecondPartyKeywords));
+
+                if (!string.IsNullOrWhiteSpace(profileValue))
+                {
+                    states.Add(State(field, profileValue, required, "profile", 1.0, "CONFIRMED", Party(field), false,
+                        "AUTO_FILLED", "Auto-filled from the saved profile"));
+                    continue;
+                }
+
                 states.Add(State(field, null, required, "profile_or_qr", 1.0, "WAITING_SOURCE", Party(field), false,
                     "LOCKED", "Resolved from account profile, second-party QR profile, or legal metadata"));
                 continue;

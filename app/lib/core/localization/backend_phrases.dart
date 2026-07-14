@@ -24,6 +24,7 @@ const Map<String, String> _exactPhrases = {
   'Profile, QR, or document metadata field': 'Подставляется из профиля, QR или реквизитов автоматически',
   'Resolved from account profile, second-party QR profile, or legal metadata':
       'Подставляется из профиля, QR-профиля второй стороны или реквизитов',
+  'Auto-filled from the saved profile': 'Автоматически заполнено из сохранённого профиля',
   'Optional term; not asked during the minimal interview':
       'Необязательное условие — в коротком интервью не спрашивалось',
   'No trusted value available': 'Нет подтверждённого значения',

@@ -141,7 +141,7 @@ public sealed class GenerateFromDealSecondPartyRenderingTests
     }
 
     private static GenerateFromDealUseCase BuildUseCase(DealRepo dealRepo, ProfileRepo profileRepo, IAiChatClient aiClient) =>
-        new(dealRepo, new TemplateRepo(), profileRepo, new DocumentRepo(), new PartyRoleClassifier(aiClient),
+        new(dealRepo, new TemplateRepo(), profileRepo, new DocumentRepo(), new PartyProfileResolver(new PartyRoleClassifier(aiClient)),
             new GenerateAgreementUseCase(new TemplateRepo()));
 
     private sealed class FlippingAiChatClient(string firstAnswer, string subsequentAnswer) : IAiChatClient
