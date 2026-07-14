@@ -50,16 +50,18 @@ public static class ConversationReplies
 
     /// <summary>
     /// Used only when the model call for a question fails/returns nothing
-    /// even after a retry - deliberately generic rather than falling back
-    /// to the field's raw template label, which is always Uzbek-only
-    /// (templates have no per-field translations) and would silently leak
-    /// the wrong language into an otherwise-localized interview.
+    /// even after a retry. Always names the field via its template label -
+    /// the label is Uzbek-only (templates have no per-field translations),
+    /// which is a language mismatch in ru/en interviews, but a concrete
+    /// answerable question in the wrong language beats the previous fully
+    /// generic "уточните эту деталь ещё раз", which named nothing, could
+    /// not be answered meaningfully, and therefore repeated forever.
     /// </summary>
-    public static string GenericFallbackQuestion(string language) => language switch
+    public static string FallbackQuestion(string language, string fieldLabel) => language switch
     {
-        "uz" => "Кечирасиз, яна бир марта: шартнома учун яна қандай маълумот керак?",
-        "en" => "Sorry, could you tell me a bit more about that for the agreement?",
-        _ => "Извините, уточните, пожалуйста, эту деталь для договора ещё раз.",
+        "uz" => $"Илтимос, киритинг: {fieldLabel}",
+        "en" => $"Please provide: {fieldLabel}",
+        _ => $"Укажите, пожалуйста: {fieldLabel}",
     };
 
     /// <summary>

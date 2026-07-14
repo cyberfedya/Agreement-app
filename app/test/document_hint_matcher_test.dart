@@ -10,11 +10,13 @@ void main() {
       expect(DocumentHintMatcher.categoryFor('Номер кузова автомобиля?'), DocumentHintCategory.vehicle);
       expect(DocumentHintMatcher.categoryFor('Номер шасси?'), DocumentHintCategory.vehicle);
       expect(DocumentHintMatcher.categoryFor('Есть ли особые отметки?'), DocumentHintCategory.vehicle);
+      expect(DocumentHintMatcher.categoryFor('Укажите государственный номер автомобиля'), DocumentHintCategory.vehicle);
+      expect(DocumentHintMatcher.categoryFor('Какой госномер?'), DocumentHintCategory.vehicle);
     });
 
-    test('does not match fields the owner knows from memory (plate, brand, price, date)', () {
-      expect(DocumentHintMatcher.categoryFor('Укажите государственный номер автомобиля'), isNull);
+    test('does not match fields the owner knows from memory (brand, color, price, date)', () {
       expect(DocumentHintMatcher.categoryFor('Какая марка и модель?'), isNull);
+      expect(DocumentHintMatcher.categoryFor('Какого цвета автомобиль?'), isNull);
       expect(DocumentHintMatcher.categoryFor('Какая цена?'), isNull);
       expect(DocumentHintMatcher.categoryFor('Когда автомобиль будет передан?'), isNull);
       expect(DocumentHintMatcher.categoryFor('Как будет произведена оплата?'), isNull);

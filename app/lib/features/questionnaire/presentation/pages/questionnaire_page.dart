@@ -105,9 +105,12 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
   String? _completionFallback;
 
   /// Minimum number of answered questions between two document-upload
-  /// nudges for the *same* category - "at most once every 2-3 related
-  /// questions", never on every question.
-  static const int _hintCooldownQuestions = 3;
+  /// nudges for the *same* category. 1, not higher: the vehicle interview
+  /// deliberately asks its document-fillable identifiers back to back
+  /// (engine number -> body number -> plate), and the upload card must
+  /// appear on each of them - suppressing the 2nd and 3rd made the offer
+  /// look like it applied only to the engine number.
+  static const int _hintCooldownQuestions = 1;
 
   /// [QuestionnaireProvider.answers] length at which each category was
   /// last shown, so re-showing it can be rate-limited independently per

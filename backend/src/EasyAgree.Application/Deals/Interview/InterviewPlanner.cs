@@ -148,7 +148,7 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator, LegalK
                 else
                 {
                     question = string.IsNullOrWhiteSpace(generated.Question)
-                        ? ConversationReplies.GenericFallbackQuestion(language)
+                        ? ConversationReplies.FallbackQuestion(language, firstMissing.Label)
                         : generated.Question!;
                     askedQuestions[groupKey] = question;
                 }
