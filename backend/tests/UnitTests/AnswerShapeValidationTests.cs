@@ -21,6 +21,32 @@ public sealed class AnswerShapeValidationTests
         Assert.Equal(expected, AnswerShapeValidator.LooksPlausible(label, answer));
     }
 
+    /// <summary>
+    /// Payment-METHOD answers legitimately contain no digits at all - the
+    /// label shares money vocabulary ("тўлов") with amount fields, and the
+    /// digit requirement used to reject every valid answer here, re-asking
+    /// the same question in a guaranteed loop.
+    /// </summary>
+    [Theory]
+    [InlineData("Тўлов қандай амалга оширилади", "Наличными")]
+    [InlineData("Тўлов қандай амалга оширилади", "Банковским переводом")]
+    [InlineData("Тўлов қандай амалга оширилади", "Рассрочка")]
+    [InlineData("Способ оплаты", "наличными")]
+    public void Payment_method_answers_without_digits_are_plausible(string label, string answer)
+    {
+        Assert.True(AnswerShapeValidator.LooksPlausible(label, answer));
+    }
+
+    /// <summary>Common digit-free but perfectly concrete date answers.</summary>
+    [Theory]
+    [InlineData("Автотранспорт воситасини топшириш санаси", "через неделю")]
+    [InlineData("Автотранспорт воситасини топшириш санаси", "при подписании договора")]
+    [InlineData("топшириш санаси", "бир хафтадан кейин")]
+    public void Relative_date_answers_are_plausible(string label, string answer)
+    {
+        Assert.True(AnswerShapeValidator.LooksPlausible(label, answer));
+    }
+
     [Fact]
     public async Task Implausible_direct_answer_is_not_recorded_and_asks_for_clarification()
     {

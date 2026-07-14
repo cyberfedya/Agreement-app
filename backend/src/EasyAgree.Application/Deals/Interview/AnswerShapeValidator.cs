@@ -31,8 +31,23 @@ public static class AnswerShapeValidator
     [
         "сегодня", "бугун", "завтра", "эртага", "послезавтра",
         "бессрочн", "муддатсиз",
+        "недел", "хафта", "месяц", "ойдан кейин",
+        "при подписании", "имзолаганда", "при передаче", "топширилганда",
         "январ", "феврал", "март", "апрел", "май", "июн",
         "июл", "август", "сентябр", "октябр", "ноябр", "декабр",
+    ];
+
+    /// <summary>
+    /// Labels asking HOW something is done (payment method, procedure) -
+    /// they share money vocabulary ("тўлов", "оплат") with amount fields,
+    /// but their legitimate answers ("наличными", "банковским переводом",
+    /// "рассрочка") contain no digits at all. Without this exemption the
+    /// digit requirement rejected every valid payment-method answer and
+    /// re-asked the same question - a guaranteed double-ask.
+    /// </summary>
+    private static readonly string[] MannerKeywords =
+    [
+        "қандай", "способ", "тартиб", "каким образом", "как будет",
     ];
 
     public static bool LooksPlausible(string label, string answer)
@@ -42,6 +57,9 @@ public static class AnswerShapeValidator
             return false;
 
         var lowerLabel = label.ToLowerInvariant();
+
+        if (MatchesAny(lowerLabel, MannerKeywords))
+            return true;
 
         if (MatchesAny(lowerLabel, MoneyOrPercentKeywords))
             return text.Any(char.IsDigit);
