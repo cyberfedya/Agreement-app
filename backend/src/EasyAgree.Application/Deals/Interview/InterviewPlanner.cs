@@ -163,7 +163,7 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator, LegalK
             return InterviewPlanResult.Ready(ClosingPhrases.Pick(language));
 
         var next = QuestionPriorityEngine.Order(remaining)[0];
-        return InterviewPlanResult.NeedMoreInfo(next.FieldId, next.Label);
+        return InterviewPlanResult.NeedMoreInfo(next.FieldId, ConversationReplies.FallbackQuestion(language, next.Label));
     }
 
     private static List<ClassifiedField> Askable(

@@ -56,6 +56,15 @@ public sealed class QuestionGenerator(IAiChatClient aiChatClient)
           plate_number and issued_date are different fields.
           A date is not a make/model. Chassis is not year. Model is not VIN/body/chassis.
           Different issuing authorities are different fields; do not copy one into another.
+          When CURRENT_QUESTION_GROUP has several number-only technical identifiers
+          (VIN, engine, body/kuzov, chassis), match each answered value to the concept
+          it actually describes, not to the order it was typed in - a mis-attributed
+          value (e.g. writing the VIN under the engine number's fieldId) leaves the
+          real field empty and makes the interview ask about it again right after.
+          Example: fields "23: engine number", "24: body number", "25: chassis
+          number", "37: VIN" with answer "VIN JT2SV22E8P0123456, двигатель AB1234,
+          кузов CD5678, шасси EF9012" extracts
+          {"37":"JT2SV22E8P0123456","23":"AB1234","24":"CD5678","25":"EF9012"}.
         - If everything in CURRENT_QUESTION_GROUP is covered, set "question" to null.
         - If something is still missing, ask the shortest possible question for the missing field(s).
 

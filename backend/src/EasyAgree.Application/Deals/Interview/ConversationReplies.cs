@@ -50,19 +50,26 @@ public static class ConversationReplies
 
     /// <summary>
     /// Used only when the model call for a question fails/returns nothing
-    /// even after a retry. Always names the field via its template label -
-    /// the label is Uzbek-only (templates have no per-field translations),
-    /// which is a language mismatch in ru/en interviews, but a concrete
+    /// even after a retry. Always names the field via its template label,
+    /// run through <see cref="FieldLabelTranslator"/> first - the label is
+    /// stored in Uzbek only (templates have no per-field translations), so
+    /// without translating it this read as a stray untranslated question,
+    /// and as the *same* field being asked twice in two different
+    /// languages when it followed a properly-phrased ru/en question. An
+    /// unmatched label still falls back to the raw Uzbek text - a concrete
     /// answerable question in the wrong language beats the previous fully
-    /// generic "уточните эту деталь ещё раз", which named nothing, could
-    /// not be answered meaningfully, and therefore repeated forever.
+    /// generic "уточните эту деталь ещё раз", which named nothing.
     /// </summary>
-    public static string FallbackQuestion(string language, string fieldLabel) => language switch
+    public static string FallbackQuestion(string language, string fieldLabel)
     {
-        "uz" => $"Илтимос, киритинг: {fieldLabel}",
-        "en" => $"Please provide: {fieldLabel}",
-        _ => $"Укажите, пожалуйста: {fieldLabel}",
-    };
+        var translated = FieldLabelTranslator.Translate(fieldLabel, language);
+        return language switch
+        {
+            "uz" => $"Илтимос, киритинг: {translated}",
+            "en" => $"Please provide: {translated}",
+            _ => $"Укажите, пожалуйста: {translated}",
+        };
+    }
 
     /// <summary>
     /// Shown when the answer's shape clearly doesn't match what the field
