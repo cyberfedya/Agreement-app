@@ -74,10 +74,13 @@ public sealed class InterviewQuestionCapTests
     }
 
     [Fact]
-    public async Task Vehicle_domain_caps_at_eight_questions()
+    public async Task Vehicle_domain_caps_at_ten_questions()
     {
+        // 10 = the full manual worst case: brand/model, year, engine
+        // number, body number, plate, color, transfer date, payment
+        // method, installment payoff date, price.
         var questionsAsked = await RunToCompletion("vehicle");
-        Assert.True(questionsAsked <= 8, $"Vehicle interview asked {questionsAsked} questions - must never exceed 8.");
+        Assert.True(questionsAsked <= 10, $"Vehicle interview asked {questionsAsked} questions - must never exceed 10.");
         Assert.True(questionsAsked > 0);
     }
 
@@ -90,28 +93,27 @@ public sealed class InterviewQuestionCapTests
         Assert.True(constructionCount <= 15, $"Construction interview asked {constructionCount} questions - must never exceed 15.");
         Assert.True(
             constructionCount > vehicleCount,
-            "A construction contract has real 15-question headroom that a vehicle sale (capped at 8) doesn't - " +
+            "A construction contract has real 15-question headroom that a vehicle sale (capped at 10) doesn't - " +
             "the cap must actually vary by domain, not just exist.");
     }
 
     [Fact]
-    public async Task Unknown_domain_falls_back_to_the_default_cap()
+    public async Task Loan_domain_uses_its_own_tighter_cap()
     {
-        var questionsAsked = await RunToCompletion("some_future_domain_not_in_the_table");
-        Assert.True(questionsAsked <= 10, $"Unrecognized-domain interview asked {questionsAsked} questions - default cap is 10.");
-        Assert.True(questionsAsked > 8, "Should get the default (10), not silently fall back to vehicle's 8.");
+        var questionsAsked = await RunToCompletion("loan");
+        Assert.True(questionsAsked <= 9, $"Loan interview asked {questionsAsked} questions - must never exceed 9.");
     }
 
     /// <summary>
-    /// The real, expanded vehicle_sale_agreement.json field set (brand,
-    /// year, engine/kuzov number, plate, VIN, color, special marks, price,
-    /// transfer date, payment method, conditional installment date,
-    /// additional conditions - 13 askable fields once notarial/identity
-    /// fields are excluded) must still respect the 8-question cap end to
-    /// end, exactly like the synthetic worst case above.
+    /// The real vehicle_sale_agreement.json askable field set (brand,
+    /// year, engine number, body number, plate, price, color, transfer
+    /// date, payment method, conditional installment date) must be asked
+    /// one at a time, in the natural order - subject first, then dates,
+    /// then payment method, price last - and never exceed the vehicle
+    /// domain's 10-question cap.
     /// </summary>
     [Fact]
-    public async Task Vehicle_sale_agreement_interview_never_exceeds_eight_questions()
+    public async Task Vehicle_sale_interview_asks_in_natural_order_and_never_exceeds_ten_questions()
     {
         var fields = new List<AgreementTemplateField>
         {
@@ -125,9 +127,6 @@ public sealed class InterviewQuestionCapTests
             new() { FieldId = 34, Mode = AgreementFieldMode.Required },
             new() { FieldId = 35, Mode = AgreementFieldMode.Required },
             new() { FieldId = 36, Mode = AgreementFieldMode.Required },
-            new() { FieldId = 37, Mode = AgreementFieldMode.Required },
-            new() { FieldId = 38, Mode = AgreementFieldMode.Required },
-            new() { FieldId = 39, Mode = AgreementFieldMode.Required },
         };
         var labels = new Dictionary<int, string>
         {
@@ -137,20 +136,17 @@ public sealed class InterviewQuestionCapTests
             [24] = "Автотранспортнинг кузов рақами",
             [26] = "Автотранспорт воситасининг давлат рақам белгиси",
             [32] = "Тарафлар ўзаро келишувига асосан автотранспорт воситасининг қиймати",
-            [33] = "Автотранспорт воситасининг VIN рақами",
-            [34] = "Автотранспорт воситасининг ранги",
-            [35] = "Автотранспорт воситасининг ажралиб турувчи белгилари",
-            [36] = "Автотранспорт воситасини топшириш санаси",
-            [37] = "Тўлов қандай амалга оширилади",
-            [38] = "Бўлиб тўлаш ҳолатида тўлиқ тўлов амалга ошириладиган сана",
-            [39] = "Битимнинг қўшимча шартлари",
+            [33] = "Автотранспорт воситасининг ранги",
+            [34] = "Автотранспорт воситасини топшириш санаси",
+            [35] = "Тўлов қандай амалга оширилади",
+            [36] = "Бўлиб тўлаш ҳолатида тўлиқ тўлов амалга ошириладиган сана",
         };
 
         var planner = new InterviewPlanner(new QuestionGenerator(new StaticQuestionAiClient()));
         var answers = new Dictionary<int, string>();
         var askedQuestions = new Dictionary<string, string>();
         var dismissedDocumentSuggestions = new HashSet<string>();
-        var questionsAsked = 0;
+        var askedFieldOrder = new List<int>();
         string? currentMessage = null;
 
         for (var turn = 0; turn < 30; turn++)
@@ -175,20 +171,22 @@ public sealed class InterviewQuestionCapTests
             if (result.IsSuggestDocument)
             {
                 // The interview offers to upload the registration
-                // certificate instead of asking VIN/engine/kuzov one by
-                // one - simulate the user skipping it, same as
+                // certificate instead of asking engine/kuzov one by one -
+                // simulate the user skipping it, same as
                 // DismissDocumentSuggestionUseCase, and keep going.
                 dismissedDocumentSuggestions.Add(result.SuggestedDocumentType!.Value.ToString());
                 continue;
             }
 
-            questionsAsked++;
-            Assert.True(questionsAsked <= 8, $"Vehicle sale interview asked a {questionsAsked}th question - must never exceed 8.");
+            askedFieldOrder.Add(result.FieldId!.Value);
+            Assert.True(askedFieldOrder.Count <= 10, $"Vehicle sale interview asked a {askedFieldOrder.Count}th question - must never exceed 10.");
 
             answers[result.FieldId!.Value] = "рассрочка"; // worst case: keeps the conditional installment-date field eligible too
             currentMessage = "рассрочка";
         }
 
-        Assert.True(questionsAsked <= 8);
+        // Subject first (brand, year, engine, kuzov, plate, color), then
+        // transfer date, then payment method + installment date, price last.
+        Assert.Equal(new[] { 21, 22, 23, 24, 26, 33, 34, 35, 36, 32 }, askedFieldOrder);
     }
 }

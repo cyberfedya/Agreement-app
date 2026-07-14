@@ -5,7 +5,7 @@ namespace UnitTests;
 public sealed class SmartInterviewPlannerTests
 {
     [Fact]
-    public void Groups_at_most_two_related_vehicle_fields_for_short_questions()
+    public void Every_field_is_its_own_question_group()
     {
         var fields = new List<ClassifiedField>
         {
@@ -17,9 +17,29 @@ public sealed class SmartInterviewPlannerTests
 
         var groups = QuestionGroupingEngine.BuildGroups(fields);
 
-        Assert.Equal(new[] { 1, 2 }, groups[0].Select(field => field.FieldId));
-        Assert.Equal(new[] { 3 }, groups[1].Select(field => field.FieldId));
-        Assert.Equal(new[] { 4 }, groups[2].Select(field => field.FieldId));
+        Assert.Equal(4, groups.Count);
+        Assert.All(groups, group => Assert.Single(group));
+        Assert.Equal(new[] { 1, 2, 3, 4 }, groups.Select(group => group.Single().FieldId));
+    }
+
+    [Fact]
+    public void Price_is_asked_last_after_object_dates_and_payment_method()
+    {
+        // The natural close of a negotiation: identify the car, settle
+        // logistics and payment method, and only then name the price -
+        // even though price (field 32) has a lower fieldId than the
+        // payment fields.
+        var fields = new List<ClassifiedField>
+        {
+            new(32, "Тарафлар ўзаро келишувига асосан автотранспорт воситасининг қиймати", FieldCategory.RequiredCommercial),
+            new(35, "Тўлов қандай амалга оширилади", FieldCategory.RequiredCommercial),
+            new(34, "Автотранспорт воситасини топшириш санаси", FieldCategory.RequiredTime),
+            new(21, "Автотранспорт русуми", FieldCategory.RequiredObject),
+        };
+
+        var ordered = QuestionPriorityEngine.Order(fields);
+
+        Assert.Equal(new[] { 21, 34, 35, 32 }, ordered.Select(field => field.FieldId));
     }
 
     [Fact]

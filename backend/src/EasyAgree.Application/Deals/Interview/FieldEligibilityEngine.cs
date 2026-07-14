@@ -50,11 +50,17 @@ public static class FieldEligibilityEngine
         "ҳисоб рақам", "банк", "мфо",
         "лавозим", "ташкилий-ҳуқуқий", "директор", "раҳбар", "руководител",
     ];
+    // Engine number and body/kuzov number are deliberately askable (the
+    // owner can read them off the vehicle or its documents, and the
+    // interview offers a photo-upload alternative alongside the question) -
+    // QuestionGenerator's system prompt explicitly allows those two, so
+    // both layers stay in agreement. Deep technicals nobody knows from
+    // memory (chassis number, power, displacement, weight, seating,
+    // emissions, fuel) stay DocumentOnly.
     private static readonly string[] TechnicalDocumentOnlyKeywords =
     [
-        "двигател", "мотор рақами",
+        "объем двигателя", "объём двигателя", "двигатель ҳажми",
         "шасси", "рама", "рамка рақами",
-        "номер кузова", "кузов рақами", "кузов раками",
         "мощност", "лошадин", "от кучи", "қувват",
         "снаряженн", "масса", "вазни", "оғирлиги", "грузоподъем", "юк кўтариш",
         "мест для сидения", "ўриндиқ", "пассажиров",

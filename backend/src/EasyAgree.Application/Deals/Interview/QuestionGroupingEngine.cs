@@ -8,7 +8,16 @@ namespace EasyAgree.Application.Deals.Interview;
 /// </summary>
 public static class QuestionGroupingEngine
 {
-    private const int MaxGroupSize = 2;
+    /// <summary>
+    /// One question = one topic. Grouping two fields was combining e.g.
+    /// brand/model with year of manufacture into a single three-part
+    /// question ("Какая марка, модель и год?"), which reads as an
+    /// interrogation form rather than a conversation - a live notary asks
+    /// them one at a time. A field whose own label already names two
+    /// things ("марка, модель") still becomes one question; this cap only
+    /// stops *separate* fields from being merged.
+    /// </summary>
+    private const int MaxGroupSize = 1;
 
     public static IReadOnlyList<IReadOnlyList<ClassifiedField>> BuildGroups(IReadOnlyList<ClassifiedField> ordered)
     {

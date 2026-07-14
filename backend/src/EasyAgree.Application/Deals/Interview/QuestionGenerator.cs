@@ -23,9 +23,11 @@ public sealed class QuestionGenerator(IAiChatClient aiChatClient)
         to a client, not like a database.
         One topic per question: never combine time with place, price with
         anything else, or any two unrelated things in one question.
-        Never ask about technical specifications (engine number or power,
-        chassis or body number, weight, seating, emissions class, fuel) -
-        those come only from uploaded documents.
+        Never ask about deep technical specifications (engine power or
+        displacement, chassis number, weight, seating, emissions class,
+        fuel) - those come only from uploaded documents. Engine number and
+        body number ARE allowed when they appear in CURRENT_QUESTION_GROUP:
+        ask them as one short question ("Какой номер двигателя?").
 
         Do not use bureaucratic verbs: "Specify", "Provide", "Enter", "Input",
         "Укажите", "Введите", "Заполните", "Предоставьте".

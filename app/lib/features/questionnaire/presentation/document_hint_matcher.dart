@@ -24,7 +24,9 @@ abstract final class DocumentHintMatcher {
       'vin',
       'вин',
       'номер двигателя',
+      'двигател', // covers "двигатель рақами" and question phrasings in both languages
       'номер кузова',
+      'кузов',
       'номер шасси',
       'номер рамы',
       'техпаспорт',
