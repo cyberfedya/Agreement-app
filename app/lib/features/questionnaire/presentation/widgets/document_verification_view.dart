@@ -282,7 +282,7 @@ class _ConflictView extends StatelessWidget {
               style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.outline),
             ),
           const SizedBox(height: Insets.x8),
-          Text('Мы нашли различия', style: theme.textTheme.headlineSmall),
+          Text('Мы нашли отличие', style: theme.textTheme.headlineSmall),
           const SizedBox(height: Insets.x8),
           Text(conflict.label, style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.primary)),
           const SizedBox(height: Insets.x24),
@@ -295,9 +295,9 @@ class _ConflictView extends StatelessWidget {
             highlight: true,
           ),
           const SizedBox(height: Insets.x32),
-          PrimaryButton(label: 'Использовать данные из документа', onPressed: onUseDocumentValue),
+          PrimaryButton(label: 'Использовать данные документа', onPressed: onUseDocumentValue),
           const SizedBox(height: Insets.x8),
-          OutlinedButton(onPressed: onKeepMine, child: const Text('Оставить как есть')),
+          OutlinedButton(onPressed: onKeepMine, child: const Text('Оставить мой вариант')),
         ],
       ),
     );
@@ -356,13 +356,26 @@ class _DoneViewState extends State<_DoneView> {
     final theme = Theme.of(context);
     return Center(
       key: const ValueKey('verification-done'),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.check_circle_rounded, size: 40, color: theme.colorScheme.primary).animateEntrance(),
-          const SizedBox(height: Insets.x12),
-          Text('Данные успешно проверены', style: theme.textTheme.titleMedium).animateEntranceStaggered(1),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: Insets.x24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.check_circle_rounded, size: 40, color: theme.colorScheme.primary).animateEntrance(),
+            const SizedBox(height: Insets.x12),
+            Text(
+              'Проверка завершена',
+              style: theme.textTheme.titleMedium,
+              textAlign: TextAlign.center,
+            ).animateEntranceStaggered(1),
+            const SizedBox(height: Insets.x4),
+            Text(
+              'Данные документа полностью совпадают с тем, что вы указали.',
+              style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              textAlign: TextAlign.center,
+            ).animateEntranceStaggered(2),
+          ],
+        ),
       ),
     );
   }

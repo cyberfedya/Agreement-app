@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import 'package:app/core/router/app_router.dart';
 import 'package:app/core/services/tts_service.dart';
+import 'package:app/core/storage/local_storage.dart';
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/core/widgets/app_widgets.dart';
 import 'package:app/core/widgets/bottom_action_bar.dart';
@@ -23,8 +24,8 @@ import 'package:app/features/questionnaire/presentation/widgets/assistant_questi
 import 'package:app/features/questionnaire/presentation/widgets/conversation_recap.dart';
 import 'package:app/features/questionnaire/presentation/widgets/document_hint_card.dart';
 import 'package:app/features/questionnaire/presentation/widgets/document_invite_view.dart';
-import 'package:app/features/questionnaire/presentation/widgets/document_verification_view.dart';
 import 'package:app/features/questionnaire/presentation/widgets/document_scanning_view.dart';
+import 'package:app/features/questionnaire/presentation/widgets/document_verification_view.dart';
 import 'package:app/features/questionnaire/presentation/widgets/extraction_celebration_view.dart';
 import 'package:app/features/questionnaire/presentation/widgets/generation_sequence_view.dart';
 import 'package:app/features/questionnaire/presentation/widgets/greeting_view.dart';
@@ -114,6 +115,12 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
   bool _documentVerificationDecided = false;
   bool _showDocumentVerification = false;
 
+  /// Whether this deal's document check has already been resolved
+  /// (skipped or completed) on a *previous* visit to this page -
+  /// persisted locally per deal so leaving and coming back never asks
+  /// again after the user already made a choice. Null until loaded.
+  bool? _verificationAlreadyResolved;
+
   /// Minimum number of answered questions between two document-upload
   /// nudges for the *same* category. 1, not higher: the vehicle interview
   /// deliberately asks its document-fillable identifiers back to back
@@ -141,15 +148,31 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
     super.initState();
     final provider = context.read<QuestionnaireProvider>();
     final documentUploadProvider = context.read<DocumentUploadProvider>();
+    final storage = context.read<LocalStorage>();
     Future.microtask(() {
       documentUploadProvider.attachDeal(widget.dealId);
       return provider.start(widget.dealId);
+    });
+    storage.read(_verificationResolvedKey(widget.dealId)).then((value) {
+      if (mounted) setState(() => _verificationAlreadyResolved = value == 'true');
     });
     // Long enough to actually read the two-line greeting (title + promise),
     // not just glimpse it - 1.8s proved too short in real use.
     Future.delayed(const Duration(milliseconds: 4000), () {
       if (mounted) setState(() => _greetingHoldDone = true);
     });
+  }
+
+  static String _verificationResolvedKey(String dealId) => 'document_verification_resolved:$dealId';
+
+  /// The user already made an explicit choice about the document check
+  /// (skipped it or completed it) - persisted locally per deal so it's
+  /// never offered again for this same deal, even after leaving and
+  /// returning to it. A brand new deal gets a fresh key and is offered
+  /// the check normally.
+  void _finishDocumentVerification() {
+    unawaited(context.read<LocalStorage>().write(_verificationResolvedKey(widget.dealId), 'true'));
+    setState(() => _showDocumentVerification = false);
   }
 
   @override
@@ -527,20 +550,30 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                 onSkip: () => provider.dismissDocumentSuggestion(),
               );
             } else if (provider.readyToGenerate) {
-              if (!_documentVerificationDecided) {
-                _documentVerificationDecided = true;
-                _showDocumentVerification = uploads.uploadedDocuments.isEmpty;
+              if (_verificationAlreadyResolved == null) {
+                // Still loading the stored per-deal decision - a local
+                // disk read that resolves long before the interview does
+                // in practice, so this is never visibly more than a blip.
+                content = const Center(
+                  key: ValueKey('verification-loading'),
+                  child: ThinkingIndicator(label: 'Секунду…'),
+                );
+              } else {
+                if (!_documentVerificationDecided) {
+                  _documentVerificationDecided = true;
+                  _showDocumentVerification = !_verificationAlreadyResolved! && uploads.uploadedDocuments.isEmpty;
+                }
+                content = _showDocumentVerification
+                    ? DocumentVerificationView(
+                        key: const ValueKey('doc-verification'),
+                        dealId: widget.dealId,
+                        onFinished: _finishDocumentVerification,
+                      )
+                    : _withHeader(
+                        provider,
+                        ReviewView(templateTitle: widget.templateTitle, fallbackMessage: _completionFallback),
+                      );
               }
-              content = _showDocumentVerification
-                  ? DocumentVerificationView(
-                      key: const ValueKey('doc-verification'),
-                      dealId: widget.dealId,
-                      onFinished: () => setState(() => _showDocumentVerification = false),
-                    )
-                  : _withHeader(
-                      provider,
-                      ReviewView(templateTitle: widget.templateTitle, fallbackMessage: _completionFallback),
-                    );
             } else if (provider.currentQuestion != null) {
               content = _questionPhase(provider);
             } else {
@@ -576,7 +609,8 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
               _celebrating ||
               _uploadingDocument ||
               _generating ||
-              _showDocumentVerification) {
+              _showDocumentVerification ||
+              _verificationAlreadyResolved == null) {
             return const SizedBox.shrink();
           }
           return BottomActionBar(
