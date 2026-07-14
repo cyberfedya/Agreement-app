@@ -31,7 +31,11 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
+// No UseHttpsRedirection(): this container never serves HTTPS directly
+// (Kestrel listens on plain HTTP only, per docker-compose) - TLS is
+// terminated upstream by ngrok/nginx. With it enabled, the middleware
+// could never determine an HTTPS port to redirect to and logged a warning
+// on every single request.
 app.UseCors();
 
 // Apply migrations and seed agreement templates before accepting requests.

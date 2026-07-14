@@ -34,7 +34,16 @@ public sealed class AgreementSeeder(
         result.TotalFilesScanned = files.Count;
         logger.LogInformation("Discovered {Count} agreement JSON files", files.Count);
 
+        // AsSplitQuery: two collection Includes in one SingleQuery cross-join
+        // Translations x Fields, which EF Core warns about
+        // (MultipleCollectionIncludeWarning) on every seeder run. Splitting
+        // avoids the row explosion; the actual DbUpdateConcurrencyException
+        // this session traced through this query turned out to be caused
+        // by ambiguous Added/Modified state on client-generated keys (see
+        // the explicit EntityState.Added below), not the join shape, so
+        // this is now just a genuine, safe fix for the logged warning.
         var existingByKey = await db.AgreementTemplates
+            .AsSplitQuery()
             .Include(t => t.Translations)
             .Include(t => t.Fields)
             .ToDictionaryAsync(t => t.Key, StringComparer.Ordinal, cancellationToken);
