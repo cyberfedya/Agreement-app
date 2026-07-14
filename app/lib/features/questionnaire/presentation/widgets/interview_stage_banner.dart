@@ -1,15 +1,8 @@
-import 'dart:async';
-
+import 'dart:async'; 
 import 'package:flutter/material.dart';
-
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/features/questionnaire/domain/interview_step.dart';
 
-/// Minimalist "which stage of the contract am I in" indicator - a single
-/// compact line, never a card, page or popup. When the stage changes it
-/// shows a brief `✓ previous stage` checkmark before crossfading to the
-/// new stage header, so finishing a stage reads as one small satisfying
-/// beat instead of an abrupt swap.
 class InterviewStageBanner extends StatefulWidget {
   const InterviewStageBanner({super.key, required this.stage});
 

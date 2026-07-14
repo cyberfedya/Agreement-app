@@ -14,7 +14,7 @@ class AiProcessingPage extends StatefulWidget {
   @override
   State<AiProcessingPage> createState() => _AiProcessingPageState();
 }
-
+ 
 enum _Phase { processing, failed, noMatch }
 
 class _AiProcessingPageState extends State<AiProcessingPage> with SingleTickerProviderStateMixin {
@@ -46,18 +46,12 @@ class _AiProcessingPageState extends State<AiProcessingPage> with SingleTickerPr
       _failureMessage = null;
     });
     _controller.forward(from: 0);
-
-    // Kick off the real classification request; the animation gives a
-    // believable minimum duration while the actual network+AI call runs.
     final dealFuture = context.read<DealRepository>().createFromText(widget.requestText);
     final results = await Future.wait<dynamic>([_controller.forward(), dealFuture]);
     if (!mounted) return;
 
     switch (results[1] as Result<Deal?>) {
       case Success(value: final deal?):
-        // Document suggestions are now handled contextually mid-interview
-        // (DocumentSuggestionEngine, backend-driven) instead of a blanket
-        // pre-interview screen - go straight to the interview.
         final args = QuestionnaireRouteArgs(dealId: deal.id, templateTitle: deal.templateTitle);
         Navigator.of(context).pushReplacementNamed(AppRoutes.questionnaire, arguments: args);
       case Success():

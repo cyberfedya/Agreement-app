@@ -10,15 +10,8 @@ abstract class AgreementRepository {
   Future<Result<void>> signAsSecondParty(String dealId, String fullName);
   Future<Result<void>> signAsFirstParty(String dealId, String fullName);
   Future<Result<DealInvite>> getInvite(String dealId);
-
-  /// Links [profileId] to the deal as the second party.
   Future<Result<void>> acceptInvite(String dealId, String profileId);
-
-  /// Declines the invite with an optional reason for the first party.
   Future<Result<void>> declineInvite(String dealId, {String? reason, String? profileId});
-
-  /// Second party's counter-offer on one field - shows up as a dispute in
-  /// the first party's review.
   Future<Result<void>> proposeFieldChange(
     String dealId, {
     required int fieldId,
@@ -26,8 +19,6 @@ abstract class AgreementRepository {
     String? reason,
     String? profileId,
   });
-
-  /// Second party's free-form question to the first party.
   Future<Result<void>> requestClarification(String dealId, {required String message, String? profileId});
 }
 

@@ -248,12 +248,6 @@ class _AgreementPageState extends State<AgreementPage> {
     );
   }
 }
-
-/// Where the deal is right now, as three calm steps: created ✓, waiting
-/// for both signatures (active, gently pulsing while this page polls the
-/// backend), completed. The page auto-advances to the completed screen the
-/// moment the backend reports BOTH signatures, so the third step never
-/// shows as done here - it's the promise of what's next.
 class _DealStepsIndicator extends StatelessWidget {
   const _DealStepsIndicator({required this.firstPartySigned, required this.secondPartySigned});
 
@@ -293,10 +287,6 @@ class _DealStepsIndicator extends StatelessWidget {
     );
   }
 }
-
-/// Highlights whichever half of the two-sided signature is already done -
-/// distinct from a generic status message, since which text shows depends
-/// on which party this device belongs to.
 class _SignStatusBanner extends StatelessWidget {
   const _SignStatusBanner({required this.icon, required this.message});
 
@@ -338,10 +328,6 @@ class _DealStep extends StatefulWidget {
 }
 
 class _DealStepState extends State<_DealStep> with SingleTickerProviderStateMixin {
-  // Created eagerly in initState: a `late final` initializer would run on
-  // first *access*, and for non-active steps that first access is
-  // dispose() itself - where creating a ticker (ancestor lookup on a
-  // deactivated element) crashes the framework.
   late final AnimationController _pulse;
 
   @override
