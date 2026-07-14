@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:app/core/config/app_config.dart';
+import 'package:app/core/localization/locale_provider.dart';
 import 'package:app/core/router/app_router.dart';
 import 'package:app/core/services/tts_service.dart';
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/features/profile/data/profile_repository.dart';
+import 'package:app/l10n/app_localizations.dart';
 
 /// Deliberately smaller than a typical "Настройки" screen: only items that
 /// are actually wired to something real. No fake 2FA/device-list/PIN toggles
@@ -15,14 +17,15 @@ class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
   Future<void> _deleteProfile(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Удалить профиль?'),
-        content: const Text('Ваши сохранённые данные (Ф.И.О., паспорт, адрес) будут удалены с сервера.'),
+        title: Text(l10n.deleteProfileDialogTitle),
+        content: Text(l10n.deleteProfileDialogContent),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Отмена')),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Удалить')),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l10n.commonCancel)),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: Text(l10n.commonDelete)),
         ],
       ),
     );
@@ -33,29 +36,72 @@ class SettingsPage extends StatelessWidget {
     Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.login, (route) => false);
   }
 
+  static String _languageName(AppLocalizations l10n, Locale locale) {
+    switch (locale.languageCode) {
+      case 'uz':
+        return l10n.languageUzbek;
+      case 'en':
+        return l10n.languageEnglish;
+      default:
+        return l10n.languageRussian;
+    }
+  }
+
+  Future<void> _pickLanguage(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
+    final localeProvider = context.read<LocaleProvider>();
+    final chosen = await showModalBottomSheet<Locale>(
+      context: context,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(Insets.x16),
+              child: Text(l10n.settingsLanguagePickerTitle, style: Theme.of(sheetContext).textTheme.titleMedium),
+            ),
+            for (final locale in LocaleProvider.supportedLocales)
+              ListTile(
+                title: Text(_languageName(l10n, locale)),
+                trailing: locale == localeProvider.locale ? const Icon(Icons.check_rounded) : null,
+                onTap: () => Navigator.pop(sheetContext, locale),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (chosen != null) await localeProvider.setLocale(chosen);
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    final localeProvider = context.watch<LocaleProvider>();
     return Scaffold(
-      appBar: AppBar(title: const Text('Настройки')),
+      appBar: AppBar(title: Text(l10n.settingsTitle)),
       body: ListView(
         padding: const EdgeInsets.all(Insets.x20),
         children: [
           _SettingsCard(
             icon: Icons.translate_rounded,
-            title: 'Язык интервью',
-            subtitle: 'Русский',
-            onTap: () => _showLanguageInfo(context),
+            title: l10n.settingsLanguageTitle,
+            subtitle: _languageName(l10n, localeProvider.locale),
+            onTap: () => _pickLanguage(context),
           ),
           const SizedBox(height: Insets.x12),
           const _TtsToggleCard(),
           const SizedBox(height: Insets.x12),
-          const _SettingsCard(icon: Icons.palette_outlined, title: 'Тема', subtitle: 'Светлая'),
+          _SettingsCard(
+            icon: Icons.palette_outlined,
+            title: l10n.settingsThemeTitle,
+            subtitle: l10n.settingsThemeSubtitle,
+          ),
           const SizedBox(height: Insets.x12),
           _SettingsCard(
             icon: Icons.info_outline_rounded,
-            title: 'О программе',
-            subtitle: '${AppConfig.appName} · демо-версия',
+            title: l10n.settingsAboutTitle,
+            subtitle: l10n.settingsAboutSubtitle(AppConfig.appName),
             onTap: () => _showAbout(context),
           ),
           const SizedBox(height: Insets.x24),
@@ -67,7 +113,7 @@ class SettingsPage extends StatelessWidget {
             ),
             child: ListTile(
               leading: Icon(Icons.delete_outline_rounded, color: theme.colorScheme.error),
-              title: Text('Удалить профиль', style: TextStyle(color: theme.colorScheme.error)),
+              title: Text(l10n.settingsDeleteProfile, style: TextStyle(color: theme.colorScheme.error)),
               onTap: () => _deleteProfile(context),
             ),
           ),
@@ -76,25 +122,12 @@ class SettingsPage extends StatelessWidget {
     );
   }
 
-  void _showLanguageInfo(BuildContext context) {
-    showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Язык интервью'),
-        content: const Text(
-          'Сейчас вопросы задаются на русском. Выбор языка появится, '
-          'когда интерфейс приложения станет многоязычным.',
-        ),
-        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Понятно'))],
-      ),
-    );
-  }
-
   void _showAbout(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     showAboutDialog(
       context: context,
       applicationName: AppConfig.appName,
-      applicationVersion: 'Демо-версия',
+      applicationVersion: l10n.settingsAboutVersion,
     );
   }
 }
@@ -131,6 +164,7 @@ class _TtsToggleCardState extends State<_TtsToggleCard> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerLow,
@@ -139,8 +173,8 @@ class _TtsToggleCardState extends State<_TtsToggleCard> {
       ),
       child: SwitchListTile(
         secondary: Icon(Icons.record_voice_over_outlined, color: theme.colorScheme.primary),
-        title: const Text('Озвучка вопросов'),
-        subtitle: Text(_enabled == false ? 'Выключена' : 'Ассистент читает вопросы вслух'),
+        title: Text(l10n.settingsVoiceTitle),
+        subtitle: Text(_enabled == false ? l10n.settingsVoiceSubtitleOff : l10n.settingsVoiceSubtitleOn),
         value: _enabled ?? true,
         onChanged: _enabled == null ? null : _toggle,
       ),

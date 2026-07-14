@@ -1,3 +1,4 @@
+import 'package:app/core/localization/locale_provider.dart';
 import 'package:app/core/network/api_exception.dart';
 import 'package:app/core/services/api_service.dart';
 import 'package:app/features/deal/domain/deal.dart';
@@ -16,16 +17,17 @@ abstract class DealRepository {
 }
 
 class ApiDealRepository implements DealRepository {
-  ApiDealRepository(this._api, this._profiles);
+  ApiDealRepository(this._api, this._profiles, this._localeProvider);
 
   final ApiService _api;
   final ProfileRepository _profiles;
+  final LocaleProvider _localeProvider;
 
   @override
   Future<Result<Deal?>> createFromText(String text) async {
     try {
       final profileId = await _profiles.getProfileId();
-      return Success(await _api.createDeal(text: text, profileId: profileId));
+      return Success(await _api.createDeal(text: text, profileId: profileId, lang: _localeProvider.languageCode));
     } on ApiException catch (e) {
       return Failure(e.message);
     }
@@ -35,7 +37,11 @@ class ApiDealRepository implements DealRepository {
   Future<Result<Deal>> createFromTemplate(String templateKey) async {
     try {
       final profileId = await _profiles.getProfileId();
-      final deal = await _api.createDeal(templateKey: templateKey, profileId: profileId);
+      final deal = await _api.createDeal(
+        templateKey: templateKey,
+        profileId: profileId,
+        lang: _localeProvider.languageCode,
+      );
       // The template key came from our own catalog, so a null (no-match)
       // response here would mean the backend and app disagree about what
       // exists — treat it as a server error, not a normal outcome.

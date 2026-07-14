@@ -1,3 +1,4 @@
+import 'package:app/core/localization/locale_provider.dart';
 import 'package:app/core/network/api_exception.dart';
 import 'package:app/core/services/api_service.dart';
 import 'package:app/features/templates/domain/template.dart';
@@ -9,14 +10,15 @@ abstract class TemplateRepository {
 }
 
 class ApiTemplateRepository implements TemplateRepository {
-  ApiTemplateRepository(this._api);
+  ApiTemplateRepository(this._api, this._localeProvider);
 
   final ApiService _api;
+  final LocaleProvider _localeProvider;
 
   @override
   Future<Result<List<TemplateSummary>>> getTemplates() async {
     try {
-      return Success(await _api.getTemplates());
+      return Success(await _api.getTemplates(lang: _localeProvider.languageCode));
     } on ApiException catch (e) {
       return Failure(e.message);
     }
@@ -25,7 +27,7 @@ class ApiTemplateRepository implements TemplateRepository {
   @override
   Future<Result<TemplateDetail>> getTemplate(String key) async {
     try {
-      return Success(await _api.getTemplate(key));
+      return Success(await _api.getTemplate(key, lang: _localeProvider.languageCode));
     } on ApiException catch (e) {
       return Failure(e.message);
     }

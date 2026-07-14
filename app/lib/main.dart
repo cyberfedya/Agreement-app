@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
 import 'package:app/core/config/app_config.dart';
+import 'package:app/core/localization/locale_provider.dart';
 import 'package:app/core/network/api_client.dart';
 import 'package:app/core/router/app_router.dart';
 import 'package:app/core/services/api_service.dart';
@@ -10,6 +11,7 @@ import 'package:app/core/services/tts_service.dart';
 import 'package:app/core/storage/local_storage.dart';
 import 'package:app/core/storage/shared_preferences_local_storage.dart';
 import 'package:app/core/theme/app_theme.dart';
+import 'package:app/l10n/app_localizations.dart';
 import 'package:app/features/agreement/data/agreement_repository.dart';
 import 'package:app/features/agreement/providers/agreement_provider.dart';
 import 'package:app/features/deal/data/deal_repository.dart';
@@ -41,16 +43,23 @@ class EasyAgreeApp extends StatelessWidget {
         Provider<ApiClient>(create: (_) => apiClient ?? ApiClient()),
         Provider<ApiService>(create: (ctx) => ApiService(ctx.read<ApiClient>())),
         Provider<LocalStorage>(create: (_) => SharedPreferencesLocalStorage()),
+        ChangeNotifierProvider<LocaleProvider>(create: (ctx) => LocaleProvider(ctx.read<LocalStorage>())),
         Provider<ProfileRepository>(
           create: (ctx) => ApiProfileRepository(ctx.read<ApiService>(), ctx.read<LocalStorage>()),
         ),
-        Provider<TemplateRepository>(create: (ctx) => ApiTemplateRepository(ctx.read<ApiService>())),
+        Provider<TemplateRepository>(
+          create: (ctx) => ApiTemplateRepository(ctx.read<ApiService>(), ctx.read<LocaleProvider>()),
+        ),
         Provider<QuestionnaireRepository>(
-          create: (ctx) => ApiQuestionnaireRepository(ctx.read<ApiService>()),
+          create: (ctx) => ApiQuestionnaireRepository(ctx.read<ApiService>(), ctx.read<LocaleProvider>()),
         ),
         Provider<AgreementRepository>(create: (ctx) => ApiAgreementRepository(ctx.read<ApiService>())),
         Provider<DealRepository>(
-          create: (ctx) => ApiDealRepository(ctx.read<ApiService>(), ctx.read<ProfileRepository>()),
+          create: (ctx) => ApiDealRepository(
+            ctx.read<ApiService>(),
+            ctx.read<ProfileRepository>(),
+            ctx.read<LocaleProvider>(),
+          ),
         ),
         Provider<DocumentRepository>(create: (ctx) => ApiDocumentRepository(ctx.read<ApiService>())),
         Provider<TtsService>(
@@ -70,19 +79,21 @@ class EasyAgreeApp extends StatelessWidget {
         ChangeNotifierProvider(create: (ctx) => AgreementProvider(ctx.read<AgreementRepository>())),
         ChangeNotifierProvider(create: (ctx) => DocumentUploadProvider(ctx.read<DocumentRepository>())),
       ],
-      child: MaterialApp(
-        title: AppConfig.appName,
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.light,
-        themeMode: ThemeMode.light,
-        // Russian for Flutter's own widget texts too (text-selection menu,
-        // dialogs, pickers) - without this they'd stay English no matter
-        // how thoroughly the app's strings are translated.
-        locale: const Locale('ru'),
-        supportedLocales: const [Locale('ru'), Locale('uz'), Locale('en')],
-        localizationsDelegates: GlobalMaterialLocalizations.delegates,
-        initialRoute: AppRoutes.splash,
-        onGenerateRoute: AppRouter.onGenerateRoute,
+      child: Consumer<LocaleProvider>(
+        builder: (context, localeProvider, _) => MaterialApp(
+          title: AppConfig.appName,
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.light,
+          themeMode: ThemeMode.light,
+          locale: localeProvider.locale,
+          supportedLocales: LocaleProvider.supportedLocales,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            ...GlobalMaterialLocalizations.delegates,
+          ],
+          initialRoute: AppRoutes.splash,
+          onGenerateRoute: AppRouter.onGenerateRoute,
+        ),
       ),
     );
   }

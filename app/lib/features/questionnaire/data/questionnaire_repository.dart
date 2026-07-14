@@ -1,3 +1,4 @@
+import 'package:app/core/localization/locale_provider.dart';
 import 'package:app/core/network/api_exception.dart';
 import 'package:app/core/services/api_service.dart';
 import 'package:app/features/questionnaire/domain/deal_review.dart';
@@ -31,9 +32,10 @@ abstract class QuestionnaireRepository {
 }
 
 class ApiQuestionnaireRepository implements QuestionnaireRepository {
-  ApiQuestionnaireRepository(this._api);
+  ApiQuestionnaireRepository(this._api, this._localeProvider);
 
   final ApiService _api;
+  final LocaleProvider _localeProvider;
 
   @override
   Future<Result<List<Question>>> getQuestions(String templateKey) async {
@@ -56,7 +58,13 @@ class ApiQuestionnaireRepository implements QuestionnaireRepository {
   @override
   Future<Result<InterviewStep>> nextQuestion(String dealId, {int? fieldId, String? answer, String? question}) async {
     try {
-      return Success(await _api.nextQuestion(dealId, fieldId: fieldId, answer: answer, question: question));
+      return Success(await _api.nextQuestion(
+        dealId,
+        fieldId: fieldId,
+        answer: answer,
+        question: question,
+        lang: _localeProvider.languageCode,
+      ));
     } on ApiException catch (e) {
       return Failure(e.message);
     }

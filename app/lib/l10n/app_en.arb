@@ -1,0 +1,23 @@
+{
+  "@@locale": "en",
+  "settingsTitle": "Settings",
+  "settingsLanguageTitle": "Interface language",
+  "settingsLanguagePickerTitle": "Choose a language",
+  "languageRussian": "Русский",
+  "languageUzbek": "Ўзбекча",
+  "languageEnglish": "English",
+  "settingsThemeTitle": "Theme",
+  "settingsThemeSubtitle": "Light",
+  "settingsVoiceTitle": "Read questions aloud",
+  "settingsVoiceSubtitleOn": "The assistant reads questions out loud",
+  "settingsVoiceSubtitleOff": "Off",
+  "settingsAboutTitle": "About",
+  "settingsAboutSubtitle": "{appName} · demo version",
+  "settingsAboutVersion": "Demo version",
+  "settingsDeleteProfile": "Delete profile",
+  "deleteProfileDialogTitle": "Delete profile?",
+  "deleteProfileDialogContent": "Your saved data (full name, passport, address) will be deleted from the server.",
+  "commonCancel": "Cancel",
+  "commonDelete": "Delete",
+  "commonUnderstood": "Got it"
+}

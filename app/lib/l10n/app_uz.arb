@@ -1,0 +1,23 @@
+{
+  "@@locale": "uz",
+  "settingsTitle": "Созламалар",
+  "settingsLanguageTitle": "Интерфейс тили",
+  "settingsLanguagePickerTitle": "Тилни танланг",
+  "languageRussian": "Русский",
+  "languageUzbek": "Ўзбекча",
+  "languageEnglish": "English",
+  "settingsThemeTitle": "Мавзу",
+  "settingsThemeSubtitle": "Ёруғ",
+  "settingsVoiceTitle": "Саволларни овозли ўқиш",
+  "settingsVoiceSubtitleOn": "Ассистент саволларни овоз чиқариб ўқийди",
+  "settingsVoiceSubtitleOff": "Ўчирилган",
+  "settingsAboutTitle": "Дастур ҳақида",
+  "settingsAboutSubtitle": "{appName} · демо-версия",
+  "settingsAboutVersion": "Демо-версия",
+  "settingsDeleteProfile": "Профилни ўчириш",
+  "deleteProfileDialogTitle": "Профилни ўчирасизми?",
+  "deleteProfileDialogContent": "Сақланган маълумотларингиз (Ф.И.Ш., паспорт, манзил) серверда ўчириб ташланади.",
+  "commonCancel": "Бекор қилиш",
+  "commonDelete": "Ўчириш",
+  "commonUnderstood": "Тушунарли"
+}
