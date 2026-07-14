@@ -3,6 +3,7 @@ import 'package:app/core/network/api_exception.dart';
 import 'package:app/features/agreement/domain/agreement.dart';
 import 'package:app/features/agreement/domain/deal_invite.dart';
 import 'package:app/features/deal/domain/deal.dart';
+import 'package:app/features/documents/domain/document_verification.dart';
 import 'package:app/features/documents/domain/interview_preview.dart';
 import 'package:app/features/documents/domain/required_document.dart';
 import 'package:app/features/documents/domain/uploaded_document.dart';
@@ -233,5 +234,14 @@ class ApiService {
   Future<InterviewPreview> getInterviewPreview(String dealId, {String lang = 'ru'}) async {
     final json = await _client.getJson('/api/deals/$dealId/interview-preview', query: {'lang': lang});
     return _parse(() => InterviewPreview.fromJson(json as Map<String, dynamic>));
+  }
+
+  /// The final, optional document check offered once the interview is
+  /// done. Reconciles the just-uploaded document against what was already
+  /// answered - fields the document quietly fills in are never returned
+  /// here, only genuine disagreements the user needs to resolve.
+  Future<DocumentVerification> verifyDocument(String dealId) async {
+    final json = await _client.postJson('/api/deals/$dealId/verify-document');
+    return _parse(() => DocumentVerification.fromJson(json as Map<String, dynamic>));
   }
 }

@@ -1,3 +1,4 @@
+using EasyAgree.Application.Deals;
 using EasyAgree.Application.Deals.Interview;
 using EasyAgree.Application.Documents;
 using EasyAgree.Contracts.Documents;
@@ -98,6 +99,20 @@ public static class DocumentEndpoints
             return updated ? Results.NoContent() : Results.NotFound();
         })
         .WithName("UpdateDocumentField");
+
+        group.MapPost("/{id:guid}/verify-document", async (
+            Guid id, VerifyDealDocumentUseCase useCase, CancellationToken ct) =>
+        {
+            var outcome = await useCase.ExecuteAsync(id, ct);
+            if (outcome is null)
+                return Results.NotFound();
+
+            var conflicts = outcome.Conflicts
+                .Select(c => new DocumentFieldConflictDto(c.FieldId, c.Label, c.UserValue, c.DocumentValue))
+                .ToList();
+            return Results.Ok(new DocumentVerificationResponseDto(conflicts));
+        })
+        .WithName("VerifyDealDocument");
 
         group.MapGet("/{id:guid}/interview-preview", async (
             Guid id, string? lang, GetInterviewPreviewUseCase useCase, CancellationToken ct) =>

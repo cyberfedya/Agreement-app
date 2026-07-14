@@ -15,6 +15,7 @@ import 'package:app/features/ai_processing/presentation/ai_processing_page.dart'
 import 'package:app/features/deal/data/deal_repository.dart';
 import 'package:app/features/deal/domain/deal.dart';
 import 'package:app/features/documents/data/document_repository.dart';
+import 'package:app/features/documents/domain/document_verification.dart';
 import 'package:app/features/documents/domain/interview_preview.dart';
 import 'package:app/features/documents/domain/required_document.dart';
 import 'package:app/features/documents/domain/uploaded_document.dart';
@@ -209,6 +210,10 @@ class FakeDocumentRepository implements DocumentRepository {
   @override
   Future<Result<InterviewPreview>> getInterviewPreview(String dealId) async =>
       const Success(InterviewPreview(totalAskableFields: 0, estimatedRemainingQuestions: 0));
+
+  @override
+  Future<Result<DocumentVerification>> verifyDocument(String dealId) async =>
+      const Success(DocumentVerification(conflicts: []));
 }
 
 const _matchedDeal = Deal(
@@ -310,6 +315,15 @@ Future<void> _answer(WidgetTester tester, String text) async {
   await tester.pumpAndSettle();
 }
 
+/// The interview always offers the optional final document check first
+/// when no document was uploaded during it (`FakeDocumentRepository`
+/// always reports zero) - skip it to reach the ordinary review/generate
+/// screen the way most tests still expect.
+Future<void> _skipDocumentVerification(WidgetTester tester) async {
+  await tester.tap(find.widgetWithText(TextButton, 'Пропустить'));
+  await tester.pumpAndSettle();
+}
+
 void main() {
   testWidgets('happy path: splash -> login -> home -> AI match -> interview -> agreement', (tester) async {
     await tester.pumpWidget(
@@ -348,6 +362,10 @@ void main() {
     expect(find.text('Optional note'), findsOneWidget);
 
     await _answer(tester, 'A quick note');
+
+    // No document was uploaded during the interview - the optional final
+    // check offers to verify one before the review phase.
+    await _skipDocumentVerification(tester);
 
     // Planner says it has enough — the review phase offers to generate.
     expect(find.text('Договор готов к созданию'), findsOneWidget);
@@ -423,6 +441,7 @@ void main() {
 
     await _answer(tester, 'Aliyev Vali');
     await _answer(tester, 'A quick note');
+    await _skipDocumentVerification(tester);
 
     await tester.tap(find.widgetWithText(FilledButton, 'Создать договор'));
     await tester.pumpAndSettle();

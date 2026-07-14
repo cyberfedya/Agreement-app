@@ -23,6 +23,7 @@ import 'package:app/features/questionnaire/presentation/widgets/assistant_questi
 import 'package:app/features/questionnaire/presentation/widgets/conversation_recap.dart';
 import 'package:app/features/questionnaire/presentation/widgets/document_hint_card.dart';
 import 'package:app/features/questionnaire/presentation/widgets/document_invite_view.dart';
+import 'package:app/features/questionnaire/presentation/widgets/document_verification_view.dart';
 import 'package:app/features/questionnaire/presentation/widgets/document_scanning_view.dart';
 import 'package:app/features/questionnaire/presentation/widgets/extraction_celebration_view.dart';
 import 'package:app/features/questionnaire/presentation/widgets/generation_sequence_view.dart';
@@ -104,6 +105,14 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
   /// a `closingMessage` for this deal - picked once when the interview
   /// first becomes ready, not re-rolled on every review-screen rebuild.
   String? _completionFallback;
+
+  /// Whether the final optional document check has been decided for this
+  /// interview - computed once, the moment the interview first becomes
+  /// ready, from whether any document was uploaded during it. Not
+  /// re-evaluated afterwards, so uploading a document *during* the check
+  /// itself doesn't retroactively hide it.
+  bool _documentVerificationDecided = false;
+  bool _showDocumentVerification = false;
 
   /// Minimum number of answered questions between two document-upload
   /// nudges for the *same* category. 1, not higher: the vehicle interview
@@ -518,10 +527,20 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                 onSkip: () => provider.dismissDocumentSuggestion(),
               );
             } else if (provider.readyToGenerate) {
-              content = _withHeader(
-                provider,
-                ReviewView(templateTitle: widget.templateTitle, fallbackMessage: _completionFallback),
-              );
+              if (!_documentVerificationDecided) {
+                _documentVerificationDecided = true;
+                _showDocumentVerification = uploads.uploadedDocuments.isEmpty;
+              }
+              content = _showDocumentVerification
+                  ? DocumentVerificationView(
+                      key: const ValueKey('doc-verification'),
+                      dealId: widget.dealId,
+                      onFinished: () => setState(() => _showDocumentVerification = false),
+                    )
+                  : _withHeader(
+                      provider,
+                      ReviewView(templateTitle: widget.templateTitle, fallbackMessage: _completionFallback),
+                    );
             } else if (provider.currentQuestion != null) {
               content = _questionPhase(provider);
             } else {
@@ -553,7 +572,11 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
       ),
       bottomNavigationBar: Consumer<QuestionnaireProvider>(
         builder: (context, provider, _) {
-          if (!provider.readyToGenerate || _celebrating || _uploadingDocument || _generating) {
+          if (!provider.readyToGenerate ||
+              _celebrating ||
+              _uploadingDocument ||
+              _generating ||
+              _showDocumentVerification) {
             return const SizedBox.shrink();
           }
           return BottomActionBar(

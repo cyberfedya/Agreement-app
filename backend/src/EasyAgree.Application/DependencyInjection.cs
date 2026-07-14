@@ -33,6 +33,7 @@ public static class DependencyInjection
         services.AddScoped<PartyProfileResolver>();
         services.AddScoped<GenerateFromDealUseCase>();
         services.AddScoped<GetDealAgreementUseCase>();
+        services.AddScoped<VerifyDealDocumentUseCase>();
         services.AddScoped<GetDealFieldStatesUseCase>();
         services.AddScoped<GetDealReviewUseCase>();
         services.AddScoped<GetDealQualityUseCase>();

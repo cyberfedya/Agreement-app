@@ -1,5 +1,6 @@
 import 'package:app/core/network/api_exception.dart';
 import 'package:app/core/services/api_service.dart';
+import 'package:app/features/documents/domain/document_verification.dart';
 import 'package:app/features/documents/domain/interview_preview.dart';
 import 'package:app/features/documents/domain/required_document.dart';
 import 'package:app/features/documents/domain/uploaded_document.dart';
@@ -20,6 +21,8 @@ abstract class DocumentRepository {
   Future<Result<void>> updateField(String dealId, String documentId, String key, String value);
 
   Future<Result<InterviewPreview>> getInterviewPreview(String dealId);
+
+  Future<Result<DocumentVerification>> verifyDocument(String dealId);
 }
 
 class ApiDocumentRepository implements DocumentRepository {
@@ -128,6 +131,15 @@ class ApiDocumentRepository implements DocumentRepository {
   Future<Result<InterviewPreview>> getInterviewPreview(String dealId) async {
     try {
       return Success(await _api.getInterviewPreview(dealId));
+    } on ApiException catch (e) {
+      return Failure(e.message);
+    }
+  }
+
+  @override
+  Future<Result<DocumentVerification>> verifyDocument(String dealId) async {
+    try {
+      return Success(await _api.verifyDocument(dealId));
     } on ApiException catch (e) {
       return Failure(e.message);
     }
