@@ -5,26 +5,23 @@ import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/core/widgets/app_widgets.dart';
 import 'package:app/features/deal/data/deal_repository.dart';
 import 'package:app/features/deal/domain/deal.dart';
+import 'package:app/l10n/app_localizations.dart';
 import 'package:app/shared/models/result.dart';
 class AiProcessingPage extends StatefulWidget {
   const AiProcessingPage({super.key, required this.requestText});
-
   final String requestText;
-
   @override
   State<AiProcessingPage> createState() => _AiProcessingPageState();
 }
- 
 enum _Phase { processing, failed, noMatch }
 
 class _AiProcessingPageState extends State<AiProcessingPage> with SingleTickerProviderStateMixin {
-  static const _steps = [
-    (0, 'Анализируем информацию…'),
-    (28, 'Формируем структуру договора…'),
-    (58, 'Определяем необходимые условия…'),
-    (86, 'Почти готово…'),
+  List<(int, String)> _steps(AppLocalizations l10n) => [
+    (0, l10n.aiProcessingStep1),
+    (28, l10n.aiProcessingStep2),
+    (58, l10n.aiProcessingStep3),
+    (86, l10n.aiProcessingStep4),
   ];
-
   late final AnimationController _controller = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 2400),
@@ -70,9 +67,10 @@ class _AiProcessingPageState extends State<AiProcessingPage> with SingleTickerPr
     super.dispose();
   }
 
-  String _messageFor(int percent) {
-    var message = _steps.first.$2;
-    for (final step in _steps) {
+  String _messageFor(int percent, AppLocalizations l10n) {
+    final steps = _steps(l10n);
+    var message = steps.first.$2;
+    for (final step in steps) {
       if (percent >= step.$1) message = step.$2;
     }
     return message;
@@ -80,13 +78,14 @@ class _AiProcessingPageState extends State<AiProcessingPage> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: SafeArea(
         child: CenteredContent(
           child: switch (_phase) {
             _Phase.processing => _buildProcessing(context),
             _Phase.failed => AppErrorView(
-              message: _failureMessage ?? 'Не удалось связаться с сервером.',
+              message: _failureMessage ?? l10n.aiProcessingServerError,
               onRetry: _run,
             ),
             _Phase.noMatch => _NoMatchView(onEditRequest: () => Navigator.of(context).pop()),
@@ -98,6 +97,7 @@ class _AiProcessingPageState extends State<AiProcessingPage> with SingleTickerPr
 
   Widget _buildProcessing(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: AnimatedBuilder(
         animation: _progress,
@@ -129,8 +129,8 @@ class _AiProcessingPageState extends State<AiProcessingPage> with SingleTickerPr
               AnimatedSwitcher(
                 duration: Motion.fast,
                 child: Text(
-                  _messageFor(percent),
-                  key: ValueKey(_messageFor(percent)),
+                  _messageFor(percent, l10n),
+                  key: ValueKey(_messageFor(percent, l10n)),
                   style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                   textAlign: TextAlign.center,
                 ),
@@ -151,6 +151,7 @@ class _NoMatchView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(Insets.x32),
@@ -166,16 +167,15 @@ class _NoMatchView extends StatelessWidget {
               child: Icon(Icons.search_off_rounded, size: 32, color: theme.colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: Insets.x16),
-            Text('Не удалось определить тип договора', style: theme.textTheme.titleMedium, textAlign: TextAlign.center),
+            Text(l10n.aiProcessingNoMatchTitle, style: theme.textTheme.titleMedium, textAlign: TextAlign.center),
             const SizedBox(height: Insets.x8),
             Text(
-              'Опишите подробнее, о чём хотите договориться — например, '
-              '«продаю автомобиль» или «сдаю квартиру в аренду».',
+              l10n.aiProcessingNoMatchBody,
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
             const SizedBox(height: Insets.x24),
-            FilledButton(onPressed: onEditRequest, child: const Text('Изменить запрос')),
+            FilledButton(onPressed: onEditRequest, child: Text(l10n.aiProcessingEditRequest)),
           ],
         ),
       ),

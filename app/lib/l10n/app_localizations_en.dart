@@ -928,4 +928,73 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get categorySale => 'Sale';
+
+  @override
+  String get aiProcessingStep1 => 'Analyzing your request…';
+
+  @override
+  String get aiProcessingStep2 => 'Building the agreement structure…';
+
+  @override
+  String get aiProcessingStep3 => 'Determining required terms…';
+
+  @override
+  String get aiProcessingStep4 => 'Almost ready…';
+
+  @override
+  String get aiProcessingServerError => 'Couldn\'t reach the server.';
+
+  @override
+  String get aiProcessingNoMatchTitle =>
+      'Couldn\'t determine the agreement type';
+
+  @override
+  String get aiProcessingNoMatchBody =>
+      'Describe what you\'d like to agree on in more detail — for example, \"selling a car\" or \"renting out an apartment\".';
+
+  @override
+  String get aiProcessingEditRequest => 'Edit request';
+
+  @override
+  String extractionFilledSummary(int count, String plural, String remaining) {
+    return 'Automatically filled in $count $plural — you won\'t need to type them in. $remaining';
+  }
+
+  @override
+  String get extractionPluralFieldOne => 'field';
+
+  @override
+  String get extractionPluralFieldFew => 'fields';
+
+  @override
+  String get extractionPluralFieldMany => 'fields';
+
+  @override
+  String get extractionRemainingUnknown =>
+      'Just a couple more details to clarify.';
+
+  @override
+  String get extractionRemainingNone =>
+      'No more questions left — the agreement is almost ready.';
+
+  @override
+  String get extractionRemainingOne => 'Just one detail left.';
+
+  @override
+  String extractionRemainingFew(int n) {
+    return 'Only $n details left.';
+  }
+
+  @override
+  String extractionRemainingMany(int n) {
+    return '$n details left.';
+  }
+
+  @override
+  String extractionAndMore(int count) {
+    return 'and $count more…';
+  }
+
+  @override
+  String get extractionContinue => 'Continue';
 }

@@ -1767,6 +1767,120 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Купля-продажа'**
   String get categorySale;
+
+  /// No description provided for @aiProcessingStep1.
+  ///
+  /// In ru, this message translates to:
+  /// **'Анализируем информацию…'**
+  String get aiProcessingStep1;
+
+  /// No description provided for @aiProcessingStep2.
+  ///
+  /// In ru, this message translates to:
+  /// **'Формируем структуру договора…'**
+  String get aiProcessingStep2;
+
+  /// No description provided for @aiProcessingStep3.
+  ///
+  /// In ru, this message translates to:
+  /// **'Определяем необходимые условия…'**
+  String get aiProcessingStep3;
+
+  /// No description provided for @aiProcessingStep4.
+  ///
+  /// In ru, this message translates to:
+  /// **'Почти готово…'**
+  String get aiProcessingStep4;
+
+  /// No description provided for @aiProcessingServerError.
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось связаться с сервером.'**
+  String get aiProcessingServerError;
+
+  /// No description provided for @aiProcessingNoMatchTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось определить тип договора'**
+  String get aiProcessingNoMatchTitle;
+
+  /// No description provided for @aiProcessingNoMatchBody.
+  ///
+  /// In ru, this message translates to:
+  /// **'Опишите подробнее, о чём хотите договориться — например, «продаю автомобиль» или «сдаю квартиру в аренду».'**
+  String get aiProcessingNoMatchBody;
+
+  /// No description provided for @aiProcessingEditRequest.
+  ///
+  /// In ru, this message translates to:
+  /// **'Изменить запрос'**
+  String get aiProcessingEditRequest;
+
+  /// No description provided for @extractionFilledSummary.
+  ///
+  /// In ru, this message translates to:
+  /// **'Заполнил автоматически {count} {plural} — вам не придётся вводить их вручную. {remaining}'**
+  String extractionFilledSummary(int count, String plural, String remaining);
+
+  /// No description provided for @extractionPluralFieldOne.
+  ///
+  /// In ru, this message translates to:
+  /// **'поле'**
+  String get extractionPluralFieldOne;
+
+  /// No description provided for @extractionPluralFieldFew.
+  ///
+  /// In ru, this message translates to:
+  /// **'поля'**
+  String get extractionPluralFieldFew;
+
+  /// No description provided for @extractionPluralFieldMany.
+  ///
+  /// In ru, this message translates to:
+  /// **'полей'**
+  String get extractionPluralFieldMany;
+
+  /// No description provided for @extractionRemainingUnknown.
+  ///
+  /// In ru, this message translates to:
+  /// **'Осталось уточнить лишь пару деталей.'**
+  String get extractionRemainingUnknown;
+
+  /// No description provided for @extractionRemainingNone.
+  ///
+  /// In ru, this message translates to:
+  /// **'Вопросов не осталось — договор почти готов.'**
+  String get extractionRemainingNone;
+
+  /// No description provided for @extractionRemainingOne.
+  ///
+  /// In ru, this message translates to:
+  /// **'Осталась всего одна деталь.'**
+  String get extractionRemainingOne;
+
+  /// No description provided for @extractionRemainingFew.
+  ///
+  /// In ru, this message translates to:
+  /// **'Осталось всего {n} детали.'**
+  String extractionRemainingFew(int n);
+
+  /// No description provided for @extractionRemainingMany.
+  ///
+  /// In ru, this message translates to:
+  /// **'Осталось {n} деталей.'**
+  String extractionRemainingMany(int n);
+
+  /// No description provided for @extractionAndMore.
+  ///
+  /// In ru, this message translates to:
+  /// **'и ещё {count}…'**
+  String extractionAndMore(int count);
+
+  /// No description provided for @extractionContinue.
+  ///
+  /// In ru, this message translates to:
+  /// **'Продолжить'**
+  String get extractionContinue;
 }
 
 class _AppLocalizationsDelegate

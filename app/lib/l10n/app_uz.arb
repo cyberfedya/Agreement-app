@@ -300,5 +300,26 @@
   "categoryConstruction": "Қурилиш",
   "categoryPowerOfAttorney": "Ишончнома",
   "categoryBusiness": "Бизнес",
-  "categorySale": "Олди-сотди"
+  "categorySale": "Олди-сотди",
+
+  "aiProcessingStep1": "Маълумотни таҳлил қиляпмиз…",
+  "aiProcessingStep2": "Шартнома тузилмасини шакллантиряпмиз…",
+  "aiProcessingStep3": "Зарур шартларни аниқляпмиз…",
+  "aiProcessingStep4": "Деярли тайёр…",
+  "aiProcessingServerError": "Серверга уланиб бўлмади.",
+  "aiProcessingNoMatchTitle": "Шартнома турини аниқлаб бўлмади",
+  "aiProcessingNoMatchBody": "Нима ҳақида келишмоқчи эканингизни батафсилроқ ёзинг — масалан, «автомобиль сотаман» ёки «квартирани ижарага бераман».",
+  "aiProcessingEditRequest": "Сўровни ўзгартириш",
+
+  "extractionFilledSummary": "{count} {plural} автоматик тўлдирилди — уларни қўлда киритишингиз шарт эмас. {remaining}",
+  "extractionPluralFieldOne": "маълумот",
+  "extractionPluralFieldFew": "маълумот",
+  "extractionPluralFieldMany": "маълумот",
+  "extractionRemainingUnknown": "Яна бир нечта деталь аниқлаштириш қолди.",
+  "extractionRemainingNone": "Саволлар қолмади — шартнома деярли тайёр.",
+  "extractionRemainingOne": "Атиги битта деталь қолди.",
+  "extractionRemainingFew": "Атиги {n} та деталь қолди.",
+  "extractionRemainingMany": "{n} та деталь қолди.",
+  "extractionAndMore": "яна {count}…",
+  "extractionContinue": "Давом этиш"
 }

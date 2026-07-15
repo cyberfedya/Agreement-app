@@ -139,6 +139,7 @@ class _CategoryFilterRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return SizedBox(
       height: 44,
       child: Selector<TemplatesListProvider, List<String>>(
@@ -153,7 +154,7 @@ class _CategoryFilterRow extends StatelessWidget {
             itemBuilder: (context, index) {
               if (index == 0) {
                 return FilterChip(
-                  label: const Text('Все'),
+                  label: Text(l10n.templatesAll),
                   selected: selected == null,
                   showCheckmark: false,
                   onSelected: (_) => onChanged(null),

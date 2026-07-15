@@ -927,4 +927,72 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get categorySale => 'Олди-сотди';
+
+  @override
+  String get aiProcessingStep1 => 'Маълумотни таҳлил қиляпмиз…';
+
+  @override
+  String get aiProcessingStep2 => 'Шартнома тузилмасини шакллантиряпмиз…';
+
+  @override
+  String get aiProcessingStep3 => 'Зарур шартларни аниқляпмиз…';
+
+  @override
+  String get aiProcessingStep4 => 'Деярли тайёр…';
+
+  @override
+  String get aiProcessingServerError => 'Серверга уланиб бўлмади.';
+
+  @override
+  String get aiProcessingNoMatchTitle => 'Шартнома турини аниқлаб бўлмади';
+
+  @override
+  String get aiProcessingNoMatchBody =>
+      'Нима ҳақида келишмоқчи эканингизни батафсилроқ ёзинг — масалан, «автомобиль сотаман» ёки «квартирани ижарага бераман».';
+
+  @override
+  String get aiProcessingEditRequest => 'Сўровни ўзгартириш';
+
+  @override
+  String extractionFilledSummary(int count, String plural, String remaining) {
+    return '$count $plural автоматик тўлдирилди — уларни қўлда киритишингиз шарт эмас. $remaining';
+  }
+
+  @override
+  String get extractionPluralFieldOne => 'маълумот';
+
+  @override
+  String get extractionPluralFieldFew => 'маълумот';
+
+  @override
+  String get extractionPluralFieldMany => 'маълумот';
+
+  @override
+  String get extractionRemainingUnknown =>
+      'Яна бир нечта деталь аниқлаштириш қолди.';
+
+  @override
+  String get extractionRemainingNone =>
+      'Саволлар қолмади — шартнома деярли тайёр.';
+
+  @override
+  String get extractionRemainingOne => 'Атиги битта деталь қолди.';
+
+  @override
+  String extractionRemainingFew(int n) {
+    return 'Атиги $n та деталь қолди.';
+  }
+
+  @override
+  String extractionRemainingMany(int n) {
+    return '$n та деталь қолди.';
+  }
+
+  @override
+  String extractionAndMore(int count) {
+    return 'яна $count…';
+  }
+
+  @override
+  String get extractionContinue => 'Давом этиш';
 }

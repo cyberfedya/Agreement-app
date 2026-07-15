@@ -921,4 +921,72 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get categorySale => 'Купля-продажа';
+
+  @override
+  String get aiProcessingStep1 => 'Анализируем информацию…';
+
+  @override
+  String get aiProcessingStep2 => 'Формируем структуру договора…';
+
+  @override
+  String get aiProcessingStep3 => 'Определяем необходимые условия…';
+
+  @override
+  String get aiProcessingStep4 => 'Почти готово…';
+
+  @override
+  String get aiProcessingServerError => 'Не удалось связаться с сервером.';
+
+  @override
+  String get aiProcessingNoMatchTitle => 'Не удалось определить тип договора';
+
+  @override
+  String get aiProcessingNoMatchBody =>
+      'Опишите подробнее, о чём хотите договориться — например, «продаю автомобиль» или «сдаю квартиру в аренду».';
+
+  @override
+  String get aiProcessingEditRequest => 'Изменить запрос';
+
+  @override
+  String extractionFilledSummary(int count, String plural, String remaining) {
+    return 'Заполнил автоматически $count $plural — вам не придётся вводить их вручную. $remaining';
+  }
+
+  @override
+  String get extractionPluralFieldOne => 'поле';
+
+  @override
+  String get extractionPluralFieldFew => 'поля';
+
+  @override
+  String get extractionPluralFieldMany => 'полей';
+
+  @override
+  String get extractionRemainingUnknown =>
+      'Осталось уточнить лишь пару деталей.';
+
+  @override
+  String get extractionRemainingNone =>
+      'Вопросов не осталось — договор почти готов.';
+
+  @override
+  String get extractionRemainingOne => 'Осталась всего одна деталь.';
+
+  @override
+  String extractionRemainingFew(int n) {
+    return 'Осталось всего $n детали.';
+  }
+
+  @override
+  String extractionRemainingMany(int n) {
+    return 'Осталось $n деталей.';
+  }
+
+  @override
+  String extractionAndMore(int count) {
+    return 'и ещё $count…';
+  }
+
+  @override
+  String get extractionContinue => 'Продолжить';
 }

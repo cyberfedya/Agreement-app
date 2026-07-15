@@ -636,5 +636,63 @@
   "categoryBusiness": "Бизнес",
   "@categoryBusiness": {},
   "categorySale": "Купля-продажа",
-  "@categorySale": {}
+  "@categorySale": {},
+
+  "aiProcessingStep1": "Анализируем информацию…",
+  "@aiProcessingStep1": {},
+  "aiProcessingStep2": "Формируем структуру договора…",
+  "@aiProcessingStep2": {},
+  "aiProcessingStep3": "Определяем необходимые условия…",
+  "@aiProcessingStep3": {},
+  "aiProcessingStep4": "Почти готово…",
+  "@aiProcessingStep4": {},
+  "aiProcessingServerError": "Не удалось связаться с сервером.",
+  "@aiProcessingServerError": {},
+  "aiProcessingNoMatchTitle": "Не удалось определить тип договора",
+  "@aiProcessingNoMatchTitle": {},
+  "aiProcessingNoMatchBody": "Опишите подробнее, о чём хотите договориться — например, «продаю автомобиль» или «сдаю квартиру в аренду».",
+  "@aiProcessingNoMatchBody": {},
+  "aiProcessingEditRequest": "Изменить запрос",
+  "@aiProcessingEditRequest": {},
+
+  "extractionFilledSummary": "Заполнил автоматически {count} {plural} — вам не придётся вводить их вручную. {remaining}",
+  "@extractionFilledSummary": {
+    "placeholders": {
+      "count": {"type": "int"},
+      "plural": {"type": "String"},
+      "remaining": {"type": "String"}
+    }
+  },
+  "extractionPluralFieldOne": "поле",
+  "@extractionPluralFieldOne": {},
+  "extractionPluralFieldFew": "поля",
+  "@extractionPluralFieldFew": {},
+  "extractionPluralFieldMany": "полей",
+  "@extractionPluralFieldMany": {},
+  "extractionRemainingUnknown": "Осталось уточнить лишь пару деталей.",
+  "@extractionRemainingUnknown": {},
+  "extractionRemainingNone": "Вопросов не осталось — договор почти готов.",
+  "@extractionRemainingNone": {},
+  "extractionRemainingOne": "Осталась всего одна деталь.",
+  "@extractionRemainingOne": {},
+  "extractionRemainingFew": "Осталось всего {n} детали.",
+  "@extractionRemainingFew": {
+    "placeholders": {
+      "n": {"type": "int"}
+    }
+  },
+  "extractionRemainingMany": "Осталось {n} деталей.",
+  "@extractionRemainingMany": {
+    "placeholders": {
+      "n": {"type": "int"}
+    }
+  },
+  "extractionAndMore": "и ещё {count}…",
+  "@extractionAndMore": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "extractionContinue": "Продолжить",
+  "@extractionContinue": {}
 }

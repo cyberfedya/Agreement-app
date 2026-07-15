@@ -6,6 +6,7 @@ import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/features/documents/domain/uploaded_document.dart';
 import 'package:app/features/questionnaire/presentation/interview_script.dart';
 import 'package:app/features/questionnaire/presentation/widgets/confidence_badge.dart';
+import 'package:app/l10n/app_localizations.dart';
 import 'package:app/shared/animation/entrance.dart';
 import 'package:app/shared/widgets/primary_button.dart';
 
@@ -37,18 +38,19 @@ class ExtractionCelebrationView extends StatelessWidget {
 
 
 
-  String get _remainingLine {
+  String _remainingLine(AppLocalizations l10n) {
     final n = remainingQuestions;
-    if (n == null) return 'Осталось уточнить лишь пару деталей.';
-    if (n <= 0) return 'Вопросов не осталось — договор почти готов.';
-    if (n == 1) return 'Осталась всего одна деталь.';
-    if (n < 5) return 'Осталось всего $n детали.';
-    return 'Осталось $n деталей.';
+    if (n == null) return l10n.extractionRemainingUnknown;
+    if (n <= 0) return l10n.extractionRemainingNone;
+    if (n == 1) return l10n.extractionRemainingOne;
+    if (n < 5) return l10n.extractionRemainingFew(n);
+    return l10n.extractionRemainingMany(n);
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final fields = [
       for (final doc in documents.where((d) => d.isProcessed))
         for (final entry in doc.fields.entries) entry,
@@ -89,8 +91,11 @@ class ExtractionCelebrationView extends StatelessWidget {
                 ).animateEntranceStaggered(1),
                 const SizedBox(height: Insets.x8),
                 Text(
-                  'Заполнил автоматически ${fields.length} ${_plural(fields.length)} — '
-                  'вам не придётся вводить их вручную. $_remainingLine',
+                  l10n.extractionFilledSummary(
+                    fields.length,
+                    _plural(fields.length, l10n),
+                    _remainingLine(l10n),
+                  ),
                   style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                   textAlign: TextAlign.center,
                 ).animateEntranceStaggered(2),
@@ -161,7 +166,7 @@ class ExtractionCelebrationView extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: Insets.x8),
                           child: Text(
-                            'и ещё $hiddenCount…',
+                            l10n.extractionAndMore(hiddenCount),
                             style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                           ),
                         ).animateEntranceStaggered(shown.length + 3),
@@ -198,16 +203,16 @@ class ExtractionCelebrationView extends StatelessWidget {
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(Insets.x24, 0, Insets.x24, Insets.x24),
-          child: PrimaryButton(label: 'Продолжить', onPressed: onContinue).animateEntranceStaggered(4),
+          child: PrimaryButton(label: l10n.extractionContinue, onPressed: onContinue).animateEntranceStaggered(4),
         ),
       ],
     );
   }
 
-  static String _plural(int n) {
+  static String _plural(int n, AppLocalizations l10n) {
     final mod10 = n % 10, mod100 = n % 100;
-    if (mod10 == 1 && mod100 != 11) return 'поле';
-    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return 'поля';
-    return 'полей';
+    if (mod10 == 1 && mod100 != 11) return l10n.extractionPluralFieldOne;
+    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return l10n.extractionPluralFieldFew;
+    return l10n.extractionPluralFieldMany;
   }
 }
