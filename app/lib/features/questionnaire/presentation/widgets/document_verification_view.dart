@@ -39,6 +39,7 @@ class _DocumentVerificationViewState extends State<DocumentVerificationView> {
   List<DocumentFieldConflict> _conflicts = const [];
   int _conflictIndex = 0;
   String? _errorMessage;
+  String? _conflictError;
 
   Future<void> _upload(
     List<(String fileName, String contentType, List<int> bytes)> files,
@@ -65,9 +66,10 @@ class _DocumentVerificationViewState extends State<DocumentVerificationView> {
       case Success(value: final verification):
         _applyVerification(verification);
       case Failure():
-        // A failed comparison is never worth blocking the договор on -
-        // the document was still uploaded and can help later; just move on.
-        widget.onFinished();
+        setState(() {
+          _phase = _Phase.prompt;
+          _errorMessage = 'Не удалось проверить документ. Попробуйте ещё раз.';
+        });
     }
   }
 
@@ -79,6 +81,7 @@ class _DocumentVerificationViewState extends State<DocumentVerificationView> {
     setState(() {
       _conflicts = verification.conflicts;
       _conflictIndex = 0;
+      _conflictError = null;
       _phase = _Phase.conflicts;
     });
   }
@@ -86,14 +89,23 @@ class _DocumentVerificationViewState extends State<DocumentVerificationView> {
   Future<void> _resolveConflict({required bool useDocumentValue}) async {
     final conflict = _conflicts[_conflictIndex];
     if (useDocumentValue) {
-      await context.read<QuestionnaireProvider>().editAnswer(conflict.fieldId, conflict.label, conflict.documentValue);
+      final saved = await context
+          .read<QuestionnaireProvider>()
+          .editAnswer(conflict.fieldId, conflict.label, conflict.documentValue);
       if (!mounted) return;
+      if (!saved) {
+        setState(() => _conflictError = 'Не удалось сохранить значение. Попробуйте ещё раз.');
+        return;
+      }
     }
 
     if (_conflictIndex + 1 >= _conflicts.length) {
       widget.onFinished();
     } else {
-      setState(() => _conflictIndex += 1);
+      setState(() {
+        _conflictIndex += 1;
+        _conflictError = null;
+      });
     }
   }
 
@@ -106,6 +118,7 @@ class _DocumentVerificationViewState extends State<DocumentVerificationView> {
         conflict: _conflicts[_conflictIndex],
         position: _conflictIndex + 1,
         total: _conflicts.length,
+        errorMessage: _conflictError,
         onUseDocumentValue: () => _resolveConflict(useDocumentValue: true),
         onKeepMine: () => _resolveConflict(useDocumentValue: false),
       ),
@@ -227,7 +240,14 @@ class _PromptView extends StatelessWidget {
       if (contentType == null) continue;
       entries.add((normalizedFileName(file.name, contentType), contentType, bytes));
     }
-    if (entries.isEmpty) return;
+    if (entries.isEmpty) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Не удалось распознать формат фото. Попробуйте JPEG, PNG или WebP.')),
+        );
+      }
+      return;
+    }
 
     await onUpload(entries);
   }
@@ -257,6 +277,7 @@ class _ConflictView extends StatelessWidget {
     required this.conflict,
     required this.position,
     required this.total,
+    required this.errorMessage,
     required this.onUseDocumentValue,
     required this.onKeepMine,
   });
@@ -264,6 +285,7 @@ class _ConflictView extends StatelessWidget {
   final DocumentFieldConflict conflict;
   final int position;
   final int total;
+  final String? errorMessage;
   final VoidCallback onUseDocumentValue;
   final VoidCallback onKeepMine;
 
@@ -294,6 +316,14 @@ class _ConflictView extends StatelessWidget {
             theme: theme,
             highlight: true,
           ),
+          if (errorMessage != null) ...[
+            const SizedBox(height: Insets.x16),
+            Text(
+              errorMessage!,
+              style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.error),
+              textAlign: TextAlign.center,
+            ),
+          ],
           const SizedBox(height: Insets.x32),
           PrimaryButton(label: 'Использовать данные документа', onPressed: onUseDocumentValue),
           const SizedBox(height: Insets.x8),

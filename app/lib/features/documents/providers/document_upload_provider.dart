@@ -21,6 +21,7 @@ class DocumentUploadProvider extends ChangeNotifier {
 
   String? _dealId;
   bool _isUploading = false;
+  bool _documentsLoaded = false;
   String? _errorMessage;
   final List<UploadedDocument> _uploadedDocuments = [];
   List<UploadedDocument> _lastUploadBatch = const [];
@@ -29,6 +30,14 @@ class DocumentUploadProvider extends ChangeNotifier {
   bool get isUploading => _isUploading;
   String? get errorMessage => _errorMessage;
   List<UploadedDocument> get uploadedDocuments => List.unmodifiable(_uploadedDocuments);
+
+  /// Whether [attachDeal]'s restore of this deal's existing documents has
+  /// finished (successfully or not) - before this, [uploadedDocuments]
+  /// being empty just means "not loaded yet", not "nothing was uploaded".
+  /// Callers that decide something irreversible from an empty
+  /// [uploadedDocuments] (e.g. whether to offer the final document check)
+  /// must wait for this first.
+  bool get documentsLoaded => _documentsLoaded;
 
   /// Just the documents from the most recent [upload] call - what the
   /// post-OCR celebration screen shows ("I filled these fields for you").
@@ -51,6 +60,7 @@ class DocumentUploadProvider extends ChangeNotifier {
   void attachDeal(String dealId) {
     if (_dealId == dealId) return;
     _dealId = dealId;
+    _documentsLoaded = false;
     _uploadedDocuments.clear();
     _lastUploadBatch = const [];
     _pendingMismatchWarnings = const [];
@@ -65,10 +75,16 @@ class DocumentUploadProvider extends ChangeNotifier {
         _uploadedDocuments
           ..clear()
           ..addAll(value);
+        _documentsLoaded = true;
         notifyListeners();
       case Failure():
-        // Non-fatal: uploads still work, the history just starts empty.
-        break;
+        // Non-fatal: uploads still work, the history just starts empty -
+        // but still counts as "loaded" so callers waiting on
+        // documentsLoaded aren't stuck forever on a failed restore.
+        if (_dealId == dealId) {
+          _documentsLoaded = true;
+          notifyListeners();
+        }
     }
   }
 

@@ -50,7 +50,14 @@ public static class DocumentVerificationEngine
             }
             else
             {
-                autoFilled[match.FieldId] = match.Value;
+                // Same plausibility gate InterviewPlanner applies to every
+                // other document-derived value before writing it into
+                // answers (AnswerShapeValidator.LooksPlausible) - this path
+                // writes silently, with no user confirmation at all, so a
+                // garbled OCR value must never slip through unchecked here.
+                var label = labels.GetValueOrDefault(match.FieldId, string.Empty);
+                if (AnswerShapeValidator.LooksPlausible(label, match.Value))
+                    autoFilled[match.FieldId] = match.Value;
             }
         }
 

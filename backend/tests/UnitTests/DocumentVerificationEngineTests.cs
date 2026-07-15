@@ -55,6 +55,28 @@ public sealed class DocumentVerificationEngineTests
     }
 
     [Fact]
+    public void Implausible_document_value_is_not_silently_auto_filled()
+    {
+        var fields = new[] { Field(30) };
+        var labels = new Dictionary<int, string>
+        {
+            [30] = "Автотранспорт воситасига қайд этиш гувоҳномаси берилган сана",
+        };
+        var answers = new Dictionary<int, string>();
+        // "issue_date" clears DocumentFieldMapper's confidence bar but the
+        // value has no digit and isn't a recognizable relative date - the
+        // same shape check InterviewPlanner applies to every other
+        // document-derived value must reject it here too, since this path
+        // writes to answers with no user confirmation at all.
+        var hints = new DocumentFieldHintCollection([new DocumentFieldHint("issue_date", "не дата", 0.9, "document")]);
+
+        var outcome = DocumentVerificationEngine.Evaluate(fields, labels, answers, hints);
+
+        Assert.Empty(outcome.Conflicts);
+        Assert.Empty(outcome.AutoFilled);
+    }
+
+    [Fact]
     public void No_document_hints_produces_no_conflicts_and_no_auto_fill()
     {
         var fields = new[] { Field(23), Field(24) };

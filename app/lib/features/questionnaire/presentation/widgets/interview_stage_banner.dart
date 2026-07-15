@@ -17,10 +17,18 @@ class _InterviewStageBannerState extends State<InterviewStageBanner> {
   InterviewStage? _justCompleted;
   Timer? _timer;
 
+  /// Stage keys already shown at least once - lets a transition tell
+  /// genuine forward progress from the user tapping "back" into a stage
+  /// they already passed through. Only the former earns the "✓ just
+  /// completed" checkmark; a back-navigation should read as a plain
+  /// crossfade, never as re-completing a stage that isn't actually done.
+  final Set<String> _seenKeys = {};
+
   @override
   void initState() {
     super.initState();
     _shown = widget.stage;
+    if (_shown != null) _seenKeys.add(_shown!.key);
   }
 
   @override
@@ -31,7 +39,10 @@ class _InterviewStageBannerState extends State<InterviewStageBanner> {
     if (next?.key == previous?.key) return;
 
     _timer?.cancel();
-    if (previous != null && next != null) {
+    final isForwardProgress = previous != null && next != null && !_seenKeys.contains(next.key);
+    if (next != null) _seenKeys.add(next.key);
+
+    if (isForwardProgress) {
       setState(() {
         _justCompleted = previous;
         _shown = next;

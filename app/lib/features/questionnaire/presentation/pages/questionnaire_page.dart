@@ -515,6 +515,16 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
             final showGreeting = !_interviewStarted && (!_greetingHoldDone || !hasContent);
             if (!showGreeting && hasContent) _interviewStarted = true;
 
+            // Re-decide whether to show the document check the next time
+            // the interview becomes ready, instead of only once ever: if
+            // resolving a document-verification conflict feeds a corrected
+            // answer back into the planner and it decides more information
+            // is genuinely needed, readyToGenerate can briefly flip back to
+            // false and then true again - by then a document may already
+            // be on file, and the decision must reflect that instead of
+            // replaying a stale "show the prompt" choice from before.
+            if (!provider.readyToGenerate) _documentVerificationDecided = false;
+
             final Widget content;
             if (_generating) {
               content = GenerationSequenceView(key: const ValueKey('generating'), steps: _script.generationSteps);
@@ -550,10 +560,13 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                 onSkip: () => provider.dismissDocumentSuggestion(),
               );
             } else if (provider.readyToGenerate) {
-              if (_verificationAlreadyResolved == null) {
-                // Still loading the stored per-deal decision - a local
-                // disk read that resolves long before the interview does
-                // in practice, so this is never visibly more than a blip.
+              if (_verificationAlreadyResolved == null || !uploads.documentsLoaded) {
+                // Still loading the stored per-deal decision and/or the
+                // deal's existing documents - both local/cheap reads that
+                // resolve long before the interview does in practice, so
+                // this is never visibly more than a blip. Deciding from an
+                // uploadedDocuments list that just hasn't loaded yet would
+                // wrongly read as "never uploaded anything".
                 content = const Center(
                   key: ValueKey('verification-loading'),
                   child: ThinkingIndicator(label: 'Секунду…'),
@@ -603,14 +616,15 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
           },
         ),
       ),
-      bottomNavigationBar: Consumer<QuestionnaireProvider>(
-        builder: (context, provider, _) {
+      bottomNavigationBar: Consumer2<QuestionnaireProvider, DocumentUploadProvider>(
+        builder: (context, provider, uploads, _) {
           if (!provider.readyToGenerate ||
               _celebrating ||
               _uploadingDocument ||
               _generating ||
               _showDocumentVerification ||
-              _verificationAlreadyResolved == null) {
+              _verificationAlreadyResolved == null ||
+              !uploads.documentsLoaded) {
             return const SizedBox.shrink();
           }
           return BottomActionBar(

@@ -49,10 +49,16 @@ public static class FieldLabelTranslator
         if (language is not ("ru" or "en"))
             return label;
 
-        var lower = label.Trim().ToLowerInvariant();
+        // Contains, not exact-equal: matches how every other keyword table
+        // in this codebase (FieldEligibilityEngine, DocumentFieldMapper, ...)
+        // matches labels, since real template text carries surrounding
+        // punctuation/whitespace that would defeat an exact match and
+        // silently reopen the untranslated-Uzbek leak this class exists to
+        // close.
+        var lower = label.ToLowerInvariant();
         foreach (var (uzbek, ru, en) in Phrases)
         {
-            if (lower == uzbek)
+            if (lower.Contains(uzbek))
                 return language == "ru" ? ru : en;
         }
 
