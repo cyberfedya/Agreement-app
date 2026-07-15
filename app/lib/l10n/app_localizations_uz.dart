@@ -449,4 +449,300 @@ class AppLocalizationsUz extends AppLocalizations {
   @override
   String get authDemoModeNotice =>
       'Демо режим — ҳақиқий интеграция кейинроқ қўшилади';
+
+  @override
+  String get commonPdf => 'PDF';
+
+  @override
+  String get commonSend => 'Юбориш';
+
+  @override
+  String get commonBack => 'Орқага';
+
+  @override
+  String get commonDecline => 'Рад этиш';
+
+  @override
+  String get commonHome => 'Бош саҳифага';
+
+  @override
+  String get commonCopy => 'Нусха олиш';
+
+  @override
+  String get agreementCopied => 'Шартнома нусхаланди';
+
+  @override
+  String get agreementFirstPartyFallback => 'Биринчи томон';
+
+  @override
+  String get agreementSignFailed => 'Шартномани имзолаб бўлмади.';
+
+  @override
+  String get agreementTitle => 'Шартнома';
+
+  @override
+  String get agreementNotCreatedTitle => 'Шартнома ҳали яратилмаган';
+
+  @override
+  String get agreementNotCreatedMessage =>
+      'Интервьюдан ўтинг ва шартнома яратинг — у шу ерда пайдо бўлади.';
+
+  @override
+  String get agreementYouSignedWaitingSecond =>
+      'Сиз шартномани имзоладингиз.\nИккинчи тарафни кутмоқдамиз.';
+
+  @override
+  String get agreementSecondSignedWaitingYou =>
+      'Иккинчи тараф шартномани аллақачон имзолади.\nЯкунлаш учун имзоланг.';
+
+  @override
+  String get agreementQrInstructions =>
+      'Ушбу QR-кодни иккинчи тарафга кўрсатинг — у уни сканерлайди, MyID орқали идентификациядан ўтади ва шартномани имзолайди.';
+
+  @override
+  String agreementCreatedAt(String time) {
+    return 'Яратилди $time';
+  }
+
+  @override
+  String get agreementCopyTextTooltip => 'Матнни нусхалаш';
+
+  @override
+  String get agreementSharePdfTooltip => 'Улашиш / PDF';
+
+  @override
+  String get agreementYouSigned => 'Сиз шартномани имзоладингиз';
+
+  @override
+  String get agreementSignButton => 'Шартномани имзолаш';
+
+  @override
+  String get agreementOpenAsSecondParty =>
+      'Иккинчи тараф сифатида очиш (шу қурилмада)';
+
+  @override
+  String get agreementWaitingBothSignatures =>
+      'Икки тараф имзосини кутмоқдамиз';
+
+  @override
+  String get agreementWaitingSecondSignature =>
+      'Иккинчи тараф имзосини кутмоқдамиз';
+
+  @override
+  String get agreementBothSigned => 'Икки тараф ҳам имзолади';
+
+  @override
+  String get agreementStepCreated => 'Яратилди';
+
+  @override
+  String get agreementStepCompleted => 'Якунланди';
+
+  @override
+  String agreementSignProposalSent(String label) {
+    return '«$label» бўйича таклиф иккинчи тарафга юборилди.';
+  }
+
+  @override
+  String get agreementSignQuestionSent => 'Савол иккинчи тарафга юборилди.';
+
+  @override
+  String get agreementSignDemoName => 'Иванов Иван Иванович';
+
+  @override
+  String get agreementDocumentUnavailableTitle => 'Ҳужжат мавжуд эмас';
+
+  @override
+  String get agreementNotFoundOrNotGenerated =>
+      'Бу шартнома топилмади ёки ҳали яратилмаган.';
+
+  @override
+  String get agreementSignTitle => 'Имзолаш учун шартнома';
+
+  @override
+  String get agreementFullySigned => 'Шартнома тўлиқ имзоланди.';
+
+  @override
+  String get agreementSecondPartySignedWaitingFirst =>
+      'Сиз шартномани имзоладингиз.\nБиринчи тарафни кутмоқдамиз.';
+
+  @override
+  String get agreementFirstPartySignedWaitingSecond =>
+      'Биринчи тараф шартномани аллақачон имзолади.\nЯкунлаш учун имзоланг.';
+
+  @override
+  String get agreementMyIdNotice =>
+      'Имзолашдан олдин — MyID орқали идентификация. Исм ва маълумотларингиз шартномага автоматик қўйилади.';
+
+  @override
+  String get agreementProposeChange => 'Шартни ўзгартириш';
+
+  @override
+  String get agreementAskQuestion => 'Савол бериш';
+
+  @override
+  String get agreementSignWithMyId => 'MyID орқали ўтиш ва имзолаш';
+
+  @override
+  String get agreementNotFoundTitle => 'Шартнома топилмади';
+
+  @override
+  String get agreementNotFoundMessage =>
+      'Афтидан, бу ерга тўғридан-тўғри кирдингиз. Бош саҳифадан янги битим бошланг.';
+
+  @override
+  String get agreementSignedSuccessfully => 'Шартнома муваффақиятли имзоланди';
+
+  @override
+  String agreementSignedBy(String name) {
+    return 'Имзолади: $name';
+  }
+
+  @override
+  String get agreementPdfExportFailed =>
+      'PDF яратиб бўлмади. Яна уриниб кўринг.';
+
+  @override
+  String get dealInviteFillProfileFirst =>
+      'Аввал ўз маълумотларингизни тўлдиринг — улар шартномада кўрсатилади.';
+
+  @override
+  String get dealInviteRegenerateFailed =>
+      'Шартномани маълумотларингиз билан янгилаб бўлмади.';
+
+  @override
+  String get dealInviteTitle => 'Битимга таклиф';
+
+  @override
+  String get dealInviteHeadline =>
+      'Сиз битимда иштирок этишга таклиф қилиндингиз';
+
+  @override
+  String get dealInviteTypeLabel => 'Битим тури';
+
+  @override
+  String get dealInviteYourRoleLabel => 'Сизнинг ролингиз';
+
+  @override
+  String get dealInviteInvitedByLabel => 'Таклиф қилди';
+
+  @override
+  String get dealInviteNotSpecified => 'Кўрсатилмаган';
+
+  @override
+  String get dealInviteStatusLabel => 'Ҳолати';
+
+  @override
+  String get dealInviteAccept => 'Қабул қилиш';
+
+  @override
+  String get dealInviteDeclineDialogTitle => 'Таклифни рад этасизми?';
+
+  @override
+  String get dealInviteDeclineDialogBody =>
+      'Иккинчи тараф жавобингизни кўради. Қисқача сабабини ёзишингиз мумкин — бу мажбурий эмас.';
+
+  @override
+  String get dealInviteDeclineReasonHint => 'Сабаб (мажбурий эмас)…';
+
+  @override
+  String get dealInviteDeclined => 'Сиз таклифни рад этдингиз';
+
+  @override
+  String get dealInviteStatusPending => 'Тасдиқлашни кутмоқда';
+
+  @override
+  String get dealInviteStatusOpened => 'Очилган';
+
+  @override
+  String get dealInviteStatusAccepted => 'Қабул қилинган';
+
+  @override
+  String get dealInviteStatusDeclined => 'Рад этилган';
+
+  @override
+  String get dealInviteStatusChangeRequested => 'Ўзгартириш таклиф қилинган';
+
+  @override
+  String get dealInviteStatusClarificationRequested => 'Аниқлаштириш сўралган';
+
+  @override
+  String get roleSeller => 'Сотувчи';
+
+  @override
+  String get roleBuyer => 'Харидор';
+
+  @override
+  String get roleLandlord => 'Ижарага берувчи';
+
+  @override
+  String get roleTenant => 'Ижарага олувчи';
+
+  @override
+  String get roleLender => 'Қарз берувчи';
+
+  @override
+  String get roleBorrower => 'Қарз олувчи';
+
+  @override
+  String get roleEmployer => 'Иш берувчи';
+
+  @override
+  String get roleEmployee => 'Ходим';
+
+  @override
+  String get roleCustomer => 'Буюртмачи';
+
+  @override
+  String get roleContractor => 'Пудратчи';
+
+  @override
+  String get roleDonor => 'Ҳадя қилувчи';
+
+  @override
+  String get roleRecipient => 'Ҳадя олувчи';
+
+  @override
+  String get roleFirstParty => 'Биринчи томон';
+
+  @override
+  String get roleSecondParty => 'Иккинчи томон';
+
+  @override
+  String get roleParticipant => 'Битим иштирокчиси';
+
+  @override
+  String get negotiationWhatToChange => 'Нимани ўзгартирмоқчисиз?';
+
+  @override
+  String get negotiationChooseTerm =>
+      'Шартнома шартини танланг — таклифингизни иккинчи тараф кўради.';
+
+  @override
+  String get negotiationNoEditableTerms =>
+      'Ҳозирча ўзгартирса бўладиган шартлар йўқ.';
+
+  @override
+  String get negotiationBackToList => 'Шартлар рўйхатига';
+
+  @override
+  String get negotiationCurrentValue => 'Ҳозир шартномада';
+
+  @override
+  String get negotiationYourProposalHint => 'Таклифингиз…';
+
+  @override
+  String get negotiationReasonHint => 'Нима учун? (мажбурий эмас)';
+
+  @override
+  String get negotiationSendProposal => 'Таклифни юбориш';
+
+  @override
+  String get negotiationAskQuestionTitle => 'Савол бериш';
+
+  @override
+  String get negotiationAskQuestionBody =>
+      'Имзолашдан олдин аниқлаштирмоқчи бўлган нарсангизни сўранг — саволни иккинчи тараф кўради.';
+
+  @override
+  String get negotiationQuestionHint => 'Саволингиз…';
 }

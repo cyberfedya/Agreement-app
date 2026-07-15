@@ -445,4 +445,298 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get authDemoModeNotice =>
       'Демо-режим — реальная интеграция появится позже';
+
+  @override
+  String get commonPdf => 'PDF';
+
+  @override
+  String get commonSend => 'Отправить';
+
+  @override
+  String get commonBack => 'Назад';
+
+  @override
+  String get commonDecline => 'Отклонить';
+
+  @override
+  String get commonHome => 'На главную';
+
+  @override
+  String get commonCopy => 'Копировать';
+
+  @override
+  String get agreementCopied => 'Договор скопирован';
+
+  @override
+  String get agreementFirstPartyFallback => 'Первая сторона';
+
+  @override
+  String get agreementSignFailed => 'Не удалось подписать договор.';
+
+  @override
+  String get agreementTitle => 'Договор';
+
+  @override
+  String get agreementNotCreatedTitle => 'Договор ещё не создан';
+
+  @override
+  String get agreementNotCreatedMessage =>
+      'Пройдите интервью и создайте договор — он появится здесь.';
+
+  @override
+  String get agreementYouSignedWaitingSecond =>
+      'Вы подписали договор.\nОжидание второй стороны.';
+
+  @override
+  String get agreementSecondSignedWaitingYou =>
+      'Вторая сторона уже подписала договор.\nПодпишите, чтобы завершить договор.';
+
+  @override
+  String get agreementQrInstructions =>
+      'Покажите этот QR-код второй стороне — она отсканирует его, пройдёт идентификацию через MyID и подпишет договор.';
+
+  @override
+  String agreementCreatedAt(String time) {
+    return 'Создан $time';
+  }
+
+  @override
+  String get agreementCopyTextTooltip => 'Скопировать текст';
+
+  @override
+  String get agreementSharePdfTooltip => 'Поделиться / PDF';
+
+  @override
+  String get agreementYouSigned => 'Вы подписали договор';
+
+  @override
+  String get agreementSignButton => 'Подписать договор';
+
+  @override
+  String get agreementOpenAsSecondParty =>
+      'Открыть как вторая сторона (на этом устройстве)';
+
+  @override
+  String get agreementWaitingBothSignatures => 'Ожидание подписи обеих сторон';
+
+  @override
+  String get agreementWaitingSecondSignature =>
+      'Ожидание подписи второй стороны';
+
+  @override
+  String get agreementBothSigned => 'Обе стороны подписали';
+
+  @override
+  String get agreementStepCreated => 'Создан';
+
+  @override
+  String get agreementStepCompleted => 'Завершено';
+
+  @override
+  String agreementSignProposalSent(String label) {
+    return 'Предложение по «$label» передано второй стороне.';
+  }
+
+  @override
+  String get agreementSignQuestionSent => 'Вопрос передан второй стороне.';
+
+  @override
+  String get agreementSignDemoName => 'Иванов Иван Иванович';
+
+  @override
+  String get agreementDocumentUnavailableTitle => 'Документ недоступен';
+
+  @override
+  String get agreementNotFoundOrNotGenerated =>
+      'Этот договор не найден или ещё не сформирован.';
+
+  @override
+  String get agreementSignTitle => 'Договор на подпись';
+
+  @override
+  String get agreementFullySigned => 'Договор полностью подписан.';
+
+  @override
+  String get agreementSecondPartySignedWaitingFirst =>
+      'Вы подписали договор.\nОжидание первой стороны.';
+
+  @override
+  String get agreementFirstPartySignedWaitingSecond =>
+      'Первая сторона уже подписала договор.\nПодпишите, чтобы завершить договор.';
+
+  @override
+  String get agreementMyIdNotice =>
+      'Перед подписью — идентификация через MyID. Ваши имя и данные подставятся в договор автоматически.';
+
+  @override
+  String get agreementProposeChange => 'Изменить условие';
+
+  @override
+  String get agreementAskQuestion => 'Задать вопрос';
+
+  @override
+  String get agreementSignWithMyId => 'Пройти MyID и подписать';
+
+  @override
+  String get agreementNotFoundTitle => 'Договор не найден';
+
+  @override
+  String get agreementNotFoundMessage =>
+      'Похоже, вы попали сюда напрямую. Начните новую сделку с главного экрана.';
+
+  @override
+  String get agreementSignedSuccessfully => 'Договор успешно подписан';
+
+  @override
+  String agreementSignedBy(String name) {
+    return 'Подписал(а): $name';
+  }
+
+  @override
+  String get agreementPdfExportFailed =>
+      'Не удалось создать PDF. Попробуйте ещё раз.';
+
+  @override
+  String get dealInviteFillProfileFirst =>
+      'Сначала заполните свои данные — они будут указаны в договоре.';
+
+  @override
+  String get dealInviteRegenerateFailed =>
+      'Не удалось обновить договор вашими данными.';
+
+  @override
+  String get dealInviteTitle => 'Приглашение к сделке';
+
+  @override
+  String get dealInviteHeadline => 'Вас пригласили принять участие в сделке';
+
+  @override
+  String get dealInviteTypeLabel => 'Тип сделки';
+
+  @override
+  String get dealInviteYourRoleLabel => 'Ваша роль';
+
+  @override
+  String get dealInviteInvitedByLabel => 'Пригласил';
+
+  @override
+  String get dealInviteNotSpecified => 'Не указано';
+
+  @override
+  String get dealInviteStatusLabel => 'Статус';
+
+  @override
+  String get dealInviteAccept => 'Принять';
+
+  @override
+  String get dealInviteDeclineDialogTitle => 'Отклонить приглашение?';
+
+  @override
+  String get dealInviteDeclineDialogBody =>
+      'Вторая сторона увидит ваш ответ. Можете коротко объяснить почему — это необязательно.';
+
+  @override
+  String get dealInviteDeclineReasonHint => 'Причина (необязательно)…';
+
+  @override
+  String get dealInviteDeclined => 'Вы отклонили приглашение';
+
+  @override
+  String get dealInviteStatusPending => 'Ожидает подтверждения';
+
+  @override
+  String get dealInviteStatusOpened => 'Открыто';
+
+  @override
+  String get dealInviteStatusAccepted => 'Принято';
+
+  @override
+  String get dealInviteStatusDeclined => 'Отклонено';
+
+  @override
+  String get dealInviteStatusChangeRequested => 'Предложены изменения';
+
+  @override
+  String get dealInviteStatusClarificationRequested => 'Запрошено уточнение';
+
+  @override
+  String get roleSeller => 'Продавец';
+
+  @override
+  String get roleBuyer => 'Покупатель';
+
+  @override
+  String get roleLandlord => 'Арендодатель';
+
+  @override
+  String get roleTenant => 'Арендатор';
+
+  @override
+  String get roleLender => 'Займодавец';
+
+  @override
+  String get roleBorrower => 'Заёмщик';
+
+  @override
+  String get roleEmployer => 'Работодатель';
+
+  @override
+  String get roleEmployee => 'Работник';
+
+  @override
+  String get roleCustomer => 'Заказчик';
+
+  @override
+  String get roleContractor => 'Исполнитель';
+
+  @override
+  String get roleDonor => 'Даритель';
+
+  @override
+  String get roleRecipient => 'Одаряемый';
+
+  @override
+  String get roleFirstParty => 'Первая сторона';
+
+  @override
+  String get roleSecondParty => 'Вторая сторона';
+
+  @override
+  String get roleParticipant => 'Участник сделки';
+
+  @override
+  String get negotiationWhatToChange => 'Что хотите изменить?';
+
+  @override
+  String get negotiationChooseTerm =>
+      'Выберите условие договора — ваше предложение увидит вторая сторона.';
+
+  @override
+  String get negotiationNoEditableTerms =>
+      'Пока нет условий, которые можно изменить.';
+
+  @override
+  String get negotiationBackToList => 'К списку условий';
+
+  @override
+  String get negotiationCurrentValue => 'Сейчас в договоре';
+
+  @override
+  String get negotiationYourProposalHint => 'Ваше предложение…';
+
+  @override
+  String get negotiationReasonHint => 'Почему? (необязательно)';
+
+  @override
+  String get negotiationSendProposal => 'Отправить предложение';
+
+  @override
+  String get negotiationAskQuestionTitle => 'Задать вопрос';
+
+  @override
+  String get negotiationAskQuestionBody =>
+      'Спросите то, что хотите уточнить перед подписанием — вопрос увидит вторая сторона.';
+
+  @override
+  String get negotiationQuestionHint => 'Ваш вопрос…';
 }

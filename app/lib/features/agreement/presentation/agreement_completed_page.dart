@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +11,7 @@ import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/core/widgets/app_widgets.dart';
 import 'package:app/core/widgets/bottom_action_bar.dart';
 import 'package:app/features/agreement/providers/agreement_provider.dart';
+import 'package:app/l10n/app_localizations.dart';
 import 'package:app/shared/widgets/primary_button.dart';
 
 class AgreementCompletedPage extends StatefulWidget {
@@ -22,8 +22,6 @@ class AgreementCompletedPage extends StatefulWidget {
 }
 
 class _AgreementCompletedPageState extends State<AgreementCompletedPage> {
-  /// One short celebratory burst when the page opens - a signed agreement
-  /// is the product's finish line; it deserves a moment.
   late final ConfettiController _confetti = ConfettiController(duration: const Duration(milliseconds: 900));
 
   @override
@@ -41,6 +39,7 @@ class _AgreementCompletedPageState extends State<AgreementCompletedPage> {
 
   Future<void> _copy(BuildContext context, String html) async {
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final plainText = html
         .replaceAll(RegExp(r'<style[^>]*>.*?</style>', dotAll: true), ' ')
         .replaceAll(RegExp(r'</p>|<br\s*/?>', caseSensitive: false), '\n')
@@ -48,7 +47,7 @@ class _AgreementCompletedPageState extends State<AgreementCompletedPage> {
         .replaceAll('&nbsp;', ' ')
         .trim();
     await Clipboard.setData(ClipboardData(text: plainText));
-    messenger.showSnackBar(const SnackBar(content: Text('Договор скопирован')));
+    messenger.showSnackBar(SnackBar(content: Text(l10n.agreementCopied)));
   }
 
   Future<void> _exportPdf(BuildContext context, String html) => exportAgreementAsPdf(context, html);
@@ -56,6 +55,7 @@ class _AgreementCompletedPageState extends State<AgreementCompletedPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: SafeArea(
         child: Consumer<AgreementProvider>(
@@ -63,11 +63,11 @@ class _AgreementCompletedPageState extends State<AgreementCompletedPage> {
             final agreement = provider.agreement;
             if (agreement == null) {
               return AppEmptyView(
-                title: 'Договор не найден',
-                message: 'Похоже, вы попали сюда напрямую. Начните новую сделку с главного экрана.',
+                title: l10n.agreementNotFoundTitle,
+                message: l10n.agreementNotFoundMessage,
                 action: FilledButton(
                   onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.home, (route) => false),
-                  child: const Text('На главную'),
+                  child: Text(l10n.commonHome),
                 ),
               );
             }
@@ -104,10 +104,10 @@ class _AgreementCompletedPageState extends State<AgreementCompletedPage> {
                     ),
                   ),
                   const SizedBox(height: Insets.x20),
-                  Text('Договор успешно подписан', style: theme.textTheme.headlineSmall, textAlign: TextAlign.center),
+                  Text(l10n.agreementSignedSuccessfully, style: theme.textTheme.headlineSmall, textAlign: TextAlign.center),
                   const SizedBox(height: Insets.x8),
                   Text(
-                    'Подписал(а): ${provider.secondPartyName}',
+                    l10n.agreementSignedBy(provider.secondPartyName ?? ''),
                     textAlign: TextAlign.center,
                     style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                   ),
@@ -133,6 +133,7 @@ class _AgreementCompletedPageState extends State<AgreementCompletedPage> {
         builder: (context, provider, _) {
           final agreement = provider.agreement;
           if (agreement == null) return const SizedBox.shrink();
+          final l10n = AppLocalizations.of(context)!;
           return BottomActionBar(
             child: Row(
               children: [
@@ -140,7 +141,7 @@ class _AgreementCompletedPageState extends State<AgreementCompletedPage> {
                   child: OutlinedButton.icon(
                     onPressed: () => _copy(context, agreement.html),
                     icon: const Icon(Icons.copy_outlined, size: 18),
-                    label: const Text('Копировать'),
+                    label: Text(l10n.commonCopy),
                   ),
                 ),
                 const SizedBox(width: Insets.x12),
@@ -148,13 +149,13 @@ class _AgreementCompletedPageState extends State<AgreementCompletedPage> {
                   child: OutlinedButton.icon(
                     onPressed: () => _exportPdf(context, agreement.html),
                     icon: const Icon(Icons.ios_share_outlined, size: 18),
-                    label: const Text('PDF'),
+                    label: Text(l10n.commonPdf),
                   ),
                 ),
                 const SizedBox(width: Insets.x12),
                 Expanded(
                   child: PrimaryButton(
-                    label: 'На главную',
+                    label: l10n.commonHome,
                     onPressed: () =>
                         Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.home, (route) => false),
                   ),

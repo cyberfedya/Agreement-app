@@ -449,4 +449,302 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get authDemoModeNotice =>
       'Demo mode — real integration is coming later';
+
+  @override
+  String get commonPdf => 'PDF';
+
+  @override
+  String get commonSend => 'Send';
+
+  @override
+  String get commonBack => 'Back';
+
+  @override
+  String get commonDecline => 'Decline';
+
+  @override
+  String get commonHome => 'Home';
+
+  @override
+  String get commonCopy => 'Copy';
+
+  @override
+  String get agreementCopied => 'Agreement copied';
+
+  @override
+  String get agreementFirstPartyFallback => 'First party';
+
+  @override
+  String get agreementSignFailed => 'Couldn\'t sign the agreement.';
+
+  @override
+  String get agreementTitle => 'Agreement';
+
+  @override
+  String get agreementNotCreatedTitle =>
+      'The agreement hasn\'t been created yet';
+
+  @override
+  String get agreementNotCreatedMessage =>
+      'Complete the interview and create the agreement — it will appear here.';
+
+  @override
+  String get agreementYouSignedWaitingSecond =>
+      'You\'ve signed the agreement.\nWaiting for the other party.';
+
+  @override
+  String get agreementSecondSignedWaitingYou =>
+      'The other party has already signed.\nSign to complete the agreement.';
+
+  @override
+  String get agreementQrInstructions =>
+      'Show this QR code to the other party — they\'ll scan it, verify with MyID, and sign the agreement.';
+
+  @override
+  String agreementCreatedAt(String time) {
+    return 'Created $time';
+  }
+
+  @override
+  String get agreementCopyTextTooltip => 'Copy text';
+
+  @override
+  String get agreementSharePdfTooltip => 'Share / PDF';
+
+  @override
+  String get agreementYouSigned => 'You\'ve signed the agreement';
+
+  @override
+  String get agreementSignButton => 'Sign agreement';
+
+  @override
+  String get agreementOpenAsSecondParty =>
+      'Open as the other party (on this device)';
+
+  @override
+  String get agreementWaitingBothSignatures => 'Waiting for both signatures';
+
+  @override
+  String get agreementWaitingSecondSignature =>
+      'Waiting for the other party\'s signature';
+
+  @override
+  String get agreementBothSigned => 'Both parties signed';
+
+  @override
+  String get agreementStepCreated => 'Created';
+
+  @override
+  String get agreementStepCompleted => 'Completed';
+
+  @override
+  String agreementSignProposalSent(String label) {
+    return 'Your proposal for «$label» was sent to the other party.';
+  }
+
+  @override
+  String get agreementSignQuestionSent =>
+      'Your question was sent to the other party.';
+
+  @override
+  String get agreementSignDemoName => 'John Smith';
+
+  @override
+  String get agreementDocumentUnavailableTitle => 'Document unavailable';
+
+  @override
+  String get agreementNotFoundOrNotGenerated =>
+      'This agreement wasn\'t found or hasn\'t been generated yet.';
+
+  @override
+  String get agreementSignTitle => 'Agreement to sign';
+
+  @override
+  String get agreementFullySigned => 'The agreement is fully signed.';
+
+  @override
+  String get agreementSecondPartySignedWaitingFirst =>
+      'You\'ve signed the agreement.\nWaiting for the first party.';
+
+  @override
+  String get agreementFirstPartySignedWaitingSecond =>
+      'The first party has already signed.\nSign to complete the agreement.';
+
+  @override
+  String get agreementMyIdNotice =>
+      'Before signing — identification via MyID. Your name and details will be filled into the agreement automatically.';
+
+  @override
+  String get agreementProposeChange => 'Change a term';
+
+  @override
+  String get agreementAskQuestion => 'Ask a question';
+
+  @override
+  String get agreementSignWithMyId => 'Verify with MyID and sign';
+
+  @override
+  String get agreementNotFoundTitle => 'Agreement not found';
+
+  @override
+  String get agreementNotFoundMessage =>
+      'Looks like you landed here directly. Start a new deal from the home screen.';
+
+  @override
+  String get agreementSignedSuccessfully => 'Agreement signed successfully';
+
+  @override
+  String agreementSignedBy(String name) {
+    return 'Signed by: $name';
+  }
+
+  @override
+  String get agreementPdfExportFailed =>
+      'Couldn\'t create the PDF. Please try again.';
+
+  @override
+  String get dealInviteFillProfileFirst =>
+      'First fill in your details — they\'ll appear in the agreement.';
+
+  @override
+  String get dealInviteRegenerateFailed =>
+      'Couldn\'t update the agreement with your details.';
+
+  @override
+  String get dealInviteTitle => 'Deal invitation';
+
+  @override
+  String get dealInviteHeadline =>
+      'You\'ve been invited to take part in a deal';
+
+  @override
+  String get dealInviteTypeLabel => 'Deal type';
+
+  @override
+  String get dealInviteYourRoleLabel => 'Your role';
+
+  @override
+  String get dealInviteInvitedByLabel => 'Invited by';
+
+  @override
+  String get dealInviteNotSpecified => 'Not specified';
+
+  @override
+  String get dealInviteStatusLabel => 'Status';
+
+  @override
+  String get dealInviteAccept => 'Accept';
+
+  @override
+  String get dealInviteDeclineDialogTitle => 'Decline the invitation?';
+
+  @override
+  String get dealInviteDeclineDialogBody =>
+      'The other party will see your response. You can briefly explain why — this is optional.';
+
+  @override
+  String get dealInviteDeclineReasonHint => 'Reason (optional)…';
+
+  @override
+  String get dealInviteDeclined => 'You declined the invitation';
+
+  @override
+  String get dealInviteStatusPending => 'Awaiting confirmation';
+
+  @override
+  String get dealInviteStatusOpened => 'Opened';
+
+  @override
+  String get dealInviteStatusAccepted => 'Accepted';
+
+  @override
+  String get dealInviteStatusDeclined => 'Declined';
+
+  @override
+  String get dealInviteStatusChangeRequested => 'Changes proposed';
+
+  @override
+  String get dealInviteStatusClarificationRequested =>
+      'Clarification requested';
+
+  @override
+  String get roleSeller => 'Seller';
+
+  @override
+  String get roleBuyer => 'Buyer';
+
+  @override
+  String get roleLandlord => 'Landlord';
+
+  @override
+  String get roleTenant => 'Tenant';
+
+  @override
+  String get roleLender => 'Lender';
+
+  @override
+  String get roleBorrower => 'Borrower';
+
+  @override
+  String get roleEmployer => 'Employer';
+
+  @override
+  String get roleEmployee => 'Employee';
+
+  @override
+  String get roleCustomer => 'Customer';
+
+  @override
+  String get roleContractor => 'Contractor';
+
+  @override
+  String get roleDonor => 'Donor';
+
+  @override
+  String get roleRecipient => 'Recipient';
+
+  @override
+  String get roleFirstParty => 'First party';
+
+  @override
+  String get roleSecondParty => 'Second party';
+
+  @override
+  String get roleParticipant => 'Deal participant';
+
+  @override
+  String get negotiationWhatToChange => 'What would you like to change?';
+
+  @override
+  String get negotiationChooseTerm =>
+      'Choose a term of the agreement — the other party will see your proposal.';
+
+  @override
+  String get negotiationNoEditableTerms =>
+      'There are no terms available to change yet.';
+
+  @override
+  String get negotiationBackToList => 'Back to the list of terms';
+
+  @override
+  String get negotiationCurrentValue => 'Currently in the agreement';
+
+  @override
+  String get negotiationYourProposalHint => 'Your proposal…';
+
+  @override
+  String get negotiationReasonHint => 'Why? (optional)';
+
+  @override
+  String get negotiationSendProposal => 'Send proposal';
+
+  @override
+  String get negotiationAskQuestionTitle => 'Ask a question';
+
+  @override
+  String get negotiationAskQuestionBody =>
+      'Ask what you\'d like to clarify before signing — the other party will see your question.';
+
+  @override
+  String get negotiationQuestionHint => 'Your question…';
 }

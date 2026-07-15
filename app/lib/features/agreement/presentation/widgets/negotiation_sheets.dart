@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/features/questionnaire/data/questionnaire_repository.dart';
 import 'package:app/features/questionnaire/domain/deal_review.dart';
+import 'package:app/l10n/app_localizations.dart';
 import 'package:app/shared/models/result.dart';
 
 /// What the second party wants changed: one field, a counter-value, and
@@ -116,14 +117,15 @@ class _ProposeChangeSheetState extends State<ProposeChangeSheet> {
   }
 
   Widget _buildFieldPicker(ThemeData theme) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Что хотите изменить?', style: theme.textTheme.titleLarge),
+        Text(l10n.negotiationWhatToChange, style: theme.textTheme.titleLarge),
         const SizedBox(height: Insets.x8),
         Text(
-          'Выберите условие договора — ваше предложение увидит вторая сторона.',
+          l10n.negotiationChooseTerm,
           style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant, height: 1.4),
         ),
         const SizedBox(height: Insets.x16),
@@ -141,7 +143,7 @@ class _ProposeChangeSheetState extends State<ProposeChangeSheet> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: Insets.x24),
             child: Text(
-              'Пока нет условий, которые можно изменить.',
+              l10n.negotiationNoEditableTerms,
               style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
           )
@@ -191,6 +193,7 @@ class _ProposeChangeSheetState extends State<ProposeChangeSheet> {
 
   Widget _buildProposalForm(ThemeData theme) {
     final selected = _selected!;
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -201,7 +204,7 @@ class _ProposeChangeSheetState extends State<ProposeChangeSheet> {
               IconButton(
                 onPressed: () => setState(() => _selected = null),
                 icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
-                tooltip: 'К списку условий',
+                tooltip: l10n.negotiationBackToList,
               ),
               Expanded(child: Text(selected.label, style: theme.textTheme.titleMedium)),
             ],
@@ -217,7 +220,7 @@ class _ProposeChangeSheetState extends State<ProposeChangeSheet> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Сейчас в договоре', style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.outline)),
+                Text(l10n.negotiationCurrentValue, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.outline)),
                 const SizedBox(height: 2),
                 Text(selected.value ?? '', style: theme.textTheme.titleSmall),
               ],
@@ -230,21 +233,21 @@ class _ProposeChangeSheetState extends State<ProposeChangeSheet> {
             minLines: 1,
             maxLines: 3,
             onChanged: (_) => setState(() {}),
-            decoration: const InputDecoration(hintText: 'Ваше предложение…'),
+            decoration: InputDecoration(hintText: l10n.negotiationYourProposalHint),
           ),
           const SizedBox(height: Insets.x12),
           TextField(
             controller: _reasonController,
             minLines: 1,
             maxLines: 3,
-            decoration: const InputDecoration(hintText: 'Почему? (необязательно)'),
+            decoration: InputDecoration(hintText: l10n.negotiationReasonHint),
           ),
           const SizedBox(height: Insets.x16),
           SizedBox(
             width: double.infinity,
             child: FilledButton(
               onPressed: _valueController.text.trim().isEmpty ? null : _submit,
-              child: const Text('Отправить предложение'),
+              child: Text(l10n.negotiationSendProposal),
             ),
           ),
         ],
@@ -285,6 +288,7 @@ class _ClarificationSheetState extends State<ClarificationSheet> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.fromLTRB(
@@ -297,10 +301,10 @@ class _ClarificationSheetState extends State<ClarificationSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Задать вопрос', style: theme.textTheme.titleLarge),
+            Text(l10n.negotiationAskQuestionTitle, style: theme.textTheme.titleLarge),
             const SizedBox(height: Insets.x8),
             Text(
-              'Спросите то, что хотите уточнить перед подписанием — вопрос увидит вторая сторона.',
+              l10n.negotiationAskQuestionBody,
               style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant, height: 1.4),
             ),
             const SizedBox(height: Insets.x16),
@@ -310,7 +314,7 @@ class _ClarificationSheetState extends State<ClarificationSheet> {
               minLines: 2,
               maxLines: 5,
               onChanged: (_) => setState(() {}),
-              decoration: const InputDecoration(hintText: 'Ваш вопрос…'),
+              decoration: InputDecoration(hintText: l10n.negotiationQuestionHint),
             ),
             const SizedBox(height: Insets.x16),
             SizedBox(
@@ -319,7 +323,7 @@ class _ClarificationSheetState extends State<ClarificationSheet> {
                 onPressed: _controller.text.trim().isEmpty
                     ? null
                     : () => Navigator.pop(context, _controller.text.trim()),
-                child: const Text('Отправить'),
+                child: Text(l10n.commonSend),
               ),
             ),
           ],

@@ -14,6 +14,7 @@ import 'package:app/features/agreement/domain/agreement.dart';
 import 'package:app/features/agreement/domain/agreement_qr.dart';
 import 'package:app/features/agreement/providers/agreement_provider.dart';
 import 'package:app/features/profile/data/profile_repository.dart';
+import 'package:app/l10n/app_localizations.dart';
 import 'package:app/shared/widgets/primary_button.dart';
 
 /// Shown right after generation: the document plus a QR code the second
@@ -77,8 +78,9 @@ class _AgreementPageState extends State<AgreementPage> {
 
   Future<void> _copy(BuildContext context, Agreement agreement) async {
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
     await Clipboard.setData(ClipboardData(text: _plainText(agreement.html)));
-    messenger.showSnackBar(const SnackBar(content: Text('Договор скопирован')));
+    messenger.showSnackBar(SnackBar(content: Text(l10n.agreementCopied)));
   }
 
   Future<void> _exportPdf(BuildContext context, String html) => exportAgreementAsPdf(context, html);
@@ -92,12 +94,16 @@ class _AgreementPageState extends State<AgreementPage> {
       if (mounted) setState(() => _signing = false);
       return;
     }
+    final l10n = AppLocalizations.of(context)!;
     final fullName = profile?.fullName.trim();
-    final success = await provider.signAsFirstParty(dealId, (fullName == null || fullName.isEmpty) ? 'Первая сторона' : fullName);
+    final success = await provider.signAsFirstParty(
+      dealId,
+      (fullName == null || fullName.isEmpty) ? l10n.agreementFirstPartyFallback : fullName,
+    );
     if (!mounted) return;
     setState(() => _signing = false);
     if (!success) {
-      final message = provider.errorMessage ?? 'Не удалось подписать договор.';
+      final message = provider.errorMessage ?? l10n.agreementSignFailed;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
     }
   }
@@ -105,15 +111,16 @@ class _AgreementPageState extends State<AgreementPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: const Text('Договор')),
+      appBar: AppBar(title: Text(l10n.agreementTitle)),
       body: Consumer<AgreementProvider>(
         builder: (context, provider, _) {
           final agreement = provider.agreement;
           if (agreement == null) {
-            return const AppEmptyView(
-              title: 'Договор ещё не создан',
-              message: 'Пройдите интервью и создайте договор — он появится здесь.',
+            return AppEmptyView(
+              title: l10n.agreementNotCreatedTitle,
+              message: l10n.agreementNotCreatedMessage,
             );
           }
 
@@ -130,12 +137,12 @@ class _AgreementPageState extends State<AgreementPage> {
                 if (provider.isFirstPartySigned && !provider.isSecondPartySigned)
                   _SignStatusBanner(
                     icon: Icons.check_circle_outline,
-                    message: 'Вы подписали договор.\nОжидание второй стороны.',
+                    message: l10n.agreementYouSignedWaitingSecond,
                   ),
                 if (!provider.isFirstPartySigned && provider.isSecondPartySigned)
                   _SignStatusBanner(
                     icon: Icons.info_outline,
-                    message: 'Вторая сторона уже подписала договор.\nПодпишите, чтобы завершить договор.',
+                    message: l10n.agreementSecondSignedWaitingYou,
                   ),
                 if (provider.isFirstPartySigned || provider.isSecondPartySigned)
                   const SizedBox(height: Insets.x16),
@@ -153,8 +160,7 @@ class _AgreementPageState extends State<AgreementPage> {
                 ),
                 const SizedBox(height: Insets.x12),
                 Text(
-                  'Покажите этот QR-код второй стороне — она отсканирует его, '
-                  'пройдёт идентификацию через MyID и подпишет договор.',
+                  l10n.agreementQrInstructions,
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                 ),
@@ -166,17 +172,17 @@ class _AgreementPageState extends State<AgreementPage> {
                     const SizedBox(width: Insets.x8),
                     Expanded(
                       child: Text(
-                        'Создан ${TimeOfDay.fromDateTime(agreement.generatedAt.toLocal()).format(context)}',
+                        l10n.agreementCreatedAt(TimeOfDay.fromDateTime(agreement.generatedAt.toLocal()).format(context)),
                         style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                       ),
                     ),
                     IconButton(
-                      tooltip: 'Скопировать текст',
+                      tooltip: l10n.agreementCopyTextTooltip,
                       icon: const Icon(Icons.copy_outlined, size: 20),
                       onPressed: () => _copy(context, agreement),
                     ),
                     IconButton(
-                      tooltip: 'Поделиться / PDF',
+                      tooltip: l10n.agreementSharePdfTooltip,
                       icon: const Icon(Icons.ios_share_outlined, size: 20),
                       onPressed: () => _exportPdf(context, agreement.html),
                     ),
@@ -205,12 +211,13 @@ class _AgreementPageState extends State<AgreementPage> {
         builder: (context, provider, _) {
           final agreement = provider.agreement;
           if (agreement == null) return const SizedBox.shrink();
+          final l10n = AppLocalizations.of(context)!;
           return BottomActionBar(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 PrimaryButton(
-                  label: provider.isFirstPartySigned ? 'Вы подписали договор' : 'Подписать договор',
+                  label: provider.isFirstPartySigned ? l10n.agreementYouSigned : l10n.agreementSignButton,
                   loading: _signing,
                   onPressed: (provider.isFirstPartySigned || _signing) ? null : _signAsFirstParty,
                 ),
@@ -221,7 +228,7 @@ class _AgreementPageState extends State<AgreementPage> {
                       child: OutlinedButton.icon(
                         onPressed: () => _copy(context, agreement),
                         icon: const Icon(Icons.copy_outlined, size: 18),
-                        label: const Text('Копировать'),
+                        label: Text(l10n.commonCopy),
                       ),
                     ),
                     const SizedBox(width: Insets.x12),
@@ -229,7 +236,7 @@ class _AgreementPageState extends State<AgreementPage> {
                       child: OutlinedButton(
                         onPressed: () => Navigator.of(context)
                             .pushNamedAndRemoveUntil(AppRoutes.home, (route) => false),
-                        child: const Text('На главную'),
+                        child: Text(l10n.commonHome),
                       ),
                     ),
                   ],
@@ -238,7 +245,7 @@ class _AgreementPageState extends State<AgreementPage> {
                 TextButton(
                   onPressed: () => Navigator.of(context)
                       .pushNamed(AppRoutes.agreementSign, arguments: agreement.key),
-                  child: const Text('Открыть как вторая сторона (на этом устройстве)'),
+                  child: Text(l10n.agreementOpenAsSecondParty),
                 ),
               ],
             ),
@@ -257,11 +264,12 @@ class _DealStepsIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final signedCount = (firstPartySigned ? 1 : 0) + (secondPartySigned ? 1 : 0);
     final middleLabel = switch (signedCount) {
-      0 => 'Ожидание подписи обеих сторон',
-      1 => 'Ожидание подписи второй стороны',
-      _ => 'Обе стороны подписали',
+      0 => l10n.agreementWaitingBothSignatures,
+      1 => l10n.agreementWaitingSecondSignature,
+      _ => l10n.agreementBothSigned,
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: Insets.x16, vertical: Insets.x16),
@@ -272,7 +280,7 @@ class _DealStepsIndicator extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const Expanded(child: _DealStep(label: 'Создан', state: _StepState.done)),
+          Expanded(child: _DealStep(label: l10n.agreementStepCreated, state: _StepState.done)),
           _StepConnector(color: theme.colorScheme.primary),
           Expanded(
             flex: 2,
@@ -280,7 +288,7 @@ class _DealStepsIndicator extends StatelessWidget {
           ),
           _StepConnector(color: signedCount == 2 ? theme.colorScheme.primary : theme.colorScheme.outlineVariant),
           Expanded(
-            child: _DealStep(label: 'Завершено', state: signedCount == 2 ? _StepState.active : _StepState.pending),
+            child: _DealStep(label: l10n.agreementStepCompleted, state: signedCount == 2 ? _StepState.active : _StepState.pending),
           ),
         ],
       ),

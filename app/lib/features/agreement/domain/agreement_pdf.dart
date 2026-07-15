@@ -3,6 +3,7 @@ import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 
 import 'package:app/features/agreement/domain/agreement_html.dart';
+import 'package:app/l10n/app_localizations.dart';
 
 /// Renders the agreement HTML to a PDF (via the platform's native HTML
 /// renderer, so tables/formatting match what's shown on screen) and opens
@@ -27,7 +28,7 @@ Future<void> exportAgreementAsPdf(BuildContext context, String html) async {
     if (!context.mounted) return;
     Navigator.of(context, rootNavigator: true).pop();
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Не удалось создать PDF. Попробуйте ещё раз.')),
+      SnackBar(content: Text(AppLocalizations.of(context)!.agreementPdfExportFailed)),
     );
   }
 }

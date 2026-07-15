@@ -897,6 +897,546 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Демо-режим — реальная интеграция появится позже'**
   String get authDemoModeNotice;
+
+  /// No description provided for @commonPdf.
+  ///
+  /// In ru, this message translates to:
+  /// **'PDF'**
+  String get commonPdf;
+
+  /// No description provided for @commonSend.
+  ///
+  /// In ru, this message translates to:
+  /// **'Отправить'**
+  String get commonSend;
+
+  /// No description provided for @commonBack.
+  ///
+  /// In ru, this message translates to:
+  /// **'Назад'**
+  String get commonBack;
+
+  /// No description provided for @commonDecline.
+  ///
+  /// In ru, this message translates to:
+  /// **'Отклонить'**
+  String get commonDecline;
+
+  /// No description provided for @commonHome.
+  ///
+  /// In ru, this message translates to:
+  /// **'На главную'**
+  String get commonHome;
+
+  /// No description provided for @commonCopy.
+  ///
+  /// In ru, this message translates to:
+  /// **'Копировать'**
+  String get commonCopy;
+
+  /// No description provided for @agreementCopied.
+  ///
+  /// In ru, this message translates to:
+  /// **'Договор скопирован'**
+  String get agreementCopied;
+
+  /// No description provided for @agreementFirstPartyFallback.
+  ///
+  /// In ru, this message translates to:
+  /// **'Первая сторона'**
+  String get agreementFirstPartyFallback;
+
+  /// No description provided for @agreementSignFailed.
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось подписать договор.'**
+  String get agreementSignFailed;
+
+  /// No description provided for @agreementTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Договор'**
+  String get agreementTitle;
+
+  /// No description provided for @agreementNotCreatedTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Договор ещё не создан'**
+  String get agreementNotCreatedTitle;
+
+  /// No description provided for @agreementNotCreatedMessage.
+  ///
+  /// In ru, this message translates to:
+  /// **'Пройдите интервью и создайте договор — он появится здесь.'**
+  String get agreementNotCreatedMessage;
+
+  /// No description provided for @agreementYouSignedWaitingSecond.
+  ///
+  /// In ru, this message translates to:
+  /// **'Вы подписали договор.\nОжидание второй стороны.'**
+  String get agreementYouSignedWaitingSecond;
+
+  /// No description provided for @agreementSecondSignedWaitingYou.
+  ///
+  /// In ru, this message translates to:
+  /// **'Вторая сторона уже подписала договор.\nПодпишите, чтобы завершить договор.'**
+  String get agreementSecondSignedWaitingYou;
+
+  /// No description provided for @agreementQrInstructions.
+  ///
+  /// In ru, this message translates to:
+  /// **'Покажите этот QR-код второй стороне — она отсканирует его, пройдёт идентификацию через MyID и подпишет договор.'**
+  String get agreementQrInstructions;
+
+  /// No description provided for @agreementCreatedAt.
+  ///
+  /// In ru, this message translates to:
+  /// **'Создан {time}'**
+  String agreementCreatedAt(String time);
+
+  /// No description provided for @agreementCopyTextTooltip.
+  ///
+  /// In ru, this message translates to:
+  /// **'Скопировать текст'**
+  String get agreementCopyTextTooltip;
+
+  /// No description provided for @agreementSharePdfTooltip.
+  ///
+  /// In ru, this message translates to:
+  /// **'Поделиться / PDF'**
+  String get agreementSharePdfTooltip;
+
+  /// No description provided for @agreementYouSigned.
+  ///
+  /// In ru, this message translates to:
+  /// **'Вы подписали договор'**
+  String get agreementYouSigned;
+
+  /// No description provided for @agreementSignButton.
+  ///
+  /// In ru, this message translates to:
+  /// **'Подписать договор'**
+  String get agreementSignButton;
+
+  /// No description provided for @agreementOpenAsSecondParty.
+  ///
+  /// In ru, this message translates to:
+  /// **'Открыть как вторая сторона (на этом устройстве)'**
+  String get agreementOpenAsSecondParty;
+
+  /// No description provided for @agreementWaitingBothSignatures.
+  ///
+  /// In ru, this message translates to:
+  /// **'Ожидание подписи обеих сторон'**
+  String get agreementWaitingBothSignatures;
+
+  /// No description provided for @agreementWaitingSecondSignature.
+  ///
+  /// In ru, this message translates to:
+  /// **'Ожидание подписи второй стороны'**
+  String get agreementWaitingSecondSignature;
+
+  /// No description provided for @agreementBothSigned.
+  ///
+  /// In ru, this message translates to:
+  /// **'Обе стороны подписали'**
+  String get agreementBothSigned;
+
+  /// No description provided for @agreementStepCreated.
+  ///
+  /// In ru, this message translates to:
+  /// **'Создан'**
+  String get agreementStepCreated;
+
+  /// No description provided for @agreementStepCompleted.
+  ///
+  /// In ru, this message translates to:
+  /// **'Завершено'**
+  String get agreementStepCompleted;
+
+  /// No description provided for @agreementSignProposalSent.
+  ///
+  /// In ru, this message translates to:
+  /// **'Предложение по «{label}» передано второй стороне.'**
+  String agreementSignProposalSent(String label);
+
+  /// No description provided for @agreementSignQuestionSent.
+  ///
+  /// In ru, this message translates to:
+  /// **'Вопрос передан второй стороне.'**
+  String get agreementSignQuestionSent;
+
+  /// No description provided for @agreementSignDemoName.
+  ///
+  /// In ru, this message translates to:
+  /// **'Иванов Иван Иванович'**
+  String get agreementSignDemoName;
+
+  /// No description provided for @agreementDocumentUnavailableTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Документ недоступен'**
+  String get agreementDocumentUnavailableTitle;
+
+  /// No description provided for @agreementNotFoundOrNotGenerated.
+  ///
+  /// In ru, this message translates to:
+  /// **'Этот договор не найден или ещё не сформирован.'**
+  String get agreementNotFoundOrNotGenerated;
+
+  /// No description provided for @agreementSignTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Договор на подпись'**
+  String get agreementSignTitle;
+
+  /// No description provided for @agreementFullySigned.
+  ///
+  /// In ru, this message translates to:
+  /// **'Договор полностью подписан.'**
+  String get agreementFullySigned;
+
+  /// No description provided for @agreementSecondPartySignedWaitingFirst.
+  ///
+  /// In ru, this message translates to:
+  /// **'Вы подписали договор.\nОжидание первой стороны.'**
+  String get agreementSecondPartySignedWaitingFirst;
+
+  /// No description provided for @agreementFirstPartySignedWaitingSecond.
+  ///
+  /// In ru, this message translates to:
+  /// **'Первая сторона уже подписала договор.\nПодпишите, чтобы завершить договор.'**
+  String get agreementFirstPartySignedWaitingSecond;
+
+  /// No description provided for @agreementMyIdNotice.
+  ///
+  /// In ru, this message translates to:
+  /// **'Перед подписью — идентификация через MyID. Ваши имя и данные подставятся в договор автоматически.'**
+  String get agreementMyIdNotice;
+
+  /// No description provided for @agreementProposeChange.
+  ///
+  /// In ru, this message translates to:
+  /// **'Изменить условие'**
+  String get agreementProposeChange;
+
+  /// No description provided for @agreementAskQuestion.
+  ///
+  /// In ru, this message translates to:
+  /// **'Задать вопрос'**
+  String get agreementAskQuestion;
+
+  /// No description provided for @agreementSignWithMyId.
+  ///
+  /// In ru, this message translates to:
+  /// **'Пройти MyID и подписать'**
+  String get agreementSignWithMyId;
+
+  /// No description provided for @agreementNotFoundTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Договор не найден'**
+  String get agreementNotFoundTitle;
+
+  /// No description provided for @agreementNotFoundMessage.
+  ///
+  /// In ru, this message translates to:
+  /// **'Похоже, вы попали сюда напрямую. Начните новую сделку с главного экрана.'**
+  String get agreementNotFoundMessage;
+
+  /// No description provided for @agreementSignedSuccessfully.
+  ///
+  /// In ru, this message translates to:
+  /// **'Договор успешно подписан'**
+  String get agreementSignedSuccessfully;
+
+  /// No description provided for @agreementSignedBy.
+  ///
+  /// In ru, this message translates to:
+  /// **'Подписал(а): {name}'**
+  String agreementSignedBy(String name);
+
+  /// No description provided for @agreementPdfExportFailed.
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось создать PDF. Попробуйте ещё раз.'**
+  String get agreementPdfExportFailed;
+
+  /// No description provided for @dealInviteFillProfileFirst.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сначала заполните свои данные — они будут указаны в договоре.'**
+  String get dealInviteFillProfileFirst;
+
+  /// No description provided for @dealInviteRegenerateFailed.
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось обновить договор вашими данными.'**
+  String get dealInviteRegenerateFailed;
+
+  /// No description provided for @dealInviteTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Приглашение к сделке'**
+  String get dealInviteTitle;
+
+  /// No description provided for @dealInviteHeadline.
+  ///
+  /// In ru, this message translates to:
+  /// **'Вас пригласили принять участие в сделке'**
+  String get dealInviteHeadline;
+
+  /// No description provided for @dealInviteTypeLabel.
+  ///
+  /// In ru, this message translates to:
+  /// **'Тип сделки'**
+  String get dealInviteTypeLabel;
+
+  /// No description provided for @dealInviteYourRoleLabel.
+  ///
+  /// In ru, this message translates to:
+  /// **'Ваша роль'**
+  String get dealInviteYourRoleLabel;
+
+  /// No description provided for @dealInviteInvitedByLabel.
+  ///
+  /// In ru, this message translates to:
+  /// **'Пригласил'**
+  String get dealInviteInvitedByLabel;
+
+  /// No description provided for @dealInviteNotSpecified.
+  ///
+  /// In ru, this message translates to:
+  /// **'Не указано'**
+  String get dealInviteNotSpecified;
+
+  /// No description provided for @dealInviteStatusLabel.
+  ///
+  /// In ru, this message translates to:
+  /// **'Статус'**
+  String get dealInviteStatusLabel;
+
+  /// No description provided for @dealInviteAccept.
+  ///
+  /// In ru, this message translates to:
+  /// **'Принять'**
+  String get dealInviteAccept;
+
+  /// No description provided for @dealInviteDeclineDialogTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Отклонить приглашение?'**
+  String get dealInviteDeclineDialogTitle;
+
+  /// No description provided for @dealInviteDeclineDialogBody.
+  ///
+  /// In ru, this message translates to:
+  /// **'Вторая сторона увидит ваш ответ. Можете коротко объяснить почему — это необязательно.'**
+  String get dealInviteDeclineDialogBody;
+
+  /// No description provided for @dealInviteDeclineReasonHint.
+  ///
+  /// In ru, this message translates to:
+  /// **'Причина (необязательно)…'**
+  String get dealInviteDeclineReasonHint;
+
+  /// No description provided for @dealInviteDeclined.
+  ///
+  /// In ru, this message translates to:
+  /// **'Вы отклонили приглашение'**
+  String get dealInviteDeclined;
+
+  /// No description provided for @dealInviteStatusPending.
+  ///
+  /// In ru, this message translates to:
+  /// **'Ожидает подтверждения'**
+  String get dealInviteStatusPending;
+
+  /// No description provided for @dealInviteStatusOpened.
+  ///
+  /// In ru, this message translates to:
+  /// **'Открыто'**
+  String get dealInviteStatusOpened;
+
+  /// No description provided for @dealInviteStatusAccepted.
+  ///
+  /// In ru, this message translates to:
+  /// **'Принято'**
+  String get dealInviteStatusAccepted;
+
+  /// No description provided for @dealInviteStatusDeclined.
+  ///
+  /// In ru, this message translates to:
+  /// **'Отклонено'**
+  String get dealInviteStatusDeclined;
+
+  /// No description provided for @dealInviteStatusChangeRequested.
+  ///
+  /// In ru, this message translates to:
+  /// **'Предложены изменения'**
+  String get dealInviteStatusChangeRequested;
+
+  /// No description provided for @dealInviteStatusClarificationRequested.
+  ///
+  /// In ru, this message translates to:
+  /// **'Запрошено уточнение'**
+  String get dealInviteStatusClarificationRequested;
+
+  /// No description provided for @roleSeller.
+  ///
+  /// In ru, this message translates to:
+  /// **'Продавец'**
+  String get roleSeller;
+
+  /// No description provided for @roleBuyer.
+  ///
+  /// In ru, this message translates to:
+  /// **'Покупатель'**
+  String get roleBuyer;
+
+  /// No description provided for @roleLandlord.
+  ///
+  /// In ru, this message translates to:
+  /// **'Арендодатель'**
+  String get roleLandlord;
+
+  /// No description provided for @roleTenant.
+  ///
+  /// In ru, this message translates to:
+  /// **'Арендатор'**
+  String get roleTenant;
+
+  /// No description provided for @roleLender.
+  ///
+  /// In ru, this message translates to:
+  /// **'Займодавец'**
+  String get roleLender;
+
+  /// No description provided for @roleBorrower.
+  ///
+  /// In ru, this message translates to:
+  /// **'Заёмщик'**
+  String get roleBorrower;
+
+  /// No description provided for @roleEmployer.
+  ///
+  /// In ru, this message translates to:
+  /// **'Работодатель'**
+  String get roleEmployer;
+
+  /// No description provided for @roleEmployee.
+  ///
+  /// In ru, this message translates to:
+  /// **'Работник'**
+  String get roleEmployee;
+
+  /// No description provided for @roleCustomer.
+  ///
+  /// In ru, this message translates to:
+  /// **'Заказчик'**
+  String get roleCustomer;
+
+  /// No description provided for @roleContractor.
+  ///
+  /// In ru, this message translates to:
+  /// **'Исполнитель'**
+  String get roleContractor;
+
+  /// No description provided for @roleDonor.
+  ///
+  /// In ru, this message translates to:
+  /// **'Даритель'**
+  String get roleDonor;
+
+  /// No description provided for @roleRecipient.
+  ///
+  /// In ru, this message translates to:
+  /// **'Одаряемый'**
+  String get roleRecipient;
+
+  /// No description provided for @roleFirstParty.
+  ///
+  /// In ru, this message translates to:
+  /// **'Первая сторона'**
+  String get roleFirstParty;
+
+  /// No description provided for @roleSecondParty.
+  ///
+  /// In ru, this message translates to:
+  /// **'Вторая сторона'**
+  String get roleSecondParty;
+
+  /// No description provided for @roleParticipant.
+  ///
+  /// In ru, this message translates to:
+  /// **'Участник сделки'**
+  String get roleParticipant;
+
+  /// No description provided for @negotiationWhatToChange.
+  ///
+  /// In ru, this message translates to:
+  /// **'Что хотите изменить?'**
+  String get negotiationWhatToChange;
+
+  /// No description provided for @negotiationChooseTerm.
+  ///
+  /// In ru, this message translates to:
+  /// **'Выберите условие договора — ваше предложение увидит вторая сторона.'**
+  String get negotiationChooseTerm;
+
+  /// No description provided for @negotiationNoEditableTerms.
+  ///
+  /// In ru, this message translates to:
+  /// **'Пока нет условий, которые можно изменить.'**
+  String get negotiationNoEditableTerms;
+
+  /// No description provided for @negotiationBackToList.
+  ///
+  /// In ru, this message translates to:
+  /// **'К списку условий'**
+  String get negotiationBackToList;
+
+  /// No description provided for @negotiationCurrentValue.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сейчас в договоре'**
+  String get negotiationCurrentValue;
+
+  /// No description provided for @negotiationYourProposalHint.
+  ///
+  /// In ru, this message translates to:
+  /// **'Ваше предложение…'**
+  String get negotiationYourProposalHint;
+
+  /// No description provided for @negotiationReasonHint.
+  ///
+  /// In ru, this message translates to:
+  /// **'Почему? (необязательно)'**
+  String get negotiationReasonHint;
+
+  /// No description provided for @negotiationSendProposal.
+  ///
+  /// In ru, this message translates to:
+  /// **'Отправить предложение'**
+  String get negotiationSendProposal;
+
+  /// No description provided for @negotiationAskQuestionTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Задать вопрос'**
+  String get negotiationAskQuestionTitle;
+
+  /// No description provided for @negotiationAskQuestionBody.
+  ///
+  /// In ru, this message translates to:
+  /// **'Спросите то, что хотите уточнить перед подписанием — вопрос увидит вторая сторона.'**
+  String get negotiationAskQuestionBody;
+
+  /// No description provided for @negotiationQuestionHint.
+  ///
+  /// In ru, this message translates to:
+  /// **'Ваш вопрос…'**
+  String get negotiationQuestionHint;
 }
 
 class _AppLocalizationsDelegate

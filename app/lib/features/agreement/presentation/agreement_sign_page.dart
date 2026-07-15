@@ -13,6 +13,7 @@ import 'package:app/core/widgets/bottom_action_bar.dart';
 import 'package:app/features/agreement/presentation/widgets/negotiation_sheets.dart';
 import 'package:app/features/agreement/providers/agreement_provider.dart';
 import 'package:app/features/profile/data/profile_repository.dart';
+import 'package:app/l10n/app_localizations.dart';
 import 'package:app/shared/models/result.dart';
 import 'package:app/shared/widgets/primary_button.dart';
 
@@ -76,6 +77,7 @@ class _AgreementSignPageState extends State<AgreementSignPage> {
     final profileId = await context.read<ProfileRepository>().getProfileId();
     if (!mounted) return;
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     switch (await repository.proposeFieldChange(
       widget.agreementKey,
@@ -87,7 +89,7 @@ class _AgreementSignPageState extends State<AgreementSignPage> {
       case Success():
         if (!mounted) return;
         HapticFeedback.mediumImpact();
-        setState(() => _negotiationNotice = 'Предложение по «${proposal.label}» передано второй стороне.');
+        setState(() => _negotiationNotice = l10n.agreementSignProposalSent(proposal.label));
       case Failure(:final message):
         if (!mounted) return;
         messenger.showSnackBar(SnackBar(content: Text(message)));
@@ -102,12 +104,13 @@ class _AgreementSignPageState extends State<AgreementSignPage> {
     final profileId = await context.read<ProfileRepository>().getProfileId();
     if (!mounted) return;
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     switch (await repository.requestClarification(widget.agreementKey, message: message, profileId: profileId)) {
       case Success():
         if (!mounted) return;
         HapticFeedback.mediumImpact();
-        setState(() => _negotiationNotice = 'Вопрос передан второй стороне.');
+        setState(() => _negotiationNotice = l10n.agreementSignQuestionSent);
       case Failure(:final message):
         if (!mounted) return;
         messenger.showSnackBar(SnackBar(content: Text(message)));
@@ -119,16 +122,17 @@ class _AgreementSignPageState extends State<AgreementSignPage> {
     setState(() => _verifying = true);
     await Future<void>.delayed(const Duration(milliseconds: 1400));
     if (!mounted) return;
+    final l10n = AppLocalizations.of(context)!;
     // Demo MyID: a real integration would return the verified party's
     // legal name here instead of this placeholder.
     final success = await context.read<AgreementProvider>().signAsSecondParty(
       widget.agreementKey,
-      'Иванов Иван Иванович',
+      l10n.agreementSignDemoName,
     );
     if (!mounted) return;
     setState(() => _verifying = false);
     if (!success) {
-      final message = context.read<AgreementProvider>().errorMessage ?? 'Не удалось подписать договор.';
+      final message = context.read<AgreementProvider>().errorMessage ?? l10n.agreementSignFailed;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
       return;
     }
@@ -138,6 +142,7 @@ class _AgreementSignPageState extends State<AgreementSignPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Consumer<AgreementProvider>(
       builder: (context, provider, _) {
         if (provider.isLoading) {
@@ -149,14 +154,14 @@ class _AgreementSignPageState extends State<AgreementSignPage> {
           return Scaffold(
             appBar: AppBar(),
             body: AppEmptyView(
-              title: 'Документ недоступен',
-              message: provider.errorMessage ?? 'Этот договор не найден или ещё не сформирован.',
+              title: l10n.agreementDocumentUnavailableTitle,
+              message: provider.errorMessage ?? l10n.agreementNotFoundOrNotGenerated,
             ),
           );
         }
 
         return Scaffold(
-          appBar: AppBar(title: const Text('Договор на подпись')),
+          appBar: AppBar(title: Text(l10n.agreementSignTitle)),
           body: CenteredContent(
             child: ListView(
               padding: const EdgeInsets.all(Insets.x20),
@@ -181,17 +186,17 @@ class _AgreementSignPageState extends State<AgreementSignPage> {
                 if (provider.isFullySigned)
                   _StatusBanner(
                     icon: Icons.check_circle_outline,
-                    message: 'Договор полностью подписан.',
+                    message: l10n.agreementFullySigned,
                   )
                 else if (provider.isSecondPartySigned)
                   _StatusBanner(
                     icon: Icons.check_circle_outline,
-                    message: 'Вы подписали договор.\nОжидание первой стороны.',
+                    message: l10n.agreementSecondPartySignedWaitingFirst,
                   )
                 else if (provider.isFirstPartySigned)
                   _StatusBanner(
                     icon: Icons.info_outline,
-                    message: 'Первая сторона уже подписала договор.\nПодпишите, чтобы завершить договор.',
+                    message: l10n.agreementFirstPartySignedWaitingSecond,
                   ),
                 if (provider.isFullySigned || provider.isSecondPartySigned || provider.isFirstPartySigned)
                   const SizedBox(height: Insets.x4),
@@ -228,8 +233,7 @@ class _AgreementSignPageState extends State<AgreementSignPage> {
                             const SizedBox(width: Insets.x12),
                             Expanded(
                               child: Text(
-                                'Перед подписью — идентификация через MyID. '
-                                'Ваши имя и данные подставятся в договор автоматически.',
+                                l10n.agreementMyIdNotice,
                                 style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                               ),
                             ),
@@ -242,7 +246,7 @@ class _AgreementSignPageState extends State<AgreementSignPage> {
                             child: OutlinedButton.icon(
                               onPressed: _verifying ? null : _proposeChange,
                               icon: const Icon(Icons.edit_note_rounded, size: 20),
-                              label: const Text('Изменить условие'),
+                              label: Text(l10n.agreementProposeChange),
                             ),
                           ),
                           const SizedBox(width: Insets.x12),
@@ -250,14 +254,14 @@ class _AgreementSignPageState extends State<AgreementSignPage> {
                             child: OutlinedButton.icon(
                               onPressed: _verifying ? null : _askClarification,
                               icon: const Icon(Icons.help_outline_rounded, size: 20),
-                              label: const Text('Задать вопрос'),
+                              label: Text(l10n.agreementAskQuestion),
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: Insets.x12),
                       PrimaryButton(
-                        label: 'Пройти MyID и подписать',
+                        label: l10n.agreementSignWithMyId,
                         loading: _verifying,
                         onPressed: _verifying ? null : _identifyAndSign,
                       ),

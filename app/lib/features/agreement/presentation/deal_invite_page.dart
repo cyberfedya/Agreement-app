@@ -7,6 +7,7 @@ import 'package:app/features/agreement/data/agreement_repository.dart';
 import 'package:app/features/agreement/domain/deal_invite.dart';
 import 'package:app/features/agreement/providers/agreement_provider.dart';
 import 'package:app/features/profile/data/profile_repository.dart';
+import 'package:app/l10n/app_localizations.dart';
 import 'package:app/shared/models/result.dart';
 import 'package:app/shared/widgets/primary_button.dart';
 
@@ -61,7 +62,7 @@ class _DealInvitePageState extends State<DealInvitePage> {
     if (!mounted) return false;
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Сначала заполните свои данные — они будут указаны в договоре.')),
+      SnackBar(content: Text(AppLocalizations.of(context)!.dealInviteFillProfileFirst)),
     );
     await Navigator.of(context).pushNamed(AppRoutes.profile);
     if (!mounted) return false;
@@ -80,6 +81,7 @@ class _DealInvitePageState extends State<DealInvitePage> {
     final agreementProvider = context.read<AgreementProvider>();
     final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     final profileId = await profileRepository.getProfileId();
     switch (await agreementRepository.acceptInvite(widget.dealId, profileId)) {
@@ -96,7 +98,7 @@ class _DealInvitePageState extends State<DealInvitePage> {
         if (!regenerated) {
           setState(() => _isAccepting = false);
           messenger.showSnackBar(
-            SnackBar(content: Text(agreementProvider.errorMessage ?? 'Не удалось обновить договор вашими данными.')),
+            SnackBar(content: Text(agreementProvider.errorMessage ?? l10n.dealInviteRegenerateFailed)),
           );
           return;
         }
@@ -146,8 +148,9 @@ class _DealInvitePageState extends State<DealInvitePage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: const Text('Приглашение к сделке')),
+      appBar: AppBar(title: Text(l10n.dealInviteTitle)),
       body: SafeArea(
         child: Builder(
           builder: (context) {
@@ -174,14 +177,14 @@ class _DealInvitePageState extends State<DealInvitePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Вас пригласили принять участие в сделке',
+                      l10n.dealInviteHeadline,
                       style: theme.textTheme.headlineSmall,
                     ),
                     const SizedBox(height: Insets.x24),
-                    _InfoRow(label: 'Тип сделки', value: invite.transactionType),
-                    _InfoRow(label: 'Ваша роль', value: roleLabel(invite.expectedSecondPartyRole)),
-                    _InfoRow(label: 'Пригласил', value: invite.invitedBy ?? 'Не указано'),
-                    _InfoRow(label: 'Статус', value: _statusLabel(invite.inviteStatus)),
+                    _InfoRow(label: l10n.dealInviteTypeLabel, value: invite.transactionType),
+                    _InfoRow(label: l10n.dealInviteYourRoleLabel, value: roleLabel(invite.expectedSecondPartyRole, l10n)),
+                    _InfoRow(label: l10n.dealInviteInvitedByLabel, value: invite.invitedBy ?? l10n.dealInviteNotSpecified),
+                    _InfoRow(label: l10n.dealInviteStatusLabel, value: _statusLabel(invite.inviteStatus, l10n)),
                   ],
                 ),
               ),
@@ -199,13 +202,13 @@ class _DealInvitePageState extends State<DealInvitePage> {
                     Expanded(
                       child: OutlinedButton(
                         onPressed: _isAccepting ? null : _decline,
-                        child: const Text('Отклонить'),
+                        child: Text(l10n.commonDecline),
                       ),
                     ),
                     const SizedBox(width: Insets.x12),
                     Expanded(
                       child: PrimaryButton(
-                        label: 'Принять',
+                        label: l10n.dealInviteAccept,
                         loading: _isAccepting,
                         onPressed: _isAccepting ? null : _accept,
                       ),
@@ -217,39 +220,32 @@ class _DealInvitePageState extends State<DealInvitePage> {
     );
   }
 
-  static String _statusLabel(String status) => switch (status) {
-    'Pending' => 'Ожидает подтверждения',
-    'Opened' => 'Открыто',
-    'Accepted' => 'Принято',
-    'Declined' => 'Отклонено',
-    'ChangeRequested' => 'Предложены изменения',
-    'ClarificationRequested' => 'Запрошено уточнение',
+  static String _statusLabel(String status, AppLocalizations l10n) => switch (status) {
+    'Pending' => l10n.dealInviteStatusPending,
+    'Opened' => l10n.dealInviteStatusOpened,
+    'Accepted' => l10n.dealInviteStatusAccepted,
+    'Declined' => l10n.dealInviteStatusDeclined,
+    'ChangeRequested' => l10n.dealInviteStatusChangeRequested,
+    'ClarificationRequested' => l10n.dealInviteStatusClarificationRequested,
     _ => status,
   };
 }
-
-/// Optional-reason prompt before declining: pops with `''` for "decline
-/// without a reason", a non-empty string for a reason, or null if the
-/// user backs out entirely.
 class _DeclineReasonSheet extends StatefulWidget {
   const _DeclineReasonSheet();
-
   @override
   State<_DeclineReasonSheet> createState() => _DeclineReasonSheetState();
 }
-
 class _DeclineReasonSheetState extends State<_DeclineReasonSheet> {
   final _controller = TextEditingController();
-
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.fromLTRB(
@@ -262,10 +258,10 @@ class _DeclineReasonSheetState extends State<_DeclineReasonSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Отклонить приглашение?', style: theme.textTheme.titleLarge),
+            Text(l10n.dealInviteDeclineDialogTitle, style: theme.textTheme.titleLarge),
             const SizedBox(height: Insets.x8),
             Text(
-              'Вторая сторона увидит ваш ответ. Можете коротко объяснить почему — это необязательно.',
+              l10n.dealInviteDeclineDialogBody,
               style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant, height: 1.4),
             ),
             const SizedBox(height: Insets.x16),
@@ -273,7 +269,7 @@ class _DeclineReasonSheetState extends State<_DeclineReasonSheet> {
               controller: _controller,
               minLines: 2,
               maxLines: 4,
-              decoration: const InputDecoration(hintText: 'Причина (необязательно)…'),
+              decoration: InputDecoration(hintText: l10n.dealInviteDeclineReasonHint),
             ),
             const SizedBox(height: Insets.x16),
             Row(
@@ -281,14 +277,14 @@ class _DeclineReasonSheetState extends State<_DeclineReasonSheet> {
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text('Назад'),
+                    child: Text(l10n.commonBack),
                   ),
                 ),
                 const SizedBox(width: Insets.x12),
                 Expanded(
                   child: FilledButton(
                     onPressed: () => Navigator.pop(context, _controller.text.trim()),
-                    child: const Text('Отклонить'),
+                    child: Text(l10n.commonDecline),
                   ),
                 ),
               ],
@@ -331,6 +327,7 @@ class _DeclinedView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(Insets.x32),
@@ -339,9 +336,9 @@ class _DeclinedView extends StatelessWidget {
           children: [
             Icon(Icons.block_outlined, size: 40, color: theme.colorScheme.onSurfaceVariant),
             const SizedBox(height: Insets.x16),
-            Text('Вы отклонили приглашение', style: theme.textTheme.titleMedium, textAlign: TextAlign.center),
+            Text(l10n.dealInviteDeclined, style: theme.textTheme.titleMedium, textAlign: TextAlign.center),
             const SizedBox(height: Insets.x20),
-            PrimaryButton(label: 'На главную', onPressed: onBackHome),
+            PrimaryButton(label: l10n.commonHome, onPressed: onBackHome),
           ],
         ),
       ),
