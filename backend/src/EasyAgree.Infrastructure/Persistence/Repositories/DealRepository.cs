@@ -21,4 +21,19 @@ public sealed class DealRepository(EasyAgreeDbContext db) : IDealRepository
         db.Deals.Update(deal);
         await db.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task<(IReadOnlyList<Deal> Items, int TotalCount)> GetByProfileIdAsync(
+        string profileId, int skip, int take, CancellationToken cancellationToken = default)
+    {
+        var query = db.Deals.Where(d => d.ProfileId == profileId || d.SecondPartyProfileId == profileId);
+
+        var totalCount = await query.CountAsync(cancellationToken);
+        var items = await query
+            .OrderByDescending(d => d.UpdatedAt)
+            .Skip(skip)
+            .Take(take)
+            .ToListAsync(cancellationToken);
+
+        return (items, totalCount);
+    }
 }

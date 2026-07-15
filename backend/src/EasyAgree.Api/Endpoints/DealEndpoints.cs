@@ -16,6 +16,30 @@ public static class DealEndpoints
     {
         var group = app.MapGroup("/api/deals").WithTags("Deals");
 
+        group.MapGet("/", async (
+            string profileId, int? page, int? pageSize, string? lang, ListDealsByProfileUseCase useCase, CancellationToken ct) =>
+        {
+            if (string.IsNullOrWhiteSpace(profileId))
+                return Results.BadRequest();
+
+            var result = await useCase.ExecuteAsync(profileId, page ?? 1, pageSize ?? 20, lang ?? DefaultLanguage, ct);
+            return Results.Ok(result);
+        })
+        .WithName("ListDealsByProfile");
+
+        group.MapPost("/{id:guid}/cancel", async (Guid id, CancelDealUseCase useCase, CancellationToken ct) =>
+        {
+            var result = await useCase.ExecuteAsync(id, ct);
+            return result.Outcome switch
+            {
+                CancelDealOutcome.Cancelled => Results.Ok(new { success = true }),
+                CancelDealOutcome.DealNotFound => Results.NotFound(),
+                CancelDealOutcome.AlreadySigned => Results.Conflict(new { error = "already_signed" }),
+                _ => Results.Problem(),
+            };
+        })
+        .WithName("CancelDeal");
+
         group.MapPost("/", async (
             CreateDealRequest request, CreateDealUseCase useCase, string? lang, CancellationToken ct) =>
         {

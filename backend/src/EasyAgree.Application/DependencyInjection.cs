@@ -47,6 +47,8 @@ public static class DependencyInjection
         services.AddScoped<SignDealSecondPartyUseCase>();
         services.AddScoped<SignDealFirstPartyUseCase>();
         services.AddScoped<DismissDocumentSuggestionUseCase>();
+        services.AddScoped<ListDealsByProfileUseCase>();
+        services.AddScoped<CancelDealUseCase>();
 
         services.AddScoped<GetUserProfileUseCase>();
         services.AddScoped<SaveUserProfileUseCase>();

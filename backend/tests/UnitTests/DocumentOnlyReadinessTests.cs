@@ -77,6 +77,10 @@ public sealed class DocumentOnlyReadinessTests
             Task.FromResult(id == deal.Id ? deal : null);
 
         public Task UpdateAsync(Deal updatedDeal, CancellationToken cancellationToken = default) => Task.CompletedTask;
+
+        public Task<(IReadOnlyList<Deal> Items, int TotalCount)> GetByProfileIdAsync(
+            string profileId, int skip, int take, CancellationToken cancellationToken = default) =>
+            Task.FromResult<(IReadOnlyList<Deal>, int)>(([], 0));
     }
 
     private sealed class TemplateRepo : IAgreementTemplateRepository

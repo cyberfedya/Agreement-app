@@ -64,5 +64,7 @@ public sealed class DealConfiguration : IEntityTypeConfiguration<Deal>
         builder.Property(d => d.UpdatedAt);
 
         builder.HasIndex(d => d.TemplateKey);
+        builder.HasIndex(d => d.ProfileId);
+        builder.HasIndex(d => d.SecondPartyProfileId);
     }
 }

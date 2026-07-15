@@ -37,6 +37,7 @@ public sealed class DeclineDealInviteUseCase(IDealRepository dealRepository)
             DateTime.UtcNow));
 
         deal.InviteStatus = InviteStatus.Declined;
+        deal.Status = DealStatus.Cancelled;
         deal.PartyResponsesJson = DealPartyResponseSerializer.Serialize(responses);
         deal.UpdatedAt = DateTime.UtcNow;
         await dealRepository.UpdateAsync(deal, cancellationToken);

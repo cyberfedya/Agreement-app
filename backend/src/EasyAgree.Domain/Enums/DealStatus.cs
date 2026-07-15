@@ -6,5 +6,8 @@ public enum DealStatus
     Completed = 1,
 
     /// <summary>Both FirstPartySignedAt and SecondPartySignedAt are set.</summary>
-    FullySigned = 2
+    FullySigned = 2,
+
+    /// <summary>Creator cancelled the deal, or the second party declined the invite.</summary>
+    Cancelled = 3
 }
