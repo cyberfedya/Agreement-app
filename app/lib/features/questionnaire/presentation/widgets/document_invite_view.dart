@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/features/questionnaire/domain/interview_step.dart';
+import 'package:app/l10n/app_localizations.dart';
 import 'package:app/shared/animation/entrance.dart';
 import 'package:app/shared/widgets/primary_button.dart';
 
@@ -25,6 +26,7 @@ class DocumentInviteView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(Insets.x24, Insets.x24, Insets.x24, Insets.x32),
       child: Column(
@@ -80,7 +82,7 @@ class DocumentInviteView extends StatelessWidget {
                     const SizedBox(width: Insets.x4 + 2),
                     Flexible(
                       child: Text(
-                        'Заполню около ${suggestion.matchedFieldCount} полей автоматически',
+                        l10n.questionnaireInviteMatchedFields(suggestion.matchedFieldCount),
                         style: theme.textTheme.labelLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                       ),
                     ),
@@ -90,16 +92,16 @@ class DocumentInviteView extends StatelessWidget {
             ).animateEntranceStaggered(3),
           ],
           const SizedBox(height: Insets.x40),
-          PrimaryButton(label: 'Сфотографировать', icon: Icons.photo_camera_outlined, onPressed: onCamera)
+          PrimaryButton(label: l10n.questionnairePhotographDocument, icon: Icons.photo_camera_outlined, onPressed: onCamera)
               .animateEntranceStaggered(4),
           const SizedBox(height: Insets.x12),
           OutlinedButton.icon(
             onPressed: onGallery,
             icon: const Icon(Icons.photo_library_outlined, size: 20),
-            label: const Text('Выбрать из галереи'),
+            label: Text(l10n.questionnaireChooseFromGallery),
           ).animateEntranceStaggered(5),
           const SizedBox(height: Insets.x8),
-          TextButton(onPressed: onSkip, child: const Text('Продолжить без документа')).animateEntranceStaggered(6),
+          TextButton(onPressed: onSkip, child: Text(l10n.questionnaireContinueWithoutDocument)).animateEntranceStaggered(6),
         ],
       ),
     );

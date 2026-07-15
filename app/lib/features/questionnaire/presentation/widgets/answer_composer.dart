@@ -1,16 +1,10 @@
 import 'package:flutter/material.dart';
-
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/core/widgets/hold_to_talk_mic_button.dart';
 import 'package:app/features/questionnaire/presentation/widgets/voice_wave.dart';
+import 'package:app/l10n/app_localizations.dart';
 import 'package:app/shared/widgets/pressable_scale.dart';
-
 enum _ComposerMode { idle, listening, confirm }
-
-/// The single input surface of the interview: type, attach a document, or
-/// hold the mic. Speaking replaces the keyboard with a "Слушаю…" wave;
-/// when recognition settles the composer shows "Я понял: …" with
-/// Подтвердить / Изменить / Сказать заново instead of silently firing.
 class AnswerComposer extends StatefulWidget {
   const AnswerComposer({
     super.key,
@@ -23,7 +17,6 @@ class AnswerComposer extends StatefulWidget {
   final TextEditingController controller;
   final ValueChanged<String> onSubmit;
 
-  /// Attach icon hidden when null (also used to disable it mid-upload).
   final VoidCallback? onAttach;
   final bool enabled;
 
@@ -62,8 +55,6 @@ class _AnswerComposerState extends State<AnswerComposer> {
       });
       return;
     }
-    // Released without a usable final transcript -> quietly return to idle;
-    // onFinalResult switches to confirm before this fires when there is one.
     if (_mode == _ComposerMode.listening && _transcript.trim().isEmpty) {
       setState(() => _mode = _ComposerMode.idle);
     }
@@ -99,6 +90,7 @@ class _AnswerComposerState extends State<AnswerComposer> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return AnimatedSize(
       duration: Motion.normal,
       curve: Motion.curve,
@@ -108,8 +100,8 @@ class _AnswerComposerState extends State<AnswerComposer> {
         switchInCurve: Motion.curve,
         switchOutCurve: Motion.curve,
         child: switch (_mode) {
-          _ComposerMode.confirm => _buildConfirm(theme),
-          _ => _buildInput(theme),
+          _ComposerMode.confirm => _buildConfirm(theme, l10n),
+          _ => _buildInput(theme, l10n),
         },
       ),
     );
@@ -117,7 +109,7 @@ class _AnswerComposerState extends State<AnswerComposer> {
 
   /// Idle + listening share one surface so the wave appears *inside* the
   /// field the user was about to type into - voice is not a separate UI.
-  Widget _buildInput(ThemeData theme) {
+  Widget _buildInput(ThemeData theme, AppLocalizations l10n) {
     final listening = _mode == _ComposerMode.listening;
     return Container(
       key: const ValueKey('input'),
@@ -143,7 +135,7 @@ class _AnswerComposerState extends State<AnswerComposer> {
                         const SizedBox(width: Insets.x12),
                         Expanded(
                           child: Text(
-                            _transcript.isEmpty ? 'Слушаю…' : _transcript,
+                            _transcript.isEmpty ? l10n.questionnaireListening : _transcript,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: theme.textTheme.bodyLarge?.copyWith(
@@ -164,14 +156,14 @@ class _AnswerComposerState extends State<AnswerComposer> {
                     textInputAction: TextInputAction.send,
                     onSubmitted: (_) => _submitTyped(),
                     style: theme.textTheme.bodyLarge,
-                    decoration: const InputDecoration(
-                      hintText: 'Напишите или скажите…',
+                    decoration: InputDecoration(
+                      hintText: l10n.questionnaireSpeakOrType,
                       filled: false,
                       border: InputBorder.none,
                       enabledBorder: InputBorder.none,
                       focusedBorder: InputBorder.none,
                       disabledBorder: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(vertical: Insets.x12),
+                      contentPadding: const EdgeInsets.symmetric(vertical: Insets.x12),
                       isDense: true,
                     ),
                   ),
@@ -180,12 +172,10 @@ class _AnswerComposerState extends State<AnswerComposer> {
             IconButton(
               onPressed: widget.enabled ? widget.onAttach : null,
               icon: const Icon(Icons.attach_file_rounded, size: 22),
-              tooltip: 'Прикрепить документ',
+              tooltip: l10n.questionnaireAttachDocument,
               color: theme.colorScheme.onSurfaceVariant,
             ),
           const SizedBox(width: Insets.x4),
-          // Send morphs in only when there is something to send; the mic
-          // stays put so muscle memory for hold-to-talk never breaks.
           AnimatedSwitcher(
             duration: Motion.fast,
             transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
@@ -195,7 +185,7 @@ class _AnswerComposerState extends State<AnswerComposer> {
                     child: IconButton.filled(
                       onPressed: widget.enabled ? _submitTyped : null,
                       icon: const Icon(Icons.arrow_upward_rounded, size: 22),
-                      tooltip: 'Отправить',
+                      tooltip: l10n.questionnaireSend,
                       style: IconButton.styleFrom(
                         backgroundColor: theme.colorScheme.primary,
                         foregroundColor: theme.colorScheme.onPrimary,
@@ -216,7 +206,7 @@ class _AnswerComposerState extends State<AnswerComposer> {
     );
   }
 
-  Widget _buildConfirm(ThemeData theme) {
+  Widget _buildConfirm(ThemeData theme, AppLocalizations l10n) {
     return Container(
       key: const ValueKey('confirm'),
       padding: const EdgeInsets.all(Insets.x16),
@@ -229,7 +219,7 @@ class _AnswerComposerState extends State<AnswerComposer> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Я понял:',
+            l10n.questionnaireIUnderstood,
             style: theme.textTheme.labelLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
           ),
           const SizedBox(height: Insets.x4),
@@ -240,17 +230,17 @@ class _AnswerComposerState extends State<AnswerComposer> {
               Expanded(
                 child: FilledButton(
                   onPressed: widget.enabled ? _confirmVoice : null,
-                  child: const Text('Подтвердить'),
+                  child: Text(l10n.questionnaireConfirm),
                 ),
               ),
               const SizedBox(width: Insets.x8),
-              OutlinedButton(onPressed: _editVoice, child: const Text('Изменить')),
+              OutlinedButton(onPressed: _editVoice, child: Text(l10n.questionnaireEditAnswer)),
             ],
           ),
           Center(
             child: TextButton(
               onPressed: () => setState(() => _mode = _ComposerMode.idle),
-              child: const Text('Сказать заново'),
+              child: Text(l10n.questionnaireSayAgain),
             ),
           ),
         ],

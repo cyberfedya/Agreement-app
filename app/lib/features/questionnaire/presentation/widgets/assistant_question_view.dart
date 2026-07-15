@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/features/questionnaire/domain/question.dart';
+import 'package:app/l10n/app_localizations.dart';
 
 /// One assistant turn: a short emotional beat ("Отлично."), then the
 /// question as large calm typography - spoken language, not a form label.
@@ -41,6 +42,7 @@ class AssistantQuestionView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(Insets.x24, Insets.x32, Insets.x24, Insets.x24),
       child: Column(
@@ -76,7 +78,7 @@ class AssistantQuestionView extends StatelessWidget {
                 IconButton(
                   onPressed: onSpeak,
                   icon: const Icon(Icons.volume_up_rounded, size: 20),
-                  tooltip: 'Озвучить',
+                  tooltip: l10n.questionnaireSpeak,
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
             ],
@@ -93,7 +95,7 @@ class AssistantQuestionView extends StatelessWidget {
                   const SizedBox(width: Insets.x4),
                   Flexible(
                     child: Text(
-                      'Зачем это нужно?',
+                      l10n.questionnaireWhyNeeded,
                       overflow: TextOverflow.ellipsis,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
@@ -130,6 +132,7 @@ class _ImportanceChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final color = required ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: Insets.x8 + 2, vertical: 3),
@@ -138,7 +141,7 @@ class _ImportanceChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(
-        required ? 'Обязательно' : 'Необязательно',
+        required ? l10n.questionnaireRequired : l10n.questionnaireOptional,
         style: theme.textTheme.labelSmall?.copyWith(color: color, fontWeight: FontWeight.w600),
       ),
     );

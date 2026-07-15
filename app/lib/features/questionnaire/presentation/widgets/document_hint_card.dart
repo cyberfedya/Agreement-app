@@ -1,21 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-
 import 'package:app/core/theme/app_tokens.dart';
+import 'package:app/l10n/app_localizations.dart';
 
-/// The optional "you don't have to type this" nudge shown under a
-/// document-friendly question. Strictly a suggestion: it never blocks the
-/// composer underneath, and dismissing it (or ignoring it and just
-/// answering) is always frictionless - there is no "are you sure" here.
 class DocumentHintCard extends StatelessWidget {
   const DocumentHintCard({super.key, required this.onUpload, required this.onDismiss});
-
   final VoidCallback onUpload;
   final VoidCallback onDismiss;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(Insets.x16),
       decoration: BoxDecoration(
@@ -32,7 +28,7 @@ class DocumentHintCard extends StatelessWidget {
               Icon(Icons.description_outlined, size: 20, color: theme.colorScheme.primary),
               const SizedBox(width: Insets.x8),
               Expanded(
-                child: Text('Можно не вводить вручную', style: theme.textTheme.titleSmall),
+                child: Text(l10n.questionnaireUploadNotRequired, style: theme.textTheme.titleSmall),
               ),
               InkWell(
                 onTap: onDismiss,
@@ -48,7 +44,7 @@ class DocumentHintCard extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: (Insets.x24 + Insets.x4)),
             child: Text(
-              'Если удобнее, загрузите фотографию документа — я сам заполню эти данные автоматически.',
+              l10n.questionnaireUploadNudgeBody,
               style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant, height: 1.4),
             ),
           ),
@@ -61,7 +57,7 @@ class DocumentHintCard extends StatelessWidget {
                   child: OutlinedButton.icon(
                     onPressed: onUpload,
                     icon: const Icon(Icons.photo_camera_outlined, size: 18),
-                    label: const Text('Загрузить документ', overflow: TextOverflow.ellipsis),
+                    label: Text(l10n.questionnaireUploadDocument, overflow: TextOverflow.ellipsis),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(horizontal: Insets.x16, vertical: Insets.x8),
                     ),
@@ -74,7 +70,7 @@ class DocumentHintCard extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: (Insets.x24 + Insets.x4)),
             child: Text(
-              'Или просто ответьте голосом или напишите вручную.',
+              l10n.questionnaireUploadNudgeAlt,
               style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.outline),
             ),
           ),

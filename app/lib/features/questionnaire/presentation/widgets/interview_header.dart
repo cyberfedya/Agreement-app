@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:app/core/theme/app_tokens.dart';
+import 'package:app/l10n/app_localizations.dart';
 import 'package:app/shared/widgets/pressable_scale.dart';
 
 /// Interview top bar: no "Вопрос N" anywhere. A meaningful status line
@@ -47,7 +48,7 @@ class InterviewHeader extends StatelessWidget {
               IconButton(
                 onPressed: onBack,
                 icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
-                tooltip: 'Предыдущий шаг',
+                tooltip: AppLocalizations.of(context)!.questionnairePreviousStep,
                 color: theme.colorScheme.onSurfaceVariant,
               ),
               Expanded(

@@ -2,19 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
-
 import 'package:app/core/localization/backend_phrases.dart';
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/core/widgets/skeletons.dart';
 import 'package:app/features/questionnaire/domain/deal_review.dart';
 import 'package:app/features/questionnaire/presentation/widgets/confidence_badge.dart';
 import 'package:app/features/questionnaire/providers/questionnaire_provider.dart';
+import 'package:app/l10n/app_localizations.dart';
 import 'package:app/shared/animation/entrance.dart';
 import 'package:app/shared/widgets/pressable_scale.dart';
 
-/// Final check before generating, rendered entirely from the backend's
-/// `GET /deals/{id}/review` (via [QuestionnaireProvider.review]): the
-/// backend decides what is auto-filled, manual, corrected, missing or
+/// Final check before generating, rendered e's
+/// `GET /deals/{id}/review` (via [QuestionnaireProvider.review]):ntirely from the backend the
 /// skipped, with source and confidence - nothing is classified locally.
 class ReviewView extends StatelessWidget {
   const ReviewView({super.key, required this.templateTitle, this.fallbackMessage});
@@ -43,17 +42,19 @@ class ReviewView extends StatelessWidget {
     if (newValue == null || newValue.trim().isEmpty || !context.mounted) return;
 
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final ok = await provider.editAnswer(fieldId, label, newValue);
     if (ok) {
       HapticFeedback.selectionClick();
     } else if (context.mounted) {
-      messenger.showSnackBar(const SnackBar(content: Text('Не удалось сохранить изменение')));
+      messenger.showSnackBar(SnackBar(content: Text(l10n.reviewEditSaveFailed)));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Consumer<QuestionnaireProvider>(
       builder: (context, provider, _) {
         final review = provider.review;
@@ -92,7 +93,7 @@ class ReviewView extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Договор почти готов',
+                          l10n.reviewHeroTitle,
                           style: theme.textTheme.titleLarge?.copyWith(color: theme.colorScheme.onPrimaryContainer),
                         ),
                         const SizedBox(height: Insets.x4),
@@ -102,7 +103,7 @@ class ReviewView extends StatelessWidget {
                             null =>
                               provider.closingMessage ??
                                   fallbackMessage ??
-                                  'Проверьте детали — и я подготовлю «$templateTitle».',
+                                  l10n.reviewHeroFallback(templateTitle),
                           },
                           style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onPrimaryContainer),
                         ),
@@ -114,14 +115,10 @@ class ReviewView extends StatelessWidget {
             ).animateEntrance(),
             if (review.workflowStatus case final status? when status != 'READY_TO_GENERATE') ...[
               const SizedBox(height: Insets.x12),
-              _WorkflowStatusPill(status: status).animateEntranceStaggered(1),
+              _WorkflowStatusPill(status: status, l10n: l10n).animateEntranceStaggered(1),
             ],
             const SizedBox(height: Insets.x12),
             _RiskBanner(missingCount: review.missing.length).animateEntranceStaggered(1),
-            // Readiness report for document-only technicals: the agreement
-            // can be generated now; these fields simply stay blank until a
-            // document fills them. Backend-classified (DOCUMENT_PENDING),
-            // rendered here - never a local decision.
             if (documentPendingCount > 0) ...[
               const SizedBox(height: Insets.x12),
               Container(
@@ -139,8 +136,7 @@ class ReviewView extends StatelessWidget {
                     const SizedBox(width: Insets.x12),
                     Expanded(
                       child: Text(
-                        'Договор уже можно сформировать. Часть технических данных пока не заполнена — '
-                        'если позже загрузите техпаспорт, они подставятся автоматически.',
+                        l10n.reviewDocumentPendingNotice,
                         style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant, height: 1.4),
                       ),
                     ),
@@ -157,7 +153,7 @@ class ReviewView extends StatelessWidget {
                       child: _StatChip(
                         icon: Icons.bolt_rounded,
                         value: '${review.autoFilledCount}',
-                        label: 'заполнено\nавтоматически',
+                        label: l10n.reviewAutoFilledStat,
                       ),
                     ),
                   if (review.autoFilledCount > 0 && manualCount > 0) const SizedBox(width: Insets.x8),
@@ -166,7 +162,7 @@ class ReviewView extends StatelessWidget {
                       child: _StatChip(
                         icon: Icons.edit_outlined,
                         value: '$manualCount',
-                        label: manualCount == 1 ? 'вопрос вы\nответили сами' : 'вопроса вы\nответили сами',
+                        label: manualCount == 1 ? l10n.reviewManualStatOne : l10n.reviewManualStatMany,
                       ),
                     ),
                 ],
@@ -175,8 +171,8 @@ class ReviewView extends StatelessWidget {
             if (review.missing.isNotEmpty)
               _Section(
                 index: ++section,
-                title: 'Не хватает',
-                subtitle: 'Без этих данных договор будет неполным',
+                title: l10n.reviewMissingTitle,
+                subtitle: l10n.reviewMissingSubtitle,
                 children: [
                   for (final field in review.missing)
                     _FieldCard(
@@ -189,8 +185,8 @@ class ReviewView extends StatelessWidget {
             if (disputed.isNotEmpty)
               _Section(
                 index: ++section,
-                title: '⚠️ Нужно согласовать',
-                subtitle: 'Есть спорное значение или предложение второй стороны — нажмите, чтобы указать итоговое',
+                title: l10n.reviewDisputedTitle,
+                subtitle: l10n.reviewDisputedSubtitle,
                 children: [
                   for (final state in disputed)
                     _FieldCard(
@@ -213,15 +209,15 @@ class ReviewView extends StatelessWidget {
             if (review.autoFilled.isNotEmpty)
               _Section(
                 index: ++section,
-                title: '📄 Заполнено автоматически',
-                subtitle: 'Из ваших документов',
+                title: l10n.reviewAutoFilledTitle,
+                subtitle: l10n.reviewAutoFilledSubtitle,
                 children: [for (final field in review.autoFilled) _FieldCard(field: field, showConfidence: true)],
               ),
             if (review.corrected.isNotEmpty)
               _Section(
                 index: ++section,
-                title: '✏️ Исправлено вами',
-                subtitle: 'Вы поправили то, что распознал документ',
+                title: l10n.reviewCorrectedTitle,
+                subtitle: l10n.reviewCorrectedSubtitle,
                 children: [
                   for (final field in review.corrected)
                     _FieldCard(field: field, onTap: () => _editField(context, provider, field)),
@@ -230,7 +226,7 @@ class ReviewView extends StatelessWidget {
             if (review.manual.isNotEmpty)
               _Section(
                 index: ++section,
-                title: '✍️ Вы указали сами',
+                title: l10n.reviewManualTitle,
                 children: [
                   for (final field in review.manual)
                     _FieldCard(field: field, onTap: () => _editField(context, provider, field)),
@@ -239,8 +235,8 @@ class ReviewView extends StatelessWidget {
             if (review.skipped.isNotEmpty)
               _Section(
                 index: ++section,
-                title: '⏭️ Не требуется',
-                subtitle: 'Подставляется системой или неактуально для вашего случая',
+                title: l10n.reviewSkippedTitle,
+                subtitle: l10n.reviewSkippedSubtitle,
                 children: [for (final field in review.skipped) _FieldCard(field: field, muted: true)],
               ),
           ],
@@ -249,21 +245,18 @@ class ReviewView extends StatelessWidget {
     );
   }
 }
-
-/// The backend's `workflowStatus` constant rendered as a calm status pill.
-/// Pure label mapping of the six known constants; an unknown future value
-/// falls back to the raw string rather than crashing or hiding.
 class _WorkflowStatusPill extends StatelessWidget {
-  const _WorkflowStatusPill({required this.status});
+  const _WorkflowStatusPill({required this.status, required this.l10n});
 
   final String status;
+  final AppLocalizations l10n;
 
-  static String _label(String status) => switch (status) {
-    'WAITING_FOR_SECOND_PARTY' => 'Ожидаем вторую сторону',
-    'WAITING_FOR_OBJECT_DOCUMENT' => 'Нужен документ на объект сделки',
-    'MISSING_MANDATORY_TERMS' => 'Не хватает обязательных условий',
-    'WAITING_FOR_PARTY_AGREEMENT' => 'Стороны согласуют условия',
-    'LEGAL_REVIEW_REQUIRED' => 'Требуется юридическая проверка',
+  String _label() => switch (status) {
+    'WAITING_FOR_SECOND_PARTY' => l10n.reviewStatusWaitingSecondParty,
+    'WAITING_FOR_OBJECT_DOCUMENT' => l10n.reviewStatusWaitingObjectDocument,
+    'MISSING_MANDATORY_TERMS' => l10n.reviewStatusMissingMandatoryTerms,
+    'WAITING_FOR_PARTY_AGREEMENT' => l10n.reviewStatusWaitingPartyAgreement,
+    'LEGAL_REVIEW_REQUIRED' => l10n.reviewStatusLegalReviewRequired,
     _ => status,
   };
 
@@ -284,7 +277,7 @@ class _WorkflowStatusPill extends StatelessWidget {
           const SizedBox(width: Insets.x12),
           Expanded(
             child: Text(
-              _label(status),
+              _label(),
               style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
             ),
           ),
@@ -308,27 +301,11 @@ class _RiskBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final (emoji, label, message, color) = switch (missingCount) {
-      0 => (
-          '🟢',
-          'Низкий риск',
-          'Все ключевые сведения заполнены.',
-          theme.colorScheme.primary,
-        ),
-      1 || 2 => (
-          '🟡',
-          'Средний риск',
-          'Отсутствуют некоторые сведения. Договор можно сформировать сейчас '
-              'или сначала заполнить оставшееся для большей точности.',
-          Colors.amber.shade800,
-        ),
-      _ => (
-          '🔴',
-          'Высокий риск',
-          'Отсутствуют важные условия сделки. Мы можем сформировать договор сейчас, '
-              'но это увеличивает юридический риск.',
-          theme.colorScheme.error,
-        ),
+      0 => ('🟢', l10n.reviewRiskLowLabel, l10n.reviewRiskLowMessage, theme.colorScheme.primary),
+      1 || 2 => ('🟡', l10n.reviewRiskMediumLabel, l10n.reviewRiskMediumMessage, Colors.amber.shade800),
+      _ => ('🔴', l10n.reviewRiskHighLabel, l10n.reviewRiskHighMessage, theme.colorScheme.error),
     };
 
     return Container(
@@ -464,6 +441,7 @@ class _FieldCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final valueStyle = muted
         ? theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.outline)
         : theme.textTheme.titleMedium?.copyWith(height: 1.35);
@@ -504,7 +482,7 @@ class _FieldCard extends StatelessWidget {
                     const SizedBox(height: Insets.x4),
                     Text(
                       field.value ??
-                          (emphasizeMissing ? 'Нажмите, чтобы указать' : localizeBackendPhrase(field.reason)),
+                          (emphasizeMissing ? l10n.reviewTapToFill : localizeBackendPhrase(field.reason)),
                       style: field.value == null && emphasizeMissing
                           ? theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.primary)
                           : valueStyle,
@@ -597,6 +575,7 @@ class _EditFieldDialogState extends State<_EditFieldDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return AlertDialog(
       title: Text(widget.label),
       content: TextField(
@@ -607,10 +586,10 @@ class _EditFieldDialogState extends State<_EditFieldDialog> {
         decoration: const InputDecoration(border: OutlineInputBorder()),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Отмена')),
+        TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(l10n.commonCancel)),
         FilledButton(
           onPressed: () => Navigator.of(context).pop(_controller.text),
-          child: const Text('Сохранить'),
+          child: Text(l10n.commonSave),
         ),
       ],
     );

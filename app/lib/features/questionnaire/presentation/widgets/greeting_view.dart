@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/features/questionnaire/presentation/widgets/thinking_indicator.dart';
+import 'package:app/l10n/app_localizations.dart';
 
 /// The interview's opening beat: the assistant introduces itself and
 /// explains what will happen ("заполню всё сам, спрошу только недостающее")
@@ -43,7 +44,9 @@ class GreetingView extends StatelessWidget {
             style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant, height: 1.5),
           ).animate(delay: 450.ms).fadeIn(duration: 400.ms, curve: Curves.easeOut),
           const SizedBox(height: Insets.x40),
-          const ThinkingIndicator(label: 'Готовлю первый шаг…').animate(delay: 800.ms).fadeIn(duration: 300.ms),
+          ThinkingIndicator(label: AppLocalizations.of(context)!.questionnairePreparingFirstStep)
+              .animate(delay: 800.ms)
+              .fadeIn(duration: 300.ms),
         ],
       ),
     );

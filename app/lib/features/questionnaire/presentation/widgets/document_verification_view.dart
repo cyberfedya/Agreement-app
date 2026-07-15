@@ -1,33 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/features/documents/data/document_repository.dart';
 import 'package:app/features/documents/domain/document_verification.dart';
 import 'package:app/features/documents/providers/document_upload_provider.dart';
 import 'package:app/features/questionnaire/providers/questionnaire_provider.dart';
+import 'package:app/l10n/app_localizations.dart';
 import 'package:app/shared/animation/entrance.dart';
 import 'package:app/shared/models/result.dart';
 import 'package:app/shared/utils/image_format.dart';
 import 'package:app/shared/widgets/primary_button.dart';
 
 enum _Phase { prompt, working, conflicts, done }
-
-/// The final, optional document check, offered only when the user never
-/// uploaded anything during the interview itself. Deliberately reads as a
-/// document check, never as "you're missing information" - a field the
-/// document fills in that the user never answered is applied silently on
-/// the backend and never mentioned here; only genuine disagreements
-/// between what was typed and what the document says are ever shown.
 class DocumentVerificationView extends StatefulWidget {
   const DocumentVerificationView({super.key, required this.dealId, required this.onFinished});
 
   final String dealId;
-
-  /// Called once this step is fully resolved (skipped, nothing to
-  /// reconcile, or every conflict has been resolved) - the caller moves on
-  /// to the review/generate step.
   final VoidCallback onFinished;
 
   @override
@@ -44,6 +33,7 @@ class _DocumentVerificationViewState extends State<DocumentVerificationView> {
   Future<void> _upload(
     List<(String fileName, String contentType, List<int> bytes)> files,
   ) async {
+    final l10n = AppLocalizations.of(context)!;
     setState(() {
       _phase = _Phase.working;
       _errorMessage = null;
@@ -54,7 +44,7 @@ class _DocumentVerificationViewState extends State<DocumentVerificationView> {
     if (!uploaded) {
       setState(() {
         _phase = _Phase.prompt;
-        _errorMessage = context.read<DocumentUploadProvider>().errorMessage ?? 'Не удалось загрузить документ.';
+        _errorMessage = context.read<DocumentUploadProvider>().errorMessage ?? l10n.commonUploadFailed;
       });
       return;
     }
@@ -68,7 +58,7 @@ class _DocumentVerificationViewState extends State<DocumentVerificationView> {
       case Failure():
         setState(() {
           _phase = _Phase.prompt;
-          _errorMessage = 'Не удалось проверить документ. Попробуйте ещё раз.';
+          _errorMessage = l10n.documentVerificationCompareFailed;
         });
     }
   }
@@ -94,7 +84,7 @@ class _DocumentVerificationViewState extends State<DocumentVerificationView> {
           .editAnswer(conflict.fieldId, conflict.label, conflict.documentValue);
       if (!mounted) return;
       if (!saved) {
-        setState(() => _conflictError = 'Не удалось сохранить значение. Попробуйте ещё раз.');
+        setState(() => _conflictError = AppLocalizations.of(context)!.documentVerificationConflictRetryError);
         return;
       }
     }
@@ -137,6 +127,7 @@ class _PromptView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(Insets.x24, Insets.x24, Insets.x24, Insets.x32),
       child: Column(
@@ -163,16 +154,13 @@ class _PromptView extends StatelessWidget {
           ).animateEntrance(),
           const SizedBox(height: Insets.x32),
           Text(
-            'Проверим данные автомобиля',
+            l10n.documentVerificationTitle,
             style: theme.textTheme.headlineSmall?.copyWith(height: 1.25),
             textAlign: TextAlign.center,
           ).animateEntranceStaggered(1),
           const SizedBox(height: Insets.x12),
           Text(
-            'Если у вас есть техпаспорт или ПТС, загрузите его фотографию. '
-            'Мы автоматически проверим, соответствуют ли введённые данные документу, '
-            'и предупредим, если найдём расхождения.\n\n'
-            'Этот шаг необязателен — вы можете продолжить оформление договора без загрузки документа.',
+            l10n.documentVerificationBody,
             style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             textAlign: TextAlign.center,
           ).animateEntranceStaggered(2),
@@ -186,12 +174,12 @@ class _PromptView extends StatelessWidget {
           ],
           const SizedBox(height: Insets.x40),
           PrimaryButton(
-            label: 'Загрузить техпаспорт',
+            label: l10n.documentVerificationUploadButton,
             icon: Icons.photo_camera_outlined,
             onPressed: () => _pick(context, onUpload),
           ).animateEntranceStaggered(3),
           const SizedBox(height: Insets.x8),
-          TextButton(onPressed: onSkip, child: const Text('Пропустить')).animateEntranceStaggered(4),
+          TextButton(onPressed: onSkip, child: Text(l10n.commonSkip)).animateEntranceStaggered(4),
         ],
       ),
     );
@@ -201,6 +189,7 @@ class _PromptView extends StatelessWidget {
     BuildContext context,
     Future<void> Function(List<(String fileName, String contentType, List<int> bytes)> files) onUpload,
   ) async {
+    final l10n = AppLocalizations.of(context)!;
     final source = await showModalBottomSheet<ImageSource>(
       context: context,
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -212,12 +201,12 @@ class _PromptView extends StatelessWidget {
             children: [
               ListTile(
                 leading: const Icon(Icons.photo_camera_outlined),
-                title: const Text('Камера'),
+                title: Text(l10n.commonCamera),
                 onTap: () => Navigator.pop(sheetContext, ImageSource.camera),
               ),
               ListTile(
                 leading: const Icon(Icons.photo_library_outlined),
-                title: const Text('Галерея'),
+                title: Text(l10n.commonGallery),
                 onTap: () => Navigator.pop(sheetContext, ImageSource.gallery),
               ),
             ],
@@ -242,9 +231,7 @@ class _PromptView extends StatelessWidget {
     }
     if (entries.isEmpty) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Не удалось распознать формат фото. Попробуйте JPEG, PNG или WebP.')),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.commonUnsupportedPhotoFormat)));
       }
       return;
     }
@@ -258,14 +245,14 @@ class _WorkingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      key: ValueKey('verification-working'),
+    return Center(
+      key: const ValueKey('verification-working'),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          CircularProgressIndicator(),
-          SizedBox(height: Insets.x16),
-          Text('Сверяю данные с документом…'),
+          const CircularProgressIndicator(),
+          const SizedBox(height: Insets.x16),
+          Text(AppLocalizations.of(context)!.documentVerificationWorking),
         ],
       ),
     );
@@ -292,6 +279,7 @@ class _ConflictView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       key: ValueKey('conflict-${conflict.fieldId}'),
       padding: const EdgeInsets.fromLTRB(Insets.x24, Insets.x24, Insets.x24, Insets.x32),
@@ -300,18 +288,18 @@ class _ConflictView extends StatelessWidget {
         children: [
           if (total > 1)
             Text(
-              '$position из $total',
+              l10n.documentVerificationConflictPosition(position, total),
               style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.outline),
             ),
           const SizedBox(height: Insets.x8),
-          Text('Мы нашли отличие', style: theme.textTheme.headlineSmall),
+          Text(l10n.documentVerificationConflictTitle, style: theme.textTheme.headlineSmall),
           const SizedBox(height: Insets.x8),
           Text(conflict.label, style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.primary)),
           const SizedBox(height: Insets.x24),
-          _ValueCard(label: 'Вы указали', value: conflict.userValue, theme: theme),
+          _ValueCard(label: l10n.documentVerificationYouEntered, value: conflict.userValue, theme: theme),
           const SizedBox(height: Insets.x12),
           _ValueCard(
-            label: 'В документе',
+            label: l10n.documentVerificationInDocument,
             value: conflict.documentValue,
             theme: theme,
             highlight: true,
@@ -325,9 +313,9 @@ class _ConflictView extends StatelessWidget {
             ),
           ],
           const SizedBox(height: Insets.x32),
-          PrimaryButton(label: 'Использовать данные документа', onPressed: onUseDocumentValue),
+          PrimaryButton(label: l10n.documentVerificationUseDocumentValue, onPressed: onUseDocumentValue),
           const SizedBox(height: Insets.x8),
-          OutlinedButton(onPressed: onKeepMine, child: const Text('Оставить мой вариант')),
+          OutlinedButton(onPressed: onKeepMine, child: Text(l10n.documentVerificationKeepMine)),
         ],
       ),
     );
@@ -384,6 +372,7 @@ class _DoneViewState extends State<_DoneView> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       key: const ValueKey('verification-done'),
       child: Padding(
@@ -394,13 +383,13 @@ class _DoneViewState extends State<_DoneView> {
             Icon(Icons.check_circle_rounded, size: 40, color: theme.colorScheme.primary).animateEntrance(),
             const SizedBox(height: Insets.x12),
             Text(
-              'Проверка завершена',
+              l10n.documentVerificationDoneTitle,
               style: theme.textTheme.titleMedium,
               textAlign: TextAlign.center,
             ).animateEntranceStaggered(1),
             const SizedBox(height: Insets.x4),
             Text(
-              'Данные документа полностью совпадают с тем, что вы указали.',
+              l10n.documentVerificationDoneBody,
               style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
               textAlign: TextAlign.center,
             ).animateEntranceStaggered(2),

@@ -70,4 +70,276 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get commonUnderstood => 'Понятно';
+
+  @override
+  String get commonSave => 'Сохранить';
+
+  @override
+  String get commonSkip => 'Пропустить';
+
+  @override
+  String get commonCamera => 'Камера';
+
+  @override
+  String get commonGallery => 'Галерея';
+
+  @override
+  String get commonUnsupportedPhotoFormat =>
+      'Не удалось распознать формат фото. Попробуйте JPEG, PNG или WebP.';
+
+  @override
+  String get commonUploadFailed => 'Не удалось загрузить документ.';
+
+  @override
+  String get documentVerificationTitle => 'Проверим данные автомобиля';
+
+  @override
+  String get documentVerificationBody =>
+      'Если у вас есть техпаспорт или ПТС, загрузите его фотографию. Мы автоматически проверим, соответствуют ли введённые данные документу, и предупредим, если найдём расхождения.\n\nЭтот шаг необязателен — вы можете продолжить оформление договора без загрузки документа.';
+
+  @override
+  String get documentVerificationUploadButton => 'Загрузить техпаспорт';
+
+  @override
+  String get documentVerificationWorking => 'Сверяю данные с документом…';
+
+  @override
+  String get documentVerificationConflictTitle => 'Мы нашли отличие';
+
+  @override
+  String get documentVerificationYouEntered => 'Вы указали';
+
+  @override
+  String get documentVerificationInDocument => 'В документе';
+
+  @override
+  String get documentVerificationConflictRetryError =>
+      'Не удалось сохранить значение. Попробуйте ещё раз.';
+
+  @override
+  String get documentVerificationUseDocumentValue =>
+      'Использовать данные документа';
+
+  @override
+  String get documentVerificationKeepMine => 'Оставить мой вариант';
+
+  @override
+  String get documentVerificationCompareFailed =>
+      'Не удалось проверить документ. Попробуйте ещё раз.';
+
+  @override
+  String get documentVerificationDoneTitle => 'Проверка завершена';
+
+  @override
+  String get documentVerificationDoneBody =>
+      'Данные документа полностью совпадают с тем, что вы указали.';
+
+  @override
+  String documentVerificationConflictPosition(int position, int total) {
+    return '$position из $total';
+  }
+
+  @override
+  String questionnaireMyDocuments(int count) {
+    return 'Мои документы ($count)';
+  }
+
+  @override
+  String get questionnaireViewFixOrDelete =>
+      'Посмотреть, исправить или удалить';
+
+  @override
+  String get questionnaireWhyNeeded => 'Зачем это нужно?';
+
+  @override
+  String get questionnaireGenerateFailed => 'Не удалось создать договор.';
+
+  @override
+  String get questionnaireReadyToGenerate => 'Договор готов к созданию';
+
+  @override
+  String get questionnaireOneMoment => 'Секунду…';
+
+  @override
+  String get questionnairePreparingNextStep => 'Готовлю следующий шаг…';
+
+  @override
+  String get questionnaireGenerateButton => 'Создать договор';
+
+  @override
+  String get questionnaireAttachDocument => 'Прикрепить документ';
+
+  @override
+  String get questionnaireSend => 'Отправить';
+
+  @override
+  String get questionnaireSpeakOrType => 'Напишите или скажите…';
+
+  @override
+  String get questionnaireSpeak => 'Озвучить';
+
+  @override
+  String get questionnaireRequired => 'Обязательно';
+
+  @override
+  String get questionnaireOptional => 'Необязательно';
+
+  @override
+  String get questionnaireConfirm => 'Подтвердить';
+
+  @override
+  String get questionnaireEditAnswer => 'Изменить';
+
+  @override
+  String get questionnaireSayAgain => 'Сказать заново';
+
+  @override
+  String get questionnaireUploadNotRequired => 'Можно не вводить вручную';
+
+  @override
+  String get questionnaireUploadDocument => 'Загрузить документ';
+
+  @override
+  String get questionnairePhotographDocument => 'Сфотографировать';
+
+  @override
+  String get questionnaireChooseFromGallery => 'Выбрать из галереи';
+
+  @override
+  String get questionnaireContinueWithoutDocument => 'Продолжить без документа';
+
+  @override
+  String get questionnaireLiveDocumentTitle =>
+      'Договор создаётся в реальном времени';
+
+  @override
+  String get questionnairePreparingFirstStep => 'Готовлю первый шаг…';
+
+  @override
+  String get questionnairePreviousStep => 'Предыдущий шаг';
+
+  @override
+  String questionnaireAlreadyTold(int count) {
+    return 'Вы уже сообщили: $count';
+  }
+
+  @override
+  String get questionnaireListening => 'Слушаю…';
+
+  @override
+  String get questionnaireIUnderstood => 'Я понял:';
+
+  @override
+  String get questionnaireUploadNudgeBody =>
+      'Если удобнее, загрузите фотографию документа — я сам заполню эти данные автоматически.';
+
+  @override
+  String get questionnaireUploadNudgeAlt =>
+      'Или просто ответьте голосом или напишите вручную.';
+
+  @override
+  String questionnaireInviteMatchedFields(int count) {
+    return 'Заполню около $count полей автоматически';
+  }
+
+  @override
+  String get reviewHeroTitle => 'Договор почти готов';
+
+  @override
+  String reviewHeroFallback(String templateTitle) {
+    return 'Проверьте детали — и я подготовлю «$templateTitle».';
+  }
+
+  @override
+  String get reviewDocumentPendingNotice =>
+      'Договор уже можно сформировать. Часть технических данных пока не заполнена — если позже загрузите техпаспорт, они подставятся автоматически.';
+
+  @override
+  String get reviewAutoFilledStat => 'заполнено\nавтоматически';
+
+  @override
+  String get reviewManualStatOne => 'вопрос вы\nответили сами';
+
+  @override
+  String get reviewManualStatMany => 'вопроса вы\nответили сами';
+
+  @override
+  String get reviewMissingTitle => 'Не хватает';
+
+  @override
+  String get reviewMissingSubtitle => 'Без этих данных договор будет неполным';
+
+  @override
+  String get reviewDisputedTitle => '⚠️ Нужно согласовать';
+
+  @override
+  String get reviewDisputedSubtitle =>
+      'Есть спорное значение или предложение второй стороны — нажмите, чтобы указать итоговое';
+
+  @override
+  String get reviewAutoFilledTitle => '📄 Заполнено автоматически';
+
+  @override
+  String get reviewAutoFilledSubtitle => 'Из ваших документов';
+
+  @override
+  String get reviewCorrectedTitle => '✏️ Исправлено вами';
+
+  @override
+  String get reviewCorrectedSubtitle =>
+      'Вы поправили то, что распознал документ';
+
+  @override
+  String get reviewManualTitle => '✍️ Вы указали сами';
+
+  @override
+  String get reviewSkippedTitle => '⏭️ Не требуется';
+
+  @override
+  String get reviewSkippedSubtitle =>
+      'Подставляется системой или неактуально для вашего случая';
+
+  @override
+  String get reviewTapToFill => 'Нажмите, чтобы указать';
+
+  @override
+  String get reviewEditSaveFailed => 'Не удалось сохранить изменение';
+
+  @override
+  String get reviewStatusWaitingSecondParty => 'Ожидаем вторую сторону';
+
+  @override
+  String get reviewStatusWaitingObjectDocument =>
+      'Нужен документ на объект сделки';
+
+  @override
+  String get reviewStatusMissingMandatoryTerms =>
+      'Не хватает обязательных условий';
+
+  @override
+  String get reviewStatusWaitingPartyAgreement => 'Стороны согласуют условия';
+
+  @override
+  String get reviewStatusLegalReviewRequired =>
+      'Требуется юридическая проверка';
+
+  @override
+  String get reviewRiskLowLabel => 'Низкий риск';
+
+  @override
+  String get reviewRiskLowMessage => 'Все ключевые сведения заполнены.';
+
+  @override
+  String get reviewRiskMediumLabel => 'Средний риск';
+
+  @override
+  String get reviewRiskMediumMessage =>
+      'Отсутствуют некоторые сведения. Договор можно сформировать сейчас или сначала заполнить оставшееся для большей точности.';
+
+  @override
+  String get reviewRiskHighLabel => 'Высокий риск';
+
+  @override
+  String get reviewRiskHighMessage =>
+      'Отсутствуют важные условия сделки. Мы можем сформировать договор сейчас, но это увеличивает юридический риск.';
 }

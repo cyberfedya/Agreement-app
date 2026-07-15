@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/features/questionnaire/providers/questionnaire_provider.dart';
+import 'package:app/l10n/app_localizations.dart';
 
 /// The live agreement: a paper-styled document where every answered field
 /// materializes as real text and every missing one stays a soft blank
@@ -60,7 +61,10 @@ class AgreementPreviewSheet extends StatelessWidget {
                     child: Row(
                       children: [
                         Expanded(
-                          child: Text('Договор создаётся в реальном времени', style: theme.textTheme.titleSmall),
+                          child: Text(
+                            AppLocalizations.of(context)!.questionnaireLiveDocumentTitle,
+                            style: theme.textTheme.titleSmall,
+                          ),
                         ),
                         Text(
                           '${(progress * 100).round()}%',

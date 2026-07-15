@@ -34,6 +34,7 @@ import 'package:app/features/questionnaire/presentation/widgets/interview_stage_
 import 'package:app/features/questionnaire/presentation/widgets/review_view.dart';
 import 'package:app/features/questionnaire/presentation/widgets/thinking_indicator.dart';
 import 'package:app/features/questionnaire/providers/questionnaire_provider.dart';
+import 'package:app/l10n/app_localizations.dart';
 import 'package:app/shared/animation/entrance.dart';
 import 'package:app/shared/utils/image_format.dart';
 import 'package:app/shared/widgets/primary_button.dart';
@@ -299,15 +300,16 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
     if (!mounted) return;
 
     if (entries.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Не удалось распознать формат фото. Попробуйте JPEG, PNG или WebP.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.commonUnsupportedPhotoFormat)));
       return;
     }
 
     setState(() => _uploadingDocument = true);
     final uploadProvider = context.read<DocumentUploadProvider>();
     final questionnaire = context.read<QuestionnaireProvider>();
+    final l10n = AppLocalizations.of(context)!;
     final success = await uploadProvider.upload(entries);
     if (!mounted) return;
 
@@ -325,7 +327,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
       setState(() => _uploadingDocument = false);
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(uploadProvider.errorMessage ?? 'Не удалось загрузить документ.')));
+      ).showSnackBar(SnackBar(content: Text(uploadProvider.errorMessage ?? l10n.commonUploadFailed)));
     }
   }
 
@@ -347,6 +349,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
 
   Future<void> _attachFromComposer() async {
     final documentCount = context.read<DocumentUploadProvider>().uploadedDocuments.length;
+    final l10n = AppLocalizations.of(context)!;
     final choice = await showModalBottomSheet<String>(
       context: context,
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -360,19 +363,19 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
             children: [
               ListTile(
                 leading: const Icon(Icons.photo_camera_outlined),
-                title: const Text('Камера'),
+                title: Text(l10n.commonCamera),
                 onTap: () => Navigator.pop(sheetContext, 'camera'),
               ),
               ListTile(
                 leading: const Icon(Icons.photo_library_outlined),
-                title: const Text('Галерея'),
+                title: Text(l10n.commonGallery),
                 onTap: () => Navigator.pop(sheetContext, 'gallery'),
               ),
               if (documentCount > 0)
                 ListTile(
                   leading: const Icon(Icons.folder_copy_outlined),
-                  title: Text('Мои документы ($documentCount)'),
-                  subtitle: const Text('Посмотреть, исправить или удалить'),
+                  title: Text(l10n.questionnaireMyDocuments(documentCount)),
+                  subtitle: Text(l10n.questionnaireViewFixOrDelete),
                   onTap: () => Navigator.pop(sheetContext, 'documents'),
                 ),
             ],
@@ -400,6 +403,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
 
   void _showWhySheet(String question) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     showModalBottomSheet<void>(
       context: context,
       backgroundColor: theme.colorScheme.surface,
@@ -413,7 +417,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Зачем это нужно?', style: theme.textTheme.titleLarge),
+              Text(l10n.questionnaireWhyNeeded, style: theme.textTheme.titleLarge),
               const SizedBox(height: Insets.x12),
               Text(
                 QuestionExplanations.forQuestion(question),
@@ -454,7 +458,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
     } else {
       setState(() => _generating = false);
       messenger.showSnackBar(
-        SnackBar(content: Text(agreementProvider.errorMessage ?? 'Не удалось создать договор.')),
+        SnackBar(content: Text(agreementProvider.errorMessage ?? AppLocalizations.of(context)!.questionnaireGenerateFailed)),
       );
     }
   }
@@ -477,7 +481,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
   /// synonym on every frame for the exact same state, which reads as
   /// noise rather than a calm, steady assistant.
   String _statusText(QuestionnaireProvider provider) {
-    if (provider.readyToGenerate) return 'Договор готов к созданию';
+    if (provider.readyToGenerate) return AppLocalizations.of(context)!.questionnaireReadyToGenerate;
     final tier = InterviewScript.progressTier(
       firstQuestion: provider.answers.isEmpty,
       remaining: provider.preview?.estimatedRemainingQuestions,
@@ -567,9 +571,9 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                 // this is never visibly more than a blip. Deciding from an
                 // uploadedDocuments list that just hasn't loaded yet would
                 // wrongly read as "never uploaded anything".
-                content = const Center(
-                  key: ValueKey('verification-loading'),
-                  child: ThinkingIndicator(label: 'Секунду…'),
+                content = Center(
+                  key: const ValueKey('verification-loading'),
+                  child: ThinkingIndicator(label: AppLocalizations.of(context)!.questionnaireOneMoment),
                 );
               } else {
                 if (!_documentVerificationDecided) {
@@ -592,9 +596,9 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
             } else {
               // Between phases (e.g. right after dismissing the document
               // invite) while the planner decides the next step.
-              content = const Center(
-                key: ValueKey('inter-step'),
-                child: ThinkingIndicator(label: 'Готовлю следующий шаг…'),
+              content = Center(
+                key: const ValueKey('inter-step'),
+                child: ThinkingIndicator(label: AppLocalizations.of(context)!.questionnairePreparingNextStep),
               );
             }
 
@@ -630,7 +634,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
           return BottomActionBar(
             child: Consumer<AgreementProvider>(
               builder: (context, agreementProvider, _) => PrimaryButton(
-                label: 'Создать договор',
+                label: AppLocalizations.of(context)!.questionnaireGenerateButton,
                 loading: agreementProvider.isLoading,
                 onPressed: _generate,
               ),

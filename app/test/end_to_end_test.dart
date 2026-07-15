@@ -3,6 +3,7 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:app/core/router/app_router.dart';
+import 'package:app/l10n/app_localizations.dart';
 import 'package:app/core/services/tts_service.dart';
 import 'package:app/core/storage/local_storage.dart';
 import 'package:app/features/onboarding/onboarding_page.dart';
@@ -266,6 +267,9 @@ Widget buildTestApp({
     child: MaterialApp(
       initialRoute: initialRoute,
       onGenerateRoute: AppRouter.onGenerateRoute,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      locale: const Locale('ru'),
     ),
   );
 }

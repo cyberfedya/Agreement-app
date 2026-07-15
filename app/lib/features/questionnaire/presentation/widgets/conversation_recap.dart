@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import 'package:app/core/theme/app_tokens.dart';
+import 'package:app/l10n/app_localizations.dart';
 
 /// "Вы уже сообщили: ✓ Марка ✓ Модель ✓ VIN" - a small collapsed bubble
 /// that expands to the labels of everything answered so far, so the
@@ -51,7 +52,7 @@ class _ConversationRecapState extends State<ConversationRecap> {
                   const SizedBox(width: Insets.x8),
                   Expanded(
                     child: Text(
-                      'Вы уже сообщили: $count',
+                      AppLocalizations.of(context)!.questionnaireAlreadyTold(count),
                       style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                     ),
                   ),
