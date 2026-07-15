@@ -15,6 +15,7 @@ import 'package:app/l10n/app_localizations.dart';
 import 'package:app/features/agreement/data/agreement_repository.dart';
 import 'package:app/features/agreement/providers/agreement_provider.dart';
 import 'package:app/features/deal/data/deal_repository.dart';
+import 'package:app/features/deal/providers/deal_history_provider.dart';
 import 'package:app/features/documents/data/document_repository.dart';
 import 'package:app/features/documents/providers/document_upload_provider.dart';
 import 'package:app/features/profile/data/profile_repository.dart';
@@ -78,6 +79,7 @@ class EasyAgreeApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(create: (ctx) => AgreementProvider(ctx.read<AgreementRepository>())),
         ChangeNotifierProvider(create: (ctx) => DocumentUploadProvider(ctx.read<DocumentRepository>())),
+        ChangeNotifierProvider(create: (ctx) => DealHistoryProvider(ctx.read<DealRepository>())),
       ],
       child: Consumer<LocaleProvider>(
         builder: (context, localeProvider, _) => MaterialApp(

@@ -15,6 +15,7 @@ import 'package:app/features/agreement/providers/agreement_provider.dart';
 import 'package:app/features/ai_processing/presentation/ai_processing_page.dart';
 import 'package:app/features/deal/data/deal_repository.dart';
 import 'package:app/features/deal/domain/deal.dart';
+import 'package:app/features/deal/domain/deal_history.dart';
 import 'package:app/features/documents/data/document_repository.dart';
 import 'package:app/features/documents/domain/document_verification.dart';
 import 'package:app/features/documents/domain/interview_preview.dart';
@@ -178,6 +179,13 @@ class FakeDealRepository implements DealRepository {
   @override
   Future<Result<Deal>> createFromTemplate(String templateKey) async =>
       createFromTemplateResult ?? const Success(_matchedDeal);
+
+  @override
+  Future<Result<DealHistoryPage>> listDeals({int page = 1, int pageSize = 20}) async =>
+      const Success(DealHistoryPage(items: [], totalCount: 0, page: 1, pageSize: 20));
+
+  @override
+  Future<Result<void>> cancelDeal(String dealId) async => const Success(null);
 }
 
 /// Defaults to "nothing to suggest" so the creation flow goes straight to

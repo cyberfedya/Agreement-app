@@ -132,6 +132,26 @@ class _ProfilePageState extends State<ProfilePage> {
                     style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant, height: 1.5),
                   ),
                   const SizedBox(height: Insets.x24),
+                  Material(
+                    color: theme.colorScheme.surfaceContainerLow,
+                    borderRadius: Corners.mdRadius,
+                    child: InkWell(
+                      borderRadius: Corners.mdRadius,
+                      onTap: () => Navigator.of(context).pushNamed(AppRoutes.dealHistory),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: Insets.x16, vertical: Insets.x12),
+                        child: Row(
+                          children: [
+                            Icon(Icons.history_rounded, size: 20, color: theme.colorScheme.primary),
+                            const SizedBox(width: Insets.x12),
+                            Expanded(child: Text(l10n.profileHistoryEntry, style: theme.textTheme.titleSmall)),
+                            Icon(Icons.chevron_right_rounded, size: 20, color: theme.colorScheme.outline),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: Insets.x24),
                   _Field(label: l10n.profileFullNameLabel, controller: _fullName, hint: l10n.profileFullNameHint),
                   const SizedBox(height: Insets.x16),
                   _Field(label: l10n.profilePassportLabel, controller: _passportNumber, hint: l10n.profilePassportHint),

@@ -1881,6 +1881,180 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Продолжить'**
   String get extractionContinue;
+
+  /// No description provided for @profileHistoryEntry.
+  ///
+  /// In ru, this message translates to:
+  /// **'История договоров'**
+  String get profileHistoryEntry;
+
+  /// No description provided for @historyTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'История договоров'**
+  String get historyTitle;
+
+  /// No description provided for @historySearchHint.
+  ///
+  /// In ru, this message translates to:
+  /// **'Поиск по названию или стороне'**
+  String get historySearchHint;
+
+  /// No description provided for @historyFilterAll.
+  ///
+  /// In ru, this message translates to:
+  /// **'Все'**
+  String get historyFilterAll;
+
+  /// No description provided for @historyFilterDraft.
+  ///
+  /// In ru, this message translates to:
+  /// **'Черновики'**
+  String get historyFilterDraft;
+
+  /// No description provided for @historyFilterSigned.
+  ///
+  /// In ru, this message translates to:
+  /// **'Подписанные'**
+  String get historyFilterSigned;
+
+  /// No description provided for @historyFilterWaiting.
+  ///
+  /// In ru, this message translates to:
+  /// **'Ожидают подписи'**
+  String get historyFilterWaiting;
+
+  /// No description provided for @historyFilterCancelled.
+  ///
+  /// In ru, this message translates to:
+  /// **'Отменённые'**
+  String get historyFilterCancelled;
+
+  /// No description provided for @historyEmptyTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'У вас пока нет договоров'**
+  String get historyEmptyTitle;
+
+  /// No description provided for @historyEmptyMessage.
+  ///
+  /// In ru, this message translates to:
+  /// **'Создайте первый договор, и он появится здесь.'**
+  String get historyEmptyMessage;
+
+  /// No description provided for @historyCreateDeal.
+  ///
+  /// In ru, this message translates to:
+  /// **'Создать договор'**
+  String get historyCreateDeal;
+
+  /// No description provided for @historyNothingFoundMessage.
+  ///
+  /// In ru, this message translates to:
+  /// **'По этому фильтру или запросу ничего не найдено.'**
+  String get historyNothingFoundMessage;
+
+  /// No description provided for @historyStatusDraft.
+  ///
+  /// In ru, this message translates to:
+  /// **'Черновик'**
+  String get historyStatusDraft;
+
+  /// No description provided for @historyStatusWaitingSecondParty.
+  ///
+  /// In ru, this message translates to:
+  /// **'Ожидает вторую сторону'**
+  String get historyStatusWaitingSecondParty;
+
+  /// No description provided for @historyStatusWaitingYourSignature.
+  ///
+  /// In ru, this message translates to:
+  /// **'Ожидает вашей подписи'**
+  String get historyStatusWaitingYourSignature;
+
+  /// No description provided for @historyStatusSigned.
+  ///
+  /// In ru, this message translates to:
+  /// **'Подписан'**
+  String get historyStatusSigned;
+
+  /// No description provided for @historyStatusCancelled.
+  ///
+  /// In ru, this message translates to:
+  /// **'Отменён'**
+  String get historyStatusCancelled;
+
+  /// No description provided for @historyDetailCreatedLabel.
+  ///
+  /// In ru, this message translates to:
+  /// **'Создан'**
+  String get historyDetailCreatedLabel;
+
+  /// No description provided for @historyDetailUpdatedLabel.
+  ///
+  /// In ru, this message translates to:
+  /// **'Обновлён'**
+  String get historyDetailUpdatedLabel;
+
+  /// No description provided for @historyDetailSecondPartyLabel.
+  ///
+  /// In ru, this message translates to:
+  /// **'Вторая сторона'**
+  String get historyDetailSecondPartyLabel;
+
+  /// No description provided for @historyDetailStatusLabel.
+  ///
+  /// In ru, this message translates to:
+  /// **'Статус'**
+  String get historyDetailStatusLabel;
+
+  /// No description provided for @historyDetailContinue.
+  ///
+  /// In ru, this message translates to:
+  /// **'Продолжить оформление'**
+  String get historyDetailContinue;
+
+  /// No description provided for @historyDetailOpenDocument.
+  ///
+  /// In ru, this message translates to:
+  /// **'Открыть договор'**
+  String get historyDetailOpenDocument;
+
+  /// No description provided for @historyDetailCancelDeal.
+  ///
+  /// In ru, this message translates to:
+  /// **'Отменить сделку'**
+  String get historyDetailCancelDeal;
+
+  /// No description provided for @historyDetailCancelConfirmTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Отменить сделку?'**
+  String get historyDetailCancelConfirmTitle;
+
+  /// No description provided for @historyDetailCancelConfirmBody.
+  ///
+  /// In ru, this message translates to:
+  /// **'Это действие нельзя отменить. Договор будет помечен как отменённый.'**
+  String get historyDetailCancelConfirmBody;
+
+  /// No description provided for @historyDetailCancelConfirmButton.
+  ///
+  /// In ru, this message translates to:
+  /// **'Отменить сделку'**
+  String get historyDetailCancelConfirmButton;
+
+  /// No description provided for @historyDetailCancelFailed.
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось отменить сделку.'**
+  String get historyDetailCancelFailed;
+
+  /// No description provided for @historyDetailCancelledNotice.
+  ///
+  /// In ru, this message translates to:
+  /// **'Эта сделка отменена.'**
+  String get historyDetailCancelledNotice;
 }
 
 class _AppLocalizationsDelegate

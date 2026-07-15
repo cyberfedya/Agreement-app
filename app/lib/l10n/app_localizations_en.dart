@@ -997,4 +997,94 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get extractionContinue => 'Continue';
+
+  @override
+  String get profileHistoryEntry => 'Deal history';
+
+  @override
+  String get historyTitle => 'Deal history';
+
+  @override
+  String get historySearchHint => 'Search by title or party';
+
+  @override
+  String get historyFilterAll => 'All';
+
+  @override
+  String get historyFilterDraft => 'Drafts';
+
+  @override
+  String get historyFilterSigned => 'Signed';
+
+  @override
+  String get historyFilterWaiting => 'Awaiting signature';
+
+  @override
+  String get historyFilterCancelled => 'Cancelled';
+
+  @override
+  String get historyEmptyTitle => 'You don\'t have any agreements yet';
+
+  @override
+  String get historyEmptyMessage =>
+      'Create your first agreement and it will show up here.';
+
+  @override
+  String get historyCreateDeal => 'Create agreement';
+
+  @override
+  String get historyNothingFoundMessage =>
+      'Nothing matches this filter or search.';
+
+  @override
+  String get historyStatusDraft => 'Draft';
+
+  @override
+  String get historyStatusWaitingSecondParty => 'Awaiting the other party';
+
+  @override
+  String get historyStatusWaitingYourSignature => 'Awaiting your signature';
+
+  @override
+  String get historyStatusSigned => 'Signed';
+
+  @override
+  String get historyStatusCancelled => 'Cancelled';
+
+  @override
+  String get historyDetailCreatedLabel => 'Created';
+
+  @override
+  String get historyDetailUpdatedLabel => 'Updated';
+
+  @override
+  String get historyDetailSecondPartyLabel => 'Other party';
+
+  @override
+  String get historyDetailStatusLabel => 'Status';
+
+  @override
+  String get historyDetailContinue => 'Continue filling in';
+
+  @override
+  String get historyDetailOpenDocument => 'Open agreement';
+
+  @override
+  String get historyDetailCancelDeal => 'Cancel deal';
+
+  @override
+  String get historyDetailCancelConfirmTitle => 'Cancel this deal?';
+
+  @override
+  String get historyDetailCancelConfirmBody =>
+      'This can\'t be undone. The agreement will be marked as cancelled.';
+
+  @override
+  String get historyDetailCancelConfirmButton => 'Cancel deal';
+
+  @override
+  String get historyDetailCancelFailed => 'Couldn\'t cancel the deal.';
+
+  @override
+  String get historyDetailCancelledNotice => 'This deal has been cancelled.';
 }

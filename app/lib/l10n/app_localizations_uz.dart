@@ -995,4 +995,95 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get extractionContinue => 'Давом этиш';
+
+  @override
+  String get profileHistoryEntry => 'Шартномалар тарихи';
+
+  @override
+  String get historyTitle => 'Шартномалар тарихи';
+
+  @override
+  String get historySearchHint => 'Номи ёки тараф бўйича қидириш';
+
+  @override
+  String get historyFilterAll => 'Барчаси';
+
+  @override
+  String get historyFilterDraft => 'Қораламалар';
+
+  @override
+  String get historyFilterSigned => 'Имзоланганлар';
+
+  @override
+  String get historyFilterWaiting => 'Имзо кутилмоқда';
+
+  @override
+  String get historyFilterCancelled => 'Бекор қилинганлар';
+
+  @override
+  String get historyEmptyTitle => 'Сизда ҳали шартномалар йўқ';
+
+  @override
+  String get historyEmptyMessage =>
+      'Биринчи шартномангизни яратинг — у шу ерда пайдо бўлади.';
+
+  @override
+  String get historyCreateDeal => 'Шартнома яратиш';
+
+  @override
+  String get historyNothingFoundMessage =>
+      'Бу филтр ёки сўров бўйича ҳеч нарса топилмади.';
+
+  @override
+  String get historyStatusDraft => 'Қоралама';
+
+  @override
+  String get historyStatusWaitingSecondParty => 'Иккинчи тараф кутилмоқда';
+
+  @override
+  String get historyStatusWaitingYourSignature =>
+      'Сизнинг имзоингиз кутилмоқда';
+
+  @override
+  String get historyStatusSigned => 'Имзоланган';
+
+  @override
+  String get historyStatusCancelled => 'Бекор қилинган';
+
+  @override
+  String get historyDetailCreatedLabel => 'Яратилган';
+
+  @override
+  String get historyDetailUpdatedLabel => 'Янгиланган';
+
+  @override
+  String get historyDetailSecondPartyLabel => 'Иккинчи тараф';
+
+  @override
+  String get historyDetailStatusLabel => 'Ҳолати';
+
+  @override
+  String get historyDetailContinue => 'Расмийлаштиришни давом эттириш';
+
+  @override
+  String get historyDetailOpenDocument => 'Шартномани очиш';
+
+  @override
+  String get historyDetailCancelDeal => 'Битимни бекор қилиш';
+
+  @override
+  String get historyDetailCancelConfirmTitle => 'Битим бекор қилинсинми?';
+
+  @override
+  String get historyDetailCancelConfirmBody =>
+      'Бу амални бекор қилиб бўлмайди. Шартнома бекор қилинган деб белгиланади.';
+
+  @override
+  String get historyDetailCancelConfirmButton => 'Битимни бекор қилиш';
+
+  @override
+  String get historyDetailCancelFailed => 'Битимни бекор қилиб бўлмади.';
+
+  @override
+  String get historyDetailCancelledNotice => 'Бу битим бекор қилинган.';
 }

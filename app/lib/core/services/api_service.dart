@@ -3,6 +3,7 @@ import 'package:app/core/network/api_exception.dart';
 import 'package:app/features/agreement/domain/agreement.dart';
 import 'package:app/features/agreement/domain/deal_invite.dart';
 import 'package:app/features/deal/domain/deal.dart';
+import 'package:app/features/deal/domain/deal_history.dart';
 import 'package:app/features/documents/domain/document_verification.dart';
 import 'package:app/features/documents/domain/interview_preview.dart';
 import 'package:app/features/documents/domain/required_document.dart';
@@ -66,6 +67,20 @@ class ApiService {
       rethrow;
     }
   }
+
+  /// Deals [profileId] created or joined as second party, newest first —
+  /// feeds the "Deal History" screen.
+  Future<DealHistoryPage> listDeals(String profileId, {int page = 1, int pageSize = 20, String lang = 'ru'}) async {
+    final json = await _client.getJson(
+      '/api/deals',
+      query: {'profileId': profileId, 'page': '$page', 'pageSize': '$pageSize', 'lang': lang},
+    );
+    return _parse(() => DealHistoryPage.fromJson(json as Map<String, dynamic>));
+  }
+
+  /// Cancels a deal that hasn't been fully signed yet. 409 `already_signed`
+  /// if both parties already signed.
+  Future<void> cancelDeal(String dealId) => _client.postJson('/api/deals/$dealId/cancel');
 
   Future<UserProfile> getProfile(String id) async {
     final json = await _client.getJson('/api/profile/$id');

@@ -7,6 +7,8 @@ import 'package:app/features/agreement/presentation/agreement_sign_page.dart';
 import 'package:app/features/agreement/presentation/deal_invite_page.dart';
 import 'package:app/features/ai_processing/presentation/ai_processing_page.dart';
 import 'package:app/features/auth/presentation/auth_page.dart';
+import 'package:app/features/deal/presentation/deal_history_detail_page.dart';
+import 'package:app/features/deal/presentation/deal_history_page.dart';
 import 'package:app/features/home/presentation/home_page.dart';
 import 'package:app/features/onboarding/onboarding_page.dart';
 import 'package:app/l10n/app_localizations.dart';
@@ -51,6 +53,10 @@ abstract class AppRoutes {
 
   static const String profile = '/profile';
   static const String settings = '/settings';
+  static const String dealHistory = '/deal/history';
+
+  /// Required `String` argument: the deal id.
+  static const String dealHistoryDetail = '/deal/history/detail';
 
   /// Required `String` argument: the user's free-form request text.
   static const String aiProcessing = '/ai-processing';
@@ -113,6 +119,10 @@ class AppRouter {
         return _fadeRoute(const ProfilePage(), settings);
       case AppRoutes.settings:
         return _fadeRoute(const SettingsPage(), settings);
+      case AppRoutes.dealHistory:
+        return _fadeRoute(const DealHistoryPage(), settings);
+      case AppRoutes.dealHistoryDetail:
+        return _fadeRoute(DealHistoryDetailPage(dealId: settings.arguments as String), settings);
       case AppRoutes.aiProcessing:
         return _fadeRoute(AiProcessingPage(requestText: settings.arguments as String), settings);
       default:

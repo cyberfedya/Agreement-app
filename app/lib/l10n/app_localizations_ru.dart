@@ -989,4 +989,94 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get extractionContinue => 'Продолжить';
+
+  @override
+  String get profileHistoryEntry => 'История договоров';
+
+  @override
+  String get historyTitle => 'История договоров';
+
+  @override
+  String get historySearchHint => 'Поиск по названию или стороне';
+
+  @override
+  String get historyFilterAll => 'Все';
+
+  @override
+  String get historyFilterDraft => 'Черновики';
+
+  @override
+  String get historyFilterSigned => 'Подписанные';
+
+  @override
+  String get historyFilterWaiting => 'Ожидают подписи';
+
+  @override
+  String get historyFilterCancelled => 'Отменённые';
+
+  @override
+  String get historyEmptyTitle => 'У вас пока нет договоров';
+
+  @override
+  String get historyEmptyMessage =>
+      'Создайте первый договор, и он появится здесь.';
+
+  @override
+  String get historyCreateDeal => 'Создать договор';
+
+  @override
+  String get historyNothingFoundMessage =>
+      'По этому фильтру или запросу ничего не найдено.';
+
+  @override
+  String get historyStatusDraft => 'Черновик';
+
+  @override
+  String get historyStatusWaitingSecondParty => 'Ожидает вторую сторону';
+
+  @override
+  String get historyStatusWaitingYourSignature => 'Ожидает вашей подписи';
+
+  @override
+  String get historyStatusSigned => 'Подписан';
+
+  @override
+  String get historyStatusCancelled => 'Отменён';
+
+  @override
+  String get historyDetailCreatedLabel => 'Создан';
+
+  @override
+  String get historyDetailUpdatedLabel => 'Обновлён';
+
+  @override
+  String get historyDetailSecondPartyLabel => 'Вторая сторона';
+
+  @override
+  String get historyDetailStatusLabel => 'Статус';
+
+  @override
+  String get historyDetailContinue => 'Продолжить оформление';
+
+  @override
+  String get historyDetailOpenDocument => 'Открыть договор';
+
+  @override
+  String get historyDetailCancelDeal => 'Отменить сделку';
+
+  @override
+  String get historyDetailCancelConfirmTitle => 'Отменить сделку?';
+
+  @override
+  String get historyDetailCancelConfirmBody =>
+      'Это действие нельзя отменить. Договор будет помечен как отменённый.';
+
+  @override
+  String get historyDetailCancelConfirmButton => 'Отменить сделку';
+
+  @override
+  String get historyDetailCancelFailed => 'Не удалось отменить сделку.';
+
+  @override
+  String get historyDetailCancelledNotice => 'Эта сделка отменена.';
 }
