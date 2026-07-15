@@ -64,7 +64,7 @@ class DocumentHintCard extends StatelessWidget {
                   ),
                 ),
               ],
-            ),
+             ),
           ),
           const SizedBox(height: Insets.x8),
           Padding(

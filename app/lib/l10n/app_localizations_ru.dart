@@ -342,4 +342,107 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get reviewRiskHighMessage =>
       'Отсутствуют важные условия сделки. Мы можем сформировать договор сейчас, но это увеличивает юридический риск.';
+
+  @override
+  String get profileTitle => 'Профиль';
+
+  @override
+  String get profileSettingsTooltip => 'Настройки';
+
+  @override
+  String profileLoadFailed(String error) {
+    return 'Не удалось загрузить сохранённый профиль: $error';
+  }
+
+  @override
+  String get profileSaved => 'Профиль сохранён';
+
+  @override
+  String get profileSaveFailed =>
+      'Не удалось сохранить. Проверьте связь с сервером.';
+
+  @override
+  String get profileIntro =>
+      'Эти данные подставляются в договор как данные вашей стороны — заполните их один раз, и в интервью они больше не спрашиваются.';
+
+  @override
+  String get profileFullNameLabel => 'Ф.И.О.';
+
+  @override
+  String get profileFullNameHint => 'Иванов Иван Иванович';
+
+  @override
+  String get profilePassportLabel => 'Серия и номер паспорта';
+
+  @override
+  String get profilePassportHint => 'AD 1234567';
+
+  @override
+  String get profileBirthDateLabel => 'Дата рождения';
+
+  @override
+  String get profileBirthDateHint => '01.01.1990';
+
+  @override
+  String get profileAddressLabel => 'Адрес';
+
+  @override
+  String get profileAddressHint => 'г. Ташкент, ул. Примерная, 1';
+
+  @override
+  String get homeGreetingNight => 'Доброй ночи';
+
+  @override
+  String get homeGreetingMorning => 'Доброе утро';
+
+  @override
+  String get homeGreetingDay => 'Добрый день';
+
+  @override
+  String get homeGreetingEvening => 'Добрый вечер';
+
+  @override
+  String get homeScanQrTooltip => 'Сканировать QR';
+
+  @override
+  String get homeProfileTooltip => 'Профиль';
+
+  @override
+  String get homeQuestion => 'О чём договариваемся?';
+
+  @override
+  String get homeSubtitle =>
+      'Опишите словами или голосом — я подготовлю договор автоматически.';
+
+  @override
+  String get homeHint => 'Скажите или напишите, о чём хотите договориться…';
+
+  @override
+  String get homeListening => 'Слушаю…';
+
+  @override
+  String get homeHoldToTalk => 'Удерживайте, чтобы говорить';
+
+  @override
+  String get homeCreateAgreement => 'Создать договор';
+
+  @override
+  String get authTagline => 'Договоры с юридической силой';
+
+  @override
+  String get authMyIdTitle => 'Идентификация через MyID';
+
+  @override
+  String get authMyIdBody =>
+      'Ваше имя, фамилия и паспортные данные будут подтверждены через MyID и автоматически подставлены в договор.';
+
+  @override
+  String get authContinueWithMyId => 'Продолжить с MyID';
+
+  @override
+  String get authVerifying => 'Проверяем данные…';
+
+  @override
+  String get authDemoModeNotice =>
+      'Демо-режим — реальная интеграция появится позже';
 }

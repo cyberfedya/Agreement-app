@@ -7,6 +7,7 @@ import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/core/widgets/app_widgets.dart';
 import 'package:app/features/profile/data/profile_repository.dart';
 import 'package:app/features/profile/domain/user_profile.dart';
+import 'package:app/l10n/app_localizations.dart';
 
 /// Self-entered identity — no mock data, no fake MyID verification badge.
 /// Whatever the user types here is what's substituted into agreements as
@@ -60,13 +61,14 @@ class _ProfilePageState extends State<ProfilePage> {
     if (loadError != null) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Не удалось загрузить сохранённый профиль: $loadError')));
+      ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.profileLoadFailed(loadError))));
     }
   }
 
   Future<void> _save() async {
     setState(() => _isSaving = true);
     final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
     try {
       await context.read<ProfileRepository>().save(
         UserProfile(
@@ -77,10 +79,10 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       );
       if (!mounted) return;
-      messenger.showSnackBar(const SnackBar(content: Text('Профиль сохранён')));
+      messenger.showSnackBar(SnackBar(content: Text(l10n.profileSaved)));
     } catch (_) {
       if (!mounted) return;
-      messenger.showSnackBar(const SnackBar(content: Text('Не удалось сохранить. Проверьте связь с сервером.')));
+      messenger.showSnackBar(SnackBar(content: Text(l10n.profileSaveFailed)));
     } finally {
       if (mounted) setState(() => _isSaving = false);
     }
@@ -98,14 +100,15 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Профиль'),
+        title: Text(l10n.profileTitle),
         actions: [
           IconButton(
             onPressed: () => Navigator.of(context).pushNamed(AppRoutes.settings),
             icon: const Icon(Icons.settings_outlined),
-            tooltip: 'Настройки',
+            tooltip: l10n.profileSettingsTooltip,
           ),
         ],
       ),
@@ -125,18 +128,17 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   const SizedBox(height: Insets.x24),
                   Text(
-                    'Эти данные подставляются в договор как данные вашей стороны — '
-                    'заполните их один раз, и в интервью они больше не спрашиваются.',
+                    l10n.profileIntro,
                     style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant, height: 1.5),
                   ),
                   const SizedBox(height: Insets.x24),
-                  _Field(label: 'Ф.И.О.', controller: _fullName, hint: 'Иванов Иван Иванович'),
+                  _Field(label: l10n.profileFullNameLabel, controller: _fullName, hint: l10n.profileFullNameHint),
                   const SizedBox(height: Insets.x16),
-                  _Field(label: 'Серия и номер паспорта', controller: _passportNumber, hint: 'AD 1234567'),
+                  _Field(label: l10n.profilePassportLabel, controller: _passportNumber, hint: l10n.profilePassportHint),
                   const SizedBox(height: Insets.x16),
-                  _Field(label: 'Дата рождения', controller: _birthDate, hint: '01.01.1990'),
+                  _Field(label: l10n.profileBirthDateLabel, controller: _birthDate, hint: l10n.profileBirthDateHint),
                   const SizedBox(height: Insets.x16),
-                  _Field(label: 'Адрес', controller: _address, hint: 'г. Ташкент, ул. Примерная, 1'),
+                  _Field(label: l10n.profileAddressLabel, controller: _address, hint: l10n.profileAddressHint),
                 ],
               ),
             ),
@@ -152,7 +154,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         height: 20,
                         child: CircularProgressIndicator(strokeWidth: 2.4, color: Colors.white),
                       )
-                    : const Text('Сохранить'),
+                    : Text(l10n.commonSave),
               ),
             ),
     );

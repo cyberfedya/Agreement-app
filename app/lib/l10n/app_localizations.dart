@@ -705,6 +705,198 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Отсутствуют важные условия сделки. Мы можем сформировать договор сейчас, но это увеличивает юридический риск.'**
   String get reviewRiskHighMessage;
+
+  /// No description provided for @profileTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Профиль'**
+  String get profileTitle;
+
+  /// No description provided for @profileSettingsTooltip.
+  ///
+  /// In ru, this message translates to:
+  /// **'Настройки'**
+  String get profileSettingsTooltip;
+
+  /// No description provided for @profileLoadFailed.
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось загрузить сохранённый профиль: {error}'**
+  String profileLoadFailed(String error);
+
+  /// No description provided for @profileSaved.
+  ///
+  /// In ru, this message translates to:
+  /// **'Профиль сохранён'**
+  String get profileSaved;
+
+  /// No description provided for @profileSaveFailed.
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось сохранить. Проверьте связь с сервером.'**
+  String get profileSaveFailed;
+
+  /// No description provided for @profileIntro.
+  ///
+  /// In ru, this message translates to:
+  /// **'Эти данные подставляются в договор как данные вашей стороны — заполните их один раз, и в интервью они больше не спрашиваются.'**
+  String get profileIntro;
+
+  /// No description provided for @profileFullNameLabel.
+  ///
+  /// In ru, this message translates to:
+  /// **'Ф.И.О.'**
+  String get profileFullNameLabel;
+
+  /// No description provided for @profileFullNameHint.
+  ///
+  /// In ru, this message translates to:
+  /// **'Иванов Иван Иванович'**
+  String get profileFullNameHint;
+
+  /// No description provided for @profilePassportLabel.
+  ///
+  /// In ru, this message translates to:
+  /// **'Серия и номер паспорта'**
+  String get profilePassportLabel;
+
+  /// No description provided for @profilePassportHint.
+  ///
+  /// In ru, this message translates to:
+  /// **'AD 1234567'**
+  String get profilePassportHint;
+
+  /// No description provided for @profileBirthDateLabel.
+  ///
+  /// In ru, this message translates to:
+  /// **'Дата рождения'**
+  String get profileBirthDateLabel;
+
+  /// No description provided for @profileBirthDateHint.
+  ///
+  /// In ru, this message translates to:
+  /// **'01.01.1990'**
+  String get profileBirthDateHint;
+
+  /// No description provided for @profileAddressLabel.
+  ///
+  /// In ru, this message translates to:
+  /// **'Адрес'**
+  String get profileAddressLabel;
+
+  /// No description provided for @profileAddressHint.
+  ///
+  /// In ru, this message translates to:
+  /// **'г. Ташкент, ул. Примерная, 1'**
+  String get profileAddressHint;
+
+  /// No description provided for @homeGreetingNight.
+  ///
+  /// In ru, this message translates to:
+  /// **'Доброй ночи'**
+  String get homeGreetingNight;
+
+  /// No description provided for @homeGreetingMorning.
+  ///
+  /// In ru, this message translates to:
+  /// **'Доброе утро'**
+  String get homeGreetingMorning;
+
+  /// No description provided for @homeGreetingDay.
+  ///
+  /// In ru, this message translates to:
+  /// **'Добрый день'**
+  String get homeGreetingDay;
+
+  /// No description provided for @homeGreetingEvening.
+  ///
+  /// In ru, this message translates to:
+  /// **'Добрый вечер'**
+  String get homeGreetingEvening;
+
+  /// No description provided for @homeScanQrTooltip.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сканировать QR'**
+  String get homeScanQrTooltip;
+
+  /// No description provided for @homeProfileTooltip.
+  ///
+  /// In ru, this message translates to:
+  /// **'Профиль'**
+  String get homeProfileTooltip;
+
+  /// No description provided for @homeQuestion.
+  ///
+  /// In ru, this message translates to:
+  /// **'О чём договариваемся?'**
+  String get homeQuestion;
+
+  /// No description provided for @homeSubtitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Опишите словами или голосом — я подготовлю договор автоматически.'**
+  String get homeSubtitle;
+
+  /// No description provided for @homeHint.
+  ///
+  /// In ru, this message translates to:
+  /// **'Скажите или напишите, о чём хотите договориться…'**
+  String get homeHint;
+
+  /// No description provided for @homeListening.
+  ///
+  /// In ru, this message translates to:
+  /// **'Слушаю…'**
+  String get homeListening;
+
+  /// No description provided for @homeHoldToTalk.
+  ///
+  /// In ru, this message translates to:
+  /// **'Удерживайте, чтобы говорить'**
+  String get homeHoldToTalk;
+
+  /// No description provided for @homeCreateAgreement.
+  ///
+  /// In ru, this message translates to:
+  /// **'Создать договор'**
+  String get homeCreateAgreement;
+
+  /// No description provided for @authTagline.
+  ///
+  /// In ru, this message translates to:
+  /// **'Договоры с юридической силой'**
+  String get authTagline;
+
+  /// No description provided for @authMyIdTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Идентификация через MyID'**
+  String get authMyIdTitle;
+
+  /// No description provided for @authMyIdBody.
+  ///
+  /// In ru, this message translates to:
+  /// **'Ваше имя, фамилия и паспортные данные будут подтверждены через MyID и автоматически подставлены в договор.'**
+  String get authMyIdBody;
+
+  /// No description provided for @authContinueWithMyId.
+  ///
+  /// In ru, this message translates to:
+  /// **'Продолжить с MyID'**
+  String get authContinueWithMyId;
+
+  /// No description provided for @authVerifying.
+  ///
+  /// In ru, this message translates to:
+  /// **'Проверяем данные…'**
+  String get authVerifying;
+
+  /// No description provided for @authDemoModeNotice.
+  ///
+  /// In ru, this message translates to:
+  /// **'Демо-режим — реальная интеграция появится позже'**
+  String get authDemoModeNotice;
 }
 
 class _AppLocalizationsDelegate

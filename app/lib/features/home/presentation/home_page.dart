@@ -1,20 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-
 import 'package:app/core/router/app_router.dart';
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/core/widgets/app_widgets.dart';
 import 'package:app/core/widgets/hold_to_talk_mic_button.dart';
 import 'package:app/features/templates/domain/template.dart';
 import 'package:app/features/templates/providers/templates_list_provider.dart';
+import 'package:app/l10n/app_localizations.dart';
 import 'package:app/shared/animation/entrance.dart';
 import 'package:app/shared/widgets/pressable_scale.dart';
 import 'package:app/shared/widgets/primary_button.dart';
-
-/// "О чём договариваемся?" — the entire product starts here. One input,
-/// one microphone, one action; quick-start chips are the only optional
-/// shortcut, built from the real template catalog rather than a fixed list.
+ 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -67,17 +64,18 @@ class _HomePageState extends State<HomePage> {
     Navigator.of(context).pushNamed(AppRoutes.templateDetail, arguments: template.key);
   }
 
-  static String _greeting() {
+  static String _greeting(AppLocalizations l10n) {
     final hour = DateTime.now().hour;
-    if (hour < 5) return 'Доброй ночи';
-    if (hour < 12) return 'Доброе утро';
-    if (hour < 18) return 'Добрый день';
-    return 'Добрый вечер';
+    if (hour < 5) return l10n.homeGreetingNight;
+    if (hour < 12) return l10n.homeGreetingMorning;
+    if (hour < 18) return l10n.homeGreetingDay;
+    return l10n.homeGreetingEvening;
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: SafeArea(
         child: CenteredContent(
@@ -91,7 +89,7 @@ class _HomePageState extends State<HomePage> {
                     IconButton(
                       onPressed: _openQrScan,
                       icon: const Icon(Icons.qr_code_scanner_rounded),
-                      tooltip: 'Сканировать QR',
+                      tooltip: l10n.homeScanQrTooltip,
                       style: IconButton.styleFrom(
                         backgroundColor: theme.colorScheme.surfaceContainerHigh,
                         foregroundColor: theme.colorScheme.onSurface,
@@ -100,7 +98,7 @@ class _HomePageState extends State<HomePage> {
                     IconButton(
                       onPressed: () => Navigator.of(context).pushNamed(AppRoutes.profile),
                       icon: const Icon(Icons.person_outline_rounded),
-                      tooltip: 'Профиль',
+                      tooltip: l10n.homeProfileTooltip,
                       style: IconButton.styleFrom(
                         backgroundColor: theme.colorScheme.surfaceContainerHigh,
                         foregroundColor: theme.colorScheme.onSurface,
@@ -124,16 +122,16 @@ class _HomePageState extends State<HomePage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      '${_greeting()}!',
+                                      '${_greeting(l10n)}!',
                                       style: theme.textTheme.bodyMedium?.copyWith(
                                         color: theme.colorScheme.onSurfaceVariant,
                                       ),
                                     ),
                                     const SizedBox(height: Insets.x4),
-                                    Text('О чём договариваемся?', style: theme.textTheme.headlineSmall),
+                                    Text(l10n.homeQuestion, style: theme.textTheme.headlineSmall),
                                     const SizedBox(height: Insets.x8),
                                     Text(
-                                      'Опишите словами или голосом — я подготовлю договор автоматически.',
+                                      l10n.homeSubtitle,
                                       style: theme.textTheme.bodyMedium?.copyWith(
                                         color: theme.colorScheme.onSurfaceVariant,
                                         height: 1.4,
@@ -165,8 +163,8 @@ class _HomePageState extends State<HomePage> {
                                   maxLines: 8,
                                   textAlignVertical: TextAlignVertical.top,
                                   style: theme.textTheme.bodyLarge,
-                                  decoration: const InputDecoration(
-                                    hintText: 'Скажите или напишите, о чём хотите договориться…',
+                                  decoration: InputDecoration(
+                                    hintText: l10n.homeHint,
                                     filled: false,
                                     border: InputBorder.none,
                                     enabledBorder: InputBorder.none,
@@ -184,7 +182,7 @@ class _HomePageState extends State<HomePage> {
                               AnimatedSwitcher(
                                 duration: Motion.fast,
                                 child: Text(
-                                  _listening ? 'Слушаю…' : 'Удерживайте, чтобы говорить',
+                                  _listening ? l10n.homeListening : l10n.homeHoldToTalk,
                                   key: ValueKey(_listening),
                                   style: theme.textTheme.bodySmall?.copyWith(
                                     color: _listening ? theme.colorScheme.primary : theme.colorScheme.outline,
@@ -198,7 +196,7 @@ class _HomePageState extends State<HomePage> {
                     },
                   ),
                 ),
-                PrimaryButton(label: 'Создать договор', onPressed: _hasText ? _createAgreement : null),
+                PrimaryButton(label: l10n.homeCreateAgreement, onPressed: _hasText ? _createAgreement : null),
               ],
             ),
           ),

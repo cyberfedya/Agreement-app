@@ -346,4 +346,107 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get reviewRiskHighMessage =>
       'Important deal terms are missing. We can still create the agreement now, but that increases legal risk.';
+
+  @override
+  String get profileTitle => 'Profile';
+
+  @override
+  String get profileSettingsTooltip => 'Settings';
+
+  @override
+  String profileLoadFailed(String error) {
+    return 'Couldn\'t load your saved profile: $error';
+  }
+
+  @override
+  String get profileSaved => 'Profile saved';
+
+  @override
+  String get profileSaveFailed =>
+      'Couldn\'t save. Check your connection to the server.';
+
+  @override
+  String get profileIntro =>
+      'This information fills in your side of the agreement — fill it in once and it won\'t be asked again during the interview.';
+
+  @override
+  String get profileFullNameLabel => 'Full name';
+
+  @override
+  String get profileFullNameHint => 'John Smith';
+
+  @override
+  String get profilePassportLabel => 'Passport series and number';
+
+  @override
+  String get profilePassportHint => 'AD 1234567';
+
+  @override
+  String get profileBirthDateLabel => 'Date of birth';
+
+  @override
+  String get profileBirthDateHint => '01.01.1990';
+
+  @override
+  String get profileAddressLabel => 'Address';
+
+  @override
+  String get profileAddressHint => '123 Example St, Tashkent';
+
+  @override
+  String get homeGreetingNight => 'Good night';
+
+  @override
+  String get homeGreetingMorning => 'Good morning';
+
+  @override
+  String get homeGreetingDay => 'Good afternoon';
+
+  @override
+  String get homeGreetingEvening => 'Good evening';
+
+  @override
+  String get homeScanQrTooltip => 'Scan QR';
+
+  @override
+  String get homeProfileTooltip => 'Profile';
+
+  @override
+  String get homeQuestion => 'What are you agreeing on?';
+
+  @override
+  String get homeSubtitle =>
+      'Describe it in words or by voice — I\'ll prepare the agreement automatically.';
+
+  @override
+  String get homeHint => 'Say or type what you\'d like to agree on…';
+
+  @override
+  String get homeListening => 'Listening…';
+
+  @override
+  String get homeHoldToTalk => 'Hold to talk';
+
+  @override
+  String get homeCreateAgreement => 'Create agreement';
+
+  @override
+  String get authTagline => 'Legally binding agreements';
+
+  @override
+  String get authMyIdTitle => 'Identification via MyID';
+
+  @override
+  String get authMyIdBody =>
+      'Your name and passport details will be verified through MyID and automatically filled into the agreement.';
+
+  @override
+  String get authContinueWithMyId => 'Continue with MyID';
+
+  @override
+  String get authVerifying => 'Verifying your details…';
+
+  @override
+  String get authDemoModeNotice =>
+      'Demo mode — real integration is coming later';
 }

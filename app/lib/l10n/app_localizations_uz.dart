@@ -346,4 +346,107 @@ class AppLocalizationsUz extends AppLocalizations {
   @override
   String get reviewRiskHighMessage =>
       'Битимнинг муҳим шартлари етишмайди. Шартномани ҳозир расмийлаштиришимиз мумкин, лекин бу юридик хавфни оширади.';
+
+  @override
+  String get profileTitle => 'Профил';
+
+  @override
+  String get profileSettingsTooltip => 'Созламалар';
+
+  @override
+  String profileLoadFailed(String error) {
+    return 'Сақланган профилни юклаб бўлмади: $error';
+  }
+
+  @override
+  String get profileSaved => 'Профил сақланди';
+
+  @override
+  String get profileSaveFailed =>
+      'Сақлаб бўлмади. Сервер билан алоқани текширинг.';
+
+  @override
+  String get profileIntro =>
+      'Бу маълумотлар шартномага сизнинг тарафингиз сифатида қўйилади — бир марта тўлдиринг, интервьюда қайта сўралмайди.';
+
+  @override
+  String get profileFullNameLabel => 'Ф.И.Ш.';
+
+  @override
+  String get profileFullNameHint => 'Иванов Иван Иванович';
+
+  @override
+  String get profilePassportLabel => 'Паспорт серияси ва рақами';
+
+  @override
+  String get profilePassportHint => 'AD 1234567';
+
+  @override
+  String get profileBirthDateLabel => 'Туғилган сана';
+
+  @override
+  String get profileBirthDateHint => '01.01.1990';
+
+  @override
+  String get profileAddressLabel => 'Манзил';
+
+  @override
+  String get profileAddressHint => 'Тошкент ш., Мисол кўч., 1';
+
+  @override
+  String get homeGreetingNight => 'Хайрли тун';
+
+  @override
+  String get homeGreetingMorning => 'Хайрли тонг';
+
+  @override
+  String get homeGreetingDay => 'Хайрли кун';
+
+  @override
+  String get homeGreetingEvening => 'Хайрли кеч';
+
+  @override
+  String get homeScanQrTooltip => 'QR сканерлаш';
+
+  @override
+  String get homeProfileTooltip => 'Профил';
+
+  @override
+  String get homeQuestion => 'Нима ҳақида келишамиз?';
+
+  @override
+  String get homeSubtitle =>
+      'Сўз ёки овоз билан таърифланг — шартномани автоматик тайёрлайман.';
+
+  @override
+  String get homeHint => 'Нима ҳақида келишмоқчи эканингизни ёзинг ёки айтинг…';
+
+  @override
+  String get homeListening => 'Тингламоқдаман…';
+
+  @override
+  String get homeHoldToTalk => 'Гапириш учун ушлаб туринг';
+
+  @override
+  String get homeCreateAgreement => 'Шартнома яратиш';
+
+  @override
+  String get authTagline => 'Юридик кучга эга шартномалар';
+
+  @override
+  String get authMyIdTitle => 'MyID орқали идентификация';
+
+  @override
+  String get authMyIdBody =>
+      'Исмингиз, фамилиянгиз ва паспорт маълумотларингиз MyID орқали тасдиқланади ва шартномага автоматик қўйилади.';
+
+  @override
+  String get authContinueWithMyId => 'MyID билан давом этиш';
+
+  @override
+  String get authVerifying => 'Маълумотлар текширилмоқда…';
+
+  @override
+  String get authDemoModeNotice =>
+      'Демо режим — ҳақиқий интеграция кейинроқ қўшилади';
 }

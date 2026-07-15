@@ -4,6 +4,7 @@ import 'package:app/core/config/app_config.dart';
 import 'package:app/core/router/app_router.dart';
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/core/widgets/app_widgets.dart';
+import 'package:app/l10n/app_localizations.dart';
 import 'package:app/shared/animation/entrance.dart';
 import 'package:app/shared/widgets/primary_button.dart';
 
@@ -30,6 +31,7 @@ class _AuthPageState extends State<AuthPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: SafeArea(
         child: CenteredContent(
@@ -51,7 +53,7 @@ class _AuthPageState extends State<AuthPage> {
                 Text(AppConfig.appName, style: theme.textTheme.headlineMedium).animateEntranceStaggered(1),
                 const SizedBox(height: Insets.x8),
                 Text(
-                  'Договоры с юридической силой',
+                  l10n.authTagline,
                   style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                 ).animateEntranceStaggered(2),
                 const Spacer(flex: 2),
@@ -71,14 +73,13 @@ class _AuthPageState extends State<AuthPage> {
                           Icon(Icons.badge_outlined, size: 20, color: theme.colorScheme.primary),
                           const SizedBox(width: Insets.x8),
                           Expanded(
-                            child: Text('Идентификация через MyID', style: theme.textTheme.titleSmall),
+                            child: Text(l10n.authMyIdTitle, style: theme.textTheme.titleSmall),
                           ),
                         ],
                       ),
                       const SizedBox(height: Insets.x8),
                       Text(
-                        'Ваше имя, фамилия и паспортные данные будут подтверждены '
-                        'через MyID и автоматически подставлены в договор.',
+                        l10n.authMyIdBody,
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
                           height: 1.5,
@@ -89,13 +90,13 @@ class _AuthPageState extends State<AuthPage> {
                 ).animateEntranceStaggered(3),
                 const SizedBox(height: Insets.x20),
                 PrimaryButton(
-                  label: 'Продолжить с MyID',
+                  label: l10n.authContinueWithMyId,
                   loading: _verifying,
                   onPressed: _continueWithMyId,
                 ),
                 const SizedBox(height: Insets.x12),
                 Text(
-                  _verifying ? 'Проверяем данные…' : 'Демо-режим — реальная интеграция появится позже',
+                  _verifying ? l10n.authVerifying : l10n.authDemoModeNotice,
                   style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                   textAlign: TextAlign.center,
                 ),
