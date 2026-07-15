@@ -5,6 +5,7 @@ import 'package:app/core/router/app_router.dart';
 import 'package:app/core/storage/local_storage.dart';
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/core/widgets/app_widgets.dart';
+import 'package:app/l10n/app_localizations.dart';
 import 'package:app/shared/widgets/primary_button.dart';
 
 /// Three-beat first-launch intro: describe the deal -> upload a document
@@ -23,21 +24,21 @@ class _OnboardingPageState extends State<OnboardingPage> {
   final _pageController = PageController();
   int _page = 0;
 
-  static const _slides = [
+  List<({IconData icon, String title, String body})> _slides(AppLocalizations l10n) => [
     (
       icon: Icons.chat_bubble_outline_rounded,
-      title: 'Просто расскажите,\nо чём договариваетесь',
-      body: 'Своими словами или голосом — ИИ сам поймёт, какой договор нужен, и подготовит его.',
+      title: l10n.onboardingSlide1Title,
+      body: l10n.onboardingSlide1Body,
     ),
     (
       icon: Icons.document_scanner_outlined,
-      title: 'Сфотографируйте документ —\nостальное заполнится само',
-      body: 'Техпаспорт, кадастровые документы, реквизиты: ИИ распознает их и заполнит договор автоматически.',
+      title: l10n.onboardingSlide2Title,
+      body: l10n.onboardingSlide2Body,
     ),
     (
       icon: Icons.qr_code_2_rounded,
-      title: 'Вторая сторона подписывает\nпо QR-коду',
-      body: 'Покажите код — партнёр откроет договор у себя, предложит правки или сразу подпишет.',
+      title: l10n.onboardingSlide3Title,
+      body: l10n.onboardingSlide3Body,
     ),
   ];
 
@@ -54,8 +55,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
     navigator.pushReplacementNamed(AppRoutes.login);
   }
 
-  void _next() {
-    if (_page == _slides.length - 1) {
+  void _next(int slideCount) {
+    if (_page == slideCount - 1) {
       _finish();
     } else {
       _pageController.nextPage(duration: Motion.slow, curve: Motion.curve);
@@ -65,7 +66,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isLast = _page == _slides.length - 1;
+    final l10n = AppLocalizations.of(context)!;
+    final slides = _slides(l10n);
+    final isLast = _page == slides.length - 1;
 
     return Scaffold(
       body: SafeArea(
@@ -76,16 +79,16 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 alignment: Alignment.centerRight,
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(0, Insets.x8, Insets.x12, 0),
-                  child: TextButton(onPressed: _finish, child: const Text('Пропустить')),
+                  child: TextButton(onPressed: _finish, child: Text(l10n.onboardingSkip)),
                 ),
               ),
               Expanded(
                 child: PageView.builder(
                   controller: _pageController,
-                  itemCount: _slides.length,
+                  itemCount: slides.length,
                   onPageChanged: (page) => setState(() => _page = page),
                   itemBuilder: (context, index) {
-                    final slide = _slides[index];
+                    final slide = slides[index];
                     return Padding(
                       padding: const EdgeInsets.symmetric(horizontal: Insets.x32),
                       child: Column(
@@ -138,7 +141,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        for (var i = 0; i < _slides.length; i++)
+                        for (var i = 0; i < slides.length; i++)
                           AnimatedContainer(
                             duration: Motion.fast,
                             curve: Motion.curve,
@@ -153,7 +156,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
                       ],
                     ),
                     const SizedBox(height: Insets.x20),
-                    PrimaryButton(label: isLast ? 'Начать' : 'Далее', onPressed: _next),
+                    PrimaryButton(
+                      label: isLast ? l10n.onboardingStart : l10n.onboardingNext,
+                      onPressed: () => _next(slides.length),
+                    ),
                   ],
                 ),
               ),

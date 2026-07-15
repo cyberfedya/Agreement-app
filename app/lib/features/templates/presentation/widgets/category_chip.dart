@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:app/l10n/app_localizations.dart';
 import 'package:app/shared/extensions/string_extensions.dart';
 
 /// Selectable category filter chip. Renders the raw category slug as a
@@ -18,8 +19,9 @@ class CategoryChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return FilterChip(
-      label: Text(category.asCategoryLabel),
+      label: Text(category.categoryLabel(l10n)),
       selected: selected,
       showCheckmark: false,
       onSelected: onSelected,

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/features/templates/domain/template.dart';
 import 'package:app/features/templates/presentation/widgets/domain_visuals.dart';
+import 'package:app/l10n/app_localizations.dart';
 import 'package:app/shared/extensions/string_extensions.dart';
 
 /// List card for one agreement template: leading category glyph, title,
@@ -16,6 +17,7 @@ class AgreementCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       child: InkWell(
         onTap: onTap,
@@ -52,7 +54,7 @@ class AgreementCard extends StatelessWidget {
                     ),
                     const SizedBox(height: Insets.x8),
                     Text(
-                      template.domain.asCategoryLabel,
+                      template.domain.categoryLabel(l10n),
                       style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.primary),
                     ),
                   ],
@@ -78,6 +80,7 @@ class AgreementRailCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return SizedBox(
       width: 220,
       child: Card(
@@ -100,7 +103,7 @@ class AgreementRailCard extends StatelessWidget {
                 ),
                 const SizedBox(height: Insets.x8),
                 Text(
-                  template.domain.asCategoryLabel,
+                  template.domain.categoryLabel(l10n),
                   style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                 ),
               ],

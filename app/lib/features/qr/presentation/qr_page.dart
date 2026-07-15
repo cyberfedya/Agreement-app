@@ -5,6 +5,7 @@ import 'package:app/core/router/app_router.dart';
 import 'package:app/core/services/permission_service.dart';
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/features/agreement/domain/agreement_qr.dart';
+import 'package:app/l10n/app_localizations.dart';
 
 /// Camera QR scanner for the second party: scan the first party's QR code
 /// to open [AppRoutes.dealInvite] for that deal.
@@ -53,9 +54,9 @@ class _QrPageState extends State<QrPage> {
 
     final key = extractAgreementKey(raw);
     if (key == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Это не QR-код договора EasyAgree')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.qrNotAgreementCode)),
+      );
       return;
     }
 
@@ -65,13 +66,14 @@ class _QrPageState extends State<QrPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
         elevation: 0,
-        title: const Text('Сканировать QR-код'),
+        title: Text(l10n.qrTitle),
       ),
       body: _checkingPermission
           ? const Center(child: CircularProgressIndicator())
@@ -95,10 +97,10 @@ class _QrPageState extends State<QrPage> {
                   bottom: Insets.x40,
                   left: Insets.x24,
                   right: Insets.x24,
-                  child: const Text(
-                    'Наведите камеру на QR-код договора',
+                  child: Text(
+                    l10n.qrHint,
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.white),
+                    style: const TextStyle(color: Colors.white),
                   ),
                 ),
               ],
@@ -114,6 +116,7 @@ class _PermissionDeniedView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(Insets.x32),
@@ -122,13 +125,13 @@ class _PermissionDeniedView extends StatelessWidget {
           children: [
             const Icon(Icons.camera_alt_outlined, color: Colors.white, size: 40),
             const SizedBox(height: Insets.x16),
-            const Text(
-              'Нужен доступ к камере, чтобы сканировать QR-код договора.',
+            Text(
+              l10n.qrCameraPermissionNeeded,
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white),
+              style: const TextStyle(color: Colors.white),
             ),
             const SizedBox(height: Insets.x20),
-            FilledButton(onPressed: onRetry, child: const Text('Разрешить доступ')),
+            FilledButton(onPressed: onRetry, child: Text(l10n.qrAllowAccess)),
           ],
         ),
       ),

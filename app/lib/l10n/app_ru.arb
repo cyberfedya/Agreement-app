@@ -499,5 +499,142 @@
   "negotiationAskQuestionBody": "Спросите то, что хотите уточнить перед подписанием — вопрос увидит вторая сторона.",
   "@negotiationAskQuestionBody": {},
   "negotiationQuestionHint": "Ваш вопрос…",
-  "@negotiationQuestionHint": {}
+  "@negotiationQuestionHint": {},
+
+  "documentsUploadedTitle": "Загруженные документы",
+  "@documentsUploadedTitle": {},
+  "documentsEmptyState": "Документов пока нет. Прикрепите фото через скрепку — я заполню данные автоматически.",
+  "@documentsEmptyState": {},
+  "documentsDeleteDialogTitle": "Удалить документ?",
+  "@documentsDeleteDialogTitle": {},
+  "documentsDeleteDialogBody": "«{fileName}» и все распознанные из него данные будут удалены из сделки.",
+  "@documentsDeleteDialogBody": {
+    "placeholders": {
+      "fileName": {"type": "String"}
+    }
+  },
+  "documentsDeleteTooltip": "Удалить документ",
+  "@documentsDeleteTooltip": {},
+  "documentsRecognitionFailed": "Не удалось распознать документ.",
+  "@documentsRecognitionFailed": {},
+
+  "templatesTitle": "Шаблоны договоров",
+  "@templatesTitle": {},
+  "templatesNothingFoundTitle": "Ничего не найдено",
+  "@templatesNothingFoundTitle": {},
+  "templatesNothingFoundMessage": "Попробуйте другой запрос или категорию.",
+  "@templatesNothingFoundMessage": {},
+  "templatesResetFilters": "Сбросить фильтры",
+  "@templatesResetFilters": {},
+  "templatesAll": "Все",
+  "@templatesAll": {},
+
+  "templateDetailTitle": "Шаблон договора",
+  "@templateDetailTitle": {},
+  "templateDetailNotFoundTitle": "Шаблон не найден",
+  "@templateDetailNotFoundTitle": {},
+  "templateDetailNotFoundMessage": "Этот шаблон договора недоступен.",
+  "@templateDetailNotFoundMessage": {},
+  "templateDetailCategoryLabel": "Категория",
+  "@templateDetailCategoryLabel": {},
+  "templateDetailQuestionsLabel": "Вопросов",
+  "@templateDetailQuestionsLabel": {},
+  "templateDetailTimeLabel": "Время",
+  "@templateDetailTimeLabel": {},
+  "templateDetailTimeValue": "~{minutes} мин",
+  "@templateDetailTimeValue": {
+    "placeholders": {
+      "minutes": {"type": "int"}
+    }
+  },
+  "templateDetailAboutTitle": "Об этом договоре",
+  "@templateDetailAboutTitle": {},
+  "templateDetailSourceTitle": "Источник",
+  "@templateDetailSourceTitle": {},
+  "templateDetailContinue": "Продолжить",
+  "@templateDetailContinue": {},
+
+  "qrTitle": "Сканировать QR-код",
+  "@qrTitle": {},
+  "qrNotAgreementCode": "Это не QR-код договора EasyAgree",
+  "@qrNotAgreementCode": {},
+  "qrHint": "Наведите камеру на QR-код договора",
+  "@qrHint": {},
+  "qrCameraPermissionNeeded": "Нужен доступ к камере, чтобы сканировать QR-код договора.",
+  "@qrCameraPermissionNeeded": {},
+  "qrAllowAccess": "Разрешить доступ",
+  "@qrAllowAccess": {},
+
+  "onboardingSlide1Title": "Просто расскажите,\nо чём договариваетесь",
+  "@onboardingSlide1Title": {},
+  "onboardingSlide1Body": "Своими словами или голосом — ИИ сам поймёт, какой договор нужен, и подготовит его.",
+  "@onboardingSlide1Body": {},
+  "onboardingSlide2Title": "Сфотографируйте документ —\nостальное заполнится само",
+  "@onboardingSlide2Title": {},
+  "onboardingSlide2Body": "Техпаспорт, кадастровые документы, реквизиты: ИИ распознает их и заполнит договор автоматически.",
+  "@onboardingSlide2Body": {},
+  "onboardingSlide3Title": "Вторая сторона подписывает\nпо QR-коду",
+  "@onboardingSlide3Title": {},
+  "onboardingSlide3Body": "Покажите код — партнёр откроет договор у себя, предложит правки или сразу подпишет.",
+  "@onboardingSlide3Body": {},
+  "onboardingSkip": "Пропустить",
+  "@onboardingSkip": {},
+  "onboardingStart": "Начать",
+  "@onboardingStart": {},
+  "onboardingNext": "Далее",
+  "@onboardingNext": {},
+
+  "appEmptyStateDefaultTitle": "Здесь пока пусто",
+  "@appEmptyStateDefaultTitle": {},
+  "appErrorTitle": "Что-то пошло не так",
+  "@appErrorTitle": {},
+  "appErrorRetry": "Повторить",
+  "@appErrorRetry": {},
+
+  "searchHint": "Поиск договоров…",
+  "@searchHint": {},
+  "searchClearTooltip": "Очистить",
+  "@searchClearTooltip": {},
+
+  "progressStepOf": "{current} из {total}",
+  "@progressStepOf": {
+    "placeholders": {
+      "current": {"type": "int"},
+      "total": {"type": "int"}
+    }
+  },
+
+  "routeNotFoundTitle": "Страница не найдена",
+  "@routeNotFoundTitle": {},
+  "routeNotFoundMessage": "Экран \"{routeName}\" не существует в этой сборке.",
+  "@routeNotFoundMessage": {
+    "placeholders": {
+      "routeName": {"type": "String"}
+    }
+  },
+
+  "categoryVehicle": "Транспорт",
+  "@categoryVehicle": {},
+  "categoryRealEstate": "Недвижимость",
+  "@categoryRealEstate": {},
+  "categoryRent": "Аренда",
+  "@categoryRent": {},
+  "categoryEmployment": "Работа",
+  "@categoryEmployment": {},
+  "categoryLoan": "Займы",
+  "@categoryLoan": {},
+  "categoryService": "Услуги",
+  "@categoryService": {},
+  "categoryGift": "Дарение",
+  "@categoryGift": {},
+  "categoryFamily": "Семья",
+  "@categoryFamily": {},
+  "categoryConstruction": "Строительство",
+  "@categoryConstruction": {},
+  "categoryPowerOfAttorney": "Доверенности",
+  "@categoryPowerOfAttorney": {},
+  "categoryBusiness": "Бизнес",
+  "@categoryBusiness": {},
+  "categorySale": "Купля-продажа",
+  "@categorySale": {}
 }

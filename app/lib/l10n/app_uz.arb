@@ -235,5 +235,70 @@
   "negotiationSendProposal": "Таклифни юбориш",
   "negotiationAskQuestionTitle": "Савол бериш",
   "negotiationAskQuestionBody": "Имзолашдан олдин аниқлаштирмоқчи бўлган нарсангизни сўранг — саволни иккинчи тараф кўради.",
-  "negotiationQuestionHint": "Саволингиз…"
+  "negotiationQuestionHint": "Саволингиз…",
+
+  "documentsUploadedTitle": "Юкланган ҳужжатлар",
+  "documentsEmptyState": "Ҳали ҳужжатлар йўқ. Скрепка орқали расм илова қилинг — маълумотларни автоматик тўлдираман.",
+  "documentsDeleteDialogTitle": "Ҳужжат ўчирилсинми?",
+  "documentsDeleteDialogBody": "«{fileName}» ва ундан аниқланган барча маълумотлар битимдан ўчирилади.",
+  "documentsDeleteTooltip": "Ҳужжатни ўчириш",
+  "documentsRecognitionFailed": "Ҳужжатни аниқлаб бўлмади.",
+
+  "templatesTitle": "Шартнома шаблонлари",
+  "templatesNothingFoundTitle": "Ҳеч нарса топилмади",
+  "templatesNothingFoundMessage": "Бошқа сўров ёки категорияни синаб кўринг.",
+  "templatesResetFilters": "Филтрларни тозалаш",
+  "templatesAll": "Барчаси",
+
+  "templateDetailTitle": "Шартнома шаблони",
+  "templateDetailNotFoundTitle": "Шаблон топилмади",
+  "templateDetailNotFoundMessage": "Бу шартнома шаблони мавжуд эмас.",
+  "templateDetailCategoryLabel": "Категория",
+  "templateDetailQuestionsLabel": "Саволлар",
+  "templateDetailTimeLabel": "Вақт",
+  "templateDetailTimeValue": "~{minutes} дақ",
+  "templateDetailAboutTitle": "Бу шартнома ҳақида",
+  "templateDetailSourceTitle": "Манба",
+  "templateDetailContinue": "Давом этиш",
+
+  "qrTitle": "QR-кодни сканерлаш",
+  "qrNotAgreementCode": "Бу EasyAgree шартнома QR-коди эмас",
+  "qrHint": "Камерани шартнома QR-кодига йўналтиринг",
+  "qrCameraPermissionNeeded": "Шартнома QR-кодини сканерлаш учун камерага рухсат керак.",
+  "qrAllowAccess": "Рухсат бериш",
+
+  "onboardingSlide1Title": "Шунчаки нима ҳақида\nкелишаётганингизни айтинг",
+  "onboardingSlide1Body": "Ўз сўзларингиз ёки овоз билан — сунъий интеллект қандай шартнома кераклигини тушунади ва тайёрлайди.",
+  "onboardingSlide2Title": "Ҳужжатни суратга олинг —\nқолгани ўзи тўлдирилади",
+  "onboardingSlide2Body": "Техпаспорт, кадастр ҳужжатлари, реквизитлар: сунъий интеллект уларни аниқлаб, шартномани автоматик тўлдиради.",
+  "onboardingSlide3Title": "Иккинчи тараф QR-код\nорқали имзолайди",
+  "onboardingSlide3Body": "Кодни кўрсатинг — шериги шартномани ўзида очади, ўзгартириш таклиф қилади ёки дарҳол имзолайди.",
+  "onboardingSkip": "Ўтказиб юбориш",
+  "onboardingStart": "Бошлаш",
+  "onboardingNext": "Кейинги",
+
+  "appEmptyStateDefaultTitle": "Бу ерда ҳали бўш",
+  "appErrorTitle": "Нимадир хато кетди",
+  "appErrorRetry": "Қайта уриниш",
+
+  "searchHint": "Шартномаларни қидириш…",
+  "searchClearTooltip": "Тозалаш",
+
+  "progressStepOf": "{total} дан {current}",
+
+  "routeNotFoundTitle": "Саҳифа топилмади",
+  "routeNotFoundMessage": "\"{routeName}\" экрани ушбу сборкада мавжуд эмас.",
+
+  "categoryVehicle": "Транспорт",
+  "categoryRealEstate": "Кўчмас мулк",
+  "categoryRent": "Ижара",
+  "categoryEmployment": "Иш",
+  "categoryLoan": "Қарз",
+  "categoryService": "Хизматлар",
+  "categoryGift": "Тортиқ қилиш",
+  "categoryFamily": "Оила",
+  "categoryConstruction": "Қурилиш",
+  "categoryPowerOfAttorney": "Ишончнома",
+  "categoryBusiness": "Бизнес",
+  "categorySale": "Олди-сотди"
 }

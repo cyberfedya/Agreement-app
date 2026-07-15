@@ -745,4 +745,186 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get negotiationQuestionHint => 'Саволингиз…';
+
+  @override
+  String get documentsUploadedTitle => 'Юкланган ҳужжатлар';
+
+  @override
+  String get documentsEmptyState =>
+      'Ҳали ҳужжатлар йўқ. Скрепка орқали расм илова қилинг — маълумотларни автоматик тўлдираман.';
+
+  @override
+  String get documentsDeleteDialogTitle => 'Ҳужжат ўчирилсинми?';
+
+  @override
+  String documentsDeleteDialogBody(String fileName) {
+    return '«$fileName» ва ундан аниқланган барча маълумотлар битимдан ўчирилади.';
+  }
+
+  @override
+  String get documentsDeleteTooltip => 'Ҳужжатни ўчириш';
+
+  @override
+  String get documentsRecognitionFailed => 'Ҳужжатни аниқлаб бўлмади.';
+
+  @override
+  String get templatesTitle => 'Шартнома шаблонлари';
+
+  @override
+  String get templatesNothingFoundTitle => 'Ҳеч нарса топилмади';
+
+  @override
+  String get templatesNothingFoundMessage =>
+      'Бошқа сўров ёки категорияни синаб кўринг.';
+
+  @override
+  String get templatesResetFilters => 'Филтрларни тозалаш';
+
+  @override
+  String get templatesAll => 'Барчаси';
+
+  @override
+  String get templateDetailTitle => 'Шартнома шаблони';
+
+  @override
+  String get templateDetailNotFoundTitle => 'Шаблон топилмади';
+
+  @override
+  String get templateDetailNotFoundMessage =>
+      'Бу шартнома шаблони мавжуд эмас.';
+
+  @override
+  String get templateDetailCategoryLabel => 'Категория';
+
+  @override
+  String get templateDetailQuestionsLabel => 'Саволлар';
+
+  @override
+  String get templateDetailTimeLabel => 'Вақт';
+
+  @override
+  String templateDetailTimeValue(int minutes) {
+    return '~$minutes дақ';
+  }
+
+  @override
+  String get templateDetailAboutTitle => 'Бу шартнома ҳақида';
+
+  @override
+  String get templateDetailSourceTitle => 'Манба';
+
+  @override
+  String get templateDetailContinue => 'Давом этиш';
+
+  @override
+  String get qrTitle => 'QR-кодни сканерлаш';
+
+  @override
+  String get qrNotAgreementCode => 'Бу EasyAgree шартнома QR-коди эмас';
+
+  @override
+  String get qrHint => 'Камерани шартнома QR-кодига йўналтиринг';
+
+  @override
+  String get qrCameraPermissionNeeded =>
+      'Шартнома QR-кодини сканерлаш учун камерага рухсат керак.';
+
+  @override
+  String get qrAllowAccess => 'Рухсат бериш';
+
+  @override
+  String get onboardingSlide1Title =>
+      'Шунчаки нима ҳақида\nкелишаётганингизни айтинг';
+
+  @override
+  String get onboardingSlide1Body =>
+      'Ўз сўзларингиз ёки овоз билан — сунъий интеллект қандай шартнома кераклигини тушунади ва тайёрлайди.';
+
+  @override
+  String get onboardingSlide2Title =>
+      'Ҳужжатни суратга олинг —\nқолгани ўзи тўлдирилади';
+
+  @override
+  String get onboardingSlide2Body =>
+      'Техпаспорт, кадастр ҳужжатлари, реквизитлар: сунъий интеллект уларни аниқлаб, шартномани автоматик тўлдиради.';
+
+  @override
+  String get onboardingSlide3Title => 'Иккинчи тараф QR-код\nорқали имзолайди';
+
+  @override
+  String get onboardingSlide3Body =>
+      'Кодни кўрсатинг — шериги шартномани ўзида очади, ўзгартириш таклиф қилади ёки дарҳол имзолайди.';
+
+  @override
+  String get onboardingSkip => 'Ўтказиб юбориш';
+
+  @override
+  String get onboardingStart => 'Бошлаш';
+
+  @override
+  String get onboardingNext => 'Кейинги';
+
+  @override
+  String get appEmptyStateDefaultTitle => 'Бу ерда ҳали бўш';
+
+  @override
+  String get appErrorTitle => 'Нимадир хато кетди';
+
+  @override
+  String get appErrorRetry => 'Қайта уриниш';
+
+  @override
+  String get searchHint => 'Шартномаларни қидириш…';
+
+  @override
+  String get searchClearTooltip => 'Тозалаш';
+
+  @override
+  String progressStepOf(int current, int total) {
+    return '$total дан $current';
+  }
+
+  @override
+  String get routeNotFoundTitle => 'Саҳифа топилмади';
+
+  @override
+  String routeNotFoundMessage(String routeName) {
+    return '\"$routeName\" экрани ушбу сборкада мавжуд эмас.';
+  }
+
+  @override
+  String get categoryVehicle => 'Транспорт';
+
+  @override
+  String get categoryRealEstate => 'Кўчмас мулк';
+
+  @override
+  String get categoryRent => 'Ижара';
+
+  @override
+  String get categoryEmployment => 'Иш';
+
+  @override
+  String get categoryLoan => 'Қарз';
+
+  @override
+  String get categoryService => 'Хизматлар';
+
+  @override
+  String get categoryGift => 'Тортиқ қилиш';
+
+  @override
+  String get categoryFamily => 'Оила';
+
+  @override
+  String get categoryConstruction => 'Қурилиш';
+
+  @override
+  String get categoryPowerOfAttorney => 'Ишончнома';
+
+  @override
+  String get categoryBusiness => 'Бизнес';
+
+  @override
+  String get categorySale => 'Олди-сотди';
 }

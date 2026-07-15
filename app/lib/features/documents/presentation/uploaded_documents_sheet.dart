@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'package:app/core/localization/backend_phrases.dart';
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/features/documents/domain/uploaded_document.dart';
 import 'package:app/features/documents/providers/document_upload_provider.dart';
 import 'package:app/features/questionnaire/presentation/widgets/confidence_badge.dart';
+import 'package:app/l10n/app_localizations.dart';
 
 /// Everything the deal knows from uploaded documents, in one place: each
 /// document with its recognized fields, an edit affordance per field (a
@@ -14,9 +14,6 @@ import 'package:app/features/questionnaire/presentation/widgets/confidence_badge
 /// [DocumentUploadProvider] - nothing document-related is decided here.
 class UploadedDocumentsSheet extends StatelessWidget {
   const UploadedDocumentsSheet({super.key, this.onChanged});
-
-  /// Fired after any successful mutation (field fix, deletion) so the
-  /// caller can refresh backend-derived state (progress, review).
   final VoidCallback? onChanged;
 
   static Future<void> show(BuildContext context, {VoidCallback? onChanged}) {
@@ -27,8 +24,8 @@ class UploadedDocumentsSheet extends StatelessWidget {
       builder: (_) => UploadedDocumentsSheet(onChanged: onChanged),
     );
   }
-
   Future<void> _editField(BuildContext context, UploadedDocument document, String key, String value) async {
+    final l10n = AppLocalizations.of(context)!;
     final controller = TextEditingController(text: value);
     final newValue = await showDialog<String>(
       context: context,
@@ -40,10 +37,10 @@ class UploadedDocumentsSheet extends StatelessWidget {
           decoration: const InputDecoration(border: OutlineInputBorder()),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('Отмена')),
+          TextButton(onPressed: () => Navigator.pop(dialogContext), child: Text(l10n.commonCancel)),
           FilledButton(
             onPressed: () => Navigator.pop(dialogContext, controller.text.trim()),
-            child: const Text('Сохранить'),
+            child: Text(l10n.commonSave),
           ),
         ],
       ),
@@ -55,16 +52,17 @@ class UploadedDocumentsSheet extends StatelessWidget {
   }
 
   Future<void> _deleteDocument(BuildContext context, UploadedDocument document) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Удалить документ?'),
-        content: Text('«${document.fileName}» и все распознанные из него данные будут удалены из сделки.'),
+        title: Text(l10n.documentsDeleteDialogTitle),
+        content: Text(l10n.documentsDeleteDialogBody(document.fileName)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const Text('Отмена')),
+          TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: Text(l10n.commonCancel)),
           FilledButton(
             onPressed: () => Navigator.pop(dialogContext, true),
-            child: const Text('Удалить'),
+            child: Text(l10n.commonDelete),
           ),
         ],
       ),
@@ -78,6 +76,7 @@ class UploadedDocumentsSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return DraggableScrollableSheet(
       initialChildSize: 0.7,
       minChildSize: 0.4,
@@ -109,7 +108,7 @@ class UploadedDocumentsSheet extends StatelessWidget {
                       children: [
                         Icon(Icons.folder_copy_outlined, size: 20, color: theme.colorScheme.primary),
                         const SizedBox(width: Insets.x8),
-                        Expanded(child: Text('Загруженные документы', style: theme.textTheme.titleMedium)),
+                        Expanded(child: Text(l10n.documentsUploadedTitle, style: theme.textTheme.titleMedium)),
                       ],
                     ),
                   ),
@@ -119,7 +118,7 @@ class UploadedDocumentsSheet extends StatelessWidget {
                             child: Padding(
                               padding: const EdgeInsets.all(Insets.x32),
                               child: Text(
-                                'Документов пока нет. Прикрепите фото через скрепку — я заполню данные автоматически.',
+                                l10n.documentsEmptyState,
                                 textAlign: TextAlign.center,
                                 style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                               ),
@@ -157,6 +156,7 @@ class _DocumentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceContainerLow,
@@ -186,7 +186,7 @@ class _DocumentCard extends StatelessWidget {
               IconButton(
                 onPressed: onDelete,
                 icon: const Icon(Icons.delete_outline_rounded, size: 20),
-                tooltip: 'Удалить документ',
+                tooltip: l10n.documentsDeleteTooltip,
                 color: theme.colorScheme.onSurfaceVariant,
                 visualDensity: VisualDensity.compact,
               ),
@@ -196,7 +196,7 @@ class _DocumentCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(top: Insets.x4),
               child: Text(
-                document.errorMessage ?? 'Не удалось распознать документ.',
+                document.errorMessage ?? l10n.documentsRecognitionFailed,
                 style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.error),
               ),
             )

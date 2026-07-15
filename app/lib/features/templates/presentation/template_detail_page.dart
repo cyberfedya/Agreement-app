@@ -9,6 +9,7 @@ import 'package:app/core/widgets/skeletons.dart';
 import 'package:app/features/deal/data/deal_repository.dart';
 import 'package:app/features/templates/presentation/widgets/domain_visuals.dart';
 import 'package:app/features/templates/providers/template_detail_provider.dart';
+import 'package:app/l10n/app_localizations.dart';
 import 'package:app/shared/extensions/string_extensions.dart';
 import 'package:app/shared/models/result.dart';
 import 'package:app/shared/widgets/primary_button.dart';
@@ -52,8 +53,9 @@ class _TemplateDetailPageState extends State<TemplateDetailPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: const Text('Шаблон договора')),
+      appBar: AppBar(title: Text(l10n.templateDetailTitle)),
       body: Consumer<TemplateDetailProvider>(
         builder: (context, provider, _) {
           if (provider.isLoading) {
@@ -68,7 +70,10 @@ class _TemplateDetailPageState extends State<TemplateDetailPage> {
 
           final template = provider.template;
           if (template == null) {
-            return const AppEmptyView(title: 'Шаблон не найден', message: 'Этот шаблон договора недоступен.');
+            return AppEmptyView(
+              title: l10n.templateDetailNotFoundTitle,
+              message: l10n.templateDetailNotFoundMessage,
+            );
           }
 
           return CenteredContent(
@@ -99,8 +104,8 @@ class _TemplateDetailPageState extends State<TemplateDetailPage> {
                     Expanded(
                       child: InfoTile(
                         icon: Icons.category_outlined,
-                        label: 'Категория',
-                        value: template.domain.asCategoryLabel,
+                        label: l10n.templateDetailCategoryLabel,
+                        value: template.domain.categoryLabel(l10n),
                       ),
                     ),
                     if (provider.questionCount != null) ...[
@@ -108,7 +113,7 @@ class _TemplateDetailPageState extends State<TemplateDetailPage> {
                       Expanded(
                         child: InfoTile(
                           icon: Icons.quiz_outlined,
-                          label: 'Вопросов',
+                          label: l10n.templateDetailQuestionsLabel,
                           value: '${provider.questionCount}',
                         ),
                       ),
@@ -118,8 +123,8 @@ class _TemplateDetailPageState extends State<TemplateDetailPage> {
                       Expanded(
                         child: InfoTile(
                           icon: Icons.schedule_outlined,
-                          label: 'Время',
-                          value: '~${provider.estimatedMinutes} мин',
+                          label: l10n.templateDetailTimeLabel,
+                          value: l10n.templateDetailTimeValue(provider.estimatedMinutes!),
                         ),
                       ),
                     ],
@@ -128,13 +133,13 @@ class _TemplateDetailPageState extends State<TemplateDetailPage> {
                 const SizedBox(height: Insets.x24),
 
                 // Description
-                const SectionTitle(title: 'Об этом договоре'),
+                SectionTitle(title: l10n.templateDetailAboutTitle),
                 const SizedBox(height: Insets.x8),
                 Text(template.description, style: theme.textTheme.bodyLarge),
 
                 if (template.sourceUrl != null) ...[
                   const SizedBox(height: Insets.x24),
-                  const SectionTitle(title: 'Источник'),
+                  SectionTitle(title: l10n.templateDetailSourceTitle),
                   const SizedBox(height: Insets.x8),
                   Text(
                     template.sourceUrl!,
@@ -149,9 +154,10 @@ class _TemplateDetailPageState extends State<TemplateDetailPage> {
       bottomNavigationBar: Consumer<TemplateDetailProvider>(
         builder: (context, provider, _) {
           if (provider.template == null) return const SizedBox.shrink();
+          final l10n = AppLocalizations.of(context)!;
           return BottomActionBar(
             child: PrimaryButton(
-              label: 'Продолжить',
+              label: l10n.templateDetailContinue,
               icon: Icons.arrow_forward,
               loading: _creatingDeal,
               onPressed: () => _continue(provider.template!.title),

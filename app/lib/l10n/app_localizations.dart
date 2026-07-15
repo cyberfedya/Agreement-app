@@ -1437,6 +1437,336 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Ваш вопрос…'**
   String get negotiationQuestionHint;
+
+  /// No description provided for @documentsUploadedTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Загруженные документы'**
+  String get documentsUploadedTitle;
+
+  /// No description provided for @documentsEmptyState.
+  ///
+  /// In ru, this message translates to:
+  /// **'Документов пока нет. Прикрепите фото через скрепку — я заполню данные автоматически.'**
+  String get documentsEmptyState;
+
+  /// No description provided for @documentsDeleteDialogTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Удалить документ?'**
+  String get documentsDeleteDialogTitle;
+
+  /// No description provided for @documentsDeleteDialogBody.
+  ///
+  /// In ru, this message translates to:
+  /// **'«{fileName}» и все распознанные из него данные будут удалены из сделки.'**
+  String documentsDeleteDialogBody(String fileName);
+
+  /// No description provided for @documentsDeleteTooltip.
+  ///
+  /// In ru, this message translates to:
+  /// **'Удалить документ'**
+  String get documentsDeleteTooltip;
+
+  /// No description provided for @documentsRecognitionFailed.
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось распознать документ.'**
+  String get documentsRecognitionFailed;
+
+  /// No description provided for @templatesTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Шаблоны договоров'**
+  String get templatesTitle;
+
+  /// No description provided for @templatesNothingFoundTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Ничего не найдено'**
+  String get templatesNothingFoundTitle;
+
+  /// No description provided for @templatesNothingFoundMessage.
+  ///
+  /// In ru, this message translates to:
+  /// **'Попробуйте другой запрос или категорию.'**
+  String get templatesNothingFoundMessage;
+
+  /// No description provided for @templatesResetFilters.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сбросить фильтры'**
+  String get templatesResetFilters;
+
+  /// No description provided for @templatesAll.
+  ///
+  /// In ru, this message translates to:
+  /// **'Все'**
+  String get templatesAll;
+
+  /// No description provided for @templateDetailTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Шаблон договора'**
+  String get templateDetailTitle;
+
+  /// No description provided for @templateDetailNotFoundTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Шаблон не найден'**
+  String get templateDetailNotFoundTitle;
+
+  /// No description provided for @templateDetailNotFoundMessage.
+  ///
+  /// In ru, this message translates to:
+  /// **'Этот шаблон договора недоступен.'**
+  String get templateDetailNotFoundMessage;
+
+  /// No description provided for @templateDetailCategoryLabel.
+  ///
+  /// In ru, this message translates to:
+  /// **'Категория'**
+  String get templateDetailCategoryLabel;
+
+  /// No description provided for @templateDetailQuestionsLabel.
+  ///
+  /// In ru, this message translates to:
+  /// **'Вопросов'**
+  String get templateDetailQuestionsLabel;
+
+  /// No description provided for @templateDetailTimeLabel.
+  ///
+  /// In ru, this message translates to:
+  /// **'Время'**
+  String get templateDetailTimeLabel;
+
+  /// No description provided for @templateDetailTimeValue.
+  ///
+  /// In ru, this message translates to:
+  /// **'~{minutes} мин'**
+  String templateDetailTimeValue(int minutes);
+
+  /// No description provided for @templateDetailAboutTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Об этом договоре'**
+  String get templateDetailAboutTitle;
+
+  /// No description provided for @templateDetailSourceTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Источник'**
+  String get templateDetailSourceTitle;
+
+  /// No description provided for @templateDetailContinue.
+  ///
+  /// In ru, this message translates to:
+  /// **'Продолжить'**
+  String get templateDetailContinue;
+
+  /// No description provided for @qrTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сканировать QR-код'**
+  String get qrTitle;
+
+  /// No description provided for @qrNotAgreementCode.
+  ///
+  /// In ru, this message translates to:
+  /// **'Это не QR-код договора EasyAgree'**
+  String get qrNotAgreementCode;
+
+  /// No description provided for @qrHint.
+  ///
+  /// In ru, this message translates to:
+  /// **'Наведите камеру на QR-код договора'**
+  String get qrHint;
+
+  /// No description provided for @qrCameraPermissionNeeded.
+  ///
+  /// In ru, this message translates to:
+  /// **'Нужен доступ к камере, чтобы сканировать QR-код договора.'**
+  String get qrCameraPermissionNeeded;
+
+  /// No description provided for @qrAllowAccess.
+  ///
+  /// In ru, this message translates to:
+  /// **'Разрешить доступ'**
+  String get qrAllowAccess;
+
+  /// No description provided for @onboardingSlide1Title.
+  ///
+  /// In ru, this message translates to:
+  /// **'Просто расскажите,\nо чём договариваетесь'**
+  String get onboardingSlide1Title;
+
+  /// No description provided for @onboardingSlide1Body.
+  ///
+  /// In ru, this message translates to:
+  /// **'Своими словами или голосом — ИИ сам поймёт, какой договор нужен, и подготовит его.'**
+  String get onboardingSlide1Body;
+
+  /// No description provided for @onboardingSlide2Title.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сфотографируйте документ —\nостальное заполнится само'**
+  String get onboardingSlide2Title;
+
+  /// No description provided for @onboardingSlide2Body.
+  ///
+  /// In ru, this message translates to:
+  /// **'Техпаспорт, кадастровые документы, реквизиты: ИИ распознает их и заполнит договор автоматически.'**
+  String get onboardingSlide2Body;
+
+  /// No description provided for @onboardingSlide3Title.
+  ///
+  /// In ru, this message translates to:
+  /// **'Вторая сторона подписывает\nпо QR-коду'**
+  String get onboardingSlide3Title;
+
+  /// No description provided for @onboardingSlide3Body.
+  ///
+  /// In ru, this message translates to:
+  /// **'Покажите код — партнёр откроет договор у себя, предложит правки или сразу подпишет.'**
+  String get onboardingSlide3Body;
+
+  /// No description provided for @onboardingSkip.
+  ///
+  /// In ru, this message translates to:
+  /// **'Пропустить'**
+  String get onboardingSkip;
+
+  /// No description provided for @onboardingStart.
+  ///
+  /// In ru, this message translates to:
+  /// **'Начать'**
+  String get onboardingStart;
+
+  /// No description provided for @onboardingNext.
+  ///
+  /// In ru, this message translates to:
+  /// **'Далее'**
+  String get onboardingNext;
+
+  /// No description provided for @appEmptyStateDefaultTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Здесь пока пусто'**
+  String get appEmptyStateDefaultTitle;
+
+  /// No description provided for @appErrorTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Что-то пошло не так'**
+  String get appErrorTitle;
+
+  /// No description provided for @appErrorRetry.
+  ///
+  /// In ru, this message translates to:
+  /// **'Повторить'**
+  String get appErrorRetry;
+
+  /// No description provided for @searchHint.
+  ///
+  /// In ru, this message translates to:
+  /// **'Поиск договоров…'**
+  String get searchHint;
+
+  /// No description provided for @searchClearTooltip.
+  ///
+  /// In ru, this message translates to:
+  /// **'Очистить'**
+  String get searchClearTooltip;
+
+  /// No description provided for @progressStepOf.
+  ///
+  /// In ru, this message translates to:
+  /// **'{current} из {total}'**
+  String progressStepOf(int current, int total);
+
+  /// No description provided for @routeNotFoundTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Страница не найдена'**
+  String get routeNotFoundTitle;
+
+  /// No description provided for @routeNotFoundMessage.
+  ///
+  /// In ru, this message translates to:
+  /// **'Экран \"{routeName}\" не существует в этой сборке.'**
+  String routeNotFoundMessage(String routeName);
+
+  /// No description provided for @categoryVehicle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Транспорт'**
+  String get categoryVehicle;
+
+  /// No description provided for @categoryRealEstate.
+  ///
+  /// In ru, this message translates to:
+  /// **'Недвижимость'**
+  String get categoryRealEstate;
+
+  /// No description provided for @categoryRent.
+  ///
+  /// In ru, this message translates to:
+  /// **'Аренда'**
+  String get categoryRent;
+
+  /// No description provided for @categoryEmployment.
+  ///
+  /// In ru, this message translates to:
+  /// **'Работа'**
+  String get categoryEmployment;
+
+  /// No description provided for @categoryLoan.
+  ///
+  /// In ru, this message translates to:
+  /// **'Займы'**
+  String get categoryLoan;
+
+  /// No description provided for @categoryService.
+  ///
+  /// In ru, this message translates to:
+  /// **'Услуги'**
+  String get categoryService;
+
+  /// No description provided for @categoryGift.
+  ///
+  /// In ru, this message translates to:
+  /// **'Дарение'**
+  String get categoryGift;
+
+  /// No description provided for @categoryFamily.
+  ///
+  /// In ru, this message translates to:
+  /// **'Семья'**
+  String get categoryFamily;
+
+  /// No description provided for @categoryConstruction.
+  ///
+  /// In ru, this message translates to:
+  /// **'Строительство'**
+  String get categoryConstruction;
+
+  /// No description provided for @categoryPowerOfAttorney.
+  ///
+  /// In ru, this message translates to:
+  /// **'Доверенности'**
+  String get categoryPowerOfAttorney;
+
+  /// No description provided for @categoryBusiness.
+  ///
+  /// In ru, this message translates to:
+  /// **'Бизнес'**
+  String get categoryBusiness;
+
+  /// No description provided for @categorySale.
+  ///
+  /// In ru, this message translates to:
+  /// **'Купля-продажа'**
+  String get categorySale;
 }
 
 class _AppLocalizationsDelegate

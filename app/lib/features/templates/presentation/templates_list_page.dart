@@ -10,6 +10,7 @@ import 'package:app/features/templates/domain/template.dart';
 import 'package:app/features/templates/presentation/widgets/agreement_card.dart';
 import 'package:app/features/templates/presentation/widgets/category_chip.dart';
 import 'package:app/features/templates/providers/templates_list_provider.dart';
+import 'package:app/l10n/app_localizations.dart';
 import 'package:app/shared/animation/entrance.dart';
 
 class TemplatesListPage extends StatefulWidget {
@@ -63,8 +64,9 @@ class _TemplatesListPageState extends State<TemplatesListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
-      appBar: AppBar(title: const Text('Шаблоны договоров')),
+      appBar: AppBar(title: Text(l10n.templatesTitle)),
       body: CenteredContent(
         child: Column(
           children: [
@@ -90,15 +92,15 @@ class _TemplatesListPageState extends State<TemplatesListPage> {
                   final templates = _filter(provider.templates);
                   if (templates.isEmpty) {
                     return AppEmptyView(
-                      title: 'Ничего не найдено',
-                      message: 'Попробуйте другой запрос или категорию.',
+                      title: l10n.templatesNothingFoundTitle,
+                      message: l10n.templatesNothingFoundMessage,
                       action: (_query.isNotEmpty || _selectedCategory != null)
                           ? OutlinedButton(
                               onPressed: () {
                                 _searchController.clear();
                                 setState(() => _selectedCategory = null);
                               },
-                              child: const Text('Сбросить фильтры'),
+                              child: Text(l10n.templatesResetFilters),
                             )
                           : null,
                     );

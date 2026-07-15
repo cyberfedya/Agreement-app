@@ -747,4 +747,185 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get negotiationQuestionHint => 'Your question…';
+
+  @override
+  String get documentsUploadedTitle => 'Uploaded documents';
+
+  @override
+  String get documentsEmptyState =>
+      'No documents yet. Attach a photo via the paperclip — I\'ll fill in the data automatically.';
+
+  @override
+  String get documentsDeleteDialogTitle => 'Delete document?';
+
+  @override
+  String documentsDeleteDialogBody(String fileName) {
+    return '\"$fileName\" and all data recognized from it will be removed from the deal.';
+  }
+
+  @override
+  String get documentsDeleteTooltip => 'Delete document';
+
+  @override
+  String get documentsRecognitionFailed => 'Failed to recognize the document.';
+
+  @override
+  String get templatesTitle => 'Agreement templates';
+
+  @override
+  String get templatesNothingFoundTitle => 'Nothing found';
+
+  @override
+  String get templatesNothingFoundMessage =>
+      'Try a different search or category.';
+
+  @override
+  String get templatesResetFilters => 'Reset filters';
+
+  @override
+  String get templatesAll => 'All';
+
+  @override
+  String get templateDetailTitle => 'Agreement template';
+
+  @override
+  String get templateDetailNotFoundTitle => 'Template not found';
+
+  @override
+  String get templateDetailNotFoundMessage =>
+      'This agreement template is unavailable.';
+
+  @override
+  String get templateDetailCategoryLabel => 'Category';
+
+  @override
+  String get templateDetailQuestionsLabel => 'Questions';
+
+  @override
+  String get templateDetailTimeLabel => 'Time';
+
+  @override
+  String templateDetailTimeValue(int minutes) {
+    return '~$minutes min';
+  }
+
+  @override
+  String get templateDetailAboutTitle => 'About this agreement';
+
+  @override
+  String get templateDetailSourceTitle => 'Source';
+
+  @override
+  String get templateDetailContinue => 'Continue';
+
+  @override
+  String get qrTitle => 'Scan QR code';
+
+  @override
+  String get qrNotAgreementCode => 'This is not an EasyAgree deal QR code';
+
+  @override
+  String get qrHint => 'Point the camera at the deal QR code';
+
+  @override
+  String get qrCameraPermissionNeeded =>
+      'Camera access is needed to scan the deal QR code.';
+
+  @override
+  String get qrAllowAccess => 'Allow access';
+
+  @override
+  String get onboardingSlide1Title => 'Just say what\nyou\'re agreeing on';
+
+  @override
+  String get onboardingSlide1Body =>
+      'In your own words or by voice — the AI will figure out which agreement you need and prepare it.';
+
+  @override
+  String get onboardingSlide2Title =>
+      'Photograph a document —\nthe rest fills in itself';
+
+  @override
+  String get onboardingSlide2Body =>
+      'Vehicle registration, property documents, details: the AI recognizes them and fills in the agreement automatically.';
+
+  @override
+  String get onboardingSlide3Title => 'The other party signs\nvia QR code';
+
+  @override
+  String get onboardingSlide3Body =>
+      'Show the code — your partner opens the agreement on their device, proposes changes, or signs right away.';
+
+  @override
+  String get onboardingSkip => 'Skip';
+
+  @override
+  String get onboardingStart => 'Get started';
+
+  @override
+  String get onboardingNext => 'Next';
+
+  @override
+  String get appEmptyStateDefaultTitle => 'Nothing here yet';
+
+  @override
+  String get appErrorTitle => 'Something went wrong';
+
+  @override
+  String get appErrorRetry => 'Retry';
+
+  @override
+  String get searchHint => 'Search agreements…';
+
+  @override
+  String get searchClearTooltip => 'Clear';
+
+  @override
+  String progressStepOf(int current, int total) {
+    return '$current of $total';
+  }
+
+  @override
+  String get routeNotFoundTitle => 'Page not found';
+
+  @override
+  String routeNotFoundMessage(String routeName) {
+    return 'The screen \"$routeName\" doesn\'t exist in this build.';
+  }
+
+  @override
+  String get categoryVehicle => 'Vehicle';
+
+  @override
+  String get categoryRealEstate => 'Real estate';
+
+  @override
+  String get categoryRent => 'Rental';
+
+  @override
+  String get categoryEmployment => 'Employment';
+
+  @override
+  String get categoryLoan => 'Loans';
+
+  @override
+  String get categoryService => 'Services';
+
+  @override
+  String get categoryGift => 'Gifting';
+
+  @override
+  String get categoryFamily => 'Family';
+
+  @override
+  String get categoryConstruction => 'Construction';
+
+  @override
+  String get categoryPowerOfAttorney => 'Power of attorney';
+
+  @override
+  String get categoryBusiness => 'Business';
+
+  @override
+  String get categorySale => 'Sale';
 }

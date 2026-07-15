@@ -235,5 +235,70 @@
   "negotiationSendProposal": "Send proposal",
   "negotiationAskQuestionTitle": "Ask a question",
   "negotiationAskQuestionBody": "Ask what you'd like to clarify before signing — the other party will see your question.",
-  "negotiationQuestionHint": "Your question…"
+  "negotiationQuestionHint": "Your question…",
+
+  "documentsUploadedTitle": "Uploaded documents",
+  "documentsEmptyState": "No documents yet. Attach a photo via the paperclip — I'll fill in the data automatically.",
+  "documentsDeleteDialogTitle": "Delete document?",
+  "documentsDeleteDialogBody": "\"{fileName}\" and all data recognized from it will be removed from the deal.",
+  "documentsDeleteTooltip": "Delete document",
+  "documentsRecognitionFailed": "Failed to recognize the document.",
+
+  "templatesTitle": "Agreement templates",
+  "templatesNothingFoundTitle": "Nothing found",
+  "templatesNothingFoundMessage": "Try a different search or category.",
+  "templatesResetFilters": "Reset filters",
+  "templatesAll": "All",
+
+  "templateDetailTitle": "Agreement template",
+  "templateDetailNotFoundTitle": "Template not found",
+  "templateDetailNotFoundMessage": "This agreement template is unavailable.",
+  "templateDetailCategoryLabel": "Category",
+  "templateDetailQuestionsLabel": "Questions",
+  "templateDetailTimeLabel": "Time",
+  "templateDetailTimeValue": "~{minutes} min",
+  "templateDetailAboutTitle": "About this agreement",
+  "templateDetailSourceTitle": "Source",
+  "templateDetailContinue": "Continue",
+
+  "qrTitle": "Scan QR code",
+  "qrNotAgreementCode": "This is not an EasyAgree deal QR code",
+  "qrHint": "Point the camera at the deal QR code",
+  "qrCameraPermissionNeeded": "Camera access is needed to scan the deal QR code.",
+  "qrAllowAccess": "Allow access",
+
+  "onboardingSlide1Title": "Just say what\nyou're agreeing on",
+  "onboardingSlide1Body": "In your own words or by voice — the AI will figure out which agreement you need and prepare it.",
+  "onboardingSlide2Title": "Photograph a document —\nthe rest fills in itself",
+  "onboardingSlide2Body": "Vehicle registration, property documents, details: the AI recognizes them and fills in the agreement automatically.",
+  "onboardingSlide3Title": "The other party signs\nvia QR code",
+  "onboardingSlide3Body": "Show the code — your partner opens the agreement on their device, proposes changes, or signs right away.",
+  "onboardingSkip": "Skip",
+  "onboardingStart": "Get started",
+  "onboardingNext": "Next",
+
+  "appEmptyStateDefaultTitle": "Nothing here yet",
+  "appErrorTitle": "Something went wrong",
+  "appErrorRetry": "Retry",
+
+  "searchHint": "Search agreements…",
+  "searchClearTooltip": "Clear",
+
+  "progressStepOf": "{current} of {total}",
+
+  "routeNotFoundTitle": "Page not found",
+  "routeNotFoundMessage": "The screen \"{routeName}\" doesn't exist in this build.",
+
+  "categoryVehicle": "Vehicle",
+  "categoryRealEstate": "Real estate",
+  "categoryRent": "Rental",
+  "categoryEmployment": "Employment",
+  "categoryLoan": "Loans",
+  "categoryService": "Services",
+  "categoryGift": "Gifting",
+  "categoryFamily": "Family",
+  "categoryConstruction": "Construction",
+  "categoryPowerOfAttorney": "Power of attorney",
+  "categoryBusiness": "Business",
+  "categorySale": "Sale"
 }

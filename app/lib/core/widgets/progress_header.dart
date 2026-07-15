@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:app/core/theme/app_tokens.dart';
+import 'package:app/l10n/app_localizations.dart';
 
 /// Slim progress header for multi-step flows: "3 of 15" plus an animated bar.
 class ProgressHeader extends StatelessWidget {
@@ -13,11 +14,12 @@ class ProgressHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '$current of $total',
+          l10n.progressStepOf(current, total),
           style: theme.textTheme.labelLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
         ),
         const SizedBox(height: Insets.x8),

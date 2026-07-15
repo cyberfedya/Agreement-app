@@ -739,4 +739,186 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get negotiationQuestionHint => 'Ваш вопрос…';
+
+  @override
+  String get documentsUploadedTitle => 'Загруженные документы';
+
+  @override
+  String get documentsEmptyState =>
+      'Документов пока нет. Прикрепите фото через скрепку — я заполню данные автоматически.';
+
+  @override
+  String get documentsDeleteDialogTitle => 'Удалить документ?';
+
+  @override
+  String documentsDeleteDialogBody(String fileName) {
+    return '«$fileName» и все распознанные из него данные будут удалены из сделки.';
+  }
+
+  @override
+  String get documentsDeleteTooltip => 'Удалить документ';
+
+  @override
+  String get documentsRecognitionFailed => 'Не удалось распознать документ.';
+
+  @override
+  String get templatesTitle => 'Шаблоны договоров';
+
+  @override
+  String get templatesNothingFoundTitle => 'Ничего не найдено';
+
+  @override
+  String get templatesNothingFoundMessage =>
+      'Попробуйте другой запрос или категорию.';
+
+  @override
+  String get templatesResetFilters => 'Сбросить фильтры';
+
+  @override
+  String get templatesAll => 'Все';
+
+  @override
+  String get templateDetailTitle => 'Шаблон договора';
+
+  @override
+  String get templateDetailNotFoundTitle => 'Шаблон не найден';
+
+  @override
+  String get templateDetailNotFoundMessage =>
+      'Этот шаблон договора недоступен.';
+
+  @override
+  String get templateDetailCategoryLabel => 'Категория';
+
+  @override
+  String get templateDetailQuestionsLabel => 'Вопросов';
+
+  @override
+  String get templateDetailTimeLabel => 'Время';
+
+  @override
+  String templateDetailTimeValue(int minutes) {
+    return '~$minutes мин';
+  }
+
+  @override
+  String get templateDetailAboutTitle => 'Об этом договоре';
+
+  @override
+  String get templateDetailSourceTitle => 'Источник';
+
+  @override
+  String get templateDetailContinue => 'Продолжить';
+
+  @override
+  String get qrTitle => 'Сканировать QR-код';
+
+  @override
+  String get qrNotAgreementCode => 'Это не QR-код договора EasyAgree';
+
+  @override
+  String get qrHint => 'Наведите камеру на QR-код договора';
+
+  @override
+  String get qrCameraPermissionNeeded =>
+      'Нужен доступ к камере, чтобы сканировать QR-код договора.';
+
+  @override
+  String get qrAllowAccess => 'Разрешить доступ';
+
+  @override
+  String get onboardingSlide1Title =>
+      'Просто расскажите,\nо чём договариваетесь';
+
+  @override
+  String get onboardingSlide1Body =>
+      'Своими словами или голосом — ИИ сам поймёт, какой договор нужен, и подготовит его.';
+
+  @override
+  String get onboardingSlide2Title =>
+      'Сфотографируйте документ —\nостальное заполнится само';
+
+  @override
+  String get onboardingSlide2Body =>
+      'Техпаспорт, кадастровые документы, реквизиты: ИИ распознает их и заполнит договор автоматически.';
+
+  @override
+  String get onboardingSlide3Title => 'Вторая сторона подписывает\nпо QR-коду';
+
+  @override
+  String get onboardingSlide3Body =>
+      'Покажите код — партнёр откроет договор у себя, предложит правки или сразу подпишет.';
+
+  @override
+  String get onboardingSkip => 'Пропустить';
+
+  @override
+  String get onboardingStart => 'Начать';
+
+  @override
+  String get onboardingNext => 'Далее';
+
+  @override
+  String get appEmptyStateDefaultTitle => 'Здесь пока пусто';
+
+  @override
+  String get appErrorTitle => 'Что-то пошло не так';
+
+  @override
+  String get appErrorRetry => 'Повторить';
+
+  @override
+  String get searchHint => 'Поиск договоров…';
+
+  @override
+  String get searchClearTooltip => 'Очистить';
+
+  @override
+  String progressStepOf(int current, int total) {
+    return '$current из $total';
+  }
+
+  @override
+  String get routeNotFoundTitle => 'Страница не найдена';
+
+  @override
+  String routeNotFoundMessage(String routeName) {
+    return 'Экран \"$routeName\" не существует в этой сборке.';
+  }
+
+  @override
+  String get categoryVehicle => 'Транспорт';
+
+  @override
+  String get categoryRealEstate => 'Недвижимость';
+
+  @override
+  String get categoryRent => 'Аренда';
+
+  @override
+  String get categoryEmployment => 'Работа';
+
+  @override
+  String get categoryLoan => 'Займы';
+
+  @override
+  String get categoryService => 'Услуги';
+
+  @override
+  String get categoryGift => 'Дарение';
+
+  @override
+  String get categoryFamily => 'Семья';
+
+  @override
+  String get categoryConstruction => 'Строительство';
+
+  @override
+  String get categoryPowerOfAttorney => 'Доверенности';
+
+  @override
+  String get categoryBusiness => 'Бизнес';
+
+  @override
+  String get categorySale => 'Купля-продажа';
 }

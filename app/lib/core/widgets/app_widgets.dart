@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:app/core/theme/app_tokens.dart';
+import 'package:app/l10n/app_localizations.dart';
 
 /// Small inline spinner (buttons, inline waits). Full-page loads use
 /// the skeleton loaders in `skeletons.dart` instead.
@@ -164,27 +165,37 @@ class AppErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return _StateScaffold(
       icon: Icons.cloud_off_outlined,
-      title: 'Что-то пошло не так',
+      title: l10n.appErrorTitle,
       message: message,
       action: onRetry == null
           ? null
-          : FilledButton.icon(onPressed: onRetry, icon: const Icon(Icons.refresh, size: 18), label: const Text('Повторить')),
+          : FilledButton.icon(
+              onPressed: onRetry,
+              icon: const Icon(Icons.refresh, size: 18),
+              label: Text(l10n.appErrorRetry),
+            ),
     );
   }
 }
 
 /// Empty state with a short explanation and optional action.
 class AppEmptyView extends StatelessWidget {
-  const AppEmptyView({super.key, required this.message, this.title = 'Здесь пока пусто', this.action});
+  const AppEmptyView({super.key, required this.message, this.title, this.action});
 
-  final String title;
+  final String? title;
   final String message;
   final Widget? action;
 
   @override
   Widget build(BuildContext context) {
-    return _StateScaffold(icon: Icons.inbox_outlined, title: title, message: message, action: action);
+    return _StateScaffold(
+      icon: Icons.inbox_outlined,
+      title: title ?? AppLocalizations.of(context)!.appEmptyStateDefaultTitle,
+      message: message,
+      action: action,
+    );
   }
 }

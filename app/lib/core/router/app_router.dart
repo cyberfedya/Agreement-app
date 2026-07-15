@@ -9,6 +9,7 @@ import 'package:app/features/ai_processing/presentation/ai_processing_page.dart'
 import 'package:app/features/auth/presentation/auth_page.dart';
 import 'package:app/features/home/presentation/home_page.dart';
 import 'package:app/features/onboarding/onboarding_page.dart';
+import 'package:app/l10n/app_localizations.dart';
 import 'package:app/features/profile/profile_page.dart';
 import 'package:app/features/profile/settings_page.dart';
 import 'package:app/features/questionnaire/presentation/pages/questionnaire_page.dart';
@@ -118,9 +119,14 @@ class AppRouter {
         return _fadeRoute(
           Scaffold(
             appBar: AppBar(),
-            body: AppEmptyView(
-              title: 'Страница не найдена',
-              message: 'Экран "${settings.name}" не существует в этой сборке.',
+            body: Builder(
+              builder: (context) {
+                final l10n = AppLocalizations.of(context)!;
+                return AppEmptyView(
+                  title: l10n.routeNotFoundTitle,
+                  message: l10n.routeNotFoundMessage(settings.name ?? ''),
+                );
+              },
             ),
           ),
           settings,
