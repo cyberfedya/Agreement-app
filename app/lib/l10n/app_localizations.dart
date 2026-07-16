@@ -751,7 +751,7 @@ abstract class AppLocalizations {
   /// No description provided for @profileFullNameHint.
   ///
   /// In ru, this message translates to:
-  /// **'Иванов Иван Иванович'**
+  /// **'Фамилия Имя Отчество'**
   String get profileFullNameHint;
 
   /// No description provided for @profilePassportLabel.
@@ -763,7 +763,7 @@ abstract class AppLocalizations {
   /// No description provided for @profilePassportHint.
   ///
   /// In ru, this message translates to:
-  /// **'AD 1234567'**
+  /// **'Серия и номер'**
   String get profilePassportHint;
 
   /// No description provided for @profileBirthDateLabel.
@@ -775,7 +775,7 @@ abstract class AppLocalizations {
   /// No description provided for @profileBirthDateHint.
   ///
   /// In ru, this message translates to:
-  /// **'01.01.1990'**
+  /// **'ДД.ММ.ГГГГ'**
   String get profileBirthDateHint;
 
   /// No description provided for @profileAddressLabel.
@@ -787,7 +787,7 @@ abstract class AppLocalizations {
   /// No description provided for @profileAddressHint.
   ///
   /// In ru, this message translates to:
-  /// **'г. Ташкент, ул. Примерная, 1'**
+  /// **'Город, улица, дом'**
   String get profileAddressHint;
 
   /// No description provided for @homeGreetingNight.

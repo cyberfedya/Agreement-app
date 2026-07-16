@@ -373,25 +373,25 @@ class AppLocalizationsUz extends AppLocalizations {
   String get profileFullNameLabel => 'Ф.И.Ш.';
 
   @override
-  String get profileFullNameHint => 'Иванов Иван Иванович';
+  String get profileFullNameHint => 'Фамилия Исм Шариф';
 
   @override
   String get profilePassportLabel => 'Паспорт серияси ва рақами';
 
   @override
-  String get profilePassportHint => 'AD 1234567';
+  String get profilePassportHint => 'Серия ва рақами';
 
   @override
   String get profileBirthDateLabel => 'Туғилган сана';
 
   @override
-  String get profileBirthDateHint => '01.01.1990';
+  String get profileBirthDateHint => 'КК.ОО.ЙЙЙЙ';
 
   @override
   String get profileAddressLabel => 'Манзил';
 
   @override
-  String get profileAddressHint => 'Тошкент ш., Мисол кўч., 1';
+  String get profileAddressHint => 'Шаҳар, кўча, уй';
 
   @override
   String get homeGreetingNight => 'Хайрли тун';

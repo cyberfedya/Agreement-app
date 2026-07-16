@@ -373,25 +373,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profileFullNameLabel => 'Full name';
 
   @override
-  String get profileFullNameHint => 'John Smith';
+  String get profileFullNameHint => 'Last name First name Middle name';
 
   @override
   String get profilePassportLabel => 'Passport series and number';
 
   @override
-  String get profilePassportHint => 'AD 1234567';
+  String get profilePassportHint => 'Series and number';
 
   @override
   String get profileBirthDateLabel => 'Date of birth';
 
   @override
-  String get profileBirthDateHint => '01.01.1990';
+  String get profileBirthDateHint => 'DD.MM.YYYY';
 
   @override
   String get profileAddressLabel => 'Address';
 
   @override
-  String get profileAddressHint => '123 Example St, Tashkent';
+  String get profileAddressHint => 'City, street, building';
 
   @override
   String get homeGreetingNight => 'Good night';

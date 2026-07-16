@@ -369,25 +369,25 @@ class AppLocalizationsRu extends AppLocalizations {
   String get profileFullNameLabel => 'Ф.И.О.';
 
   @override
-  String get profileFullNameHint => 'Иванов Иван Иванович';
+  String get profileFullNameHint => 'Фамилия Имя Отчество';
 
   @override
   String get profilePassportLabel => 'Серия и номер паспорта';
 
   @override
-  String get profilePassportHint => 'AD 1234567';
+  String get profilePassportHint => 'Серия и номер';
 
   @override
   String get profileBirthDateLabel => 'Дата рождения';
 
   @override
-  String get profileBirthDateHint => '01.01.1990';
+  String get profileBirthDateHint => 'ДД.ММ.ГГГГ';
 
   @override
   String get profileAddressLabel => 'Адрес';
 
   @override
-  String get profileAddressHint => 'г. Ташкент, ул. Примерная, 1';
+  String get profileAddressHint => 'Город, улица, дом';
 
   @override
   String get homeGreetingNight => 'Доброй ночи';
