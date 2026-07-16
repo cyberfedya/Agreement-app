@@ -11,7 +11,7 @@ sealed class ApiException implements Exception {
 /// refused. Distinct from [TimeoutException] so the UI can tell "we never
 /// even reached them" apart from "they were too slow to answer".
 class NetworkException extends ApiException {
-  const NetworkException([super.message = 'Нет соединения с сервером. Проверьте интернет.']);
+  const NetworkException(super.message);
 }
 
 /// The request was sent but no response arrived within the configured
@@ -19,7 +19,7 @@ class NetworkException extends ApiException {
 /// unlike [NetworkException] this does not necessarily mean the device is
 /// offline.
 class ApiTimeoutException extends ApiException {
-  const ApiTimeoutException([super.message = 'Сервер долго не отвечает. Попробуйте ещё раз.']);
+  const ApiTimeoutException(super.message);
 }
 
 /// The server responded with 2xx but a shape Flutter's models didn't
@@ -27,35 +27,35 @@ class ApiTimeoutException extends ApiException {
 /// step rather than left to surface as an uncaught TypeError, so callers
 /// see a normal [Failure] instead of a crash.
 class MalformedResponseException extends ApiException {
-  const MalformedResponseException([super.message = 'Сервер вернул неожиданный ответ. Попробуйте обновить.']);
+  const MalformedResponseException(super.message);
 }
 
 class NotFoundException extends ApiException {
-  const NotFoundException([super.message = 'Не найдено.']);
+  const NotFoundException(super.message);
 }
 
 class ServerException extends ApiException {
-  ServerException({required this.statusCode, this.body}) : super(_messageFrom(statusCode, body));
+  ServerException({required this.statusCode, this.body, required String fallbackMessage})
+    : super(_messageFrom(statusCode, body, fallbackMessage));
 
   final int statusCode;
   final dynamic body;
 
   /// Backend error payloads carry a human-readable `message` (e.g. the
   /// document-upload validator's "Upload at least one document.") - show
-  /// that instead of a bare status code whenever it's present.
-  static String _messageFrom(int statusCode, dynamic body) {
+  /// that instead of the generic fallback whenever it's present.
+  static String _messageFrom(int statusCode, dynamic body, String fallbackMessage) {
     if (body is Map && body['message'] is String && (body['message'] as String).trim().isNotEmpty) {
       return body['message'] as String;
     }
-    return 'Ошибка сервера ($statusCode).';
+    return fallbackMessage;
   }
 }
 
 /// Thrown when a generate request is rejected because required questions
 /// were left unanswered.
 class MissingFieldsException extends ApiException {
-  MissingFieldsException(this.fieldIds)
-    : super('Сначала ответьте на все обязательные вопросы.');
+  MissingFieldsException(this.fieldIds, String message) : super(message);
 
   final List<int> fieldIds;
 }
@@ -63,6 +63,5 @@ class MissingFieldsException extends ApiException {
 /// Thrown when the backend blocks generation because the deal needs a
 /// legal review first (HTTP 409 `legal_review_required`).
 class LegalReviewRequiredException extends ApiException {
-  const LegalReviewRequiredException()
-    : super('Договор требует юридической проверки — сформировать его пока нельзя.');
+  const LegalReviewRequiredException(super.message);
 }

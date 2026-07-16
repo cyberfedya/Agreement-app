@@ -8,17 +8,28 @@ import 'package:http_parser/http_parser.dart';
 
 import 'package:app/core/config/app_config.dart';
 import 'package:app/core/constants/app_constants.dart';
+import 'package:app/core/localization/locale_provider.dart';
+import 'package:app/core/network/api_error_messages.dart';
 import 'package:app/core/network/api_exception.dart';
 
 /// Thin, typed HTTP+JSON transport. Callers never see raw JSON — every
 /// caller decodes into a domain model right after the get/post call returns.
 class ApiClient {
-  ApiClient({String? baseUrl, http.Client? httpClient})
+  ApiClient({required this.localeProvider, String? baseUrl, http.Client? httpClient})
     : baseUrl = baseUrl ?? AppConfig.apiBaseUrl,
       _http = httpClient ?? http.Client();
 
   final String baseUrl;
   final http.Client _http;
+
+  /// The exceptions this client throws (connection/timeout/malformed
+  /// response) are constructed here, in the data layer, before any
+  /// `AppLocalizations`/`BuildContext` exists - so they're translated
+  /// against this instead, the same source of truth the `lang` query
+  /// param on every request already comes from.
+  final LocaleProvider localeProvider;
+
+  String get languageCode => localeProvider.languageCode;
 
   Future<dynamic> getJson(String path, {Map<String, String>? query}) async {
     final response = await _send('GET', path, () => _http.get(_uri(path, query)));
@@ -117,14 +128,14 @@ class ApiClient {
       rethrow;
     } on TimeoutException {
       _log(method, path, null, null, stopwatch, error: 'timeout');
-      throw const ApiTimeoutException();
+      throw ApiTimeoutException(ApiErrorMessages.timeout(languageCode));
     } on SocketException {
       // No route to the server at all - offline or DNS/connection failure.
       _log(method, path, null, null, stopwatch, error: 'offline');
-      throw const NetworkException();
+      throw NetworkException(ApiErrorMessages.network(languageCode));
     } catch (e) {
       _log(method, path, null, null, stopwatch, error: e.toString());
-      throw const NetworkException();
+      throw NetworkException(ApiErrorMessages.network(languageCode));
     }
   }
 
@@ -136,16 +147,20 @@ class ApiClient {
     } on FormatException {
       // 2xx with a body that isn't valid JSON at all - treat as malformed
       // rather than letting jsonDecode's raw exception escape to callers.
-      throw const MalformedResponseException();
+      throw MalformedResponseException(ApiErrorMessages.malformedResponse(languageCode));
     }
 
     if (statusCode >= 200 && statusCode < 300) {
       return body;
     }
     if (statusCode == 404) {
-      throw const NotFoundException();
+      throw NotFoundException(ApiErrorMessages.notFound(languageCode));
     }
-    throw ServerException(statusCode: statusCode, body: body);
+    throw ServerException(
+      statusCode: statusCode,
+      body: body,
+      fallbackMessage: ApiErrorMessages.serverError(languageCode, statusCode),
+    );
   }
 
   /// Debug-only network trace: method, path, status, response size and

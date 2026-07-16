@@ -41,10 +41,10 @@ class EasyAgreeApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider<ApiClient>(create: (_) => apiClient ?? ApiClient()),
-        Provider<ApiService>(create: (ctx) => ApiService(ctx.read<ApiClient>())),
         Provider<LocalStorage>(create: (_) => SharedPreferencesLocalStorage()),
         ChangeNotifierProvider<LocaleProvider>(create: (ctx) => LocaleProvider(ctx.read<LocalStorage>())),
+        Provider<ApiClient>(create: (ctx) => apiClient ?? ApiClient(localeProvider: ctx.read<LocaleProvider>())),
+        Provider<ApiService>(create: (ctx) => ApiService(ctx.read<ApiClient>())),
         Provider<ProfileRepository>(
           create: (ctx) => ApiProfileRepository(ctx.read<ApiService>(), ctx.read<LocalStorage>()),
         ),
@@ -54,7 +54,9 @@ class EasyAgreeApp extends StatelessWidget {
         Provider<QuestionnaireRepository>(
           create: (ctx) => ApiQuestionnaireRepository(ctx.read<ApiService>(), ctx.read<LocaleProvider>()),
         ),
-        Provider<AgreementRepository>(create: (ctx) => ApiAgreementRepository(ctx.read<ApiService>())),
+        Provider<AgreementRepository>(
+          create: (ctx) => ApiAgreementRepository(ctx.read<ApiService>(), ctx.read<LocaleProvider>()),
+        ),
         Provider<DealRepository>(
           create: (ctx) => ApiDealRepository(
             ctx.read<ApiService>(),
@@ -62,7 +64,9 @@ class EasyAgreeApp extends StatelessWidget {
             ctx.read<LocaleProvider>(),
           ),
         ),
-        Provider<DocumentRepository>(create: (ctx) => ApiDocumentRepository(ctx.read<ApiService>())),
+        Provider<DocumentRepository>(
+          create: (ctx) => ApiDocumentRepository(ctx.read<ApiService>(), ctx.read<LocaleProvider>()),
+        ),
         Provider<TtsService>(
           create: (ctx) => TtsService(storage: ctx.read<LocalStorage>()),
           dispose: (_, tts) => tts.dispose(),

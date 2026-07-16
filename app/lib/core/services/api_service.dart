@@ -1,4 +1,5 @@
 import 'package:app/core/network/api_client.dart';
+import 'package:app/core/network/api_error_messages.dart';
 import 'package:app/core/network/api_exception.dart';
 import 'package:app/features/agreement/domain/agreement.dart';
 import 'package:app/features/agreement/domain/deal_invite.dart';
@@ -31,7 +32,7 @@ class ApiService {
     } on ApiException {
       rethrow;
     } catch (_) {
-      throw const MalformedResponseException();
+      throw MalformedResponseException(ApiErrorMessages.malformedResponse(_client.languageCode));
     }
   }
 
@@ -140,10 +141,10 @@ class ApiService {
       final body = e.body;
       if (e.statusCode == 400 && body is Map && body['error'] == 'missing_required_fields') {
         final ids = _parse(() => (body['missingFieldIds'] as List).cast<int>());
-        throw MissingFieldsException(ids);
+        throw MissingFieldsException(ids, ApiErrorMessages.missingFields(_client.languageCode));
       }
       if (e.statusCode == 409 && body is Map && body['error'] == 'legal_review_required') {
-        throw const LegalReviewRequiredException();
+        throw LegalReviewRequiredException(ApiErrorMessages.legalReviewRequired(_client.languageCode));
       }
       rethrow;
     }

@@ -23,6 +23,16 @@ abstract class DealRepository {
   Future<Result<void>> cancelDeal(String dealId);
 }
 
+abstract final class _Messages {
+  static const _templateOpenFailed = {
+    'ru': 'Не удалось открыть этот шаблон.',
+    'uz': 'Бу шаблонни очиб бўлмади.',
+    'en': "Couldn't open this template.",
+  };
+
+  static String templateOpenFailed(String languageCode) => _templateOpenFailed[languageCode] ?? _templateOpenFailed['ru']!;
+}
+
 class ApiDealRepository implements DealRepository {
   ApiDealRepository(this._api, this._profiles, this._localeProvider);
 
@@ -52,7 +62,7 @@ class ApiDealRepository implements DealRepository {
       // The template key came from our own catalog, so a null (no-match)
       // response here would mean the backend and app disagree about what
       // exists — treat it as a server error, not a normal outcome.
-      if (deal == null) return const Failure('Could not open this template.');
+      if (deal == null) return Failure(_Messages.templateOpenFailed(_localeProvider.languageCode));
       return Success(deal);
     } on ApiException catch (e) {
       return Failure(e.message);
