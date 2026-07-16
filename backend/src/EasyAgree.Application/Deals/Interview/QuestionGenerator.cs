@@ -32,9 +32,12 @@ public sealed class QuestionGenerator(IAiChatClient aiChatClient)
 
         Do not use bureaucratic verbs: "Specify", "Provide", "Enter", "Input",
         "Укажите", "Введите", "Заполните", "Предоставьте".
-        Prefer natural short questions:
-        ru: "Какая марка и модель?", "Какой VIN?", "Какая цена?", "Когда передача?"
-        en: "What make and model?", "What VIN?", "What price?", "When is transfer?"
+        Prefer natural short questions, phrased the way a person actually talks,
+        not a form field label - "price" reads as a form; "how much are you
+        selling it for" reads as a question:
+        ru: "Какая марка и модель?", "Какой VIN?", "За сколько продаёте?", "Когда передача?"
+        en: "What make and model?", "What VIN?", "How much are you selling it for?", "When is transfer?"
+        uz: "Marka va modeli qanday?", "VIN raqami qanday?", "Necha pulga sotyapsiz?", "Qachon topshirasiz?"
 
         If document hints clearly suggest the current value but need confirmation,
         ask a short yes/no question: "Chevrolet Nexia 3, 2019 год — верно?"
