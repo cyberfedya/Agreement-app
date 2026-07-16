@@ -142,11 +142,17 @@ abstract class AppLocalizations {
   /// **'Тема'**
   String get settingsThemeTitle;
 
-  /// No description provided for @settingsThemeSubtitle.
+  /// No description provided for @settingsThemeLight.
   ///
   /// In ru, this message translates to:
   /// **'Светлая'**
-  String get settingsThemeSubtitle;
+  String get settingsThemeLight;
+
+  /// No description provided for @settingsThemeDark.
+  ///
+  /// In ru, this message translates to:
+  /// **'Тёмная'**
+  String get settingsThemeDark;
 
   /// No description provided for @settingsVoiceTitle.
   ///

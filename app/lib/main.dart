@@ -11,6 +11,7 @@ import 'package:app/core/services/tts_service.dart';
 import 'package:app/core/storage/local_storage.dart';
 import 'package:app/core/storage/shared_preferences_local_storage.dart';
 import 'package:app/core/theme/app_theme.dart';
+import 'package:app/core/theme/theme_mode_provider.dart';
 import 'package:app/l10n/app_localizations.dart';
 import 'package:app/features/agreement/data/agreement_repository.dart';
 import 'package:app/features/agreement/providers/agreement_provider.dart';
@@ -43,6 +44,7 @@ class EasyAgreeApp extends StatelessWidget {
       providers: [
         Provider<LocalStorage>(create: (_) => SharedPreferencesLocalStorage()),
         ChangeNotifierProvider<LocaleProvider>(create: (ctx) => LocaleProvider(ctx.read<LocalStorage>())),
+        ChangeNotifierProvider<ThemeModeProvider>(create: (ctx) => ThemeModeProvider(ctx.read<LocalStorage>())),
         Provider<ApiClient>(create: (ctx) => apiClient ?? ApiClient(localeProvider: ctx.read<LocaleProvider>())),
         Provider<ApiService>(create: (ctx) => ApiService(ctx.read<ApiClient>())),
         Provider<ProfileRepository>(
@@ -85,13 +87,13 @@ class EasyAgreeApp extends StatelessWidget {
         ChangeNotifierProvider(create: (ctx) => DocumentUploadProvider(ctx.read<DocumentRepository>())),
         ChangeNotifierProvider(create: (ctx) => DealHistoryProvider(ctx.read<DealRepository>())),
       ],
-      child: Consumer<LocaleProvider>(
-        builder: (context, localeProvider, _) => MaterialApp(
+      child: Consumer2<LocaleProvider, ThemeModeProvider>(
+        builder: (context, localeProvider, themeModeProvider, _) => MaterialApp(
           title: AppConfig.appName,
           debugShowCheckedModeBanner: false,
           theme: AppTheme.light,
           darkTheme: AppTheme.dark,
-          themeMode: ThemeMode.system,
+          themeMode: themeModeProvider.mode,
           locale: localeProvider.locale,
           supportedLocales: LocaleProvider.supportedLocales,
           localizationsDelegates: const [

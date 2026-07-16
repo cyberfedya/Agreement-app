@@ -30,7 +30,10 @@ class AppLocalizationsUz extends AppLocalizations {
   String get settingsThemeTitle => 'Мавзу';
 
   @override
-  String get settingsThemeSubtitle => 'Ёруғ';
+  String get settingsThemeLight => 'Ёруғ';
+
+  @override
+  String get settingsThemeDark => 'Қоронғи';
 
   @override
   String get settingsVoiceTitle => 'Саволларни овозли ўқиш';

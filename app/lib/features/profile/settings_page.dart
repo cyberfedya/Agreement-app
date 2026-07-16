@@ -6,6 +6,7 @@ import 'package:app/core/localization/locale_provider.dart';
 import 'package:app/core/router/app_router.dart';
 import 'package:app/core/services/tts_service.dart';
 import 'package:app/core/theme/app_tokens.dart';
+import 'package:app/core/theme/theme_mode_provider.dart';
 import 'package:app/features/profile/data/profile_repository.dart';
 import 'package:app/l10n/app_localizations.dart';
 
@@ -73,11 +74,41 @@ class SettingsPage extends StatelessWidget {
     if (chosen != null) await localeProvider.setLocale(chosen);
   }
 
+  static String _themeName(AppLocalizations l10n, ThemeMode mode) =>
+      mode == ThemeMode.dark ? l10n.settingsThemeDark : l10n.settingsThemeLight;
+
+  Future<void> _pickTheme(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
+    final themeModeProvider = context.read<ThemeModeProvider>();
+    final chosen = await showModalBottomSheet<ThemeMode>(
+      context: context,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(Insets.x16),
+              child: Text(l10n.settingsThemeTitle, style: Theme.of(sheetContext).textTheme.titleMedium),
+            ),
+            for (final mode in const [ThemeMode.light, ThemeMode.dark])
+              ListTile(
+                title: Text(_themeName(l10n, mode)),
+                trailing: mode == themeModeProvider.mode ? const Icon(Icons.check_rounded) : null,
+                onTap: () => Navigator.pop(sheetContext, mode),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (chosen != null) await themeModeProvider.setMode(chosen);
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
     final localeProvider = context.watch<LocaleProvider>();
+    final themeModeProvider = context.watch<ThemeModeProvider>();
     return Scaffold(
       appBar: AppBar(title: Text(l10n.settingsTitle)),
       body: ListView(
@@ -95,7 +126,8 @@ class SettingsPage extends StatelessWidget {
           _SettingsCard(
             icon: Icons.palette_outlined,
             title: l10n.settingsThemeTitle,
-            subtitle: l10n.settingsThemeSubtitle,
+            subtitle: _themeName(l10n, themeModeProvider.mode),
+            onTap: () => _pickTheme(context),
           ),
           const SizedBox(height: Insets.x12),
           _SettingsCard(

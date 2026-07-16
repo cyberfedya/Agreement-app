@@ -30,7 +30,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsThemeTitle => 'Theme';
 
   @override
-  String get settingsThemeSubtitle => 'Light';
+  String get settingsThemeLight => 'Light';
+
+  @override
+  String get settingsThemeDark => 'Dark';
 
   @override
   String get settingsVoiceTitle => 'Read questions aloud';
