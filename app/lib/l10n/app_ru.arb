@@ -119,8 +119,6 @@
   "@questionnaireSend": {},
   "questionnaireSpeakOrType": "Напишите или скажите…",
   "@questionnaireSpeakOrType": {},
-  "questionnaireContinue": "Продолжить",
-  "@questionnaireContinue": {},
   "questionnaireSpeak": "Озвучить",
   "@questionnaireSpeak": {},
   "questionnaireRequired": "Обязательно",

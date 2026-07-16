@@ -99,6 +99,21 @@ class QuestionnaireProvider extends ChangeNotifier {
     merged.addAll(_answers);
     return merged;
   }
+
+  /// Fraction of every template field ([allFields]) that currently has a
+  /// value in [displayValues] - the one "how much of the document is
+  /// filled" number, shown identically by the header's percent icon and
+  /// the live document preview sheet ([AgreementPreviewSheet] used to
+  /// compute its own, different ratio - askable-fields-remaining instead
+  /// of fields-actually-filled - so the two disagreed on screen).
+  double get documentFillProgress {
+    if (_readyToGenerate) return 1;
+    if (_allFields.isEmpty) return 0;
+    final values = displayValues;
+    final filled = _allFields.where((q) => (values[q.fieldId] ?? '').trim().isNotEmpty).length;
+    return (filled / _allFields.length).clamp(0.0, 1.0);
+  }
+
   bool get canGoBack => _history.isNotEmpty;
 
   /// 1-based position of [currentQuestion] in the sequence shown so far —

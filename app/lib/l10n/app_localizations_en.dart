@@ -181,9 +181,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get questionnaireSpeakOrType => 'Type or say something…';
 
   @override
-  String get questionnaireContinue => 'Continue';
-
-  @override
   String get questionnaireSpeak => 'Read aloud';
 
   @override

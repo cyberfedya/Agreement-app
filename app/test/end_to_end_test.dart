@@ -568,7 +568,9 @@ void main() {
 
     await tester.enterText(find.widgetWithText(TextField, 'Марка и модель'), 'Chevrolet Cobalt');
     await tester.enterText(find.widgetWithText(TextField, 'Год выпуска'), '2023');
-    await tester.tap(find.widgetWithText(PrimaryButton, 'Продолжить'));
+    // No "Continue" button - submitting is the keyboard "done" action on
+    // whichever box the user finishes typing in.
+    await tester.testTextInput.receiveAction(TextInputAction.done);
     await tester.pumpAndSettle();
 
     // The combined answer goes through the "no fieldId" fallback path

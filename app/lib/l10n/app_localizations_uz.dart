@@ -181,9 +181,6 @@ class AppLocalizationsUz extends AppLocalizations {
   String get questionnaireSpeakOrType => 'Ёзинг ёки айтинг…';
 
   @override
-  String get questionnaireContinue => 'Давом этиш';
-
-  @override
   String get questionnaireSpeak => 'Овоз чиқариб ўқиш';
 
   @override

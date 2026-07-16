@@ -42,8 +42,7 @@ class AgreementPreviewSheet extends StatelessWidget {
             builder: (context, provider, _) {
               final questions = provider.allFields;
               final answers = provider.displayValues;
-              final filled = questions.where((q) => (answers[q.fieldId] ?? '').trim().isNotEmpty).length;
-              final progress = questions.isEmpty ? 0.0 : filled / questions.length;
+              final progress = provider.documentFillProgress;
 
               return Column(
                 children: [

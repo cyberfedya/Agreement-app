@@ -5,7 +5,6 @@ import 'package:app/core/widgets/hold_to_talk_mic_button.dart';
 import 'package:app/features/questionnaire/domain/question.dart';
 import 'package:app/features/questionnaire/presentation/widgets/voice_wave.dart';
 import 'package:app/l10n/app_localizations.dart';
-import 'package:app/shared/widgets/primary_button.dart';
 
 enum _MicMode { idle, listening, confirm }
 
@@ -170,43 +169,50 @@ class _MultiFieldAnswerComposerState extends State<MultiFieldAnswerComposer> {
               controller: _controllers[field.fieldId]!,
               enabled: widget.enabled,
               highlighted: _justFilled.contains(field.fieldId),
+              onSubmitted: _submit,
             ),
             const SizedBox(height: Insets.x12),
           ],
-        Row(
-          children: [
-            if (widget.onAttach != null)
-              IconButton(
-                onPressed: widget.enabled ? widget.onAttach : null,
-                icon: const Icon(Icons.attach_file_rounded, size: 22),
-                tooltip: l10n.questionnaireAttachDocument,
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            if (!listening)
+        if (!listening)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              if (widget.onAttach != null)
+                IconButton(
+                  onPressed: widget.enabled ? widget.onAttach : null,
+                  icon: const Icon(Icons.attach_file_rounded, size: 22),
+                  tooltip: l10n.questionnaireAttachDocument,
+                  color: theme.colorScheme.onSurfaceVariant,
+                )
+              else
+                const SizedBox.shrink(),
               HoldToTalkMicButton(
-                size: 44,
+                size: 64,
                 onTextChanged: (text) => setState(() => _transcript = text),
                 onFinalResult: _onVoiceFinal,
                 onListeningChanged: _onListeningChanged,
               ),
-            const SizedBox(width: Insets.x12),
-            Expanded(
-              child: PrimaryButton(label: l10n.questionnaireContinue, onPressed: widget.enabled ? _submit : null),
-            ),
-          ],
-        ),
+            ],
+          ),
       ],
     );
   }
 }
 
 class _FieldBox extends StatelessWidget {
-  const _FieldBox({required this.field, required this.controller, required this.enabled, required this.highlighted});
+  const _FieldBox({
+    required this.field,
+    required this.controller,
+    required this.enabled,
+    required this.highlighted,
+    required this.onSubmitted,
+  });
 
   final Question field;
   final TextEditingController controller;
   final bool enabled;
   final bool highlighted;
+  final VoidCallback onSubmitted;
 
   @override
   Widget build(BuildContext context) {
@@ -223,6 +229,8 @@ class _FieldBox extends StatelessWidget {
         enabled: enabled,
         minLines: 1,
         maxLines: 2,
+        textInputAction: TextInputAction.done,
+        onSubmitted: (_) => onSubmitted(),
         decoration: InputDecoration(labelText: field.fieldName),
       ),
     );

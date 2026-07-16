@@ -457,18 +457,12 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
     }
   }
 
-  // --- Progress (backend-computed, presentation scaling only) ---
+  // --- Progress ---
 
-  /// Renders `GET /interview-preview`'s numbers as a 0..1 bar. The only
-  /// local math is a small visual floor so the bar is never empty and a
-  /// pin to 1 once the backend declares the interview ready.
-  double _progress(QuestionnaireProvider p) {
-    if (p.readyToGenerate) return 1;
-    final preview = p.preview;
-    if (preview == null || preview.totalAskableFields == 0) return 0.08;
-    final covered = preview.totalAskableFields - preview.estimatedRemainingQuestions;
-    return (0.08 + 0.92 * covered / preview.totalAskableFields).clamp(0.0, 1.0);
-  }
+  /// Same fraction-of-fields-filled number [AgreementPreviewSheet] shows,
+  /// so the header's percent icon and the live document preview never
+  /// disagree about how "done" the document is.
+  double _progress(QuestionnaireProvider p) => p.documentFillProgress;
 
   /// Progress phrase, re-rolled only when the underlying [ProgressTier]
   /// changes - reading it every rebuild without caching would pick a new
