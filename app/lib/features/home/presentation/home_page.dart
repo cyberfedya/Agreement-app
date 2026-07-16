@@ -5,6 +5,7 @@ import 'package:app/core/router/app_router.dart';
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/core/widgets/app_widgets.dart';
 import 'package:app/core/widgets/hold_to_talk_mic_button.dart';
+import 'package:app/features/profile/data/profile_repository.dart';
 import 'package:app/features/templates/domain/template.dart';
 import 'package:app/features/templates/providers/templates_list_provider.dart';
 import 'package:app/l10n/app_localizations.dart';
@@ -52,10 +53,32 @@ class _HomePageState extends State<HomePage> {
 
   void _openQrScan() => Navigator.of(context).pushNamed(AppRoutes.qrScan);
 
-  void _createAgreement() {
+  /// Blocks deal creation until the creator's own party details exist -
+  /// otherwise the generated agreement would silently carry blank
+  /// placeholders for "who" is selling/renting/hiring, discovered only
+  /// much later at generation time instead of up front.
+  Future<bool> _ensureProfileIsFilled() async {
+    final profileRepository = context.read<ProfileRepository>();
+    final profile = await profileRepository.getCurrent();
+    if (profile != null && profile.fullName.trim().isNotEmpty) return true;
+    if (!mounted) return false;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(AppLocalizations.of(context)!.dealInviteFillProfileFirst)),
+    );
+    await Navigator.of(context).pushNamed(AppRoutes.profile);
+    if (!mounted) return false;
+
+    final updated = await profileRepository.getCurrent();
+    return updated != null && updated.fullName.trim().isNotEmpty;
+  }
+
+  Future<void> _createAgreement() async {
     final text = _controller.text.trim();
     if (text.isEmpty) return;
     HapticFeedback.selectionClick();
+    if (!await _ensureProfileIsFilled()) return;
+    if (!mounted) return;
     Navigator.of(context).pushNamed(AppRoutes.aiProcessing, arguments: text);
   }
 

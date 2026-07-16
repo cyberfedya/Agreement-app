@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'package:app/core/router/app_router.dart';
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/core/widgets/app_widgets.dart';
 import 'package:app/core/widgets/bottom_action_bar.dart';
 import 'package:app/core/widgets/skeletons.dart';
 import 'package:app/features/deal/data/deal_repository.dart';
+import 'package:app/features/profile/data/profile_repository.dart';
 import 'package:app/features/templates/presentation/widgets/domain_visuals.dart';
 import 'package:app/features/templates/providers/template_detail_provider.dart';
 import 'package:app/l10n/app_localizations.dart';
@@ -16,13 +16,10 @@ import 'package:app/shared/widgets/primary_button.dart';
 
 class TemplateDetailPage extends StatefulWidget {
   const TemplateDetailPage({super.key, required this.templateKey});
-
   final String templateKey;
-
   @override
   State<TemplateDetailPage> createState() => _TemplateDetailPageState();
 }
-
 class _TemplateDetailPageState extends State<TemplateDetailPage> {
   bool _creatingDeal = false;
 
@@ -32,8 +29,26 @@ class _TemplateDetailPageState extends State<TemplateDetailPage> {
     final provider = context.read<TemplateDetailProvider>();
     Future.microtask(() => provider.load(widget.templateKey));
   }
+  Future<bool> _ensureProfileIsFilled() async {
+    final profileRepository = context.read<ProfileRepository>();
+    final profile = await profileRepository.getCurrent();
+    if (profile != null && profile.fullName.trim().isNotEmpty) return true;
+    if (!mounted) return false;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(AppLocalizations.of(context)!.dealInviteFillProfileFirst)),
+    );
+    await Navigator.of(context).pushNamed(AppRoutes.profile);
+    if (!mounted) return false;
+
+    final updated = await profileRepository.getCurrent();
+    return updated != null && updated.fullName.trim().isNotEmpty;
+  }
 
   Future<void> _continue(String templateTitle) async {
+    if (!await _ensureProfileIsFilled()) return;
+    if (!mounted) return;
+
     setState(() => _creatingDeal = true);
     final result = await context.read<DealRepository>().createFromTemplate(widget.templateKey);
     if (!mounted) return;

@@ -25,6 +25,8 @@ import 'package:app/features/documents/domain/required_document.dart';
 import 'package:app/features/documents/domain/uploaded_document.dart';
 import 'package:app/features/documents/providers/document_upload_provider.dart';
 import 'package:app/features/home/presentation/home_page.dart';
+import 'package:app/features/profile/data/profile_repository.dart';
+import 'package:app/features/profile/domain/user_profile.dart';
 import 'package:app/features/questionnaire/data/questionnaire_repository.dart';
 import 'package:app/features/questionnaire/domain/deal_review.dart';
 import 'package:app/features/questionnaire/domain/interview_step.dart';
@@ -188,9 +190,6 @@ class FakeDealRepository implements DealRepository {
   Future<Result<void>> cancelDeal(String dealId) async => const Success(null);
 }
 
-/// Stands in for the platform camera/gallery so tests can drive the (now
-/// mandatory) document upload step without a real device picker - always
-/// returns one fixed in-memory JPEG.
 class FakeImagePickerPlatform extends ImagePickerPlatform {
   static final Uint8List _fakeJpegBytes = Uint8List.fromList([0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10]);
 
@@ -201,6 +200,31 @@ class FakeImagePickerPlatform extends ImagePickerPlatform {
   @override
   Future<List<XFile>> getMultiImageWithOptions({MultiImagePickerOptions options = const MultiImagePickerOptions()}) async =>
       [XFile.fromData(_fakeJpegBytes, path: 'techpassport.jpg', mimeType: 'image/jpeg')];
+}
+
+/// Defaults to an already-filled profile so most tests reach deal creation
+/// without extra setup - the profile-completeness gate is exercised
+/// explicitly by tests that pass an empty result instead.
+class FakeProfileRepository implements ProfileRepository {
+  FakeProfileRepository({this.currentResult});
+
+  UserProfile? currentResult;
+
+  @override
+  Future<String> getProfileId() async => 'profile-1';
+
+  @override
+  Future<UserProfile?> getCurrent() async =>
+      currentResult ?? const UserProfile(fullName: 'Aliyev Vali', passportNumber: 'AB1234567', birthDate: '01.01.1990', address: 'Tashkent');
+
+  @override
+  Future<UserProfile> save(UserProfile profile) async {
+    currentResult = profile;
+    return profile;
+  }
+
+  @override
+  Future<void> delete() async => currentResult = null;
 }
 
 /// Defaults to "nothing to suggest" so the creation flow goes straight to
@@ -265,6 +289,7 @@ Widget buildTestApp({
   AgreementRepository? agreementRepository,
   DealRepository? dealRepository,
   DocumentRepository? documentRepository,
+  ProfileRepository? profileRepository,
   String initialRoute = AppRoutes.splash,
 }) {
   final templates = templateRepository ?? FakeTemplateRepository();
@@ -279,6 +304,7 @@ Widget buildTestApp({
       Provider<TemplateRepository>.value(value: templates),
       Provider<DealRepository>.value(value: dealRepository ?? FakeDealRepository()),
       Provider<DocumentRepository>.value(value: documents),
+      Provider<ProfileRepository>.value(value: profileRepository ?? FakeProfileRepository()),
       Provider<LocalStorage>(create: (_) => FakeLocalStorage()),
       Provider<TtsService>(create: (_) => TtsService()),
       ChangeNotifierProvider(create: (_) => TemplatesListProvider(templates)),
