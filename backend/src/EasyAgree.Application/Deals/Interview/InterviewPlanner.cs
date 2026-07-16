@@ -101,8 +101,19 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator, LegalK
             if (!isRepeat && askedQuestions.Count >= maxQuestions)
                 return InterviewPlanResult.Ready(ClosingPhrases.PickCapReached(language));
 
+            // A repeat groupKey only means "we've already generated wording
+            // for this question" - it does NOT mean currentMessage has
+            // nothing new to extract. That distinction used to not matter:
+            // every prior caller pre-recorded a single-field answer into
+            // `answers` before invoking the planner, so a genuine new
+            // answer always cleared `firstMissing` for that field before
+            // the loop could land back on the same groupKey. A multi-field
+            // combined answer instead arrives here with nothing
+            // pre-recorded, relying entirely on this call's extraction - so
+            // skipping generation/extraction on every repeat silently
+            // discarded every multi-field answer and re-asked forever.
             GeneratedQuestion generated;
-            if (isRepeat)
+            if (isRepeat && string.IsNullOrWhiteSpace(currentMessage))
             {
                 generated = new GeneratedQuestion(null, new Dictionary<int, string>());
             }

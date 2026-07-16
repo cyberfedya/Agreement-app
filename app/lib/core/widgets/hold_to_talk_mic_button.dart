@@ -38,7 +38,7 @@ class _HoldToTalkMicButtonState extends State<HoldToTalkMicButton> {
   late final PermissionService _permissions = widget.permissionService ?? DevicePermissionService();
   final SpeechToText _speech = SpeechToText();
   bool _listening = false;
-  bool _available = false;
+  bool _initialized = false;
 
   void _setListening(bool value) {
     if (_listening == value) return;
@@ -56,8 +56,14 @@ class _HoldToTalkMicButtonState extends State<HoldToTalkMicButton> {
     final granted = await _permissions.requestMicrophone();
     if (!granted || !mounted) return;
 
-    _available = await _speech.initialize(onStatus: _onStatus, onError: (_) {});
-    if (!_available || !mounted) return;
+    // Initialize the recognizer once and reuse it - re-initializing on every
+    // press tears down and rebuilds the native engine each time, which is
+    // what causes the "starts then immediately cuts off, then never starts
+    // again" behavior on some devices.
+    if (!_initialized) {
+      _initialized = await _speech.initialize(onStatus: _onStatus, onError: _onError);
+      if (!_initialized || !mounted) return;
+    }
 
     _setListening(true);
     await _speech.listen(
@@ -67,7 +73,11 @@ class _HoldToTalkMicButtonState extends State<HoldToTalkMicButton> {
           widget.onFinalResult?.call(result.recognizedWords);
         }
       },
-      listenOptions: SpeechListenOptions(partialResults: true),
+      listenOptions: SpeechListenOptions(
+        partialResults: true,
+        pauseFor: const Duration(seconds: 6),
+        listenFor: const Duration(minutes: 2),
+      ),
     );
   }
 
@@ -75,6 +85,14 @@ class _HoldToTalkMicButtonState extends State<HoldToTalkMicButton> {
     if (status == 'done' || status == 'notListening') {
       if (mounted) _setListening(false);
     }
+  }
+
+  void _onError(dynamic error) {
+    // A permanent error can leave the recognizer unusable until it's
+    // re-initialized - reset so the next press starts clean instead of
+    // silently doing nothing forever.
+    _initialized = false;
+    if (mounted) _setListening(false);
   }
 
   Future<void> _stop() async {

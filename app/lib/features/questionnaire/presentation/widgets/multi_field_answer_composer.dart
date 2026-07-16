@@ -173,27 +173,29 @@ class _MultiFieldAnswerComposerState extends State<MultiFieldAnswerComposer> {
             ),
             const SizedBox(height: Insets.x12),
           ],
-        if (!listening)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              if (widget.onAttach != null)
-                IconButton(
-                  onPressed: widget.enabled ? widget.onAttach : null,
-                  icon: const Icon(Icons.attach_file_rounded, size: 22),
-                  tooltip: l10n.questionnaireAttachDocument,
-                  color: theme.colorScheme.onSurfaceVariant,
-                )
-              else
-                const SizedBox.shrink(),
-              HoldToTalkMicButton(
-                size: 64,
-                onTextChanged: (text) => setState(() => _transcript = text),
-                onFinalResult: _onVoiceFinal,
-                onListeningChanged: _onListeningChanged,
-              ),
-            ],
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            if (!listening && widget.onAttach != null)
+              IconButton(
+                onPressed: widget.enabled ? widget.onAttach : null,
+                icon: const Icon(Icons.attach_file_rounded, size: 22),
+                tooltip: l10n.questionnaireAttachDocument,
+                color: theme.colorScheme.onSurfaceVariant,
+              )
+            else
+              const SizedBox.shrink(),
+            // Must stay mounted while listening - this is the same widget
+            // instance the user is physically holding down, so removing it
+            // mid-hold cancels the gesture and aborts the recording.
+            HoldToTalkMicButton(
+              size: 64,
+              onTextChanged: (text) => setState(() => _transcript = text),
+              onFinalResult: _onVoiceFinal,
+              onListeningChanged: _onListeningChanged,
+            ),
+          ],
+        ),
       ],
     );
   }
