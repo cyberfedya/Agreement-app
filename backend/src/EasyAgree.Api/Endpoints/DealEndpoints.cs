@@ -86,7 +86,8 @@ public static class DealEndpoints
             var status = result.IsReadyToGenerate ? "ready_to_generate" : "need_more_info";
             List<int> missing = result.NextFieldId is { } fieldId ? [fieldId] : [];
             var stageDto = result.Stage is { } stage ? new InterviewStageDto(stage.Key, stage.Icon, stage.Label) : null;
-            return Results.Ok(new NextQuestionResponse(status, result.NextFieldId, result.NextQuestion, missing, Stage: stageDto));
+            return Results.Ok(new NextQuestionResponse(
+                status, result.NextFieldId, result.NextQuestion, missing, Stage: stageDto, GroupFieldIds: result.GroupFieldIds));
         })
         .WithName("GetNextQuestion");
 

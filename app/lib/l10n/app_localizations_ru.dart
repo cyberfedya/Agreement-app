@@ -179,6 +179,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get questionnaireSpeakOrType => 'Напишите или скажите…';
 
   @override
+  String get questionnaireContinue => 'Продолжить';
+
+  @override
   String get questionnaireSpeak => 'Озвучить';
 
   @override

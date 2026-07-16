@@ -27,20 +27,26 @@ public sealed class InterviewStageTests
 
         var groups = QuestionGroupingEngine.BuildGroups(ordered);
 
-        Assert.Equal(4, groups.Count);
-        Assert.Equal([21], groups[0].Select(f => f.FieldId).ToArray());
-        Assert.Equal([22], groups[1].Select(f => f.FieldId).ToArray());
-        Assert.Equal([23, 24, 25, 37], groups[2].Select(f => f.FieldId).ToArray());
-        Assert.Equal([33], groups[3].Select(f => f.FieldId).ToArray());
+        // "Марка и модель" (21) and "год выпуска" (22) are their own
+        // documented cluster (vehicle_identity) - see FieldClusterCatalog -
+        // since there's no separate "модель" field to split them into.
+        Assert.Equal(3, groups.Count);
+        Assert.Equal([21, 22], groups[0].Select(f => f.FieldId).ToArray());
+        Assert.Equal([23, 24, 25, 37], groups[1].Select(f => f.FieldId).ToArray());
+        Assert.Equal([33], groups[2].Select(f => f.FieldId).ToArray());
     }
 
     [Fact]
     public void Non_cluster_fields_of_the_same_category_still_stay_one_topic_per_question()
     {
+        // Color and "known defects" are both plain RequiredObject fields
+        // with no FieldClusterCatalog entry - being the same category
+        // alone must not merge them (MaxGroupSize = 1 for the generic
+        // fallback), unlike 21/22 above which are clustered on purpose.
         var fields = new[]
         {
-            new ClassifiedField(21, "Автотранспорт русуми", FieldCategory.RequiredObject),
-            new ClassifiedField(22, "Автотранспорт воситаси ишлаб чиқарилган йил", FieldCategory.RequiredObject),
+            new ClassifiedField(33, "Автотранспорт воситасининг ранги", FieldCategory.RequiredObject),
+            new ClassifiedField(38, "Автотранспорт воситасининг маълум носозликлари ёки хусусиятлари", FieldCategory.RequiredObject),
         };
 
         var groups = QuestionGroupingEngine.BuildGroups(QuestionPriorityEngine.Order(fields));

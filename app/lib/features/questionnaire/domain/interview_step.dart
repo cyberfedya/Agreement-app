@@ -83,6 +83,7 @@ class InterviewStep {
         fieldName: json['nextQuestion'] as String,
         required: true,
         type: 'text',
+        groupFieldIds: (json['groupFieldIds'] as List?)?.cast<int>() ?? const [],
       ),
       stage: json['stage'] != null ? InterviewStage.fromJson(json['stage'] as Map<String, dynamic>) : null,
     );

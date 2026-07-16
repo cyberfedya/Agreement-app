@@ -44,11 +44,6 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator, LegalK
     /// </summary>
     private static readonly Dictionary<string, int> MaxQuestionsByDomain = new(StringComparer.OrdinalIgnoreCase)
     {
-        // 10, not 8: the full manual worst case for a vehicle sale is
-        // brand/model, year, engine number, body number, plate, color,
-        // transfer date, payment method, installment payoff date, price -
-        // exactly ten - and price (asked last) must never be the question
-        // that gets cut off.
         ["vehicle"] = 10,
         ["real_estate"] = 10,
         ["services"] = 10,
@@ -153,7 +148,7 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator, LegalK
                     askedQuestions[groupKey] = question;
                 }
 
-                return InterviewPlanResult.NeedMoreInfo(firstMissing.FieldId, question);
+                return InterviewPlanResult.NeedMoreInfo(firstMissing.FieldId, question, group.Select(f => f.FieldId).ToList());
             }
 
         }

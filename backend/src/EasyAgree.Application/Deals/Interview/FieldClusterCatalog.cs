@@ -19,6 +19,13 @@ public static class FieldClusterCatalog
     private static readonly (string Name, string[] Keywords, int MaxSize)[] Clusters =
     [
         ("vehicle_identifiers", ["vin", "двигатель рақами", "кузов рақами", "шасси рақами"], 4),
+
+        // "Марка и модель" is a single template field (no separate "модель"
+        // field exists anywhere in the catalog - OCR already combines
+        // brand+model into it, see DocumentFieldMapper) - this pairs it with
+        // the manufacture year as one short combined question instead of two
+        // separate ones.
+        ("vehicle_identity", ["автотранспорт русуми", "ишлаб чиқарилган йил"], 2),
     ];
 
     /// <summary>The cluster this field label belongs to, or null if it isn't part of one.</summary>

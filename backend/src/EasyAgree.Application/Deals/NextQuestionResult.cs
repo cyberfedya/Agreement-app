@@ -22,13 +22,16 @@ public sealed class NextQuestionResult
 
     public int SuggestedMatchedFieldCount { get; private init; }
 
+    /// <summary>Every field id the current combined question covers - see <see cref="InterviewPlanResult.GroupFieldIds"/>.</summary>
+    public IReadOnlyList<int> GroupFieldIds { get; private init; } = [];
+
     public static NextQuestionResult NotFound() => new() { IsNotFound = true };
 
     public static NextQuestionResult ReadyToGenerate(string closingMessage) =>
         new() { IsReadyToGenerate = true, NextQuestion = closingMessage };
 
-    public static NextQuestionResult NeedMoreInfo(int fieldId, string question, InterviewStage? stage) =>
-        new() { NextFieldId = fieldId, NextQuestion = question, Stage = stage };
+    public static NextQuestionResult NeedMoreInfo(int fieldId, string question, InterviewStage? stage, IReadOnlyList<int>? groupFieldIds = null) =>
+        new() { NextFieldId = fieldId, NextQuestion = question, Stage = stage, GroupFieldIds = groupFieldIds ?? [fieldId] };
 
     public static NextQuestionResult SuggestDocument(DocumentType documentType, int matchedFieldCount) =>
         new() { IsSuggestDocument = true, SuggestedDocumentType = documentType, SuggestedMatchedFieldCount = matchedFieldCount };

@@ -61,6 +61,27 @@ class QuestionnaireProvider extends ChangeNotifier {
   /// not the (much shorter) set actually asked during the interview.
   List<Question> get allFields => _allFields;
 
+  /// [currentQuestion]'s member fields, resolved to their own labels via
+  /// [allFields] — one entry for an ordinary question, several for a
+  /// combined one (e.g. VIN + engine + body + chassis). Degrades to just
+  /// [currentQuestion] if any member id can't be resolved, rather than
+  /// rendering a partially-broken multi-box layout.
+  List<Question> get currentGroupFields {
+    final field = _currentQuestion;
+    if (field == null) return const [];
+    final ids = field.effectiveGroupFieldIds;
+    if (ids.length <= 1) return [field];
+
+    final byId = {for (final q in _allFields) q.fieldId: q};
+    final resolved = <Question>[];
+    for (final id in ids) {
+      final match = byId[id];
+      if (match == null) return [field];
+      resolved.add(match);
+    }
+    return resolved;
+  }
+
   Map<int, String> get answers => Map.unmodifiable(_answers);
 
   /// [answers] merged with values the backend already knows without
@@ -139,6 +160,41 @@ class QuestionnaireProvider extends ChangeNotifier {
     final movedOn = _readyToGenerate || _currentQuestion?.fieldId != field.fieldId;
     if (movedOn) {
       _answers[field.fieldId] = text;
+      _history.add(field);
+      _stageHistory.add(fieldStage);
+    }
+    notifyListeners();
+    unawaited(refreshDerivedState());
+  }
+
+  /// Submits one combined answer (typed across several boxes and joined,
+  /// or spoken as one blob) for a multi-field question. Deliberately omits
+  /// `fieldId`/`question` when calling the backend - this is what routes
+  /// the raw text straight to the interview planner's own per-field
+  /// extraction instead of the single-field path, which would otherwise
+  /// write the *whole* combined string under just one field id. Per-field
+  /// values become visible through [displayValues] (refreshed right after
+  /// via [refreshDerivedState]), never written into [_answers] here -
+  /// writing the raw blob under [Question.fieldId] would corrupt
+  /// [answerFor] for every other field in the group.
+  Future<void> submitGroupAnswer(String text) async {
+    final field = _currentQuestion;
+    if (field == null || _isLoading || text.trim().isEmpty) return;
+    final fieldStage = _currentStage;
+    final previousGroupIds = field.effectiveGroupFieldIds;
+
+    _isLoading = true;
+    notifyListeners();
+
+    await _advance(answer: text.trim());
+    _isLoading = false;
+
+    // Still inside the same conceptual multi-field question (some of its
+    // fields are now filled, others still missing) vs. genuinely moved on
+    // to something new - only the latter counts as history/stage progress.
+    final stillSameGroup = _currentQuestion != null && previousGroupIds.contains(_currentQuestion!.fieldId);
+    final movedOn = _readyToGenerate || !stillSameGroup;
+    if (movedOn) {
       _history.add(field);
       _stageHistory.add(fieldStage);
     }

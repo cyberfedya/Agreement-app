@@ -10,6 +10,23 @@ namespace EasyAgree.Application.Deals.Interview;
 /// actually an answer. Everything else gets a reply that keeps the
 /// interview exactly where it was: same field still pending, nothing
 /// written to the answer set, current question repeated.
+///
+/// The 5 non-answer branches below (DontKnow/Question/Help/OffTopic/
+/// ChangeTopic/Cancel) return <see cref="InterviewPlanResult.NeedMoreInfo"/>
+/// without a real field group to pass, so its <c>groupFieldIds</c> falls
+/// back to just the single echoed field id - a client showing several
+/// boxes for a combined question sees that set "shrink" to one for this
+/// one reply. Accepted: the client only uses the returned field id to
+/// decide whether it's still the same conceptual question (it is), not to
+/// resize its box layout on every reply.
+///
+/// A multi-field combined answer (one voice/typed blob covering several
+/// boxes) is expected to arrive with <c>answeredFieldId</c>/
+/// <c>currentQuestionText</c> both null, deliberately taking the fallback
+/// branch just below instead of the single-field <see cref="ConversationIntent.Answer"/>
+/// branch - the latter would write the whole raw blob verbatim under one
+/// field id before <see cref="InterviewPlanner"/> ever gets to re-extract
+/// it per-field.
 /// </summary>
 public sealed class ConversationManager(
     IntentClassifier intentClassifier,

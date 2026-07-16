@@ -57,7 +57,7 @@ public sealed class GetNextQuestionUseCase(
             return NextQuestionResult.ReadyToGenerate(result.Question!);
 
         var stage = ResolveStage(template.Domain, template.Fields, labels, result.FieldId!.Value, language);
-        return NextQuestionResult.NeedMoreInfo(result.FieldId!.Value, result.Question!, stage);
+        return NextQuestionResult.NeedMoreInfo(result.FieldId!.Value, result.Question!, stage, result.GroupFieldIds);
     }
 
     /// <summary>

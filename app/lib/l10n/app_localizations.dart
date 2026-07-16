@@ -412,6 +412,12 @@ abstract class AppLocalizations {
   /// **'Напишите или скажите…'**
   String get questionnaireSpeakOrType;
 
+  /// No description provided for @questionnaireContinue.
+  ///
+  /// In ru, this message translates to:
+  /// **'Продолжить'**
+  String get questionnaireContinue;
+
   /// No description provided for @questionnaireSpeak.
   ///
   /// In ru, this message translates to:

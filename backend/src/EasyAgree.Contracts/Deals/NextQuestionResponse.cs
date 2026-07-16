@@ -1,12 +1,19 @@
 namespace EasyAgree.Contracts.Deals;
 
+/// <param name="GroupFieldIds">
+/// Every field id the current combined question covers (e.g. VIN + engine
+/// + body + chassis) - lets the client render one input box per field
+/// instead of a single blob. Always at least one entry (just
+/// <paramref name="NextFieldId"/>) for an ordinary single-field question.
+/// </param>
 public sealed record NextQuestionResponse(
     string Status,
     int? NextFieldId,
     string? NextQuestion,
     IReadOnlyList<int> MissingFieldIds,
     DocumentSuggestionDto? DocumentSuggestion = null,
-    InterviewStageDto? Stage = null
+    InterviewStageDto? Stage = null,
+    IReadOnlyList<int>? GroupFieldIds = null
 );
 
 /// <summary>

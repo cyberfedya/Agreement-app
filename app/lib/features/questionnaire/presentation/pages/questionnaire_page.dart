@@ -31,6 +31,7 @@ import 'package:app/features/questionnaire/presentation/widgets/generation_seque
 import 'package:app/features/questionnaire/presentation/widgets/greeting_view.dart';
 import 'package:app/features/questionnaire/presentation/widgets/interview_header.dart';
 import 'package:app/features/questionnaire/presentation/widgets/interview_stage_banner.dart';
+import 'package:app/features/questionnaire/presentation/widgets/multi_field_answer_composer.dart';
 import 'package:app/features/questionnaire/presentation/widgets/review_view.dart';
 import 'package:app/features/questionnaire/presentation/widgets/thinking_indicator.dart';
 import 'package:app/features/questionnaire/providers/questionnaire_provider.dart';
@@ -214,6 +215,15 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
 
     _controllerBoundToFieldId = field.fieldId;
     _lastSpokenQuestionText = field.fieldName;
+
+    // A multi-field question renders its own per-field boxes
+    // (MultiFieldAnswerComposer, with its own controllers) - the shared
+    // single-field `_controller`/document-hint machinery below is neither
+    // read nor needed for it, just speak the combined question aloud.
+    if (field.effectiveGroupFieldIds.length > 1) {
+      _tts?.speak(field.fieldName);
+      return;
+    }
 
     // A repeated question (side remark handled, interview didn't move on)
     // keeps the same fieldId but comes back with new text woven in -
@@ -656,6 +666,8 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
   Widget _questionPhase(QuestionnaireProvider provider) {
     final field = provider.currentQuestion!;
     final thinking = _thinkingLabel != null;
+    final groupFields = provider.currentGroupFields;
+    final isMultiField = groupFields.length > 1;
 
     return _withHeader(
       provider,
@@ -687,15 +699,15 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                       question: field,
                       acknowledgment: _acknowledgment,
                       onSpeak: () => _tts?.speak(
-                        _activeHint == null
-                            ? field.fieldName
-                            : '${field.fieldName} ${InterviewScript.documentHintSuffix(_activeHint!, AppLocalizations.of(context)!)}',
+                        !isMultiField && _activeHint != null
+                            ? '${field.fieldName} ${InterviewScript.documentHintSuffix(_activeHint!, AppLocalizations.of(context)!)}'
+                            : field.fieldName,
                       ),
-                      onWhy: () => _showWhySheet(field.fieldName),
+                      onWhy: isMultiField ? null : () => _showWhySheet(field.fieldName),
                       recap: provider.answers.isEmpty
                           ? null
                           : ConversationRecap(answeredLabels: _answeredLabels(provider)),
-                      documentHint: _activeHint == null
+                      documentHint: isMultiField || _activeHint == null
                           ? null
                           : DocumentHintCard(
                               key: ValueKey('hint-${_activeHint!.name}'),
@@ -707,12 +719,21 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(Insets.x20, 0, Insets.x20, Insets.x16),
-            child: AnswerComposer(
-              controller: _controller,
-              enabled: !provider.isLoading && !thinking,
-              onSubmit: _submitAnswer,
-              onAttach: _uploadingDocument ? null : _attachFromComposer,
-            ),
+            child: isMultiField
+                ? MultiFieldAnswerComposer(
+                    key: ValueKey('group-${groupFields.map((f) => f.fieldId).join(",")}'),
+                    fields: groupFields,
+                    initialValues: provider.displayValues,
+                    enabled: !provider.isLoading && !thinking,
+                    onSubmit: provider.submitGroupAnswer,
+                    onAttach: _uploadingDocument ? null : _attachFromComposer,
+                  )
+                : AnswerComposer(
+                    controller: _controller,
+                    enabled: !provider.isLoading && !thinking,
+                    onSubmit: _submitAnswer,
+                    onAttach: _uploadingDocument ? null : _attachFromComposer,
+                  ),
           ).animateEntrance(delay: const Duration(milliseconds: 150)),
         ],
       ),
