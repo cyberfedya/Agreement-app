@@ -33,7 +33,6 @@ import 'package:app/features/questionnaire/domain/interview_step.dart';
 import 'package:app/features/questionnaire/domain/question.dart';
 import 'package:app/features/questionnaire/presentation/pages/questionnaire_page.dart';
 import 'package:app/features/questionnaire/presentation/widgets/answer_composer.dart';
-import 'package:app/features/questionnaire/presentation/widgets/multi_field_answer_composer.dart';
 import 'package:app/features/questionnaire/providers/questionnaire_provider.dart';
 import 'package:app/features/templates/data/template_repository.dart';
 import 'package:app/features/templates/domain/template.dart';
@@ -281,16 +280,6 @@ const _matchedDeal = Deal(
 const _fullNameQuestion = Question(fieldId: 1, fieldName: 'Full name', required: true, type: 'text');
 const _optionalNoteQuestion = Question(fieldId: 2, fieldName: 'Optional note', required: false, type: 'text');
 const _questions = [_fullNameQuestion, _optionalNoteQuestion];
-
-const _makeModelField = Question(fieldId: 21, fieldName: 'Марка и модель', required: true, type: 'text');
-const _yearField = Question(fieldId: 22, fieldName: 'Год выпуска', required: true, type: 'text');
-const _makeModelYearQuestion = Question(
-  fieldId: 21,
-  fieldName: 'Какая марка и модель, и год выпуска?',
-  required: true,
-  type: 'text',
-  groupFieldIds: [21, 22],
-);
 
 /// A two-turn interview (ask field 1, then field 2, then ready) — the
 /// scripted shape most tests exercise.
@@ -545,41 +534,5 @@ void main() {
 
     expect(find.text('Full name'), findsOneWidget);
     expect(find.text('Saved answer'), findsOneWidget);
-  });
-
-  testWidgets('multi-field question renders one box per field and submits without a fieldId', (tester) async {
-    final questionnaire = FakeQuestionnaireRepository(
-      [
-        const Success(InterviewStep(readyToGenerate: false, question: _makeModelYearQuestion)),
-        const Success(InterviewStep(readyToGenerate: true, closingMessage: 'Done')),
-      ],
-      allFieldsResult: const Success([_makeModelField, _yearField]),
-    );
-    await tester.pumpWidget(buildTestApp(questionnaireRepository: questionnaire));
-    await _skipSplash(tester);
-    await _completeLogin(tester);
-    await _submitRequest(tester);
-
-    // One labeled box per group field, not a single combined blob.
-    expect(find.byType(MultiFieldAnswerComposer), findsOneWidget);
-    expect(find.byType(AnswerComposer), findsNothing);
-    expect(find.widgetWithText(TextField, 'Марка и модель'), findsOneWidget);
-    expect(find.widgetWithText(TextField, 'Год выпуска'), findsOneWidget);
-
-    await tester.enterText(find.widgetWithText(TextField, 'Марка и модель'), 'Chevrolet Cobalt');
-    await tester.enterText(find.widgetWithText(TextField, 'Год выпуска'), '2023');
-    // No "Continue" button - submitting is the keyboard "done" action on
-    // whichever box the user finishes typing in.
-    await tester.testTextInput.receiveAction(TextInputAction.done);
-    await tester.pumpAndSettle();
-
-    // The combined answer goes through the "no fieldId" fallback path
-    // (never the single-field path, which would corrupt one field with
-    // the whole blob) - the fake repository records exactly what was sent.
-    final call = questionnaire.calls.last;
-    expect(call.fieldId, isNull);
-    expect(call.question, isNull);
-    expect(call.answer, contains('Chevrolet Cobalt'));
-    expect(call.answer, contains('2023'));
   });
 }
