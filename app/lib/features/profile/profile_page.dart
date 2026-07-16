@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'package:app/core/network/api_exception.dart';
@@ -28,6 +29,11 @@ class _ProfilePageState extends State<ProfilePage> {
 
   bool _isLoading = true;
   bool _isSaving = false;
+  String? _passportError;
+
+  /// Uzbek ID passport format: two letters, then seven digits (spaces
+  /// allowed while typing, stripped before validating/saving).
+  static final _passportPattern = RegExp(r'^[A-Z]{2}\d{7}$');
 
   @override
   void initState() {
@@ -65,15 +71,51 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  Future<void> _pickBirthDate() async {
+    final now = DateTime.now();
+    final current = _parseDate(_birthDate.text) ?? DateTime(now.year - 25);
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: current,
+      firstDate: DateTime(now.year - 120),
+      lastDate: now,
+    );
+    if (picked == null) return;
+    _birthDate.text = _formatDate(picked);
+  }
+
+  static DateTime? _parseDate(String text) {
+    final parts = text.split('.');
+    if (parts.length != 3) return null;
+    final day = int.tryParse(parts[0]);
+    final month = int.tryParse(parts[1]);
+    final year = int.tryParse(parts[2]);
+    if (day == null || month == null || year == null) return null;
+    return DateTime(year, month, day);
+  }
+
+  static String _formatDate(DateTime date) {
+    String two(int n) => n.toString().padLeft(2, '0');
+    return '${two(date.day)}.${two(date.month)}.${date.year}';
+  }
+
   Future<void> _save() async {
-    setState(() => _isSaving = true);
-    final messenger = ScaffoldMessenger.of(context);
+    final passport = _passportNumber.text.trim().toUpperCase().replaceAll(' ', '');
     final l10n = AppLocalizations.of(context)!;
+    if (passport.isNotEmpty && !_passportPattern.hasMatch(passport)) {
+      setState(() => _passportError = l10n.profilePassportInvalid);
+      return;
+    }
+    setState(() {
+      _passportError = null;
+      _isSaving = true;
+    });
+    final messenger = ScaffoldMessenger.of(context);
     try {
       await context.read<ProfileRepository>().save(
         UserProfile(
           fullName: _fullName.text.trim(),
-          passportNumber: _passportNumber.text.trim(),
+          passportNumber: passport,
           birthDate: _birthDate.text.trim(),
           address: _address.text.trim(),
         ),
@@ -154,9 +196,29 @@ class _ProfilePageState extends State<ProfilePage> {
                   const SizedBox(height: Insets.x24),
                   _Field(label: l10n.profileFullNameLabel, controller: _fullName, hint: l10n.profileFullNameHint),
                   const SizedBox(height: Insets.x16),
-                  _Field(label: l10n.profilePassportLabel, controller: _passportNumber, hint: l10n.profilePassportHint),
+                  _Field(
+                    label: l10n.profilePassportLabel,
+                    controller: _passportNumber,
+                    hint: l10n.profilePassportHint,
+                    textCapitalization: TextCapitalization.characters,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp('[A-Za-z0-9 ]')),
+                      LengthLimitingTextInputFormatter(10),
+                    ],
+                    errorText: _passportError,
+                    onChanged: (_) {
+                      if (_passportError != null) setState(() => _passportError = null);
+                    },
+                  ),
                   const SizedBox(height: Insets.x16),
-                  _Field(label: l10n.profileBirthDateLabel, controller: _birthDate, hint: l10n.profileBirthDateHint),
+                  _Field(
+                    label: l10n.profileBirthDateLabel,
+                    controller: _birthDate,
+                    hint: l10n.profileBirthDateHint,
+                    readOnly: true,
+                    onTap: _pickBirthDate,
+                    suffixIcon: const Icon(Icons.calendar_today_outlined, size: 20),
+                  ),
                   const SizedBox(height: Insets.x16),
                   _Field(label: l10n.profileAddressLabel, controller: _address, hint: l10n.profileAddressHint),
                 ],
@@ -182,11 +244,29 @@ class _ProfilePageState extends State<ProfilePage> {
 }
 
 class _Field extends StatelessWidget {
-  const _Field({required this.label, required this.controller, required this.hint});
+  const _Field({
+    required this.label,
+    required this.controller,
+    required this.hint,
+    this.textCapitalization = TextCapitalization.none,
+    this.inputFormatters,
+    this.errorText,
+    this.onChanged,
+    this.readOnly = false,
+    this.onTap,
+    this.suffixIcon,
+  });
 
   final String label;
   final TextEditingController controller;
   final String hint;
+  final TextCapitalization textCapitalization;
+  final List<TextInputFormatter>? inputFormatters;
+  final String? errorText;
+  final ValueChanged<String>? onChanged;
+  final bool readOnly;
+  final VoidCallback? onTap;
+  final Widget? suffixIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -196,7 +276,15 @@ class _Field extends StatelessWidget {
       children: [
         Text(label, style: theme.textTheme.labelLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
         const SizedBox(height: Insets.x8),
-        TextField(controller: controller, decoration: InputDecoration(hintText: hint)),
+        TextField(
+          controller: controller,
+          textCapitalization: textCapitalization,
+          inputFormatters: inputFormatters,
+          onChanged: onChanged,
+          readOnly: readOnly,
+          onTap: onTap,
+          decoration: InputDecoration(hintText: hint, errorText: errorText, suffixIcon: suffixIcon),
+        ),
       ],
     );
   }

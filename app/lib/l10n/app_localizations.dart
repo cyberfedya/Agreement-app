@@ -766,6 +766,12 @@ abstract class AppLocalizations {
   /// **'Серия и номер'**
   String get profilePassportHint;
 
+  /// No description provided for @profilePassportInvalid.
+  ///
+  /// In ru, this message translates to:
+  /// **'Формат: две буквы и семь цифр, например AB1234567.'**
+  String get profilePassportInvalid;
+
   /// No description provided for @profileBirthDateLabel.
   ///
   /// In ru, this message translates to:
@@ -2055,6 +2061,552 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Эта сделка отменена.'**
   String get historyDetailCancelledNotice;
+
+  /// No description provided for @explanationDeposit.
+  ///
+  /// In ru, this message translates to:
+  /// **'Если будет предоплата, мы добавим это условие в договор. Тогда обе стороны будут понимать, какую сумму и когда нужно оплатить.'**
+  String get explanationDeposit;
+
+  /// No description provided for @explanationPaymentMethod.
+  ///
+  /// In ru, this message translates to:
+  /// **'Нам нужно указать способ оплаты. Это поможет точно описать порядок расчёта в договоре.'**
+  String get explanationPaymentMethod;
+
+  /// No description provided for @explanationBankDetails.
+  ///
+  /// In ru, this message translates to:
+  /// **'Мы спрашиваем реквизиты, чтобы деньги ушли на правильный счёт. Они будут указаны в разделе об оплате.'**
+  String get explanationBankDetails;
+
+  /// No description provided for @explanationInterestRate.
+  ///
+  /// In ru, this message translates to:
+  /// **'Мы уточняем процент, чтобы обе стороны одинаково понимали условия. Он будет прописан в договоре вместе с суммой.'**
+  String get explanationInterestRate;
+
+  /// No description provided for @explanationSalary.
+  ///
+  /// In ru, this message translates to:
+  /// **'Мы спрашиваем размер оплаты, чтобы он был зафиксирован письменно. Эта сумма будет указана в договоре.'**
+  String get explanationSalary;
+
+  /// No description provided for @explanationPrice.
+  ///
+  /// In ru, this message translates to:
+  /// **'Мы указываем цену, чтобы обе стороны одинаково понимали стоимость сделки. Эта сумма будет внесена в договор.'**
+  String get explanationPrice;
+
+  /// No description provided for @explanationTransferDate.
+  ///
+  /// In ru, this message translates to:
+  /// **'Нам нужно знать дату передачи. Она будет указана в договоре и поможет избежать споров о сроках.'**
+  String get explanationTransferDate;
+
+  /// No description provided for @explanationRepaymentDate.
+  ///
+  /// In ru, this message translates to:
+  /// **'Мы уточняем, когда нужно вернуть деньги. Эта дата будет указана в договоре, чтобы обе стороны понимали срок.'**
+  String get explanationRepaymentDate;
+
+  /// No description provided for @explanationStartDate.
+  ///
+  /// In ru, this message translates to:
+  /// **'Мы спрашиваем дату начала работы, чтобы зафиксировать её письменно. С этого дня начнут действовать договорённости.'**
+  String get explanationStartDate;
+
+  /// No description provided for @explanationDuration.
+  ///
+  /// In ru, this message translates to:
+  /// **'Мы уточняем срок, чтобы обе стороны понимали, до какого момента действуют договорённости. Эти даты будут указаны в договоре.'**
+  String get explanationDuration;
+
+  /// No description provided for @explanationGenericDate.
+  ///
+  /// In ru, this message translates to:
+  /// **'Мы спрашиваем дату, чтобы зафиксировать её письменно. Так обе стороны будут понимать, когда что должно произойти.'**
+  String get explanationGenericDate;
+
+  /// No description provided for @explanationTransferPlace.
+  ///
+  /// In ru, this message translates to:
+  /// **'Это место будет указано в договоре как место передачи. Так обе стороны будут понимать, где должна состояться сделка.'**
+  String get explanationTransferPlace;
+
+  /// No description provided for @explanationAddress.
+  ///
+  /// In ru, this message translates to:
+  /// **'Адрес нужен, чтобы в договоре было понятно, о каком именно объекте идёт речь. Он будет указан в описании предмета сделки.'**
+  String get explanationAddress;
+
+  /// No description provided for @explanationVehicleIds.
+  ///
+  /// In ru, this message translates to:
+  /// **'Этот номер помогает точно указать в договоре, о каком автомобиле идёт речь. Так его нельзя будет перепутать ни с каким другим.'**
+  String get explanationVehicleIds;
+
+  /// No description provided for @explanationVehicleMakeModel.
+  ///
+  /// In ru, this message translates to:
+  /// **'Мы спрашиваем это, чтобы точно описать автомобиль в договоре. Обе стороны будут понимать, что именно продаётся.'**
+  String get explanationVehicleMakeModel;
+
+  /// No description provided for @explanationPropertyDetails.
+  ///
+  /// In ru, this message translates to:
+  /// **'Эти детали описывают объект в договоре. Так будет понятно, что именно передаётся, и не возникнет разночтений.'**
+  String get explanationPropertyDetails;
+
+  /// No description provided for @explanationPersonalInfo.
+  ///
+  /// In ru, this message translates to:
+  /// **'Мы спрашиваем это, чтобы в договоре было точно указано, кто участвует в сделке. Без этих данных договор нельзя будет подписать.'**
+  String get explanationPersonalInfo;
+
+  /// No description provided for @explanationJobTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Мы уточняем должность, чтобы в договоре было понятно, какую работу вы договорились выполнять. Она будет указана в разделе об обязанностях.'**
+  String get explanationJobTitle;
+
+  /// No description provided for @explanationContacts.
+  ///
+  /// In ru, this message translates to:
+  /// **'Контакты нужны, чтобы стороны могли связаться друг с другом. Они будут указаны в конце договора.'**
+  String get explanationContacts;
+
+  /// No description provided for @explanationExtraTerms.
+  ///
+  /// In ru, this message translates to:
+  /// **'Здесь можно указать любые дополнительные договорённости. Они тоже будут включены в договор.'**
+  String get explanationExtraTerms;
+
+  /// No description provided for @explanationFallback.
+  ///
+  /// In ru, this message translates to:
+  /// **'Мы спрашиваем это, чтобы договор точно отражал вашу договорённость. Ваш ответ будет вписан в соответствующий пункт документа.'**
+  String get explanationFallback;
+
+  /// No description provided for @interviewAck1.
+  ///
+  /// In ru, this message translates to:
+  /// **'Отлично.'**
+  String get interviewAck1;
+
+  /// No description provided for @interviewAck2.
+  ///
+  /// In ru, this message translates to:
+  /// **'Очень хорошо.'**
+  String get interviewAck2;
+
+  /// No description provided for @interviewAck3.
+  ///
+  /// In ru, this message translates to:
+  /// **'Понятно.'**
+  String get interviewAck3;
+
+  /// No description provided for @interviewAck4.
+  ///
+  /// In ru, this message translates to:
+  /// **'Прекрасно.'**
+  String get interviewAck4;
+
+  /// No description provided for @interviewAck5.
+  ///
+  /// In ru, this message translates to:
+  /// **'Понял.'**
+  String get interviewAck5;
+
+  /// No description provided for @interviewAck6.
+  ///
+  /// In ru, this message translates to:
+  /// **'Принято.'**
+  String get interviewAck6;
+
+  /// No description provided for @interviewAck7.
+  ///
+  /// In ru, this message translates to:
+  /// **'Спасибо.'**
+  String get interviewAck7;
+
+  /// No description provided for @interviewAck8.
+  ///
+  /// In ru, this message translates to:
+  /// **'Хорошо.'**
+  String get interviewAck8;
+
+  /// No description provided for @interviewAck9.
+  ///
+  /// In ru, this message translates to:
+  /// **'Записал.'**
+  String get interviewAck9;
+
+  /// No description provided for @interviewAck10.
+  ///
+  /// In ru, this message translates to:
+  /// **'Теперь всё понятно.'**
+  String get interviewAck10;
+
+  /// No description provided for @interviewAck11.
+  ///
+  /// In ru, this message translates to:
+  /// **'Отмечаю это.'**
+  String get interviewAck11;
+
+  /// No description provided for @interviewAck12.
+  ///
+  /// In ru, this message translates to:
+  /// **'Добавляю в договор.'**
+  String get interviewAck12;
+
+  /// No description provided for @interviewDocAck1.
+  ///
+  /// In ru, this message translates to:
+  /// **'Документ действительно помог.'**
+  String get interviewDocAck1;
+
+  /// No description provided for @interviewDocAck2.
+  ///
+  /// In ru, this message translates to:
+  /// **'Это сильно сокращает заполнение.'**
+  String get interviewDocAck2;
+
+  /// No description provided for @interviewDocAck3.
+  ///
+  /// In ru, this message translates to:
+  /// **'Почти всё готово.'**
+  String get interviewDocAck3;
+
+  /// No description provided for @interviewThinking1.
+  ///
+  /// In ru, this message translates to:
+  /// **'Добавляю это в договор…'**
+  String get interviewThinking1;
+
+  /// No description provided for @interviewThinking2.
+  ///
+  /// In ru, this message translates to:
+  /// **'Обновляю договор…'**
+  String get interviewThinking2;
+
+  /// No description provided for @interviewThinking3.
+  ///
+  /// In ru, this message translates to:
+  /// **'Проверяю данные…'**
+  String get interviewThinking3;
+
+  /// No description provided for @interviewThinking4.
+  ///
+  /// In ru, this message translates to:
+  /// **'Анализирую…'**
+  String get interviewThinking4;
+
+  /// No description provided for @interviewThinking5.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сверяю информацию…'**
+  String get interviewThinking5;
+
+  /// No description provided for @interviewThinking6.
+  ///
+  /// In ru, this message translates to:
+  /// **'Вношу в документ…'**
+  String get interviewThinking6;
+
+  /// No description provided for @interviewScanning1.
+  ///
+  /// In ru, this message translates to:
+  /// **'Читаю документ…'**
+  String get interviewScanning1;
+
+  /// No description provided for @interviewScanning2.
+  ///
+  /// In ru, this message translates to:
+  /// **'Распознаю данные…'**
+  String get interviewScanning2;
+
+  /// No description provided for @interviewScanning3.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сверяю реквизиты…'**
+  String get interviewScanning3;
+
+  /// No description provided for @interviewScanning4.
+  ///
+  /// In ru, this message translates to:
+  /// **'Заполняю договор…'**
+  String get interviewScanning4;
+
+  /// No description provided for @interviewGenerationStep1.
+  ///
+  /// In ru, this message translates to:
+  /// **'Проверяю данные'**
+  String get interviewGenerationStep1;
+
+  /// No description provided for @interviewGenerationStep2.
+  ///
+  /// In ru, this message translates to:
+  /// **'Анализирую условия'**
+  String get interviewGenerationStep2;
+
+  /// No description provided for @interviewGenerationStep3.
+  ///
+  /// In ru, this message translates to:
+  /// **'Формирую договор'**
+  String get interviewGenerationStep3;
+
+  /// No description provided for @interviewGenerationStep4.
+  ///
+  /// In ru, this message translates to:
+  /// **'Проверяю юридическую целостность'**
+  String get interviewGenerationStep4;
+
+  /// No description provided for @interviewGenerationStep5.
+  ///
+  /// In ru, this message translates to:
+  /// **'Документ готов'**
+  String get interviewGenerationStep5;
+
+  /// No description provided for @interviewProgressFirstQuestion.
+  ///
+  /// In ru, this message translates to:
+  /// **'Готовим договор…'**
+  String get interviewProgressFirstQuestion;
+
+  /// No description provided for @interviewProgressLastQuestion.
+  ///
+  /// In ru, this message translates to:
+  /// **'Осталось последнее небольшое уточнение.'**
+  String get interviewProgressLastQuestion;
+
+  /// No description provided for @interviewProgressTwoLeft1.
+  ///
+  /// In ru, this message translates to:
+  /// **'Ещё две детали.'**
+  String get interviewProgressTwoLeft1;
+
+  /// No description provided for @interviewProgressTwoLeft2.
+  ///
+  /// In ru, this message translates to:
+  /// **'Почти у цели — ещё пара деталей.'**
+  String get interviewProgressTwoLeft2;
+
+  /// No description provided for @interviewProgressFewLeft1.
+  ///
+  /// In ru, this message translates to:
+  /// **'Осталось совсем немного.'**
+  String get interviewProgressFewLeft1;
+
+  /// No description provided for @interviewProgressFewLeft2.
+  ///
+  /// In ru, this message translates to:
+  /// **'Уже большая часть готова.'**
+  String get interviewProgressFewLeft2;
+
+  /// No description provided for @interviewProgressFewLeft3.
+  ///
+  /// In ru, this message translates to:
+  /// **'Отличный прогресс.'**
+  String get interviewProgressFewLeft3;
+
+  /// No description provided for @interviewProgressEarly1.
+  ///
+  /// In ru, this message translates to:
+  /// **'Продолжаем…'**
+  String get interviewProgressEarly1;
+
+  /// No description provided for @interviewProgressEarly2.
+  ///
+  /// In ru, this message translates to:
+  /// **'Всё идёт отлично.'**
+  String get interviewProgressEarly2;
+
+  /// No description provided for @interviewProgressMid1.
+  ///
+  /// In ru, this message translates to:
+  /// **'Договор растёт…'**
+  String get interviewProgressMid1;
+
+  /// No description provided for @interviewProgressMid2.
+  ///
+  /// In ru, this message translates to:
+  /// **'Хороший темп.'**
+  String get interviewProgressMid2;
+
+  /// No description provided for @interviewProgressLate1.
+  ///
+  /// In ru, this message translates to:
+  /// **'Почти готово…'**
+  String get interviewProgressLate1;
+
+  /// No description provided for @interviewProgressLate2.
+  ///
+  /// In ru, this message translates to:
+  /// **'Мы почти закончили.'**
+  String get interviewProgressLate2;
+
+  /// No description provided for @interviewGreetingTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Помогу подготовить\n«{templateTitle}»'**
+  String interviewGreetingTitle(String templateTitle);
+
+  /// No description provided for @interviewGreetingBody.
+  ///
+  /// In ru, this message translates to:
+  /// **'Я заполню всё, что смогу, автоматически — и спрошу только то, чего не хватает.'**
+  String get interviewGreetingBody;
+
+  /// No description provided for @interviewCelebration1.
+  ///
+  /// In ru, this message translates to:
+  /// **'Отлично! Документ распознан'**
+  String get interviewCelebration1;
+
+  /// No description provided for @interviewCelebration2.
+  ///
+  /// In ru, this message translates to:
+  /// **'Готово! Я всё прочитал'**
+  String get interviewCelebration2;
+
+  /// No description provided for @interviewCelebration3.
+  ///
+  /// In ru, this message translates to:
+  /// **'Супер — документ помог'**
+  String get interviewCelebration3;
+
+  /// No description provided for @interviewCelebration4.
+  ///
+  /// In ru, this message translates to:
+  /// **'Отличное решение'**
+  String get interviewCelebration4;
+
+  /// No description provided for @interviewCompletionFallback1.
+  ///
+  /// In ru, this message translates to:
+  /// **'Всё необходимое уже собрано.'**
+  String get interviewCompletionFallback1;
+
+  /// No description provided for @interviewCompletionFallback2.
+  ///
+  /// In ru, this message translates to:
+  /// **'Можно формировать договор.'**
+  String get interviewCompletionFallback2;
+
+  /// No description provided for @interviewCompletionFallback3.
+  ///
+  /// In ru, this message translates to:
+  /// **'Отличная работа.'**
+  String get interviewCompletionFallback3;
+
+  /// No description provided for @interviewCompletionFallback4.
+  ///
+  /// In ru, this message translates to:
+  /// **'Готово — осталось только подтвердить.'**
+  String get interviewCompletionFallback4;
+
+  /// No description provided for @interviewConfidenceReliable.
+  ///
+  /// In ru, this message translates to:
+  /// **'Надёжно распознано'**
+  String get interviewConfidenceReliable;
+
+  /// No description provided for @interviewConfidenceCheck.
+  ///
+  /// In ru, this message translates to:
+  /// **'Проверьте это значение'**
+  String get interviewConfidenceCheck;
+
+  /// No description provided for @interviewRemainingAlmostDone.
+  ///
+  /// In ru, this message translates to:
+  /// **'≈ Почти готово'**
+  String get interviewRemainingAlmostDone;
+
+  /// No description provided for @interviewRemainingLastOne.
+  ///
+  /// In ru, this message translates to:
+  /// **'≈ Осталось последнее уточнение'**
+  String get interviewRemainingLastOne;
+
+  /// No description provided for @interviewRemainingCountFew.
+  ///
+  /// In ru, this message translates to:
+  /// **'≈ Осталось {remaining} небольших уточнения'**
+  String interviewRemainingCountFew(int remaining);
+
+  /// No description provided for @interviewRemainingCountMany.
+  ///
+  /// In ru, this message translates to:
+  /// **'≈ Осталось {remaining} небольших уточнений'**
+  String interviewRemainingCountMany(int remaining);
+
+  /// No description provided for @interviewTimeSavedSeconds.
+  ///
+  /// In ru, this message translates to:
+  /// **'Вы сэкономили примерно {seconds} секунд.'**
+  String interviewTimeSavedSeconds(int seconds);
+
+  /// No description provided for @interviewTimeSavedMinutes.
+  ///
+  /// In ru, this message translates to:
+  /// **'Вы сэкономили примерно {minutes} мин.'**
+  String interviewTimeSavedMinutes(int minutes);
+
+  /// No description provided for @interviewDocHintVehicle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Если удобнее, можете также загрузить фотографию техпаспорта — я заполню это и остальные данные автоматически.'**
+  String get interviewDocHintVehicle;
+
+  /// No description provided for @interviewDocHintRealEstate.
+  ///
+  /// In ru, this message translates to:
+  /// **'Если документы рядом, можете просто загрузить их фотографию — это быстрее.'**
+  String get interviewDocHintRealEstate;
+
+  /// No description provided for @interviewDocHintBusiness.
+  ///
+  /// In ru, this message translates to:
+  /// **'Если удобнее, можете загрузить фотографию документа вместо ввода вручную.'**
+  String get interviewDocHintBusiness;
+
+  /// No description provided for @interviewDocHintEmployment.
+  ///
+  /// In ru, this message translates to:
+  /// **'Если удобнее, можете загрузить фотографию документа вместо ввода вручную.'**
+  String get interviewDocHintEmployment;
+
+  /// No description provided for @interviewDocHintBank.
+  ///
+  /// In ru, this message translates to:
+  /// **'Если удобнее, можете загрузить фотографию реквизитов вместо ввода вручную.'**
+  String get interviewDocHintBank;
+
+  /// No description provided for @interviewDocHintInheritance.
+  ///
+  /// In ru, this message translates to:
+  /// **'Если удобнее, можете загрузить фотографию свидетельства вместо ввода вручную.'**
+  String get interviewDocHintInheritance;
+
+  /// No description provided for @interviewDocHintCourt.
+  ///
+  /// In ru, this message translates to:
+  /// **'Если удобнее, можете загрузить фотографию решения суда вместо ввода вручную.'**
+  String get interviewDocHintCourt;
+
+  /// No description provided for @interviewDocHintLoan.
+  ///
+  /// In ru, this message translates to:
+  /// **'Если удобнее, можете загрузить фотографию договора вместо ввода вручную.'**
+  String get interviewDocHintLoan;
+
+  /// No description provided for @interviewDocHintService.
+  ///
+  /// In ru, this message translates to:
+  /// **'Если удобнее, можете загрузить фотографию документа вместо ввода вручную.'**
+  String get interviewDocHintService;
 }
 
 class _AppLocalizationsDelegate

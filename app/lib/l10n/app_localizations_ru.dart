@@ -378,6 +378,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get profilePassportHint => 'Серия и номер';
 
   @override
+  String get profilePassportInvalid =>
+      'Формат: две буквы и семь цифр, например AB1234567.';
+
+  @override
   String get profileBirthDateLabel => 'Дата рождения';
 
   @override
@@ -1079,4 +1083,320 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get historyDetailCancelledNotice => 'Эта сделка отменена.';
+
+  @override
+  String get explanationDeposit =>
+      'Если будет предоплата, мы добавим это условие в договор. Тогда обе стороны будут понимать, какую сумму и когда нужно оплатить.';
+
+  @override
+  String get explanationPaymentMethod =>
+      'Нам нужно указать способ оплаты. Это поможет точно описать порядок расчёта в договоре.';
+
+  @override
+  String get explanationBankDetails =>
+      'Мы спрашиваем реквизиты, чтобы деньги ушли на правильный счёт. Они будут указаны в разделе об оплате.';
+
+  @override
+  String get explanationInterestRate =>
+      'Мы уточняем процент, чтобы обе стороны одинаково понимали условия. Он будет прописан в договоре вместе с суммой.';
+
+  @override
+  String get explanationSalary =>
+      'Мы спрашиваем размер оплаты, чтобы он был зафиксирован письменно. Эта сумма будет указана в договоре.';
+
+  @override
+  String get explanationPrice =>
+      'Мы указываем цену, чтобы обе стороны одинаково понимали стоимость сделки. Эта сумма будет внесена в договор.';
+
+  @override
+  String get explanationTransferDate =>
+      'Нам нужно знать дату передачи. Она будет указана в договоре и поможет избежать споров о сроках.';
+
+  @override
+  String get explanationRepaymentDate =>
+      'Мы уточняем, когда нужно вернуть деньги. Эта дата будет указана в договоре, чтобы обе стороны понимали срок.';
+
+  @override
+  String get explanationStartDate =>
+      'Мы спрашиваем дату начала работы, чтобы зафиксировать её письменно. С этого дня начнут действовать договорённости.';
+
+  @override
+  String get explanationDuration =>
+      'Мы уточняем срок, чтобы обе стороны понимали, до какого момента действуют договорённости. Эти даты будут указаны в договоре.';
+
+  @override
+  String get explanationGenericDate =>
+      'Мы спрашиваем дату, чтобы зафиксировать её письменно. Так обе стороны будут понимать, когда что должно произойти.';
+
+  @override
+  String get explanationTransferPlace =>
+      'Это место будет указано в договоре как место передачи. Так обе стороны будут понимать, где должна состояться сделка.';
+
+  @override
+  String get explanationAddress =>
+      'Адрес нужен, чтобы в договоре было понятно, о каком именно объекте идёт речь. Он будет указан в описании предмета сделки.';
+
+  @override
+  String get explanationVehicleIds =>
+      'Этот номер помогает точно указать в договоре, о каком автомобиле идёт речь. Так его нельзя будет перепутать ни с каким другим.';
+
+  @override
+  String get explanationVehicleMakeModel =>
+      'Мы спрашиваем это, чтобы точно описать автомобиль в договоре. Обе стороны будут понимать, что именно продаётся.';
+
+  @override
+  String get explanationPropertyDetails =>
+      'Эти детали описывают объект в договоре. Так будет понятно, что именно передаётся, и не возникнет разночтений.';
+
+  @override
+  String get explanationPersonalInfo =>
+      'Мы спрашиваем это, чтобы в договоре было точно указано, кто участвует в сделке. Без этих данных договор нельзя будет подписать.';
+
+  @override
+  String get explanationJobTitle =>
+      'Мы уточняем должность, чтобы в договоре было понятно, какую работу вы договорились выполнять. Она будет указана в разделе об обязанностях.';
+
+  @override
+  String get explanationContacts =>
+      'Контакты нужны, чтобы стороны могли связаться друг с другом. Они будут указаны в конце договора.';
+
+  @override
+  String get explanationExtraTerms =>
+      'Здесь можно указать любые дополнительные договорённости. Они тоже будут включены в договор.';
+
+  @override
+  String get explanationFallback =>
+      'Мы спрашиваем это, чтобы договор точно отражал вашу договорённость. Ваш ответ будет вписан в соответствующий пункт документа.';
+
+  @override
+  String get interviewAck1 => 'Отлично.';
+
+  @override
+  String get interviewAck2 => 'Очень хорошо.';
+
+  @override
+  String get interviewAck3 => 'Понятно.';
+
+  @override
+  String get interviewAck4 => 'Прекрасно.';
+
+  @override
+  String get interviewAck5 => 'Понял.';
+
+  @override
+  String get interviewAck6 => 'Принято.';
+
+  @override
+  String get interviewAck7 => 'Спасибо.';
+
+  @override
+  String get interviewAck8 => 'Хорошо.';
+
+  @override
+  String get interviewAck9 => 'Записал.';
+
+  @override
+  String get interviewAck10 => 'Теперь всё понятно.';
+
+  @override
+  String get interviewAck11 => 'Отмечаю это.';
+
+  @override
+  String get interviewAck12 => 'Добавляю в договор.';
+
+  @override
+  String get interviewDocAck1 => 'Документ действительно помог.';
+
+  @override
+  String get interviewDocAck2 => 'Это сильно сокращает заполнение.';
+
+  @override
+  String get interviewDocAck3 => 'Почти всё готово.';
+
+  @override
+  String get interviewThinking1 => 'Добавляю это в договор…';
+
+  @override
+  String get interviewThinking2 => 'Обновляю договор…';
+
+  @override
+  String get interviewThinking3 => 'Проверяю данные…';
+
+  @override
+  String get interviewThinking4 => 'Анализирую…';
+
+  @override
+  String get interviewThinking5 => 'Сверяю информацию…';
+
+  @override
+  String get interviewThinking6 => 'Вношу в документ…';
+
+  @override
+  String get interviewScanning1 => 'Читаю документ…';
+
+  @override
+  String get interviewScanning2 => 'Распознаю данные…';
+
+  @override
+  String get interviewScanning3 => 'Сверяю реквизиты…';
+
+  @override
+  String get interviewScanning4 => 'Заполняю договор…';
+
+  @override
+  String get interviewGenerationStep1 => 'Проверяю данные';
+
+  @override
+  String get interviewGenerationStep2 => 'Анализирую условия';
+
+  @override
+  String get interviewGenerationStep3 => 'Формирую договор';
+
+  @override
+  String get interviewGenerationStep4 => 'Проверяю юридическую целостность';
+
+  @override
+  String get interviewGenerationStep5 => 'Документ готов';
+
+  @override
+  String get interviewProgressFirstQuestion => 'Готовим договор…';
+
+  @override
+  String get interviewProgressLastQuestion =>
+      'Осталось последнее небольшое уточнение.';
+
+  @override
+  String get interviewProgressTwoLeft1 => 'Ещё две детали.';
+
+  @override
+  String get interviewProgressTwoLeft2 => 'Почти у цели — ещё пара деталей.';
+
+  @override
+  String get interviewProgressFewLeft1 => 'Осталось совсем немного.';
+
+  @override
+  String get interviewProgressFewLeft2 => 'Уже большая часть готова.';
+
+  @override
+  String get interviewProgressFewLeft3 => 'Отличный прогресс.';
+
+  @override
+  String get interviewProgressEarly1 => 'Продолжаем…';
+
+  @override
+  String get interviewProgressEarly2 => 'Всё идёт отлично.';
+
+  @override
+  String get interviewProgressMid1 => 'Договор растёт…';
+
+  @override
+  String get interviewProgressMid2 => 'Хороший темп.';
+
+  @override
+  String get interviewProgressLate1 => 'Почти готово…';
+
+  @override
+  String get interviewProgressLate2 => 'Мы почти закончили.';
+
+  @override
+  String interviewGreetingTitle(String templateTitle) {
+    return 'Помогу подготовить\n«$templateTitle»';
+  }
+
+  @override
+  String get interviewGreetingBody =>
+      'Я заполню всё, что смогу, автоматически — и спрошу только то, чего не хватает.';
+
+  @override
+  String get interviewCelebration1 => 'Отлично! Документ распознан';
+
+  @override
+  String get interviewCelebration2 => 'Готово! Я всё прочитал';
+
+  @override
+  String get interviewCelebration3 => 'Супер — документ помог';
+
+  @override
+  String get interviewCelebration4 => 'Отличное решение';
+
+  @override
+  String get interviewCompletionFallback1 => 'Всё необходимое уже собрано.';
+
+  @override
+  String get interviewCompletionFallback2 => 'Можно формировать договор.';
+
+  @override
+  String get interviewCompletionFallback3 => 'Отличная работа.';
+
+  @override
+  String get interviewCompletionFallback4 =>
+      'Готово — осталось только подтвердить.';
+
+  @override
+  String get interviewConfidenceReliable => 'Надёжно распознано';
+
+  @override
+  String get interviewConfidenceCheck => 'Проверьте это значение';
+
+  @override
+  String get interviewRemainingAlmostDone => '≈ Почти готово';
+
+  @override
+  String get interviewRemainingLastOne => '≈ Осталось последнее уточнение';
+
+  @override
+  String interviewRemainingCountFew(int remaining) {
+    return '≈ Осталось $remaining небольших уточнения';
+  }
+
+  @override
+  String interviewRemainingCountMany(int remaining) {
+    return '≈ Осталось $remaining небольших уточнений';
+  }
+
+  @override
+  String interviewTimeSavedSeconds(int seconds) {
+    return 'Вы сэкономили примерно $seconds секунд.';
+  }
+
+  @override
+  String interviewTimeSavedMinutes(int minutes) {
+    return 'Вы сэкономили примерно $minutes мин.';
+  }
+
+  @override
+  String get interviewDocHintVehicle =>
+      'Если удобнее, можете также загрузить фотографию техпаспорта — я заполню это и остальные данные автоматически.';
+
+  @override
+  String get interviewDocHintRealEstate =>
+      'Если документы рядом, можете просто загрузить их фотографию — это быстрее.';
+
+  @override
+  String get interviewDocHintBusiness =>
+      'Если удобнее, можете загрузить фотографию документа вместо ввода вручную.';
+
+  @override
+  String get interviewDocHintEmployment =>
+      'Если удобнее, можете загрузить фотографию документа вместо ввода вручную.';
+
+  @override
+  String get interviewDocHintBank =>
+      'Если удобнее, можете загрузить фотографию реквизитов вместо ввода вручную.';
+
+  @override
+  String get interviewDocHintInheritance =>
+      'Если удобнее, можете загрузить фотографию свидетельства вместо ввода вручную.';
+
+  @override
+  String get interviewDocHintCourt =>
+      'Если удобнее, можете загрузить фотографию решения суда вместо ввода вручную.';
+
+  @override
+  String get interviewDocHintLoan =>
+      'Если удобнее, можете загрузить фотографию договора вместо ввода вручную.';
+
+  @override
+  String get interviewDocHintService =>
+      'Если удобнее, можете загрузить фотографию документа вместо ввода вручную.';
 }

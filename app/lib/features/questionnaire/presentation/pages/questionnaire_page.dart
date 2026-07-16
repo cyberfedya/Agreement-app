@@ -194,13 +194,9 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
     _controller.dispose();
     super.dispose();
   }
-
-  /// Keeps the composer in sync with whichever question is current -
-  /// prefilled when going back to an already-answered one, empty for a
-  /// fresh one - and reads each new question aloud.
   void _onProviderChanged() {
     if (_provider?.readyToGenerate ?? false) {
-      _completionFallback ??= _script.completionFallback();
+      _completionFallback ??= _script.completionFallback(AppLocalizations.of(context)!);
       final closing = _provider?.closingMessage;
       if (!_closingSpoken && closing != null) {
         _closingSpoken = true;
@@ -229,7 +225,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
     final hint = _activeHint;
     if (hint != null) {
       _hintShownAtAnswerCount[hint] = _provider!.answers.length;
-      _tts?.speak('${field.fieldName} ${InterviewScript.documentHintSuffix(hint)}');
+      _tts?.speak('${field.fieldName} ${InterviewScript.documentHintSuffix(hint, AppLocalizations.of(context)!)}');
     } else {
       _tts?.speak(field.fieldName);
     }
@@ -262,10 +258,11 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
     final provider = context.read<QuestionnaireProvider>();
     if (provider.isLoading || text.trim().isEmpty) return;
 
+    final l10n = AppLocalizations.of(context)!;
     HapticFeedback.selectionClick();
     FocusScope.of(context).unfocus();
     setState(() {
-      _thinkingLabel = _script.thinking();
+      _thinkingLabel = _script.thinking(l10n);
       _submittedEcho = text.trim();
     });
 
@@ -274,12 +271,9 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
 
     setState(() {
       _thinkingLabel = null;
-      _acknowledgment = _script.acknowledgment();
+      _acknowledgment = _script.acknowledgment(l10n);
     });
   }
-
-  // --- Document upload (invite screen + composer paperclip) ---
-
   Future<void> _pickAndUpload(ImageSource source) async {
     final files = source == ImageSource.camera
         ? await _picker.pickImage(source: ImageSource.camera, imageQuality: 85).then((f) => f == null ? <XFile>[] : [f])
@@ -289,10 +283,6 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
     final entries = <(String, String, List<int>)>[];
     for (final file in files) {
       final bytes = await file.readAsBytes();
-      // Never trust the OS-reported mime type (frequently null on Android)
-      // or assume jpeg - sniff the real format from the bytes, the same
-      // way the backend will, so the two can never disagree about what
-      // was actually sent.
       final contentType = sniffImageContentType(bytes);
       if (contentType == null) continue;
       entries.add((normalizedFileName(file.name, contentType), contentType, bytes));
@@ -315,13 +305,11 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
 
     if (success) {
       HapticFeedback.mediumImpact();
-      // Refresh the backend's remaining-questions estimate so the
-      // celebration line reflects what the upload just covered.
       unawaited(questionnaire.refreshDerivedState());
       setState(() {
         _uploadingDocument = false;
         _celebrating = true;
-        _celebrationTitle = _script.celebrationTitle();
+        _celebrationTitle = _script.celebrationTitle(l10n);
       });
     } else {
       setState(() => _uploadingDocument = false);
@@ -330,19 +318,15 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
       ).showSnackBar(SnackBar(content: Text(uploadProvider.errorMessage ?? l10n.commonUploadFailed)));
     }
   }
-
-  /// "Продолжить" on the celebration screen: let the planner skip
-  /// everything the upload filled. The next question's acknowledgment
-  /// names the document explicitly instead of a generic reaction, so the
-  /// assistant sounds like it noticed the help it just got.
-  Future<void> _continueAfterCelebration() async {
+    Future<void> _continueAfterCelebration() async {
     final questionnaire = context.read<QuestionnaireProvider>();
     final uploads = context.read<DocumentUploadProvider>();
+    final l10n = AppLocalizations.of(context)!;
     HapticFeedback.selectionClick();
     uploads.clearMismatchWarnings();
     setState(() {
       _celebrating = false;
-      _acknowledgment = _script.documentFollowUpAcknowledgment();
+      _acknowledgment = _script.documentFollowUpAcknowledgment(l10n);
     });
     await questionnaire.resumeAfterDocumentUpload();
   }
@@ -420,7 +404,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
               Text(l10n.questionnaireWhyNeeded, style: theme.textTheme.titleLarge),
               const SizedBox(height: Insets.x12),
               Text(
-                QuestionExplanations.forQuestion(question),
+                QuestionExplanations.forQuestion(question, l10n),
                 style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant, height: 1.5),
               ),
             ],
@@ -445,7 +429,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
     HapticFeedback.mediumImpact();
     setState(() => _generating = true);
 
-    final minSequenceDuration = Motion.generationStep * (_script.generationSteps.length - 1);
+    final minSequenceDuration = Motion.generationStep * (_script.generationSteps(AppLocalizations.of(context)!).length - 1);
     final results = await Future.wait([
       agreementProvider.generate(widget.dealId, questionnaire.answers),
       Future<void>.delayed(minSequenceDuration),
@@ -489,7 +473,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
     );
     if (tier != _progressTierCache) {
       _progressTierCache = tier;
-      _progressPhraseCache = _script.progressPhrase(tier);
+      _progressPhraseCache = _script.progressPhrase(tier, AppLocalizations.of(context)!);
     }
     return _progressPhraseCache;
   }
@@ -512,6 +496,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
       body: SafeArea(
         child: Consumer2<QuestionnaireProvider, DocumentUploadProvider>(
           builder: (context, provider, uploads, _) {
+            final l10n = AppLocalizations.of(context)!;
             final hasContent = provider.currentQuestion != null ||
                 provider.readyToGenerate ||
                 provider.documentSuggestion != null ||
@@ -531,9 +516,9 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
 
             final Widget content;
             if (_generating) {
-              content = GenerationSequenceView(key: const ValueKey('generating'), steps: _script.generationSteps);
+              content = GenerationSequenceView(key: const ValueKey('generating'), steps: _script.generationSteps(l10n));
             } else if (_uploadingDocument) {
-              content = DocumentScanningView(key: const ValueKey('scanning'), steps: _script.scanningSteps);
+              content = DocumentScanningView(key: const ValueKey('scanning'), steps: _script.scanningSteps(l10n));
             } else if (_celebrating) {
               content = ExtractionCelebrationView(
                 key: const ValueKey('celebration'),
@@ -546,8 +531,8 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
             } else if (showGreeting) {
               content = GreetingView(
                 key: const ValueKey('greeting'),
-                title: _script.greetingTitle(widget.templateTitle),
-                body: _script.greetingBody,
+                title: _script.greetingTitle(widget.templateTitle, l10n),
+                body: _script.greetingBody(l10n),
               );
             } else if (provider.errorMessage != null && provider.currentQuestion == null && !provider.readyToGenerate) {
               content = AppErrorView(
@@ -658,7 +643,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
           status: _statusText(provider),
           estimate: provider.readyToGenerate || provider.preview?.estimatedRemainingQuestions == null
               ? null
-              : InterviewScript.remainingEstimate(provider.preview!.estimatedRemainingQuestions),
+              : InterviewScript.remainingEstimate(provider.preview!.estimatedRemainingQuestions, AppLocalizations.of(context)!),
           progress: _progress(provider),
           onOpenDocument: () => AgreementPreviewSheet.show(context, title: widget.templateTitle),
           onBack: provider.canGoBack ? provider.goBack : () => Navigator.of(context).maybePop(),
@@ -704,7 +689,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                       onSpeak: () => _tts?.speak(
                         _activeHint == null
                             ? field.fieldName
-                            : '${field.fieldName} ${InterviewScript.documentHintSuffix(_activeHint!)}',
+                            : '${field.fieldName} ${InterviewScript.documentHintSuffix(_activeHint!, AppLocalizations.of(context)!)}',
                       ),
                       onWhy: () => _showWhySheet(field.fieldName),
                       recap: provider.answers.isEmpty

@@ -382,6 +382,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profilePassportHint => 'Series and number';
 
   @override
+  String get profilePassportInvalid =>
+      'Format: two letters and seven digits, e.g. AB1234567.';
+
+  @override
   String get profileBirthDateLabel => 'Date of birth';
 
   @override
@@ -1087,4 +1091,320 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get historyDetailCancelledNotice => 'This deal has been cancelled.';
+
+  @override
+  String get explanationDeposit =>
+      'If there\'s a deposit, we\'ll add that term to the agreement. That way both parties know exactly how much and when to pay.';
+
+  @override
+  String get explanationPaymentMethod =>
+      'We need to specify the payment method. It helps describe the payment procedure precisely in the agreement.';
+
+  @override
+  String get explanationBankDetails =>
+      'We ask for the bank details so the money goes to the right account. They\'ll be listed in the payment section.';
+
+  @override
+  String get explanationInterestRate =>
+      'We\'re clarifying the rate so both parties understand the terms the same way. It\'ll be written into the agreement along with the amount.';
+
+  @override
+  String get explanationSalary =>
+      'We ask for the payment amount so it\'s recorded in writing. This sum will be stated in the agreement.';
+
+  @override
+  String get explanationPrice =>
+      'We state the price so both parties understand the deal\'s value the same way. This amount will go into the agreement.';
+
+  @override
+  String get explanationTransferDate =>
+      'We need the transfer date. It\'ll be stated in the agreement and helps avoid disputes about timing.';
+
+  @override
+  String get explanationRepaymentDate =>
+      'We\'re clarifying when the money should be repaid. This date will be stated in the agreement so both parties know the deadline.';
+
+  @override
+  String get explanationStartDate =>
+      'We ask for the start date so it\'s recorded in writing. The agreement takes effect from that day.';
+
+  @override
+  String get explanationDuration =>
+      'We\'re clarifying the term so both parties understand how long the agreement applies. These dates will be stated in the agreement.';
+
+  @override
+  String get explanationGenericDate =>
+      'We ask for the date so it\'s recorded in writing. That way both parties know when things should happen.';
+
+  @override
+  String get explanationTransferPlace =>
+      'This place will be stated in the agreement as the transfer location, so both parties know where the deal takes place.';
+
+  @override
+  String get explanationAddress =>
+      'The address is needed so the agreement clearly identifies which object it\'s about. It\'ll be included in the subject description.';
+
+  @override
+  String get explanationVehicleIds =>
+      'This number helps the agreement precisely identify which vehicle is meant, so it can\'t be confused with any other.';
+
+  @override
+  String get explanationVehicleMakeModel =>
+      'We ask this to describe the vehicle precisely in the agreement. Both parties will know exactly what\'s being sold.';
+
+  @override
+  String get explanationPropertyDetails =>
+      'These details describe the object in the agreement, so it\'s clear exactly what\'s being transferred with no ambiguity.';
+
+  @override
+  String get explanationPersonalInfo =>
+      'We ask this so the agreement precisely states who\'s party to the deal. The agreement can\'t be signed without this information.';
+
+  @override
+  String get explanationJobTitle =>
+      'We\'re clarifying the job title so the agreement is clear about what work you\'ve agreed on. It\'ll be stated in the duties section.';
+
+  @override
+  String get explanationContacts =>
+      'Contact details are needed so the parties can reach each other. They\'ll be listed at the end of the agreement.';
+
+  @override
+  String get explanationExtraTerms =>
+      'You can note any additional arrangements here - they\'ll be included in the agreement too.';
+
+  @override
+  String get explanationFallback =>
+      'We ask this so the agreement accurately reflects what you\'ve agreed on. Your answer will go into the matching clause of the document.';
+
+  @override
+  String get interviewAck1 => 'Great.';
+
+  @override
+  String get interviewAck2 => 'Very good.';
+
+  @override
+  String get interviewAck3 => 'Got it.';
+
+  @override
+  String get interviewAck4 => 'Perfect.';
+
+  @override
+  String get interviewAck5 => 'Understood.';
+
+  @override
+  String get interviewAck6 => 'Noted.';
+
+  @override
+  String get interviewAck7 => 'Thanks.';
+
+  @override
+  String get interviewAck8 => 'Good.';
+
+  @override
+  String get interviewAck9 => 'Recorded.';
+
+  @override
+  String get interviewAck10 => 'Clear now.';
+
+  @override
+  String get interviewAck11 => 'Marking that down.';
+
+  @override
+  String get interviewAck12 => 'Adding it to the agreement.';
+
+  @override
+  String get interviewDocAck1 => 'The document really helped.';
+
+  @override
+  String get interviewDocAck2 => 'That cuts the form-filling a lot.';
+
+  @override
+  String get interviewDocAck3 => 'Almost everything\'s ready.';
+
+  @override
+  String get interviewThinking1 => 'Adding this to the agreement…';
+
+  @override
+  String get interviewThinking2 => 'Updating the agreement…';
+
+  @override
+  String get interviewThinking3 => 'Checking the details…';
+
+  @override
+  String get interviewThinking4 => 'Analyzing…';
+
+  @override
+  String get interviewThinking5 => 'Cross-checking the information…';
+
+  @override
+  String get interviewThinking6 => 'Entering it into the document…';
+
+  @override
+  String get interviewScanning1 => 'Reading the document…';
+
+  @override
+  String get interviewScanning2 => 'Recognizing the data…';
+
+  @override
+  String get interviewScanning3 => 'Cross-checking the details…';
+
+  @override
+  String get interviewScanning4 => 'Filling in the agreement…';
+
+  @override
+  String get interviewGenerationStep1 => 'Checking the data';
+
+  @override
+  String get interviewGenerationStep2 => 'Analyzing the terms';
+
+  @override
+  String get interviewGenerationStep3 => 'Drafting the agreement';
+
+  @override
+  String get interviewGenerationStep4 => 'Checking legal consistency';
+
+  @override
+  String get interviewGenerationStep5 => 'Document ready';
+
+  @override
+  String get interviewProgressFirstQuestion => 'Preparing the agreement…';
+
+  @override
+  String get interviewProgressLastQuestion => 'One last small detail left.';
+
+  @override
+  String get interviewProgressTwoLeft1 => 'Two more details.';
+
+  @override
+  String get interviewProgressTwoLeft2 =>
+      'Almost there — a couple more details.';
+
+  @override
+  String get interviewProgressFewLeft1 => 'Just a little left.';
+
+  @override
+  String get interviewProgressFewLeft2 => 'Most of it is already done.';
+
+  @override
+  String get interviewProgressFewLeft3 => 'Great progress.';
+
+  @override
+  String get interviewProgressEarly1 => 'Moving on…';
+
+  @override
+  String get interviewProgressEarly2 => 'Going great so far.';
+
+  @override
+  String get interviewProgressMid1 => 'The agreement is taking shape…';
+
+  @override
+  String get interviewProgressMid2 => 'Good pace.';
+
+  @override
+  String get interviewProgressLate1 => 'Almost done…';
+
+  @override
+  String get interviewProgressLate2 => 'We\'re nearly finished.';
+
+  @override
+  String interviewGreetingTitle(String templateTitle) {
+    return 'I\'ll help prepare\n\"$templateTitle\"';
+  }
+
+  @override
+  String get interviewGreetingBody =>
+      'I\'ll fill in everything I can automatically, and only ask about what\'s missing.';
+
+  @override
+  String get interviewCelebration1 => 'Great! Document recognized';
+
+  @override
+  String get interviewCelebration2 => 'Done! I\'ve read it all';
+
+  @override
+  String get interviewCelebration3 => 'Nice — the document helped';
+
+  @override
+  String get interviewCelebration4 => 'Great choice';
+
+  @override
+  String get interviewCompletionFallback1 =>
+      'Everything needed is already gathered.';
+
+  @override
+  String get interviewCompletionFallback2 => 'Ready to generate the agreement.';
+
+  @override
+  String get interviewCompletionFallback3 => 'Great work.';
+
+  @override
+  String get interviewCompletionFallback4 => 'Done — just needs confirming.';
+
+  @override
+  String get interviewConfidenceReliable => 'Reliably recognized';
+
+  @override
+  String get interviewConfidenceCheck => 'Please double-check this value';
+
+  @override
+  String get interviewRemainingAlmostDone => '≈ Almost done';
+
+  @override
+  String get interviewRemainingLastOne => '≈ One last detail left';
+
+  @override
+  String interviewRemainingCountFew(int remaining) {
+    return '≈ $remaining small details left';
+  }
+
+  @override
+  String interviewRemainingCountMany(int remaining) {
+    return '≈ $remaining small details left';
+  }
+
+  @override
+  String interviewTimeSavedSeconds(int seconds) {
+    return 'You saved about $seconds seconds.';
+  }
+
+  @override
+  String interviewTimeSavedMinutes(int minutes) {
+    return 'You saved about $minutes min.';
+  }
+
+  @override
+  String get interviewDocHintVehicle =>
+      'If it\'s easier, you can also upload a photo of the vehicle registration - I\'ll fill this and the rest in automatically.';
+
+  @override
+  String get interviewDocHintRealEstate =>
+      'If you have the documents handy, you can just upload a photo of them - it\'s faster.';
+
+  @override
+  String get interviewDocHintBusiness =>
+      'If it\'s easier, you can upload a photo of the document instead of typing it in.';
+
+  @override
+  String get interviewDocHintEmployment =>
+      'If it\'s easier, you can upload a photo of the document instead of typing it in.';
+
+  @override
+  String get interviewDocHintBank =>
+      'If it\'s easier, you can upload a photo of the details instead of typing them in.';
+
+  @override
+  String get interviewDocHintInheritance =>
+      'If it\'s easier, you can upload a photo of the certificate instead of typing it in.';
+
+  @override
+  String get interviewDocHintCourt =>
+      'If it\'s easier, you can upload a photo of the court ruling instead of typing it in.';
+
+  @override
+  String get interviewDocHintLoan =>
+      'If it\'s easier, you can upload a photo of the agreement instead of typing it in.';
+
+  @override
+  String get interviewDocHintService =>
+      'If it\'s easier, you can upload a photo of the document instead of typing it in.';
 }

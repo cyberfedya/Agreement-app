@@ -99,10 +99,10 @@ class ExtractionCelebrationView extends StatelessWidget {
                   style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                   textAlign: TextAlign.center,
                 ).animateEntranceStaggered(2),
-                if (InterviewScript.timeSavedLine(fields.length).isNotEmpty) ...[
+                if (InterviewScript.timeSavedLine(fields.length, l10n).isNotEmpty) ...[
                   const SizedBox(height: Insets.x4),
                   Text(
-                    InterviewScript.timeSavedLine(fields.length),
+                    InterviewScript.timeSavedLine(fields.length, l10n),
                     style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.primary),
                     textAlign: TextAlign.center,
                   ).animateEntranceStaggered(2),

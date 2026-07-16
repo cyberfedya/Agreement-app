@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:app/features/questionnaire/presentation/document_hint_matcher.dart';
+import 'package:app/l10n/app_localizations.dart';
 
 /// Coarse "how close to done" bucket - deliberately just a handful of
 /// steps, not a percentage, so the phrase pool can stay meaningful at
@@ -11,6 +12,11 @@ enum ProgressTier { firstQuestion, lastQuestion, twoLeft, fewLeft, early, mid, l
 /// that is not backend content comes from here, so the tone stays in one
 /// place. Pools rotate randomly but never repeat the same phrase twice in
 /// a row - a repeated "Отлично." is what makes bots feel like bots.
+///
+/// Every method takes the current [AppLocalizations] explicitly rather
+/// than storing it, since this class is constructed once per interview
+/// session (to keep [_lastByPool]'s anti-repeat memory) while the locale
+/// can still change underneath it.
 class InterviewScript {
   InterviewScript({Random? random}) : _random = random ?? Random();
 
@@ -29,57 +35,54 @@ class InterviewScript {
   }
 
   /// Short emotional beat shown above the next question after an answer.
-  String acknowledgment() => _pick('ack', const [
-    'Отлично.',
-    'Очень хорошо.',
-    'Понятно.',
-    'Прекрасно.',
-    'Понял.',
-    'Принято.',
-    'Спасибо.',
-    'Хорошо.',
-    'Записал.',
-    'Теперь всё понятно.',
-    'Отмечаю это.',
-    'Добавляю в договор.',
+  String acknowledgment(AppLocalizations l10n) => _pick('ack', [
+    l10n.interviewAck1,
+    l10n.interviewAck2,
+    l10n.interviewAck3,
+    l10n.interviewAck4,
+    l10n.interviewAck5,
+    l10n.interviewAck6,
+    l10n.interviewAck7,
+    l10n.interviewAck8,
+    l10n.interviewAck9,
+    l10n.interviewAck10,
+    l10n.interviewAck11,
+    l10n.interviewAck12,
   ]);
 
   /// The beat shown for the *first* question after a document upload just
   /// filled several fields - names the document explicitly instead of a
   /// generic reaction, so the assistant sounds like it noticed the help.
-  String documentFollowUpAcknowledgment() => _pick('ack-doc', const [
-    'Документ действительно помог.',
-    'Это сильно сокращает заполнение.',
-    'Почти всё готово.',
-  ]);
+  String documentFollowUpAcknowledgment(AppLocalizations l10n) =>
+      _pick('ack-doc', [l10n.interviewDocAck1, l10n.interviewDocAck2, l10n.interviewDocAck3]);
 
   /// Shown for [Motion.thinkingMin]+ while the answer is being processed.
-  String thinking() => _pick('thinking', const [
-    'Добавляю это в договор…',
-    'Обновляю договор…',
-    'Проверяю данные…',
-    'Анализирую…',
-    'Сверяю информацию…',
-    'Вношу в документ…',
+  String thinking(AppLocalizations l10n) => _pick('thinking', [
+    l10n.interviewThinking1,
+    l10n.interviewThinking2,
+    l10n.interviewThinking3,
+    l10n.interviewThinking4,
+    l10n.interviewThinking5,
+    l10n.interviewThinking6,
   ]);
 
   /// Rotating status while an uploaded document is being read by the AI.
-  List<String> get scanningSteps => const [
-    'Читаю документ…',
-    'Распознаю данные…',
-    'Сверяю реквизиты…',
-    'Заполняю договор…',
+  List<String> scanningSteps(AppLocalizations l10n) => [
+    l10n.interviewScanning1,
+    l10n.interviewScanning2,
+    l10n.interviewScanning3,
+    l10n.interviewScanning4,
   ];
 
   /// Checklist steps for the premium pre-generation sequence
   /// ([GenerationSequenceView]) - purely decorative pacing around the real
   /// `generate` call, never a substitute for its result.
-  List<String> get generationSteps => const [
-    'Проверяю данные',
-    'Анализирую условия',
-    'Формирую договор',
-    'Проверяю юридическую целостность',
-    'Документ готов',
+  List<String> generationSteps(AppLocalizations l10n) => [
+    l10n.interviewGenerationStep1,
+    l10n.interviewGenerationStep2,
+    l10n.interviewGenerationStep3,
+    l10n.interviewGenerationStep4,
+    l10n.interviewGenerationStep5,
   ];
 
   /// Which bucket the interview is in right now - pure classification of
@@ -101,46 +104,44 @@ class InterviewScript {
   /// themselves (re-picking only when the tier actually changes) - called
   /// fresh on every rebuild, this would flicker between synonyms for the
   /// same state instead of reading as steady progress.
-  String progressPhrase(ProgressTier tier) => switch (tier) {
-    ProgressTier.firstQuestion => 'Готовим договор…',
+  String progressPhrase(ProgressTier tier, AppLocalizations l10n) => switch (tier) {
+    ProgressTier.firstQuestion => l10n.interviewProgressFirstQuestion,
     // A one-off, deliberately singular moment - no rotation, so it never
     // competes with itself for "this is almost over" gravity.
-    ProgressTier.lastQuestion => 'Осталось последнее небольшое уточнение.',
-    ProgressTier.twoLeft => _pick('progress-2', const ['Ещё две детали.', 'Почти у цели — ещё пара деталей.']),
-    ProgressTier.fewLeft => _pick('progress-few', const [
-      'Осталось совсем немного.',
-      'Уже большая часть готова.',
-      'Отличный прогресс.',
+    ProgressTier.lastQuestion => l10n.interviewProgressLastQuestion,
+    ProgressTier.twoLeft => _pick('progress-2', [l10n.interviewProgressTwoLeft1, l10n.interviewProgressTwoLeft2]),
+    ProgressTier.fewLeft => _pick('progress-few', [
+      l10n.interviewProgressFewLeft1,
+      l10n.interviewProgressFewLeft2,
+      l10n.interviewProgressFewLeft3,
     ]),
-    ProgressTier.early => _pick('progress-early', const ['Продолжаем…', 'Всё идёт отлично.']),
-    ProgressTier.mid => _pick('progress-mid', const ['Договор растёт…', 'Хороший темп.']),
-    ProgressTier.late => _pick('progress-late', const ['Почти готово…', 'Мы почти закончили.']),
+    ProgressTier.early => _pick('progress-early', [l10n.interviewProgressEarly1, l10n.interviewProgressEarly2]),
+    ProgressTier.mid => _pick('progress-mid', [l10n.interviewProgressMid1, l10n.interviewProgressMid2]),
+    ProgressTier.late => _pick('progress-late', [l10n.interviewProgressLate1, l10n.interviewProgressLate2]),
   };
 
   /// Opening beat: what the assistant says the moment the interview opens,
   /// while the planner decides the first step. Never a question.
-  String greetingTitle(String templateTitle) => 'Помогу подготовить\n«$templateTitle»';
+  String greetingTitle(String templateTitle, AppLocalizations l10n) => l10n.interviewGreetingTitle(templateTitle);
 
-  String get greetingBody =>
-      'Я заполню всё, что смогу, автоматически — '
-      'и спрошу только то, чего не хватает.';
+  String greetingBody(AppLocalizations l10n) => l10n.interviewGreetingBody;
 
   /// Celebration headline after a successful document scan.
-  String celebrationTitle() => _pick('celebrate', const [
-    'Отлично! Документ распознан',
-    'Готово! Я всё прочитал',
-    'Супер — документ помог',
-    'Отличное решение',
+  String celebrationTitle(AppLocalizations l10n) => _pick('celebrate', [
+    l10n.interviewCelebration1,
+    l10n.interviewCelebration2,
+    l10n.interviewCelebration3,
+    l10n.interviewCelebration4,
   ]);
 
   /// Fallback line for the review screen's hero card, used only when the
   /// backend didn't send a `closingMessage` for this deal - the backend's
   /// own wording always wins when present, this is decoration for the gap.
-  String completionFallback() => _pick('completion', const [
-    'Всё необходимое уже собрано.',
-    'Можно формировать договор.',
-    'Отличная работа.',
-    'Готово — осталось только подтвердить.',
+  String completionFallback(AppLocalizations l10n) => _pick('completion', [
+    l10n.interviewCompletionFallback1,
+    l10n.interviewCompletionFallback2,
+    l10n.interviewCompletionFallback3,
+    l10n.interviewCompletionFallback4,
   ]);
 
   /// Confidence threshold above which an OCR-extracted value is presented
@@ -152,34 +153,31 @@ class InterviewScript {
   /// Label for an OCR-extracted field's [confidence] (0..1, from the
   /// backend). Presentation only - the number itself is never computed
   /// here, just described.
-  static String confidenceLabel(double confidence) =>
-      confidence >= reliableConfidenceThreshold ? 'Надёжно распознано' : 'Проверьте это значение';
+  static String confidenceLabel(double confidence, AppLocalizations l10n) =>
+      confidence >= reliableConfidenceThreshold ? l10n.interviewConfidenceReliable : l10n.interviewConfidenceCheck;
 
   /// A soft, conversational read of the backend's honest
   /// remaining-questions count ("≈ Осталось 3 небольших уточнения")
   /// instead of a cold "Question 5 of 17" - formatting of the backend's
   /// own number only, never a new estimate anything else depends on.
-  static String remainingEstimate(int remaining) {
-    if (remaining <= 0) return '≈ Почти готово';
-    if (remaining == 1) return '≈ Осталось последнее уточнение';
-    return '≈ Осталось $remaining ${_smallDetailsWord(remaining)}';
+  static String remainingEstimate(int remaining, AppLocalizations l10n) {
+    if (remaining <= 0) return l10n.interviewRemainingAlmostDone;
+    if (remaining == 1) return l10n.interviewRemainingLastOne;
+    return _isFewForm(remaining) ? l10n.interviewRemainingCountFew(remaining) : l10n.interviewRemainingCountMany(remaining);
   }
 
-  static String _smallDetailsWord(int n) {
+  static bool _isFewForm(int n) {
     final mod10 = n % 10, mod100 = n % 100;
-    if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return 'небольших уточнения';
-    return 'небольших уточнений';
+    return mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14);
   }
 
   /// "Вы сэкономили ~N сек/мин" for the celebration screen, from the
   /// number of fields OCR actually filled - same 15s/field assumption as
   /// [remainingEstimate], stated as an approximation, not a guarantee.
-  static String timeSavedLine(int fieldsFilled) {
+  static String timeSavedLine(int fieldsFilled, AppLocalizations l10n) {
     if (fieldsFilled <= 0) return '';
     final seconds = fieldsFilled * 15;
-    return seconds < 60
-        ? 'Вы сэкономили примерно $seconds секунд.'
-        : 'Вы сэкономили примерно ${(seconds / 60).round()} мин.';
+    return seconds < 60 ? l10n.interviewTimeSavedSeconds(seconds) : l10n.interviewTimeSavedMinutes((seconds / 60).round());
   }
 
   /// Spoken-only addition appended after the question text when
@@ -187,25 +185,15 @@ class InterviewScript {
   /// itself, since that text is echoed back to the backend to classify
   /// the answer. Purely an audio nudge; the assistant then goes straight
   /// back to waiting for the user's answer.
-  static String documentHintSuffix(DocumentHintCategory category) => switch (category) {
-    DocumentHintCategory.vehicle =>
-      'Если удобнее, можете также загрузить фотографию техпаспорта — '
-          'я заполню это и остальные данные автоматически.',
-    DocumentHintCategory.realEstate =>
-      'Если документы рядом, можете просто загрузить их фотографию — это быстрее.',
-    DocumentHintCategory.business =>
-      'Если удобнее, можете загрузить фотографию документа вместо ввода вручную.',
-    DocumentHintCategory.employment =>
-      'Если удобнее, можете загрузить фотографию документа вместо ввода вручную.',
-    DocumentHintCategory.bank =>
-      'Если удобнее, можете загрузить фотографию реквизитов вместо ввода вручную.',
-    DocumentHintCategory.inheritance =>
-      'Если удобнее, можете загрузить фотографию свидетельства вместо ввода вручную.',
-    DocumentHintCategory.court =>
-      'Если удобнее, можете загрузить фотографию решения суда вместо ввода вручную.',
-    DocumentHintCategory.loan =>
-      'Если удобнее, можете загрузить фотографию договора вместо ввода вручную.',
-    DocumentHintCategory.service =>
-      'Если удобнее, можете загрузить фотографию документа вместо ввода вручную.',
+  static String documentHintSuffix(DocumentHintCategory category, AppLocalizations l10n) => switch (category) {
+    DocumentHintCategory.vehicle => l10n.interviewDocHintVehicle,
+    DocumentHintCategory.realEstate => l10n.interviewDocHintRealEstate,
+    DocumentHintCategory.business => l10n.interviewDocHintBusiness,
+    DocumentHintCategory.employment => l10n.interviewDocHintEmployment,
+    DocumentHintCategory.bank => l10n.interviewDocHintBank,
+    DocumentHintCategory.inheritance => l10n.interviewDocHintInheritance,
+    DocumentHintCategory.court => l10n.interviewDocHintCourt,
+    DocumentHintCategory.loan => l10n.interviewDocHintLoan,
+    DocumentHintCategory.service => l10n.interviewDocHintService,
   };
 }

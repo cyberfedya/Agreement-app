@@ -382,6 +382,10 @@ class AppLocalizationsUz extends AppLocalizations {
   String get profilePassportHint => 'Серия ва рақами';
 
   @override
+  String get profilePassportInvalid =>
+      'Формат: икки ҳарф ва еттита рақам, масалан AB1234567.';
+
+  @override
   String get profileBirthDateLabel => 'Туғилган сана';
 
   @override
@@ -1086,4 +1090,321 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get historyDetailCancelledNotice => 'Бу битим бекор қилинган.';
+
+  @override
+  String get explanationDeposit =>
+      'Агар олдиндан тўлов бўлса, буни шартномага қўшамиз. Шунда ҳар икки тараф қанча ва қачон тўлаш кераклигини билади.';
+
+  @override
+  String get explanationPaymentMethod =>
+      'Тўлов усулини кўрсатишимиз керак. Бу ҳисоб-китоб тартибини шартномада аниқ ёзишга ёрдам беради.';
+
+  @override
+  String get explanationBankDetails =>
+      'Реквизитларни сўраяпмиз, пул тўғри ҳисобга борсин учун. Улар тўлов бўлимида кўрсатилади.';
+
+  @override
+  String get explanationInterestRate =>
+      'Фоизни аниқлаштиряпмиз, ҳар икки тараф шартларни бир хил тушунсин учун. У сумма билан бирга шартномада ёзилади.';
+
+  @override
+  String get explanationSalary =>
+      'Тўлов миқдорини сўраяпмиз, у ёзма равишда мустаҳкамлансин учун. Бу сумма шартномада кўрсатилади.';
+
+  @override
+  String get explanationPrice =>
+      'Нархни кўрсатяпмиз, ҳар икки тараф битим қийматини бир хил тушунсин учун. Бу сумма шартномага киритилади.';
+
+  @override
+  String get explanationTransferDate =>
+      'Топшириш санасини билишимиз керак. У шартномада кўрсатилади ва муддатлар бўйича низоларнинг олдини олади.';
+
+  @override
+  String get explanationRepaymentDate =>
+      'Пулни қачон қайтариш кераклигини аниқлаштиряпмиз. Бу сана шартномада кўрсатилади, ҳар икки тараф муддатни билиши учун.';
+
+  @override
+  String get explanationStartDate =>
+      'Иш бошлаш санасини сўраяпмиз, у ёзма равишда мустаҳкамлансин учун. Шу кундан келишувлар амал қила бошлайди.';
+
+  @override
+  String get explanationDuration =>
+      'Муддатни аниқлаштиряпмиз, ҳар икки тараф келишувлар қачонгача амал қилишини билсин учун. Бу саналар шартномада кўрсатилади.';
+
+  @override
+  String get explanationGenericDate =>
+      'Санани сўраяпмиз, у ёзма равишда мустаҳкамлансин учун. Шунда ҳар икки тараф нима қачон бўлишини билади.';
+
+  @override
+  String get explanationTransferPlace =>
+      'Бу жой шартномада топшириш жойи сифатида кўрсатилади. Шунда ҳар икки тараф битим қаерда бўлишини билади.';
+
+  @override
+  String get explanationAddress =>
+      'Манзил керак, шартномада қайси объект ҳақида гап кетаётгани аниқ бўлсин учун. У битим предметининг тавсифида кўрсатилади.';
+
+  @override
+  String get explanationVehicleIds =>
+      'Бу рақам шартномада қайси автомобиль ҳақида гап кетаётганини аниқ кўрсатишга ёрдам беради. Шунда уни бошқаси билан адаштириб бўлмайди.';
+
+  @override
+  String get explanationVehicleMakeModel =>
+      'Буни автомобилни шартномада аниқ тавсифлаш учун сўраяпмиз. Ҳар икки тараф нима сотилаётганини билади.';
+
+  @override
+  String get explanationPropertyDetails =>
+      'Бу тафсилотлар объектни шартномада тавсифлайди. Шунда нима топширилаётгани аниқ бўлади ва тушунмовчиликлар бўлмайди.';
+
+  @override
+  String get explanationPersonalInfo =>
+      'Буни сўраяпмиз, шартномада битимда ким иштирок этаётгани аниқ кўрсатилсин учун. Бу маълумотларсиз шартномани имзолаб бўлмайди.';
+
+  @override
+  String get explanationJobTitle =>
+      'Лавозимни аниқлаштиряпмиз, шартномада қандай иш бажаришга келишганингиз аниқ бўлсин учун. У мажбуриятлар бўлимида кўрсатилади.';
+
+  @override
+  String get explanationContacts =>
+      'Алоқа маълумотлари керак, тарафлар бир-бири билан боғлана олсин учун. Улар шартнома охирида кўрсатилади.';
+
+  @override
+  String get explanationExtraTerms =>
+      'Бу ерда қўшимча келишувларни кўрсатишингиз мумкин. Улар ҳам шартномага киритилади.';
+
+  @override
+  String get explanationFallback =>
+      'Буни шартнома келишувингизни аниқ акс эттирсин учун сўраяпмиз. Жавобингиз ҳужжатнинг тегишли бандига ёзилади.';
+
+  @override
+  String get interviewAck1 => 'Аъло.';
+
+  @override
+  String get interviewAck2 => 'Жуда яхши.';
+
+  @override
+  String get interviewAck3 => 'Тушунарли.';
+
+  @override
+  String get interviewAck4 => 'Ажойиб.';
+
+  @override
+  String get interviewAck5 => 'Тушундим.';
+
+  @override
+  String get interviewAck6 => 'Қабул қилинди.';
+
+  @override
+  String get interviewAck7 => 'Раҳмат.';
+
+  @override
+  String get interviewAck8 => 'Яхши.';
+
+  @override
+  String get interviewAck9 => 'Ёзиб қўйдим.';
+
+  @override
+  String get interviewAck10 => 'Энди ҳаммаси тушунарли.';
+
+  @override
+  String get interviewAck11 => 'Буни белгилаб қўяман.';
+
+  @override
+  String get interviewAck12 => 'Шартномага қўшяпман.';
+
+  @override
+  String get interviewDocAck1 => 'Ҳужжат ҳақиқатан ёрдам берди.';
+
+  @override
+  String get interviewDocAck2 => 'Бу тўлдиришни анча қисқартиради.';
+
+  @override
+  String get interviewDocAck3 => 'Деярли ҳаммаси тайёр.';
+
+  @override
+  String get interviewThinking1 => 'Шартномага қўшяпман…';
+
+  @override
+  String get interviewThinking2 => 'Шартномани янгиляпман…';
+
+  @override
+  String get interviewThinking3 => 'Маълумотларни текширяпман…';
+
+  @override
+  String get interviewThinking4 => 'Таҳлил қиляпман…';
+
+  @override
+  String get interviewThinking5 => 'Маълумотни солиштиряпман…';
+
+  @override
+  String get interviewThinking6 => 'Ҳужжатга киритяпман…';
+
+  @override
+  String get interviewScanning1 => 'Ҳужжатни ўқияпман…';
+
+  @override
+  String get interviewScanning2 => 'Маълумотларни аниқляпман…';
+
+  @override
+  String get interviewScanning3 => 'Реквизитларни солиштиряпман…';
+
+  @override
+  String get interviewScanning4 => 'Шартномани тўлдиряпман…';
+
+  @override
+  String get interviewGenerationStep1 => 'Маълумотларни текшираман';
+
+  @override
+  String get interviewGenerationStep2 => 'Шартларни таҳлил қиламан';
+
+  @override
+  String get interviewGenerationStep3 => 'Шартномани шакллантираман';
+
+  @override
+  String get interviewGenerationStep4 => 'Ҳуқуқий яхлитликни текшираман';
+
+  @override
+  String get interviewGenerationStep5 => 'Ҳужжат тайёр';
+
+  @override
+  String get interviewProgressFirstQuestion => 'Шартномани тайёрлаяпмиз…';
+
+  @override
+  String get interviewProgressLastQuestion =>
+      'Охирги кичик аниқлаштириш қолди.';
+
+  @override
+  String get interviewProgressTwoLeft1 => 'Яна иккита деталь.';
+
+  @override
+  String get interviewProgressTwoLeft2 =>
+      'Мақсадга деярли етдик — яна бир жуфт деталь.';
+
+  @override
+  String get interviewProgressFewLeft1 => 'Жуда оз қолди.';
+
+  @override
+  String get interviewProgressFewLeft2 => 'Катта қисми аллақачон тайёр.';
+
+  @override
+  String get interviewProgressFewLeft3 => 'Ажойиб натижа.';
+
+  @override
+  String get interviewProgressEarly1 => 'Давом этяпмиз…';
+
+  @override
+  String get interviewProgressEarly2 => 'Ҳаммаси яхши кетяпти.';
+
+  @override
+  String get interviewProgressMid1 => 'Шартнома шаклланяпти…';
+
+  @override
+  String get interviewProgressMid2 => 'Яхши суръат.';
+
+  @override
+  String get interviewProgressLate1 => 'Деярли тайёр…';
+
+  @override
+  String get interviewProgressLate2 => 'Биз деярли тугатдик.';
+
+  @override
+  String interviewGreetingTitle(String templateTitle) {
+    return '«$templateTitle»ни\nтайёрлашга ёрдам бераман';
+  }
+
+  @override
+  String get interviewGreetingBody =>
+      'Иложи борича ҳаммасини ўзим тўлдираман — ва фақат етишмаётганини сўрайман.';
+
+  @override
+  String get interviewCelebration1 => 'Аъло! Ҳужжат аниқланди';
+
+  @override
+  String get interviewCelebration2 => 'Тайёр! Ҳаммасини ўқидим';
+
+  @override
+  String get interviewCelebration3 => 'Ажойиб — ҳужжат ёрдам берди';
+
+  @override
+  String get interviewCelebration4 => 'Ажойиб қарор';
+
+  @override
+  String get interviewCompletionFallback1 =>
+      'Керакли барча маълумот аллақачон йиғилди.';
+
+  @override
+  String get interviewCompletionFallback2 => 'Шартномани шакллантириш мумкин.';
+
+  @override
+  String get interviewCompletionFallback3 => 'Ажойиб иш.';
+
+  @override
+  String get interviewCompletionFallback4 => 'Тайёр — фақат тасдиқлаш қолди.';
+
+  @override
+  String get interviewConfidenceReliable => 'Ишончли аниқланди';
+
+  @override
+  String get interviewConfidenceCheck => 'Бу қийматни текшириб кўринг';
+
+  @override
+  String get interviewRemainingAlmostDone => '≈ Деярли тайёр';
+
+  @override
+  String get interviewRemainingLastOne => '≈ Охирги аниқлаштириш қолди';
+
+  @override
+  String interviewRemainingCountFew(int remaining) {
+    return '≈ $remaining та кичик аниқлаштириш қолди';
+  }
+
+  @override
+  String interviewRemainingCountMany(int remaining) {
+    return '≈ $remaining та кичик аниқлаштириш қолди';
+  }
+
+  @override
+  String interviewTimeSavedSeconds(int seconds) {
+    return 'Тахминан $seconds сония вақтингизни тежадингиз.';
+  }
+
+  @override
+  String interviewTimeSavedMinutes(int minutes) {
+    return 'Тахминан $minutes дақиқа вақтингизни тежадингиз.';
+  }
+
+  @override
+  String get interviewDocHintVehicle =>
+      'Қулай бўлса, техпаспорт суратини ҳам юклашингиз мумкин — буни ва қолган маълумотларни автоматик тўлдираман.';
+
+  @override
+  String get interviewDocHintRealEstate =>
+      'Ҳужжатлар қўлингизда бўлса, суратини юклаб қўйишингиз мумкин — бу тезроқ.';
+
+  @override
+  String get interviewDocHintBusiness =>
+      'Қулай бўлса, қўлда киритиш ўрнига ҳужжат суратини юклашингиз мумкин.';
+
+  @override
+  String get interviewDocHintEmployment =>
+      'Қулай бўлса, қўлда киритиш ўрнига ҳужжат суратини юклашингиз мумкин.';
+
+  @override
+  String get interviewDocHintBank =>
+      'Қулай бўлса, қўлда киритиш ўрнига реквизитлар суратини юклашингиз мумкин.';
+
+  @override
+  String get interviewDocHintInheritance =>
+      'Қулай бўлса, қўлда киритиш ўрнига гувоҳнома суратини юклашингиз мумкин.';
+
+  @override
+  String get interviewDocHintCourt =>
+      'Қулай бўлса, қўлда киритиш ўрнига суд қарори суратини юклашингиз мумкин.';
+
+  @override
+  String get interviewDocHintLoan =>
+      'Қулай бўлса, қўлда киритиш ўрнига шартнома суратини юклашингиз мумкин.';
+
+  @override
+  String get interviewDocHintService =>
+      'Қулай бўлса, қўлда киритиш ўрнига ҳужжат суратини юклашингиз мумкин.';
 }

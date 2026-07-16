@@ -86,7 +86,8 @@ class EasyAgreeApp extends StatelessWidget {
           title: AppConfig.appName,
           debugShowCheckedModeBanner: false,
           theme: AppTheme.light,
-          themeMode: ThemeMode.light,
+          darkTheme: AppTheme.dark,
+          themeMode: ThemeMode.system,
           locale: localeProvider.locale,
           supportedLocales: LocaleProvider.supportedLocales,
           localizationsDelegates: const [

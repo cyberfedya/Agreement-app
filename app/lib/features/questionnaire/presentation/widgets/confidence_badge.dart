@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/features/questionnaire/presentation/interview_script.dart';
+import 'package:app/l10n/app_localizations.dart';
 
 /// A colored-dot + label reading of a backend-supplied OCR confidence
 /// value: green "Надёжно распознано" above
@@ -28,7 +29,7 @@ class ConfidenceBadge extends StatelessWidget {
         Container(width: 6, height: 6, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
         const SizedBox(width: Insets.x4 + 2),
         Text(
-          InterviewScript.confidenceLabel(confidence),
+          InterviewScript.confidenceLabel(confidence, AppLocalizations.of(context)!),
           style: theme.textTheme.labelSmall?.copyWith(color: color, fontWeight: FontWeight.w600),
         ),
       ],
