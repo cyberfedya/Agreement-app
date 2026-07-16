@@ -2,6 +2,7 @@ using EasyAgree.Api.Endpoints;
 using EasyAgree.Application;
 using EasyAgree.Infrastructure;
 using EasyAgree.Infrastructure.Persistence.Seed;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,10 +27,12 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
+// Demo-only, same as the open CORS policy above: exposed regardless of
+// environment so the API is browsable at /scalar without a separate deploy
+// flag. Gate this behind IsDevelopment() (or an explicit config switch)
+// before this goes anywhere near real production.
+app.MapOpenApi();
+app.MapScalarApiReference();
 
 // No UseHttpsRedirection(): this container never serves HTTPS directly
 // (Kestrel listens on plain HTTP only, per docker-compose) - TLS is
