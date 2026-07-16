@@ -241,12 +241,6 @@ class _AgreementPageState extends State<AgreementPage> {
                     ),
                   ],
                 ),
-                const SizedBox(height: Insets.x8),
-                TextButton(
-                  onPressed: () => Navigator.of(context)
-                      .pushNamed(AppRoutes.agreementSign, arguments: agreement.key),
-                  child: Text(l10n.agreementOpenAsSecondParty),
-                ),
               ],
             ),
           );

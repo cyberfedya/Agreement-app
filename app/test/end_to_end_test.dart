@@ -1,6 +1,8 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
 import 'package:provider/provider.dart';
 import 'package:app/core/router/app_router.dart';
 import 'package:app/l10n/app_localizations.dart';
@@ -36,6 +38,7 @@ import 'package:app/features/templates/presentation/templates_list_page.dart';
 import 'package:app/features/templates/providers/template_detail_provider.dart';
 import 'package:app/features/templates/providers/templates_list_provider.dart';
 import 'package:app/shared/models/result.dart';
+import 'package:app/shared/widgets/primary_button.dart';
 class FakeTemplateRepository implements TemplateRepository {
   FakeTemplateRepository({this.listResult, this.detailResult});
 
@@ -164,9 +167,6 @@ class FakeLocalStorage implements LocalStorage {
   @override
   Future<void> delete(String key) async => _values.remove(key);
 }
-
-/// Defaults to a matched deal for both entry points, mirroring the happy
-/// path; individual tests override to script no-match or failure.
 class FakeDealRepository implements DealRepository {
   FakeDealRepository({this.createFromTextResult, this.createFromTemplateResult});
 
@@ -186,6 +186,21 @@ class FakeDealRepository implements DealRepository {
 
   @override
   Future<Result<void>> cancelDeal(String dealId) async => const Success(null);
+}
+
+/// Stands in for the platform camera/gallery so tests can drive the (now
+/// mandatory) document upload step without a real device picker - always
+/// returns one fixed in-memory JPEG.
+class FakeImagePickerPlatform extends ImagePickerPlatform {
+  static final Uint8List _fakeJpegBytes = Uint8List.fromList([0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10]);
+
+  @override
+  Future<XFile?> getImageFromSource({required ImageSource source, ImagePickerOptions options = const ImagePickerOptions()}) async =>
+      XFile.fromData(_fakeJpegBytes, path: 'techpassport.jpg', mimeType: 'image/jpeg');
+
+  @override
+  Future<List<XFile>> getMultiImageWithOptions({MultiImagePickerOptions options = const MultiImagePickerOptions()}) async =>
+      [XFile.fromData(_fakeJpegBytes, path: 'techpassport.jpg', mimeType: 'image/jpeg')];
 }
 
 /// Defaults to "nothing to suggest" so the creation flow goes straight to
@@ -327,16 +342,26 @@ Future<void> _answer(WidgetTester tester, String text) async {
   await tester.pumpAndSettle();
 }
 
-/// The interview always offers the optional final document check first
-/// when no document was uploaded during it (`FakeDocumentRepository`
-/// always reports zero) - skip it to reach the ordinary review/generate
-/// screen the way most tests still expect.
-Future<void> _skipDocumentVerification(WidgetTester tester) async {
-  await tester.tap(find.widgetWithText(TextButton, 'Пропустить'));
+/// The interview always requires the final document check when no
+/// document was uploaded during it (`FakeDocumentRepository` always
+/// reports zero) - there's no skip anymore, so drive it through a real
+/// (faked) camera pick to reach the ordinary review/generate screen the
+/// way most tests still expect.
+Future<void> _completeDocumentVerification(WidgetTester tester) async {
+  await tester.tap(find.widgetWithText(PrimaryButton, 'Загрузить техпаспорт'));
+  await tester.pumpAndSettle();
+  await tester.tap(find.widgetWithText(ListTile, 'Камера'));
+  await tester.pumpAndSettle();
+  // Working -> done (auto-continues after a fixed delay) -> review.
+  await tester.pump(const Duration(milliseconds: 1200));
   await tester.pumpAndSettle();
 }
 
 void main() {
+  setUp(() {
+    ImagePickerPlatform.instance = FakeImagePickerPlatform();
+  });
+
   testWidgets('happy path: splash -> login -> home -> AI match -> interview -> agreement', (tester) async {
     await tester.pumpWidget(
       buildTestApp(
@@ -375,9 +400,9 @@ void main() {
 
     await _answer(tester, 'A quick note');
 
-    // No document was uploaded during the interview - the optional final
-    // check offers to verify one before the review phase.
-    await _skipDocumentVerification(tester);
+    // No document was uploaded during the interview - the mandatory final
+    // check requires uploading one before the review phase.
+    await _completeDocumentVerification(tester);
 
     // Planner says it has enough — the review phase offers to generate.
     expect(find.text('Договор готов к созданию'), findsOneWidget);
@@ -453,7 +478,7 @@ void main() {
 
     await _answer(tester, 'Aliyev Vali');
     await _answer(tester, 'A quick note');
-    await _skipDocumentVerification(tester);
+    await _completeDocumentVerification(tester);
 
     await tester.tap(find.widgetWithText(FilledButton, 'Создать договор'));
     await tester.pumpAndSettle();

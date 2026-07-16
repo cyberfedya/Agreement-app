@@ -102,7 +102,7 @@ class _DocumentVerificationViewState extends State<DocumentVerificationView> {
   @override
   Widget build(BuildContext context) {
     return switch (_phase) {
-      _Phase.prompt => _PromptView(errorMessage: _errorMessage, onUpload: _upload, onSkip: widget.onFinished),
+      _Phase.prompt => _PromptView(errorMessage: _errorMessage, onUpload: _upload),
       _Phase.working => const _WorkingView(),
       _Phase.conflicts => _ConflictView(
         conflict: _conflicts[_conflictIndex],
@@ -118,11 +118,10 @@ class _DocumentVerificationViewState extends State<DocumentVerificationView> {
 }
 
 class _PromptView extends StatelessWidget {
-  const _PromptView({required this.errorMessage, required this.onUpload, required this.onSkip});
+  const _PromptView({required this.errorMessage, required this.onUpload});
 
   final String? errorMessage;
   final Future<void> Function(List<(String fileName, String contentType, List<int> bytes)> files) onUpload;
-  final VoidCallback onSkip;
 
   @override
   Widget build(BuildContext context) {
@@ -178,8 +177,6 @@ class _PromptView extends StatelessWidget {
             icon: Icons.photo_camera_outlined,
             onPressed: () => _pick(context, onUpload),
           ).animateEntranceStaggered(3),
-          const SizedBox(height: Insets.x8),
-          TextButton(onPressed: onSkip, child: Text(l10n.commonSkip)).animateEntranceStaggered(4),
         ],
       ),
     );
