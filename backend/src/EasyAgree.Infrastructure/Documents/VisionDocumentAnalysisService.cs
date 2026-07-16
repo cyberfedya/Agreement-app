@@ -2,6 +2,7 @@ using System.Text.Json;
 using EasyAgree.Application.Common.Interfaces;
 using EasyAgree.Application.Documents;
 using EasyAgree.Domain.Enums;
+using Microsoft.Extensions.Logging;
 
 namespace EasyAgree.Infrastructure.Documents;
 
@@ -11,7 +12,8 @@ namespace EasyAgree.Infrastructure.Documents;
 /// all three off the same image in one pass, so splitting this into three
 /// separate round-trips would only add latency and cost.
 /// </summary>
-public sealed class VisionDocumentAnalysisService(IVisionAiClient visionClient) : IDocumentAnalysisService
+public sealed class VisionDocumentAnalysisService(IVisionAiClient visionClient, ILogger<VisionDocumentAnalysisService> logger)
+    : IDocumentAnalysisService
 {
     private const string SystemPrompt = """
         You are a document intelligence system for a legal-agreement app. Given a photo or scan of one
@@ -54,7 +56,7 @@ public sealed class VisionDocumentAnalysisService(IVisionAiClient visionClient) 
         return Parse(raw);
     }
 
-    private static DocumentAnalysisResult Parse(string raw)
+    private DocumentAnalysisResult Parse(string raw)
     {
         var json = raw.Trim().Trim('`');
         if (json.StartsWith("json", StringComparison.OrdinalIgnoreCase))
@@ -93,8 +95,9 @@ public sealed class VisionDocumentAnalysisService(IVisionAiClient visionClient) 
 
             return new DocumentAnalysisResult(type, typeConfidence, ocrText, fields);
         }
-        catch (JsonException)
+        catch (JsonException ex)
         {
+            logger.LogWarning(ex, "Vision model returned unparseable JSON: {Raw}", raw);
             return new DocumentAnalysisResult(DocumentType.Unknown, 0.0, "", new Dictionary<string, ExtractedFieldValue>());
         }
     }

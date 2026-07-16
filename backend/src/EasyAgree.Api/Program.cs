@@ -11,6 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<EasyAgree.Api.GlobalExceptionHandler>();
 
 builder.Services.AddCors(options =>
 {
@@ -25,6 +27,13 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 });
 
 var app = builder.Build();
+
+// Any unhandled exception from a use case (LLM/vision provider outage, DB
+// error, etc.) is logged with full context here and turned into a
+// consistent ProblemDetails JSON body instead of a raw ASP.NET error page -
+// the client's ApiClient already treats any non-2xx as a generic server
+// error, but without this, the failure left zero diagnostic trail server-side.
+app.UseExceptionHandler();
 
 // Configure the HTTP request pipeline.
 // Demo-only, same as the open CORS policy above: exposed regardless of

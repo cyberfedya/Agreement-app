@@ -1,5 +1,6 @@
 using System.Text.Json;
 using EasyAgree.Application.Common.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace EasyAgree.Application.Deals.Interview;
 
@@ -10,7 +11,7 @@ public sealed record GeneratedQuestion(string? Question, IReadOnlyDictionary<int
 /// Field ordering and eligibility stay deterministic upstream; the model only maps
 /// focused document hints and phrases the next prompt.
 /// </summary>
-public sealed class QuestionGenerator(IAiChatClient aiChatClient)
+public sealed class QuestionGenerator(IAiChatClient aiChatClient, ILogger<QuestionGenerator>? logger = null)
 {
     private const string SystemPrompt = """
         You generate the next intake question for a legal agreement app.
@@ -82,7 +83,7 @@ public sealed class QuestionGenerator(IAiChatClient aiChatClient)
     {
         var userMessage = BuildUserMessage(context);
         var raw = await aiChatClient.CompleteAsync(SystemPrompt, userMessage, cancellationToken);
-        return Parse(raw);
+        return Parse(raw, logger);
     }
 
     private static string BuildUserMessage(InterviewContext context)
@@ -109,7 +110,7 @@ public sealed class QuestionGenerator(IAiChatClient aiChatClient)
             """;
     }
 
-    private static GeneratedQuestion Parse(string raw)
+    private static GeneratedQuestion Parse(string raw, ILogger? logger)
     {
         var json = raw.Trim().Trim('`');
         if (json.StartsWith("json", StringComparison.OrdinalIgnoreCase))
@@ -136,8 +137,9 @@ public sealed class QuestionGenerator(IAiChatClient aiChatClient)
 
             return new GeneratedQuestion(question, extracted);
         }
-        catch (JsonException)
+        catch (JsonException ex)
         {
+            logger?.LogWarning(ex, "Question generator returned unparseable JSON: {Raw}", raw);
             return new GeneratedQuestion(null, new Dictionary<int, string>());
         }
     }

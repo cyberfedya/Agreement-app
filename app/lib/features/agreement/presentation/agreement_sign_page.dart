@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import 'package:app/features/agreement/data/agreement_repository.dart';
 import 'package:app/features/agreement/domain/agreement_html.dart';
+import 'package:app/core/router/app_router.dart';
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/core/widgets/app_widgets.dart';
 import 'package:app/core/widgets/bottom_action_bar.dart';
@@ -117,18 +118,38 @@ class _AgreementSignPageState extends State<AgreementSignPage> {
     }
   }
 
+  /// The name recorded as the legal signatory. A real MyID integration
+  /// would return the verified party's name from the identification step
+  /// itself; without one, the second party's own profile - the same
+  /// self-entered identity the first party's side already relies on - is
+  /// the closest honest substitute. Blocks signing (rather than falling
+  /// back to a placeholder name) until that profile is actually filled in.
+  Future<String?> _resolveSignerName() async {
+    final profileRepository = context.read<ProfileRepository>();
+    var profile = await profileRepository.getCurrent();
+    if (profile != null && profile.fullName.trim().isNotEmpty) return profile.fullName.trim();
+    if (!mounted) return null;
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.dealInviteFillProfileFirst)));
+    await Navigator.of(context).pushNamed(AppRoutes.profile);
+    if (!mounted) return null;
+
+    profile = await profileRepository.getCurrent();
+    return (profile != null && profile.fullName.trim().isNotEmpty) ? profile.fullName.trim() : null;
+  }
+
   Future<void> _identifyAndSign() async {
     if (_verifying) return;
+    final signerName = await _resolveSignerName();
+    if (signerName == null || !mounted) return;
+
     setState(() => _verifying = true);
     await Future<void>.delayed(const Duration(milliseconds: 1400));
     if (!mounted) return;
     final l10n = AppLocalizations.of(context)!;
-    // Demo MyID: a real integration would return the verified party's
-    // legal name here instead of this placeholder.
-    final success = await context.read<AgreementProvider>().signAsSecondParty(
-      widget.agreementKey,
-      l10n.agreementSignDemoName,
-    );
+    final success = await context.read<AgreementProvider>().signAsSecondParty(widget.agreementKey, signerName);
     if (!mounted) return;
     setState(() => _verifying = false);
     if (!success) {

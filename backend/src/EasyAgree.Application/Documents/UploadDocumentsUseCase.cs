@@ -2,6 +2,7 @@ using EasyAgree.Application.Common.Interfaces;
 using EasyAgree.Application.Deals;
 using EasyAgree.Domain.Entities;
 using EasyAgree.Domain.Enums;
+using Microsoft.Extensions.Logging;
 
 namespace EasyAgree.Application.Documents;
 
@@ -19,7 +20,8 @@ public sealed class UploadDocumentsUseCase(
     IFileStorage fileStorage,
     IDocumentAnalysisService analysisService,
     DocumentConsistencyChecker consistencyChecker,
-    IntakePreprocessingService preprocessingService)
+    IntakePreprocessingService preprocessingService,
+    ILogger<UploadDocumentsUseCase> logger)
 {
     public async Task<List<UploadedDocument>?> ExecuteAsync(
         Guid dealId, IReadOnlyList<UploadedFile> files, string language = "ru", CancellationToken cancellationToken = default)
@@ -65,6 +67,7 @@ public sealed class UploadDocumentsUseCase(
             }
             catch (Exception ex)
             {
+                logger.LogError(ex, "Document analysis failed for {DocumentId} ({FileName}) on deal {DealId}", documentId, file.FileName, dealId);
                 document.Status = DocumentProcessingStatus.Failed;
                 document.ErrorMessage = ex.Message;
             }
