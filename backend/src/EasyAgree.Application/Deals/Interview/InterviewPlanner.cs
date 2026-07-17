@@ -123,6 +123,7 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator, LegalK
             if (isFirstTurn)
                 allowedExtractionIds.UnionWith(ordered.Select(f => f.FieldId));
 
+            var extractedNewFieldThisTurn = false;
             foreach (var (fieldId, value) in generated.Extracted)
             {
                 if (!allowedExtractionIds.Contains(fieldId) || string.IsNullOrWhiteSpace(value) || answers.ContainsKey(fieldId))
@@ -131,13 +132,22 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator, LegalK
                     continue;
 
                 answers[fieldId] = value;
+                extractedNewFieldThisTurn = true;
             }
 
             var firstMissing = group.FirstOrDefault(f => !answers.ContainsKey(f.FieldId));
             if (firstMissing is not null)
             {
                 string question;
-                if (isRepeat)
+                // A group answered partially (e.g. "2020" answers the year
+                // half of a combined make/model/year question but leaves
+                // model missing) still has isRepeat=true - the combined
+                // groupKey was asked before - but treating it as a stale
+                // repeat re-shows the ORIGINAL full question verbatim,
+                // ignoring that the user just answered part of it and
+                // burying the model's fresh, correctly-targeted follow-up
+                // for only what's still missing.
+                if (isRepeat && !extractedNewFieldThisTurn)
                 {
                     question = $"{ConversationReplies.RepeatedQuestionNotice(language)} {previousQuestion}";
                 }
