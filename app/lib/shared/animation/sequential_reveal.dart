@@ -70,15 +70,26 @@ class _SequentialRevealState extends State<SequentialReveal> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: Insets.x4),
             child: Row(
-              mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(Icons.check_circle_rounded, size: 16, color: theme.colorScheme.primary),
                 const SizedBox(width: Insets.x8),
-                Text(widget.items[i].label, style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                Expanded(
+                  child: Text(
+                    widget.items[i].label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                  ),
+                ),
                 const SizedBox(width: Insets.x4),
-                Text(
-                  widget.items[i].value,
-                  style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                Flexible(
+                  child: Text(
+                    widget.items[i].value,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.end,
+                    style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                  ),
                 ),
               ],
             ),
