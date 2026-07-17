@@ -13,9 +13,9 @@ namespace UnitTests;
 /// </summary>
 public sealed class FieldEligibilityDocumentOnlyTests
 {
-    private static FieldCategory Classify(string label, AgreementFieldMode mode = AgreementFieldMode.Required)
+    private static FieldCategory Classify(string label)
     {
-        var fields = new[] { new AgreementTemplateField { FieldId = 1, Mode = mode } };
+        var fields = new[] { new AgreementTemplateField { FieldId = 1 } };
         var labels = new Dictionary<int, string> { [1] = label };
         return FieldEligibilityEngine.Classify(fields, labels).Single().Category;
     }
@@ -67,8 +67,7 @@ public sealed class FieldEligibilityDocumentOnlyTests
     [Fact]
     public void Technical_fields_are_document_only_even_when_the_template_marks_them_required()
     {
-        Assert.Equal(FieldCategory.DocumentOnly, Classify("рама", AgreementFieldMode.Required));
-        Assert.Equal(FieldCategory.DocumentOnly, Classify("рама", AgreementFieldMode.Optional));
+        Assert.Equal(FieldCategory.DocumentOnly, Classify("рама"));
     }
 
     /// <summary>

@@ -101,7 +101,6 @@ public sealed class InterviewStageTests
     [Theory]
     [InlineData(FieldCategory.NeverAsk)]
     [InlineData(FieldCategory.DocumentOnly)]
-    [InlineData(FieldCategory.Optional)]
     public void Fields_that_are_never_the_current_question_have_no_stage(FieldCategory category)
     {
         Assert.Null(InterviewStageCatalog.Resolve("vehicle", category, "ru"));

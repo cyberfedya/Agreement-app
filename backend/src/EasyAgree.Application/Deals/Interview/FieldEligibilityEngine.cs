@@ -115,13 +115,13 @@ public static class FieldEligibilityEngine
             if (!labels.TryGetValue(field.FieldId, out var label) || label.Length == 0)
                 continue;
 
-            result.Add(new ClassifiedField(field.FieldId, label, Categorize(field, label)));
+            result.Add(new ClassifiedField(field.FieldId, label, Categorize(label)));
         }
 
         return result;
     }
 
-    private static FieldCategory Categorize(AgreementTemplateField field, string label)
+    private static FieldCategory Categorize(string label)
     {
         var lower = label.ToLowerInvariant();
         var legalCheckText = lower.Replace("гувоҳнома", "");
@@ -147,9 +147,6 @@ public static class FieldEligibilityEngine
         {
             return FieldCategory.DocumentOnly;
         }
-
-        if (field.Mode == AgreementFieldMode.Optional)
-            return FieldCategory.Optional;
 
         if (MatchesAny(lower, CommercialKeywords))
             return FieldCategory.RequiredCommercial;

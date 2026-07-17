@@ -55,8 +55,7 @@ public static class QuestionPriorityEngine
         FieldCategory.RequiredObject => 0,
         FieldCategory.RequiredTime => 1,
         FieldCategory.RequiredCommercial => IsPrice(field.Label) ? 3 : 2,
-        FieldCategory.Optional => 4,
-        _ => 5,
+        _ => 4,
     };
 
     private static bool IsPrice(string label)

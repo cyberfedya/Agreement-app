@@ -76,7 +76,7 @@ public sealed class GetDealFieldStatesUseCase(
         foreach (var field in classified)
         {
             var templateField = template.Fields.First(f => f.FieldId == field.FieldId);
-            var required = templateField.Mode == AgreementFieldMode.Required && field.Category != FieldCategory.Optional;
+            var required = templateField.Mode == AgreementFieldMode.Required;
 
             if (answers.TryGetValue(field.FieldId, out var answer))
             {
@@ -146,13 +146,6 @@ public sealed class GetDealFieldStatesUseCase(
 
                 states.Add(State(field, null, required, "profile_or_qr", 1.0, "WAITING_SOURCE", Party(field), false,
                     "LOCKED", "Resolved from account profile, second-party QR profile, or legal metadata"));
-                continue;
-            }
-
-            if (field.Category == FieldCategory.Optional)
-            {
-                states.Add(State(field, null, false, "optional", 1.0, "NOT_REQUIRED", Party(field), false,
-                    "OPTIONAL", "Optional term; not asked during the minimal interview"));
                 continue;
             }
 
