@@ -136,8 +136,24 @@ public static class FieldEligibilityEngine
         // identity fields elsewhere stay correctly excluded.
         var partyRoleCheckText = lower.Replace("ходимга бириктирилаётган", "");
 
+        // "Боланинг Ф.И.О.си"/"...туғилган вақти"/"...яшаш манзили" (the
+        // CHILD's name/birth date/address - in custody, alimony, adoption,
+        // paternity and school-transfer templates) is the document's actual
+        // subject, not a party's own identity the account profile already
+        // knows - but it contains "ф.и.о"/"туғилган"/"яшаш манзил" and would
+        // otherwise be wrongly excluded by IdentityAttributeKeywords.
+        // Unlike the two strips above, "боланинг" isn't a larger phrase that
+        // *embeds* the offending keyword as a substring - it's a separate
+        // co-occurring word, so stripping it wouldn't remove the keyword
+        // match. Skip the identity check entirely instead whenever the
+        // label is about the child; every numbered/qualified variant
+        // ("1-Боланинг", "Фарзандликка олинувчи боланинг", "иккинчи
+        // боланинг") contains the bare "боланинг" substring, so one check
+        // covers every phrasing found across the family/education domains.
+        var isChildSubjectField = lower.Contains("боланинг");
+
         if (MatchesAny(legalCheckText, LegalDefaultKeywords) || MatchesAny(partyRoleCheckText, PartyRoleKeywords) ||
-            MatchesAny(lower, IdentityAttributeKeywords))
+            (!isChildSubjectField && MatchesAny(lower, IdentityAttributeKeywords)))
         {
             return FieldCategory.NeverAsk;
         }

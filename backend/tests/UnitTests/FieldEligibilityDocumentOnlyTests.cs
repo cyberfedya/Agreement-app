@@ -194,6 +194,47 @@ public sealed class FieldEligibilityDocumentOnlyTests
     }
 
     /// <summary>
+    /// The CHILD's own name/birth date/address (custody, alimony, adoption,
+    /// paternity templates) is the document's actual subject, not a party's
+    /// own identity already known from the account profile - it must stay
+    /// askable even though it contains "ф.и.о"/"туғилган"/"яшаш манзили",
+    /// which would otherwise exclude it via IdentityAttributeKeywords. Found
+    /// via a real end-to-end simulation of family/adoption_application.json,
+    /// which asked only 2 questions (court name, application date) and
+    /// silently skipped the adopted child's own identity entirely.
+    /// </summary>
+    [Theory]
+    [InlineData("Фарзандликка олинувчи боланинг Ф.И.О.си")]
+    [InlineData("1-Боланинг Ф.И.О.")]
+    [InlineData("Боланинг отаси сифатида белгиланиши сўралаётган шахс Ф.И.О.си")]
+    public void Child_subject_identity_fields_stay_askable(string label)
+    {
+        Assert.Equal(FieldCategory.RequiredObject, Classify(label));
+    }
+
+    /// <summary>The child's own birth date stays askable too, just under
+    /// the time category rather than object (it also contains "вақт").</summary>
+    [Fact]
+    public void Child_subject_birth_date_stays_askable_as_time()
+    {
+        Assert.Equal(FieldCategory.RequiredTime, Classify("Фарзандликка олинувчи боланинг туғилган вақти"));
+    }
+
+    /// <summary>
+    /// The applicant's own name/address (not the child's) must still be
+    /// excluded - the "боланинг" exemption above is scoped to labels that
+    /// actually mention the child, not a blanket bypass of identity
+    /// exclusion for the whole family domain.
+    /// </summary>
+    [Theory]
+    [InlineData("Аризачининг Ф.И.О.си")]
+    [InlineData("Даъвогарнинг яшаш манзили")]
+    public void Applicants_own_identity_fields_stay_never_asked(string label)
+    {
+        Assert.Equal(FieldCategory.NeverAsk, Classify(label));
+    }
+
+    /// <summary>
     /// The employee's assigned company car's plate/model stay askable (like
     /// a vehicle sale's own VIN/plate) - the interview offers a document
     /// upload alternative, it doesn't hard-exclude them.
