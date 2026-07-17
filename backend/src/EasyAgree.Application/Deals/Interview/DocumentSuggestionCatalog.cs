@@ -45,6 +45,23 @@ public static class DocumentSuggestionCatalog
             DocumentType.Certificate,
             LabelKeywords: ["вафот санаси", "вафот этган сана", "ўлим санаси", "вафот этган куни"],
             HintKeys: ["death_date", "deceased_full_name"]),
+
+        // Company-car assignment orders ask for exactly the vehicle's plate
+        // + model - the same extraction pipeline as a vehicle sale.
+        ["employment"] = new RecommendedDocument(
+            DocumentType.VehicleRegistration,
+            LabelKeywords: ["автомашина рақам белгиси", "автомашина русуми"],
+            HintKeys: ["plate_number", "brand", "model"]),
+
+        ["business"] = new RecommendedDocument(
+            DocumentType.Invoice,
+            LabelKeywords: ["ускунанинг русуми", "ускунанинг номи", "ускуна сони"],
+            HintKeys: ["equipment_model", "equipment_name"]),
+
+        ["family"] = new RecommendedDocument(
+            DocumentType.Certificate,
+            LabelKeywords: ["гувоҳнома рақами", "гувоҳнома берилган сана", "никоҳдан ўтилган сана", "туғилган санаси"],
+            HintKeys: ["certificate_number", "certificate_date"]),
     };
 
     public static RecommendedDocument? ForDomain(string domain) =>

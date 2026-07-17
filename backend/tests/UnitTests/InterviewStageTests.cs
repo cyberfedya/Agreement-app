@@ -91,8 +91,8 @@ public sealed class InterviewStageTests
     [Fact]
     public void Unknown_domain_falls_back_to_a_generic_stage_pair()
     {
-        var objectStage = InterviewStageCatalog.Resolve("court", FieldCategory.RequiredObject, "ru");
-        var termsStage = InterviewStageCatalog.Resolve("court", FieldCategory.RequiredCommercial, "ru");
+        var objectStage = InterviewStageCatalog.Resolve("criminal", FieldCategory.RequiredObject, "ru");
+        var termsStage = InterviewStageCatalog.Resolve("criminal", FieldCategory.RequiredCommercial, "ru");
 
         Assert.Equal("Предмет договора", objectStage!.Label);
         Assert.Equal("Условия договора", termsStage!.Label);

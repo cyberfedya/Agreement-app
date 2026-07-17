@@ -48,10 +48,10 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator, LegalK
         ["real_estate"] = 10,
         ["services"] = 10,
         ["loan"] = 9,
-        ["construction"] = 15,
+        ["construction"] = 12,
         ["inheritance"] = 12,
     };
-
+ 
     private const int DefaultMaxQuestions = 10;
 
     private static int MaxQuestionsFor(string templateDomain) =>

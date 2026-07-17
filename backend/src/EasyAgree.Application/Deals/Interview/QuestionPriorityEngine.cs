@@ -16,6 +16,13 @@ public static class QuestionPriorityEngine
     /// be settled before the final number is named.</summary>
     private static readonly string[] PriceKeywords = ["қиймат", "нарх", "баҳолан", "цена", "стоимост"];
 
+    /// <summary>A label containing one of these alongside a price keyword is
+    /// a percentage/ratio question ("what % of the home's value is the
+    /// mortgage"), not the deal's price itself - without this exclusion a
+    /// mortgage-percentage field ranked as the final price question just
+    /// because its label happens to also mention "value".</summary>
+    private static readonly string[] PercentageKeywords = ["фоиз", "процент", "%"];
+
     public static IReadOnlyList<ClassifiedField> Order(IEnumerable<ClassifiedField> fields)
     {
         var list = fields.ToList();
@@ -55,6 +62,6 @@ public static class QuestionPriorityEngine
     private static bool IsPrice(string label)
     {
         var lower = label.ToLowerInvariant();
-        return PriceKeywords.Any(lower.Contains);
+        return PriceKeywords.Any(lower.Contains) && !PercentageKeywords.Any(lower.Contains);
     }
 }

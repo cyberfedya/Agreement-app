@@ -32,7 +32,7 @@ public static class InterviewStageCatalog
                 new StageTemplate("object", "🚗", Label("Автомобиль", "Автомобиль", "Vehicle")),
                 new StageTemplate("terms", "📄", Label("Условия сделки", "Битим шартлари", "Deal terms"))),
             ["real_estate"] = new StagePair(
-                new StageTemplate("object", "🏠", Label("Недвижимость", "Кўчмас мулк", "Property")),
+                new StageTemplate("object", "🏠", Label("Объект недвижимости", "Кўчмас мулк объекти", "Property")),
                 new StageTemplate("terms", "📄", Label("Условия сделки", "Битим шартлари", "Deal terms"))),
             ["loan"] = new StagePair(
                 new StageTemplate("object", "💰", Label("Заём", "Қарз", "Loan")),
@@ -40,6 +40,18 @@ public static class InterviewStageCatalog
             ["services"] = new StagePair(
                 new StageTemplate("object", "🛠️", Label("Услуга", "Хизмат", "Service")),
                 new StageTemplate("terms", "📄", Label("Условия оказания услуги", "Хизмат кўрсатиш шартлари", "Service terms"))),
+            ["employment"] = new StagePair(
+                new StageTemplate("object", "📋", Label("Кадровое действие", "Кадрлар бўйича амал", "Employment action")),
+                new StageTemplate("terms", "📄", Label("Детали оформления", "Расмийлаштириш тафсилотлари", "Filing details"))),
+            ["business"] = new StagePair(
+                new StageTemplate("object", "📦", Label("Предмет сделки", "Битим предмети", "Deal subject")),
+                new StageTemplate("terms", "📄", Label("Условия сделки", "Битим шартлари", "Deal terms"))),
+            ["court"] = new StagePair(
+                new StageTemplate("object", "⚖️", Label("Суть обращения", "Мурожаат моҳияти", "Substance of the filing")),
+                new StageTemplate("terms", "📄", Label("Формальные детали", "Расмий тафсилотлар", "Formal details"))),
+            ["family"] = new StagePair(
+                new StageTemplate("object", "👪", Label("Обстоятельства", "Ҳолат", "Circumstances")),
+                new StageTemplate("terms", "📄", Label("Формальные детали", "Расмий тафсилотлар", "Formal details"))),
         };
 
     private static readonly StagePair Default = new(

@@ -38,6 +38,29 @@ public static class FieldDependencyEngine
             return true;
         }
 
+        // A single unit's floor number only applies to an apartment; a
+        // building's total floor count only applies to a house - both
+        // read from the answer to "what's being sold" once it's known.
+        // Reusable by any future real-estate-style template that phrases
+        // its object field the same way, not just this one contract.
+        if (candidateLabel.Contains("қавати") &&
+            answers.Any(answer =>
+                labels.TryGetValue(answer.Key, out var label) &&
+                IsPropertyTypeLabel(label) &&
+                !IsApartment(answer.Value)))
+        {
+            return true;
+        }
+
+        if (candidateLabel.Contains("қаватлар сони") &&
+            answers.Any(answer =>
+                labels.TryGetValue(answer.Key, out var label) &&
+                IsPropertyTypeLabel(label) &&
+                !IsHouse(answer.Value)))
+        {
+            return true;
+        }
+
         return false;
     }
 
@@ -47,6 +70,13 @@ public static class FieldDependencyEngine
     private static bool IsCash(string value) => ContainsAny(value.ToLowerInvariant(), "cash", "налич", "naqd");
 
     private static bool IsInstallment(string value) => ContainsAny(value.ToLowerInvariant(), "рассроч", "installment", "bo'lib", "bulib");
+
+    private static bool IsPropertyTypeLabel(string label) =>
+        ContainsAny(label.ToLowerInvariant(), "кўчмас мулкнинг номи", "сотилаётган", "property type", "тип недвижимости");
+
+    private static bool IsApartment(string value) => ContainsAny(value.ToLowerInvariant(), "квартир", "хонадон", "apartment");
+
+    private static bool IsHouse(string value) => ContainsAny(value.ToLowerInvariant(), "дом", "уй", "ҳовли", "house");
 
     private static bool ContainsAny(string value, params string[] keywords) => keywords.Any(value.Contains);
 }

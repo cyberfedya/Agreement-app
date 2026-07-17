@@ -26,6 +26,7 @@ public static class FieldEligibilityEngine
         "тузилган сана", "тузилган вақт", "тузилган жой", "тасдиқланган сана",
         "дата составления", "дата подписания",
         "инвентар", "техник паспорт", "техпаспорт", "техническ паспорт",
+        "буйруқ рақами", "буйруқ қабул қилинган",
     ];
     private static readonly string[] PartyRoleKeywords =
     [
@@ -38,7 +39,7 @@ public static class FieldEligibilityEngine
         "супруг", "хотин", "турмуш ўртоғ",
         "биринчи томон", "иккинчи томон", "первой стороны", "второй стороны",
         "первая сторона", "вторая сторона", "биринчи тараф", "иккинчи тараф",
-        "аризачи", "даъвогарнинг", "жавобгарнинг",
+        "аризачи", "даъвогарнинг", "жавобгарнинг", "шикоят берувчи",
     ];
 
     private static readonly string[] IdentityAttributeKeywords =
@@ -48,7 +49,8 @@ public static class FieldEligibilityEngine
         "яшаш манзил", "проживан",
         "туғилган", "рожден",
         "ҳисоб рақам", "банк", "мфо",
-        "лавозим", "ташкилий-ҳуқуқий", "директор", "раҳбар", "руководител",
+        "лавозим", "ташкилий-ҳуқуқий", "ташкилий ҳуқуқий", "директор", "раҳбар", "руководител",
+        "юридик манзил",
     ];
     // Chassis number is deliberately askable (like engine/kuzov number) -
     // the owner can read it off the vehicle or its documents, and the
@@ -66,6 +68,22 @@ public static class FieldEligibilityEngine
         "экологич", "экологик",
         "топлив", "ёқилғи", "ёнилғи",
         "изготовител", "ишлаб чиқарувчи",
+    ];
+    /// <summary>Reference details of a certificate/license the deal itself
+    /// depends on but doesn't create (marriage/birth certificate number and
+    /// issue date, an attorney's license number and issuing authority) -
+    /// read off that document, not recalled from memory. Distinct from
+    /// <see cref="RegistrationCertificateKeywords"/>, which is specifically
+    /// about a vehicle's own registration certificate.</summary>
+    private static readonly string[] RegistryCertificateKeywords =
+    [
+        "гувоҳнома рақами", "гувохнома рақами",
+        "гувоҳнома берилган сана", "гувохнома берилган сана",
+        // Bare "лицензия" rather than a specific suffixed form - Uzbek's
+        // agglutinative suffixes ("лицензия"/"лицензияси"/"лицензиясини"/
+        // "лицензиянинг") vary too much for one exact phrase to catch them
+        // all reliably.
+        "лицензия",
     ];
     private static readonly string[] RegistrationCertificateKeywords =
     [
@@ -113,14 +131,27 @@ public static class FieldEligibilityEngine
         var lower = label.ToLowerInvariant();
         var legalCheckText = lower.Replace("гувоҳнома", "");
 
-        if (MatchesAny(legalCheckText, LegalDefaultKeywords) || MatchesAny(lower, PartyRoleKeywords) ||
+        // "Ходимга бириктирилаётган автомашина..." (the car assigned TO the
+        // employee) is about the car, not the employee's own identity - but
+        // it starts with "ходимга", which the bare "ходим" party-role
+        // keyword (meant for fields like "Ходимнинг Ф.И.О.") would
+        // otherwise also match. Same fix shape as the "гувоҳнома" strip
+        // above: remove the specific false-positive phrase before the
+        // party-role check, not the keyword itself, so genuine employee-
+        // identity fields elsewhere stay correctly excluded.
+        var partyRoleCheckText = lower.Replace("ходимга бириктирилаётган", "");
+
+        if (MatchesAny(legalCheckText, LegalDefaultKeywords) || MatchesAny(partyRoleCheckText, PartyRoleKeywords) ||
             MatchesAny(lower, IdentityAttributeKeywords))
         {
             return FieldCategory.NeverAsk;
         }
 
-        if (MatchesAny(lower, TechnicalDocumentOnlyKeywords) || MatchesAny(lower, RegistrationCertificateKeywords))
+        if (MatchesAny(lower, TechnicalDocumentOnlyKeywords) || MatchesAny(lower, RegistrationCertificateKeywords) ||
+            MatchesAny(lower, RegistryCertificateKeywords))
+        {
             return FieldCategory.DocumentOnly;
+        }
 
         if (field.Mode == AgreementFieldMode.Optional)
             return FieldCategory.Optional;

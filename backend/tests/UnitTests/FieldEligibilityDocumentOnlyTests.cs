@@ -142,4 +142,55 @@ public sealed class FieldEligibilityDocumentOnlyTests
         Assert.Equal(FieldCategory.RequiredTime, Classify("Автотранспорт воситасини топшириш санаси"));
         Assert.Equal(FieldCategory.RequiredCommercial, Classify("Тўлов қандай амалга оширилади"));
     }
+
+    /// <summary>
+    /// Certificate/license reference fields found across family (marriage/
+    /// birth certificates) and court (attorney license) templates - printed
+    /// on a document, never recalled from memory, same reasoning as the
+    /// vehicle registration-certificate metadata above but for a generic
+    /// certificate/license rather than a vehicle's own.
+    /// </summary>
+    [Theory]
+    [InlineData("Гувоҳнома рақами")]
+    [InlineData("Гувоҳнома берилган сана")]
+    [InlineData("Ишончнома олувчига адвокатлик лицензиясини берган адлия бошқармаси")]
+    [InlineData("Адвокатлик лицензия рақами")]
+    public void Certificate_and_license_reference_fields_are_document_only(string label)
+    {
+        Assert.Equal(FieldCategory.DocumentOnly, Classify(label));
+    }
+
+    /// <summary>
+    /// The marriage date itself (not the certificate's own reference data)
+    /// stays askable - only the certificate's metadata is document-only.
+    /// </summary>
+    [Fact]
+    public void Marriage_date_itself_stays_askable()
+    {
+        Assert.Equal(FieldCategory.RequiredTime, Classify("Қонуний никоҳдан ўтилган сана"));
+    }
+
+    [Theory]
+    [InlineData("Шикоят берувчи юридик шахс номи ва ташкилий ҳуқуқий шакли")] // court: appellant org identity
+    [InlineData("Сотувчи корхонанинг юридик манзили")] // business: company legal address
+    [InlineData("Буйруқ рақами")] // employment: order-decree number
+    [InlineData("Буйруқ қабул қилинган сана")] // employment: order-decree date
+    [InlineData("Буйруқ қабул қилинган жой")] // employment: order-decree place
+    public void Compound_identity_and_order_metadata_fields_are_never_asked(string label)
+    {
+        Assert.Equal(FieldCategory.NeverAsk, Classify(label));
+    }
+
+    /// <summary>
+    /// The employee's assigned company car's plate/model stay askable (like
+    /// a vehicle sale's own VIN/plate) - the interview offers a document
+    /// upload alternative, it doesn't hard-exclude them.
+    /// </summary>
+    [Theory]
+    [InlineData("Ходимга бириктирилаётган автомашина рақам белгиси")]
+    [InlineData("Ходимга бириктирилаётган автомашина русуми")]
+    public void Assigned_company_car_fields_stay_askable(string label)
+    {
+        Assert.Equal(FieldCategory.RequiredObject, Classify(label));
+    }
 }

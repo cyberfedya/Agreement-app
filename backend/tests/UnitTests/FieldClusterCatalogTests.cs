@@ -39,6 +39,22 @@ public sealed class FieldClusterCatalogTests
     }
 
     [Fact]
+    public void Company_car_assignment_cluster_groups_plate_and_model()
+    {
+        var fields = new List<ClassifiedField>
+        {
+            new(9, "Ходимга бириктирилаётган автомашина рақам белгиси", FieldCategory.RequiredObject),
+            new(10, "Ходимга бириктирилаётган автомашина русуми", FieldCategory.RequiredObject),
+        };
+
+        var groups = QuestionGroupingEngine.BuildGroups(fields);
+
+        Assert.Single(groups);
+        Assert.Equal(2, groups[0].Count);
+        Assert.Equal(new[] { 9, 10 }, groups[0].Select(f => f.FieldId));
+    }
+
+    [Fact]
     public void Ungrouped_field_yields_its_own_single_field_group()
     {
         var fields = new List<ClassifiedField> { new(5, "Тарафлар ўзаро келишувига асосан нархи", FieldCategory.RequiredCommercial) };

@@ -26,6 +26,11 @@ public static class FieldClusterCatalog
         // the manufacture year as one short combined question instead of two
         // separate ones.
         ("vehicle_identity", ["автотранспорт русуми", "ишлаб чиқарилган йил"], 2),
+
+        // A vehicle assigned to an employee (e.g. a company-car order) -
+        // plate number + model, the same natural pairing as vehicle_identity
+        // above, just outside the vehicle-sale domain.
+        ("company_car_assignment", ["автомашина рақам белгиси", "бириктирилаётган автомашина русуми"], 2),
     ];
 
     /// <summary>The cluster this field label belongs to, or null if it isn't part of one.</summary>
