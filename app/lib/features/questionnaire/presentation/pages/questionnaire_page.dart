@@ -7,6 +7,8 @@ import 'package:provider/provider.dart';
 
 import 'package:app/core/router/app_router.dart';
 import 'package:app/core/services/tts_service.dart';
+import 'package:app/core/sound/app_sound.dart';
+import 'package:app/core/sound/sound_service.dart';
 import 'package:app/core/storage/local_storage.dart';
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/core/widgets/app_widgets.dart';
@@ -37,6 +39,7 @@ import 'package:app/features/questionnaire/presentation/widgets/thinking_indicat
 import 'package:app/features/questionnaire/providers/questionnaire_provider.dart';
 import 'package:app/l10n/app_localizations.dart';
 import 'package:app/shared/animation/entrance.dart';
+import 'package:app/shared/animation/sequential_reveal.dart';
 import 'package:app/shared/utils/image_format.dart';
 import 'package:app/shared/widgets/primary_button.dart';
 
@@ -75,6 +78,13 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
   /// thinking beat - a quiet receipt that the assistant heard exactly
   /// what was said, before the conversation moves on.
   String? _submittedEcho;
+
+  /// Once known (after the answer round-trip resolves), the field(s) this
+  /// answer just filled - revealed one at a time instead of the generic
+  /// thinking dots. Null while still waiting, or when nothing changed
+  /// (a side remark/DontKnow turn), in which case the plain thinking
+  /// indicator is shown for the whole beat, unchanged from before.
+  List<RevealItem>? _revealItems;
 
   /// True while an upload+OCR round-trip runs (invite or paperclip path).
   bool _uploadingDocument = false;
@@ -261,16 +271,33 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
     final l10n = AppLocalizations.of(context)!;
     HapticFeedback.selectionClick();
     FocusScope.of(context).unfocus();
+    final before = Map<int, String>.from(provider.answers);
     setState(() {
       _thinkingLabel = _script.thinking(l10n);
       _submittedEcho = text.trim();
+      _revealItems = null;
     });
 
     await Future.wait([provider.submitAnswer(text.trim()), Future<void>.delayed(Motion.thinkingMin)]);
     if (!mounted) return;
 
+    final labelsById = {for (final q in provider.allFields) q.fieldId: q.fieldName};
+    final after = provider.answers;
+    final changed = [
+      for (final entry in after.entries)
+        if (entry.value.trim().isNotEmpty && entry.value != before[entry.key])
+          if (labelsById[entry.key] case final label?) (label: label, value: entry.value),
+    ];
+
+    if (changed.isNotEmpty) {
+      setState(() => _revealItems = changed);
+      await Future<void>.delayed(Duration(milliseconds: 380 * changed.length + 200));
+      if (!mounted) return;
+    }
+
     setState(() {
       _thinkingLabel = null;
+      _revealItems = null;
       _acknowledgment = _script.acknowledgment(l10n);
     });
   }
@@ -675,7 +702,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
               child: thinking
                   ? Center(
                       key: const ValueKey('thinking'),
-                      child: _AnswerEchoWithThinking(echo: _submittedEcho, label: _thinkingLabel!),
+                      child: _AnswerEchoWithThinking(echo: _submittedEcho, label: _thinkingLabel!, revealItems: _revealItems),
                     )
                   : AssistantQuestionView(
                       key: ValueKey('q-${field.fieldId}-${field.fieldName}'),
@@ -719,10 +746,15 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
 /// ("✓ Завтра") above the thinking line - a quiet receipt, then the
 /// conversation moves on. Long answers are clipped, not scrolled.
 class _AnswerEchoWithThinking extends StatelessWidget {
-  const _AnswerEchoWithThinking({required this.echo, required this.label});
+  const _AnswerEchoWithThinking({required this.echo, required this.label, this.revealItems});
 
   final String? echo;
   final String label;
+
+  /// Once known, the specific field(s) this answer just filled - revealed
+  /// one at a time in place of the generic thinking dots, so it reads as
+  /// the AI actually parsing the answer rather than just "thinking".
+  final List<RevealItem>? revealItems;
 
   @override
   Widget build(BuildContext context) {
@@ -757,7 +789,13 @@ class _AnswerEchoWithThinking extends StatelessWidget {
             ),
             const SizedBox(height: Insets.x16),
           ],
-          ThinkingIndicator(label: label),
+          if (revealItems case final items? when items.isNotEmpty)
+            SequentialReveal(
+              items: items,
+              onItemRevealed: (_) => unawaited(context.read<SoundService>().play(AppSound.tick)),
+            )
+          else
+            ThinkingIndicator(label: label),
         ],
       ),
     );

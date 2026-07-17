@@ -38,6 +38,10 @@ class _AgreementSignPageState extends State<AgreementSignPage> {
   bool _verifying = false;
   Timer? _pollTimer;
 
+  /// Guards against navigating to the completion screen more than once -
+  /// `refreshStatus` can notify several times while already fully signed.
+  bool _navigatedToCompletion = false;
+
   /// Set after a proposal or clarification was successfully recorded -
   /// shows a "передано первой стороне" banner instead of pretending
   /// nothing happened. Signing stays available: the parties may agree
@@ -56,12 +60,28 @@ class _AgreementSignPageState extends State<AgreementSignPage> {
 
   void _startPollingIfNeeded() {
     final provider = context.read<AgreementProvider>();
-    if (provider.isFullySigned) return;
+    if (provider.isFullySigned) {
+      _goToCompletionIfFullySigned(provider);
+      return;
+    }
     _pollTimer ??= Timer.periodic(const Duration(seconds: 4), (_) async {
       final provider = context.read<AgreementProvider>();
       await provider.refreshStatus(widget.agreementKey);
-      if (provider.isFullySigned) _pollTimer?.cancel();
+      if (!mounted) return;
+      if (provider.isFullySigned) {
+        _pollTimer?.cancel();
+        _goToCompletionIfFullySigned(provider);
+      }
     });
+  }
+
+  /// Mirrors AgreementPage's own navigation to the completion screen, once
+  /// both signatures are in - just for the second party's side, with
+  /// `isFirstParty: false` so the completion message uses their role.
+  void _goToCompletionIfFullySigned(AgreementProvider provider) {
+    if (_navigatedToCompletion || !provider.isFullySigned) return;
+    _navigatedToCompletion = true;
+    Navigator.of(context).pushReplacementNamed(AppRoutes.agreementCompleted, arguments: false);
   }
 
   @override

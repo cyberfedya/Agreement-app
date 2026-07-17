@@ -18,6 +18,14 @@
   "@settingsThemeLight": {},
   "settingsThemeDark": "Тёмная",
   "@settingsThemeDark": {},
+  "settingsSoundTitle": "Звуки интерфейса",
+  "@settingsSoundTitle": {},
+  "settingsSoundOff": "Выключены",
+  "@settingsSoundOff": {},
+  "settingsSoundMinimal": "Минималистичные",
+  "@settingsSoundMinimal": {},
+  "settingsSoundExtended": "Расширенные",
+  "@settingsSoundExtended": {},
   "settingsVoiceTitle": "Озвучка вопросов",
   "@settingsVoiceTitle": {},
   "settingsVoiceSubtitleOn": "Ассистент читает вопросы вслух",
@@ -397,6 +405,12 @@
   "@agreementSecondPartySignedWaitingFirst": {},
   "agreementFirstPartySignedWaitingSecond": "Первая сторона уже подписала договор.\nПодпишите, чтобы завершить договор.",
   "@agreementFirstPartySignedWaitingSecond": {},
+  "agreementSecondPartyJoinedAnnouncement": "{role} успешно присоединился к сделке.",
+  "@agreementSecondPartyJoinedAnnouncement": {
+    "placeholders": {
+      "role": {"type": "String"}
+    }
+  },
   "agreementMyIdNotice": "Перед подписью — идентификация через MyID. Ваши имя и данные подставятся в договор автоматически.",
   "@agreementMyIdNotice": {},
   "agreementProposeChange": "Изменить условие",
@@ -420,6 +434,24 @@
   },
   "agreementPdfExportFailed": "Не удалось создать PDF. Попробуйте ещё раз.",
   "@agreementPdfExportFailed": {},
+  "completionGeneric": "🎉 Поздравляем! Договор успешно подписан обеими сторонами.",
+  "@completionGeneric": {},
+  "completionVehicleSeller": "🎉 Поздравляем! Вы успешно оформили продажу автомобиля. Договор подписан обеими сторонами.",
+  "@completionVehicleSeller": {},
+  "completionVehicleBuyer": "🎉 Поздравляем! Вы успешно оформили покупку автомобиля. Договор подписан обеими сторонами.",
+  "@completionVehicleBuyer": {},
+  "completionRealEstateSeller": "🎉 Поздравляем! Вы успешно оформили продажу недвижимости. Договор подписан обеими сторонами.",
+  "@completionRealEstateSeller": {},
+  "completionRealEstateBuyer": "🎉 Поздравляем! Вы успешно оформили покупку недвижимости. Договор подписан обеими сторонами.",
+  "@completionRealEstateBuyer": {},
+  "completionRealEstateLandlord": "🎉 Поздравляем! Вы успешно оформили сдачу недвижимости в аренду. Договор подписан обеими сторонами.",
+  "@completionRealEstateLandlord": {},
+  "completionRealEstateTenant": "🎉 Поздравляем! Вы успешно оформили аренду недвижимости. Договор подписан обеими сторонами.",
+  "@completionRealEstateTenant": {},
+  "completionLoan": "🎉 Поздравляем! Договор займа успешно подписан.",
+  "@completionLoan": {},
+  "completionServices": "🎉 Поздравляем! Договор успешно заключён.",
+  "@completionServices": {},
 
   "dealInviteFillProfileFirst": "Сначала заполните свои данные — они будут указаны в договоре.",
   "@dealInviteFillProfileFirst": {},
@@ -429,6 +461,19 @@
   "@dealInviteTitle": {},
   "dealInviteHeadline": "Вас пригласили принять участие в сделке",
   "@dealInviteHeadline": {},
+  "dealInviteNarrativeHeadline": "{invitedBy} приглашает вас оформить «{transactionType}»",
+  "@dealInviteNarrativeHeadline": {
+    "placeholders": {
+      "invitedBy": {"type": "String"},
+      "transactionType": {"type": "String"}
+    }
+  },
+  "dealInviteYourRoleLine": "Ваша роль в сделке — {role}.",
+  "@dealInviteYourRoleLine": {
+    "placeholders": {
+      "role": {"type": "String"}
+    }
+  },
   "dealInviteTypeLabel": "Тип сделки",
   "@dealInviteTypeLabel": {},
   "dealInviteYourRoleLabel": "Ваша роль",

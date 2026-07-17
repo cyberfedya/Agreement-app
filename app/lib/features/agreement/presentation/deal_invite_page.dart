@@ -8,6 +8,7 @@ import 'package:app/features/agreement/domain/deal_invite.dart';
 import 'package:app/features/agreement/providers/agreement_provider.dart';
 import 'package:app/features/profile/data/profile_repository.dart';
 import 'package:app/l10n/app_localizations.dart';
+import 'package:app/shared/animation/entrance.dart';
 import 'package:app/shared/models/result.dart';
 import 'package:app/shared/widgets/primary_button.dart';
 
@@ -177,13 +178,18 @@ class _DealInvitePageState extends State<DealInvitePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      l10n.dealInviteHeadline,
+                      l10n.dealInviteNarrativeHeadline(
+                        invite.invitedBy ?? l10n.dealInviteNotSpecified,
+                        invite.transactionType,
+                      ),
                       style: theme.textTheme.headlineSmall,
-                    ),
+                    ).animateEntrance(),
+                    const SizedBox(height: Insets.x8),
+                    Text(
+                      l10n.dealInviteYourRoleLine(roleLabel(invite.expectedSecondPartyRole, l10n)),
+                      style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                    ).animateEntranceStaggered(1),
                     const SizedBox(height: Insets.x24),
-                    _InfoRow(label: l10n.dealInviteTypeLabel, value: invite.transactionType),
-                    _InfoRow(label: l10n.dealInviteYourRoleLabel, value: roleLabel(invite.expectedSecondPartyRole, l10n)),
-                    _InfoRow(label: l10n.dealInviteInvitedByLabel, value: invite.invitedBy ?? l10n.dealInviteNotSpecified),
                     _InfoRow(label: l10n.dealInviteStatusLabel, value: _statusLabel(invite.inviteStatus, l10n)),
                   ],
                 ),

@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:app/core/sound/app_sound.dart';
+import 'package:app/core/sound/sound_service.dart';
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/features/documents/data/document_repository.dart';
 import 'package:app/features/documents/presentation/document_capture.dart';
@@ -67,6 +71,7 @@ class _DocumentVerificationViewState extends State<DocumentVerificationView> {
   void _applyVerification(DocumentVerification verification) {
     if (!verification.hasConflicts) {
       setState(() => _phase = _Phase.done);
+      unawaited(context.read<SoundService>().play(AppSound.documentVerified));
       return;
     }
     setState(() {
@@ -75,6 +80,7 @@ class _DocumentVerificationViewState extends State<DocumentVerificationView> {
       _conflictError = null;
       _phase = _Phase.conflicts;
     });
+    unawaited(context.read<SoundService>().play(AppSound.attention));
   }
 
   Future<void> _resolveConflict({required bool useDocumentValue}) async {
@@ -313,7 +319,7 @@ class _ConflictView extends StatelessWidget {
           OutlinedButton(onPressed: onKeepMine, child: Text(l10n.documentVerificationKeepMine)),
         ],
       ),
-    );
+    ).animateEntrance();
   }
 }
 

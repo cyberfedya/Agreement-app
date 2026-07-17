@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
@@ -5,22 +6,29 @@ import 'package:flutter/services.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:provider/provider.dart';
 import 'package:app/core/router/app_router.dart';
+import 'package:app/core/sound/app_sound.dart';
+import 'package:app/core/sound/sound_service.dart';
 import 'package:app/features/agreement/domain/agreement_html.dart';
 import 'package:app/features/agreement/domain/agreement_pdf.dart';
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/core/widgets/app_widgets.dart';
 import 'package:app/core/widgets/bottom_action_bar.dart';
+import 'package:app/features/agreement/presentation/deal_completion_messages.dart';
 import 'package:app/features/agreement/providers/agreement_provider.dart';
 import 'package:app/l10n/app_localizations.dart';
 import 'package:app/shared/widgets/primary_button.dart';
-
 class AgreementCompletedPage extends StatefulWidget {
-  const AgreementCompletedPage({super.key});
+  const AgreementCompletedPage({super.key, this.isFirstParty = true});
+
+  /// Which side of the deal is viewing this screen - picks whether
+  /// [Agreement.firstPartyRole] or [Agreement.secondPartyRole] drives the
+  /// completion message. Defaults to the creator's side, the original
+  /// (only) entry point before this screen was shared with the second party.
+  final bool isFirstParty;
 
   @override
   State<AgreementCompletedPage> createState() => _AgreementCompletedPageState();
 }
-
 class _AgreementCompletedPageState extends State<AgreementCompletedPage> {
   late final ConfettiController _confetti = ConfettiController(duration: const Duration(milliseconds: 900));
 
@@ -29,6 +37,7 @@ class _AgreementCompletedPageState extends State<AgreementCompletedPage> {
     super.initState();
     _confetti.play();
     HapticFeedback.mediumImpact();
+    unawaited(context.read<SoundService>().play(AppSound.dealCreated));
   }
 
   @override
@@ -36,7 +45,6 @@ class _AgreementCompletedPageState extends State<AgreementCompletedPage> {
     _confetti.dispose();
     super.dispose();
   }
-
   Future<void> _copy(BuildContext context, String html) async {
     final messenger = ScaffoldMessenger.of(context);
     final l10n = AppLocalizations.of(context)!;
@@ -49,9 +57,7 @@ class _AgreementCompletedPageState extends State<AgreementCompletedPage> {
     await Clipboard.setData(ClipboardData(text: plainText));
     messenger.showSnackBar(SnackBar(content: Text(l10n.agreementCopied)));
   }
-
   Future<void> _exportPdf(BuildContext context, String html) => exportAgreementAsPdf(context, html);
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -104,10 +110,20 @@ class _AgreementCompletedPageState extends State<AgreementCompletedPage> {
                     ),
                   ),
                   const SizedBox(height: Insets.x20),
-                  Text(l10n.agreementSignedSuccessfully, style: theme.textTheme.headlineSmall, textAlign: TextAlign.center),
+                  Text(
+                    dealCompletionMessage(
+                      agreement.templateDomain,
+                      widget.isFirstParty ? agreement.firstPartyRole : agreement.secondPartyRole,
+                      l10n,
+                    ),
+                    style: theme.textTheme.headlineSmall,
+                    textAlign: TextAlign.center,
+                  ),
                   const SizedBox(height: Insets.x8),
                   Text(
-                    l10n.agreementSignedBy(provider.secondPartyName ?? ''),
+                    l10n.agreementSignedBy(
+                      widget.isFirstParty ? (provider.secondPartyName ?? '') : (provider.firstPartyName ?? ''),
+                    ),
                     textAlign: TextAlign.center,
                     style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                   ),

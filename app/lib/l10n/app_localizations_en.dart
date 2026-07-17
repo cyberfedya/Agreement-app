@@ -36,6 +36,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsThemeDark => 'Dark';
 
   @override
+  String get settingsSoundTitle => 'Interface sounds';
+
+  @override
+  String get settingsSoundOff => 'Off';
+
+  @override
+  String get settingsSoundMinimal => 'Minimal';
+
+  @override
+  String get settingsSoundExtended => 'Extended';
+
+  @override
   String get settingsVoiceTitle => 'Read questions aloud';
 
   @override
@@ -594,6 +606,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'The first party has already signed.\nSign to complete the agreement.';
 
   @override
+  String agreementSecondPartyJoinedAnnouncement(String role) {
+    return '$role successfully joined the deal.';
+  }
+
+  @override
   String get agreementMyIdNotice =>
       'Before signing — identification via MyID. Your name and details will be filled into the agreement automatically.';
 
@@ -626,6 +643,42 @@ class AppLocalizationsEn extends AppLocalizations {
       'Couldn\'t create the PDF. Please try again.';
 
   @override
+  String get completionGeneric =>
+      '🎉 Congratulations! The agreement has been successfully signed by both parties.';
+
+  @override
+  String get completionVehicleSeller =>
+      '🎉 Congratulations! You\'ve successfully sold your vehicle. The agreement is signed by both parties.';
+
+  @override
+  String get completionVehicleBuyer =>
+      '🎉 Congratulations! You\'ve successfully bought your vehicle. The agreement is signed by both parties.';
+
+  @override
+  String get completionRealEstateSeller =>
+      '🎉 Congratulations! You\'ve successfully sold your property. The agreement is signed by both parties.';
+
+  @override
+  String get completionRealEstateBuyer =>
+      '🎉 Congratulations! You\'ve successfully bought your property. The agreement is signed by both parties.';
+
+  @override
+  String get completionRealEstateLandlord =>
+      '🎉 Congratulations! You\'ve successfully leased out your property. The agreement is signed by both parties.';
+
+  @override
+  String get completionRealEstateTenant =>
+      '🎉 Congratulations! You\'ve successfully rented your property. The agreement is signed by both parties.';
+
+  @override
+  String get completionLoan =>
+      '🎉 Congratulations! The loan agreement has been successfully signed.';
+
+  @override
+  String get completionServices =>
+      '🎉 Congratulations! The agreement has been successfully concluded.';
+
+  @override
   String get dealInviteFillProfileFirst =>
       'First fill in your details — they\'ll appear in the agreement.';
 
@@ -639,6 +692,16 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get dealInviteHeadline =>
       'You\'ve been invited to take part in a deal';
+
+  @override
+  String dealInviteNarrativeHeadline(String invitedBy, String transactionType) {
+    return '$invitedBy is inviting you to arrange \"$transactionType\"';
+  }
+
+  @override
+  String dealInviteYourRoleLine(String role) {
+    return 'Your role in this deal is $role.';
+  }
 
   @override
   String get dealInviteTypeLabel => 'Deal type';

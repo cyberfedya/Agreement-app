@@ -154,6 +154,30 @@ abstract class AppLocalizations {
   /// **'Тёмная'**
   String get settingsThemeDark;
 
+  /// No description provided for @settingsSoundTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Звуки интерфейса'**
+  String get settingsSoundTitle;
+
+  /// No description provided for @settingsSoundOff.
+  ///
+  /// In ru, this message translates to:
+  /// **'Выключены'**
+  String get settingsSoundOff;
+
+  /// No description provided for @settingsSoundMinimal.
+  ///
+  /// In ru, this message translates to:
+  /// **'Минималистичные'**
+  String get settingsSoundMinimal;
+
+  /// No description provided for @settingsSoundExtended.
+  ///
+  /// In ru, this message translates to:
+  /// **'Расширенные'**
+  String get settingsSoundExtended;
+
   /// No description provided for @settingsVoiceTitle.
   ///
   /// In ru, this message translates to:
@@ -1150,6 +1174,12 @@ abstract class AppLocalizations {
   /// **'Первая сторона уже подписала договор.\nПодпишите, чтобы завершить договор.'**
   String get agreementFirstPartySignedWaitingSecond;
 
+  /// No description provided for @agreementSecondPartyJoinedAnnouncement.
+  ///
+  /// In ru, this message translates to:
+  /// **'{role} успешно присоединился к сделке.'**
+  String agreementSecondPartyJoinedAnnouncement(String role);
+
   /// No description provided for @agreementMyIdNotice.
   ///
   /// In ru, this message translates to:
@@ -1204,6 +1234,60 @@ abstract class AppLocalizations {
   /// **'Не удалось создать PDF. Попробуйте ещё раз.'**
   String get agreementPdfExportFailed;
 
+  /// No description provided for @completionGeneric.
+  ///
+  /// In ru, this message translates to:
+  /// **'🎉 Поздравляем! Договор успешно подписан обеими сторонами.'**
+  String get completionGeneric;
+
+  /// No description provided for @completionVehicleSeller.
+  ///
+  /// In ru, this message translates to:
+  /// **'🎉 Поздравляем! Вы успешно оформили продажу автомобиля. Договор подписан обеими сторонами.'**
+  String get completionVehicleSeller;
+
+  /// No description provided for @completionVehicleBuyer.
+  ///
+  /// In ru, this message translates to:
+  /// **'🎉 Поздравляем! Вы успешно оформили покупку автомобиля. Договор подписан обеими сторонами.'**
+  String get completionVehicleBuyer;
+
+  /// No description provided for @completionRealEstateSeller.
+  ///
+  /// In ru, this message translates to:
+  /// **'🎉 Поздравляем! Вы успешно оформили продажу недвижимости. Договор подписан обеими сторонами.'**
+  String get completionRealEstateSeller;
+
+  /// No description provided for @completionRealEstateBuyer.
+  ///
+  /// In ru, this message translates to:
+  /// **'🎉 Поздравляем! Вы успешно оформили покупку недвижимости. Договор подписан обеими сторонами.'**
+  String get completionRealEstateBuyer;
+
+  /// No description provided for @completionRealEstateLandlord.
+  ///
+  /// In ru, this message translates to:
+  /// **'🎉 Поздравляем! Вы успешно оформили сдачу недвижимости в аренду. Договор подписан обеими сторонами.'**
+  String get completionRealEstateLandlord;
+
+  /// No description provided for @completionRealEstateTenant.
+  ///
+  /// In ru, this message translates to:
+  /// **'🎉 Поздравляем! Вы успешно оформили аренду недвижимости. Договор подписан обеими сторонами.'**
+  String get completionRealEstateTenant;
+
+  /// No description provided for @completionLoan.
+  ///
+  /// In ru, this message translates to:
+  /// **'🎉 Поздравляем! Договор займа успешно подписан.'**
+  String get completionLoan;
+
+  /// No description provided for @completionServices.
+  ///
+  /// In ru, this message translates to:
+  /// **'🎉 Поздравляем! Договор успешно заключён.'**
+  String get completionServices;
+
   /// No description provided for @dealInviteFillProfileFirst.
   ///
   /// In ru, this message translates to:
@@ -1227,6 +1311,18 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Вас пригласили принять участие в сделке'**
   String get dealInviteHeadline;
+
+  /// No description provided for @dealInviteNarrativeHeadline.
+  ///
+  /// In ru, this message translates to:
+  /// **'{invitedBy} приглашает вас оформить «{transactionType}»'**
+  String dealInviteNarrativeHeadline(String invitedBy, String transactionType);
+
+  /// No description provided for @dealInviteYourRoleLine.
+  ///
+  /// In ru, this message translates to:
+  /// **'Ваша роль в сделке — {role}.'**
+  String dealInviteYourRoleLine(String role);
 
   /// No description provided for @dealInviteTypeLabel.
   ///

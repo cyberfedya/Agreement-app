@@ -19,9 +19,9 @@ public static class DealDeferredFieldIdsSerializer
         }
         catch (JsonException)
         {
-            return [];
+            return [];   
         }
     }
-
+       
     public static string Serialize(IReadOnlySet<int> deferred) => JsonSerializer.Serialize(deferred);
 }

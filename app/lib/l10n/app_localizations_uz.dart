@@ -36,6 +36,18 @@ class AppLocalizationsUz extends AppLocalizations {
   String get settingsThemeDark => 'Қоронғи';
 
   @override
+  String get settingsSoundTitle => 'Интерфейс товушлари';
+
+  @override
+  String get settingsSoundOff => 'Ўчирилган';
+
+  @override
+  String get settingsSoundMinimal => 'Минимал';
+
+  @override
+  String get settingsSoundExtended => 'Кенгайтирилган';
+
+  @override
   String get settingsVoiceTitle => 'Саволларни овозли ўқиш';
 
   @override
@@ -593,6 +605,11 @@ class AppLocalizationsUz extends AppLocalizations {
       'Биринчи тараф шартномани аллақачон имзолади.\nЯкунлаш учун имзоланг.';
 
   @override
+  String agreementSecondPartyJoinedAnnouncement(String role) {
+    return '$role битимга муваффақиятли қўшилди.';
+  }
+
+  @override
   String get agreementMyIdNotice =>
       'Имзолашдан олдин — MyID орқали идентификация. Исм ва маълумотларингиз шартномага автоматик қўйилади.';
 
@@ -625,6 +642,42 @@ class AppLocalizationsUz extends AppLocalizations {
       'PDF яратиб бўлмади. Яна уриниб кўринг.';
 
   @override
+  String get completionGeneric =>
+      '🎉 Табриклаймиз! Шартнома иккала томон учун ҳам муваффақиятли имзоланди.';
+
+  @override
+  String get completionVehicleSeller =>
+      '🎉 Табриклаймиз! Автомобилни сотишни муваффақиятли расмийлаштирдингиз. Шартнома иккала томон учун ҳам имзоланди.';
+
+  @override
+  String get completionVehicleBuyer =>
+      '🎉 Табриклаймиз! Автомобилни сотиб олишни муваффақиятли расмийлаштирдингиз. Шартнома иккала томон учун ҳам имзоланди.';
+
+  @override
+  String get completionRealEstateSeller =>
+      '🎉 Табриклаймиз! Кўчмас мулкни сотишни муваффақиятли расмийлаштирдингиз. Шартнома иккала томон учун ҳам имзоланди.';
+
+  @override
+  String get completionRealEstateBuyer =>
+      '🎉 Табриклаймиз! Кўчмас мулкни сотиб олишни муваффақиятли расмийлаштирдингиз. Шартнома иккала томон учун ҳам имзоланди.';
+
+  @override
+  String get completionRealEstateLandlord =>
+      '🎉 Табриклаймиз! Кўчмас мулкни ижарага беришни муваффақиятли расмийлаштирдингиз. Шартнома иккала томон учун ҳам имзоланди.';
+
+  @override
+  String get completionRealEstateTenant =>
+      '🎉 Табриклаймиз! Кўчмас мулкни ижарага олишни муваффақиятли расмийлаштирдингиз. Шартнома иккала томон учун ҳам имзоланди.';
+
+  @override
+  String get completionLoan =>
+      '🎉 Табриклаймиз! Қарз шартномаси муваффақиятли имзоланди.';
+
+  @override
+  String get completionServices =>
+      '🎉 Табриклаймиз! Шартнома муваффақиятли тузилди.';
+
+  @override
   String get dealInviteFillProfileFirst =>
       'Аввал ўз маълумотларингизни тўлдиринг — улар шартномада кўрсатилади.';
 
@@ -638,6 +691,16 @@ class AppLocalizationsUz extends AppLocalizations {
   @override
   String get dealInviteHeadline =>
       'Сиз битимда иштирок этишга таклиф қилиндингиз';
+
+  @override
+  String dealInviteNarrativeHeadline(String invitedBy, String transactionType) {
+    return '$invitedBy сизни «$transactionType» расмийлаштиришга таклиф қилмоқда';
+  }
+
+  @override
+  String dealInviteYourRoleLine(String role) {
+    return 'Битимдаги сизнинг рўлингиз — $role.';
+  }
 
   @override
   String get dealInviteTypeLabel => 'Битим тури';

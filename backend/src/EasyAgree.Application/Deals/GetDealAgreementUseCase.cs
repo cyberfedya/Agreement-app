@@ -9,13 +9,15 @@ namespace EasyAgree.Application.Deals;
 /// a second device (the party that scanned the QR code) retrieve the same
 /// document the creator generated, instead of relying on any local state.
 /// </summary>
-public sealed class GetDealAgreementUseCase(IDealRepository dealRepository)
+public sealed class GetDealAgreementUseCase(IDealRepository dealRepository, IAgreementTemplateRepository templateRepository)
 {
     public async Task<GenerateAgreementResponse?> ExecuteAsync(Guid dealId, CancellationToken cancellationToken = default)
     {
         var deal = await dealRepository.GetByIdAsync(dealId, cancellationToken);
         if (deal?.GeneratedHtml is null)
             return null;
+
+        var template = await templateRepository.GetByKeyAsync(deal.TemplateKey, cancellationToken);
 
         return new GenerateAgreementResponse(
             deal.Id.ToString(),
@@ -25,6 +27,10 @@ public sealed class GetDealAgreementUseCase(IDealRepository dealRepository)
             deal.FirstPartyName,
             deal.FirstPartySignedAt,
             deal.SecondPartySignedAt,
-            deal.FirstPartySignedAt is not null && deal.SecondPartySignedAt is not null);
+            deal.FirstPartySignedAt is not null && deal.SecondPartySignedAt is not null,
+            deal.AcceptedAt,
+            deal.FirstPartyRole,
+            deal.ExpectedSecondPartyRole,
+            template?.Domain);
     }
 }

@@ -8,6 +8,10 @@ class Agreement {
     this.firstPartySignedAt,
     this.secondPartySignedAt,
     this.isFullySigned = false,
+    this.acceptedAt,
+    this.firstPartyRole,
+    this.secondPartyRole,
+    this.templateDomain,
   });
 
   final String key;
@@ -26,6 +30,18 @@ class Agreement {
   /// True only once BOTH parties have signed - not just one.
   final bool isFullySigned;
 
+  /// Set once the second party has accepted the invite - null until then.
+  final DateTime? acceptedAt;
+
+  /// Stable role codes (e.g. "seller"/"buyer") resolved once at generation
+  /// time - drives the universal, non-hardcoded completion messaging.
+  final String? firstPartyRole;
+  final String? secondPartyRole;
+
+  /// The template's domain key (e.g. "vehicle", "real_estate") - also for
+  /// completion messaging.
+  final String? templateDomain;
+
   factory Agreement.fromJson(Map<String, dynamic> json) => Agreement(
     key: json['key'] as String,
     html: json['html'] as String,
@@ -39,5 +55,9 @@ class Agreement {
         ? null
         : DateTime.parse(json['secondPartySignedAt'] as String),
     isFullySigned: json['isFullySigned'] as bool? ?? false,
+    acceptedAt: json['acceptedAt'] == null ? null : DateTime.parse(json['acceptedAt'] as String),
+    firstPartyRole: json['firstPartyRole'] as String?,
+    secondPartyRole: json['secondPartyRole'] as String?,
+    templateDomain: json['templateDomain'] as String?,
   );
 }

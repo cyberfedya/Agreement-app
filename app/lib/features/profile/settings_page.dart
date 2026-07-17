@@ -5,6 +5,7 @@ import 'package:app/core/config/app_config.dart';
 import 'package:app/core/localization/locale_provider.dart';
 import 'package:app/core/router/app_router.dart';
 import 'package:app/core/services/tts_service.dart';
+import 'package:app/core/sound/sound_settings_provider.dart';
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/core/theme/theme_mode_provider.dart';
 import 'package:app/features/profile/data/profile_repository.dart';
@@ -103,12 +104,45 @@ class SettingsPage extends StatelessWidget {
     if (chosen != null) await themeModeProvider.setMode(chosen);
   }
 
+  static String _soundLevelName(AppLocalizations l10n, SoundLevel level) => switch (level) {
+    SoundLevel.off => l10n.settingsSoundOff,
+    SoundLevel.minimal => l10n.settingsSoundMinimal,
+    SoundLevel.extended => l10n.settingsSoundExtended,
+  };
+
+  Future<void> _pickSoundLevel(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
+    final soundSettings = context.read<SoundSettingsProvider>();
+    final chosen = await showModalBottomSheet<SoundLevel>(
+      context: context,
+      builder: (sheetContext) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(Insets.x16),
+              child: Text(l10n.settingsSoundTitle, style: Theme.of(sheetContext).textTheme.titleMedium),
+            ),
+            for (final level in SoundLevel.values)
+              ListTile(
+                title: Text(_soundLevelName(l10n, level)),
+                trailing: level == soundSettings.level ? const Icon(Icons.check_rounded) : null,
+                onTap: () => Navigator.pop(sheetContext, level),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (chosen != null) await soundSettings.setLevel(chosen);
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
     final localeProvider = context.watch<LocaleProvider>();
     final themeModeProvider = context.watch<ThemeModeProvider>();
+    final soundSettings = context.watch<SoundSettingsProvider>();
     return Scaffold(
       appBar: AppBar(title: Text(l10n.settingsTitle)),
       body: ListView(
@@ -122,6 +156,13 @@ class SettingsPage extends StatelessWidget {
           ),
           const SizedBox(height: Insets.x12),
           const _TtsToggleCard(),
+          const SizedBox(height: Insets.x12),
+          _SettingsCard(
+            icon: Icons.graphic_eq_rounded,
+            title: l10n.settingsSoundTitle,
+            subtitle: _soundLevelName(l10n, soundSettings.level),
+            onTap: () => _pickSoundLevel(context),
+          ),
           const SizedBox(height: Insets.x12),
           _SettingsCard(
             icon: Icons.palette_outlined,

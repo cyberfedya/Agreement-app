@@ -112,7 +112,7 @@ class AppRouter {
       case AppRoutes.agreementSign:
         return _fadeRoute(AgreementSignPage(agreementKey: settings.arguments as String), settings);
       case AppRoutes.agreementCompleted:
-        return _fadeRoute(const AgreementCompletedPage(), settings);
+        return _fadeRoute(AgreementCompletedPage(isFirstParty: settings.arguments as bool? ?? true), settings);
       case AppRoutes.qrScan:
         return _fadeRoute(const QrPage(), settings);
       case AppRoutes.profile:

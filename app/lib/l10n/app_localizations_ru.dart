@@ -36,6 +36,18 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsThemeDark => 'Тёмная';
 
   @override
+  String get settingsSoundTitle => 'Звуки интерфейса';
+
+  @override
+  String get settingsSoundOff => 'Выключены';
+
+  @override
+  String get settingsSoundMinimal => 'Минималистичные';
+
+  @override
+  String get settingsSoundExtended => 'Расширенные';
+
+  @override
   String get settingsVoiceTitle => 'Озвучка вопросов';
 
   @override
@@ -588,6 +600,11 @@ class AppLocalizationsRu extends AppLocalizations {
       'Первая сторона уже подписала договор.\nПодпишите, чтобы завершить договор.';
 
   @override
+  String agreementSecondPartyJoinedAnnouncement(String role) {
+    return '$role успешно присоединился к сделке.';
+  }
+
+  @override
   String get agreementMyIdNotice =>
       'Перед подписью — идентификация через MyID. Ваши имя и данные подставятся в договор автоматически.';
 
@@ -620,6 +637,41 @@ class AppLocalizationsRu extends AppLocalizations {
       'Не удалось создать PDF. Попробуйте ещё раз.';
 
   @override
+  String get completionGeneric =>
+      '🎉 Поздравляем! Договор успешно подписан обеими сторонами.';
+
+  @override
+  String get completionVehicleSeller =>
+      '🎉 Поздравляем! Вы успешно оформили продажу автомобиля. Договор подписан обеими сторонами.';
+
+  @override
+  String get completionVehicleBuyer =>
+      '🎉 Поздравляем! Вы успешно оформили покупку автомобиля. Договор подписан обеими сторонами.';
+
+  @override
+  String get completionRealEstateSeller =>
+      '🎉 Поздравляем! Вы успешно оформили продажу недвижимости. Договор подписан обеими сторонами.';
+
+  @override
+  String get completionRealEstateBuyer =>
+      '🎉 Поздравляем! Вы успешно оформили покупку недвижимости. Договор подписан обеими сторонами.';
+
+  @override
+  String get completionRealEstateLandlord =>
+      '🎉 Поздравляем! Вы успешно оформили сдачу недвижимости в аренду. Договор подписан обеими сторонами.';
+
+  @override
+  String get completionRealEstateTenant =>
+      '🎉 Поздравляем! Вы успешно оформили аренду недвижимости. Договор подписан обеими сторонами.';
+
+  @override
+  String get completionLoan =>
+      '🎉 Поздравляем! Договор займа успешно подписан.';
+
+  @override
+  String get completionServices => '🎉 Поздравляем! Договор успешно заключён.';
+
+  @override
   String get dealInviteFillProfileFirst =>
       'Сначала заполните свои данные — они будут указаны в договоре.';
 
@@ -632,6 +684,16 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get dealInviteHeadline => 'Вас пригласили принять участие в сделке';
+
+  @override
+  String dealInviteNarrativeHeadline(String invitedBy, String transactionType) {
+    return '$invitedBy приглашает вас оформить «$transactionType»';
+  }
+
+  @override
+  String dealInviteYourRoleLine(String role) {
+    return 'Ваша роль в сделке — $role.';
+  }
 
   @override
   String get dealInviteTypeLabel => 'Тип сделки';

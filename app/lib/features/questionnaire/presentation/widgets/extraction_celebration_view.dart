@@ -1,7 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:provider/provider.dart';
 
 import 'package:app/core/localization/backend_phrases.dart';
+import 'package:app/core/sound/app_sound.dart';
+import 'package:app/core/sound/sound_service.dart';
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/features/documents/domain/uploaded_document.dart';
 import 'package:app/features/questionnaire/presentation/interview_script.dart';
@@ -12,9 +17,11 @@ import 'package:app/shared/widgets/primary_button.dart';
 
 /// Post-OCR celebration: instead of jumping straight to the next question,
 /// show the user exactly how much typing the AI just saved them - each
-/// recognized field cascades in with a checkmark, then an honest "осталось
-/// всего N деталей" sets up the rest of the interview.
-class ExtractionCelebrationView extends StatelessWidget {
+/// recognized field reveals one at a time (not a fast burst) with a tick
+/// sound, so it reads as the AI genuinely finding one fact after another,
+/// then an honest "осталось всего N деталей" sets up the rest of the
+/// interview.
+class ExtractionCelebrationView extends StatefulWidget {
   const ExtractionCelebrationView({
     super.key,
     required this.title,
@@ -36,10 +43,41 @@ class ExtractionCelebrationView extends StatelessWidget {
 
   static const int _maxShownFields = 6;
 
+  @override
+  State<ExtractionCelebrationView> createState() => _ExtractionCelebrationViewState();
+}
 
+class _ExtractionCelebrationViewState extends State<ExtractionCelebrationView> {
+  int _visibleCount = 0;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _revealNext();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _revealNext() {
+    final total = widget.documents
+        .where((d) => d.isProcessed)
+        .fold(0, (sum, d) => sum + d.fields.length)
+        .clamp(0, ExtractionCelebrationView._maxShownFields);
+    if (_visibleCount >= total) return;
+    setState(() => _visibleCount++);
+    unawaited(context.read<SoundService>().play(AppSound.tick));
+    if (_visibleCount < total) {
+      _timer = Timer(const Duration(milliseconds: 380), _revealNext);
+    }
+  }
 
   String _remainingLine(AppLocalizations l10n) {
-    final n = remainingQuestions;
+    final n = widget.remainingQuestions;
     if (n == null) return l10n.extractionRemainingUnknown;
     if (n <= 0) return l10n.extractionRemainingNone;
     if (n == 1) return l10n.extractionRemainingOne;
@@ -52,10 +90,11 @@ class ExtractionCelebrationView extends StatelessWidget {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
     final fields = [
-      for (final doc in documents.where((d) => d.isProcessed))
+      for (final doc in widget.documents.where((d) => d.isProcessed))
         for (final entry in doc.fields.entries) entry,
     ];
-    final shown = fields.take(_maxShownFields).toList();
+    final shown = fields.take(ExtractionCelebrationView._maxShownFields).toList();
+    final revealed = shown.take(_visibleCount).toList();
     final hiddenCount = fields.length - shown.length;
 
     return Column(
@@ -85,7 +124,7 @@ class ExtractionCelebrationView extends StatelessWidget {
                 ),
                 const SizedBox(height: Insets.x24),
                 Text(
-                  title,
+                  widget.title,
                   style: theme.textTheme.headlineSmall?.copyWith(height: 1.25),
                   textAlign: TextAlign.center,
                 ).animateEntranceStaggered(1),
@@ -117,8 +156,13 @@ class ExtractionCelebrationView extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-                      for (final (index, entry) in shown.indexed)
+                      // Revealed one at a time (not all at once) - see
+                      // _revealNext - so it reads as the AI genuinely
+                      // finding one fact after another, each with its own
+                      // fade-in the moment it appears.
+                      for (final entry in revealed)
                         Padding(
+                          key: ValueKey(entry.key),
                           padding: const EdgeInsets.symmetric(horizontal: Insets.x16, vertical: Insets.x8),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -161,19 +205,19 @@ class ExtractionCelebrationView extends StatelessWidget {
                                 ),
                             ],
                           ),
-                        ).animateEntranceStaggered(index + 3, step: const Duration(milliseconds: 70)),
-                      if (hiddenCount > 0)
+                        ).animateEntrance(),
+                      if (hiddenCount > 0 && _visibleCount >= shown.length)
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: Insets.x8),
                           child: Text(
                             l10n.extractionAndMore(hiddenCount),
                             style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                           ),
-                        ).animateEntranceStaggered(shown.length + 3),
+                        ).animateEntrance(),
                     ],
                   ),
                 ),
-                for (final warning in warnings) ...[
+                for (final warning in widget.warnings) ...[
                   const SizedBox(height: Insets.x12),
                   Container(
                     padding: const EdgeInsets.all(Insets.x12),
@@ -203,7 +247,7 @@ class ExtractionCelebrationView extends StatelessWidget {
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(Insets.x24, 0, Insets.x24, Insets.x24),
-          child: PrimaryButton(label: l10n.extractionContinue, onPressed: onContinue).animateEntranceStaggered(4),
+          child: PrimaryButton(label: l10n.extractionContinue, onPressed: widget.onContinue).animateEntranceStaggered(4),
         ),
       ],
     );

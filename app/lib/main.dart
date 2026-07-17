@@ -8,6 +8,8 @@ import 'package:app/core/network/api_client.dart';
 import 'package:app/core/router/app_router.dart';
 import 'package:app/core/services/api_service.dart';
 import 'package:app/core/services/tts_service.dart';
+import 'package:app/core/sound/sound_service.dart';
+import 'package:app/core/sound/sound_settings_provider.dart';
 import 'package:app/core/storage/local_storage.dart';
 import 'package:app/core/storage/shared_preferences_local_storage.dart';
 import 'package:app/core/theme/app_theme.dart';
@@ -45,6 +47,9 @@ class EasyAgreeApp extends StatelessWidget {
         Provider<LocalStorage>(create: (_) => SharedPreferencesLocalStorage()),
         ChangeNotifierProvider<LocaleProvider>(create: (ctx) => LocaleProvider(ctx.read<LocalStorage>())),
         ChangeNotifierProvider<ThemeModeProvider>(create: (ctx) => ThemeModeProvider(ctx.read<LocalStorage>())),
+        ChangeNotifierProvider<SoundSettingsProvider>(
+          create: (ctx) => SoundSettingsProvider(ctx.read<LocalStorage>()),
+        ),
         Provider<ApiClient>(create: (ctx) => apiClient ?? ApiClient(localeProvider: ctx.read<LocaleProvider>())),
         Provider<ApiService>(create: (ctx) => ApiService(ctx.read<ApiClient>())),
         Provider<ProfileRepository>(
@@ -72,6 +77,10 @@ class EasyAgreeApp extends StatelessWidget {
         Provider<TtsService>(
           create: (ctx) => TtsService(storage: ctx.read<LocalStorage>()),
           dispose: (_, tts) => tts.dispose(),
+        ),
+        Provider<SoundService>(
+          create: (ctx) => SoundService(ctx.read<SoundSettingsProvider>()),
+          dispose: (_, sound) => sound.dispose(),
         ),
         ChangeNotifierProvider(create: (ctx) => TemplatesListProvider(ctx.read<TemplateRepository>())),
         ChangeNotifierProvider(

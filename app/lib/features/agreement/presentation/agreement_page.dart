@@ -5,6 +5,10 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:app/core/router/app_router.dart';
+import 'package:app/core/services/tts_service.dart';
+import 'package:app/core/sound/app_sound.dart';
+import 'package:app/core/sound/sound_service.dart';
+import 'package:app/core/sound/sound_settings_provider.dart';
 import 'package:app/features/agreement/domain/agreement_html.dart';
 import 'package:app/features/agreement/domain/agreement_pdf.dart';
 import 'package:app/core/theme/app_tokens.dart';
@@ -12,6 +16,7 @@ import 'package:app/core/widgets/app_widgets.dart';
 import 'package:app/core/widgets/bottom_action_bar.dart';
 import 'package:app/features/agreement/domain/agreement.dart';
 import 'package:app/features/agreement/domain/agreement_qr.dart';
+import 'package:app/features/agreement/domain/deal_invite.dart';
 import 'package:app/features/agreement/providers/agreement_provider.dart';
 import 'package:app/features/profile/data/profile_repository.dart';
 import 'package:app/l10n/app_localizations.dart';
@@ -33,12 +38,18 @@ class _AgreementPageState extends State<AgreementPage> {
   Timer? _pollTimer;
   bool _signing = false;
 
+  /// One-shot guard so the "second party joined" TTS/sound announcement
+  /// fires exactly once, the first time `acceptedAt` transitions from null
+  /// to non-null - not on every poll while it stays non-null.
+  bool _wasAccepted = false;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final provider = context.read<AgreementProvider>();
     if (!identical(_provider, provider)) {
       _provider?.removeListener(_onProviderChanged);
+      _wasAccepted = provider.agreement?.acceptedAt != null;
       _provider = provider..addListener(_onProviderChanged);
       _startPollingIfNeeded();
     }
@@ -59,10 +70,27 @@ class _AgreementPageState extends State<AgreementPage> {
   }
   void _onProviderChanged() {
     _startPollingIfNeeded();
+
+    final accepted = _provider!.agreement?.acceptedAt != null;
+    if (accepted && !_wasAccepted) {
+      _wasAccepted = true;
+      unawaited(_announceSecondPartyJoined());
+    }
+
     if (_provider!.isFullySigned) {
       _pollTimer?.cancel();
-      Navigator.of(context).pushReplacementNamed(AppRoutes.agreementCompleted);
+      Navigator.of(context).pushReplacementNamed(AppRoutes.agreementCompleted, arguments: true);
     }
+  }
+
+  Future<void> _announceSecondPartyJoined() async {
+    final soundSettings = context.read<SoundSettingsProvider>();
+    unawaited(context.read<SoundService>().play(AppSound.partyJoined));
+    if (soundSettings.level == SoundLevel.off) return;
+
+    final l10n = AppLocalizations.of(context)!;
+    final role = roleLabel(_provider?.agreement?.secondPartyRole, l10n);
+    await context.read<TtsService>().speak(l10n.agreementSecondPartyJoinedAnnouncement(role));
   }
   static String _plainText(String html) => html
       .replaceAll(RegExp(r'<style[^>]*>.*?</style>', dotAll: true), ' ')

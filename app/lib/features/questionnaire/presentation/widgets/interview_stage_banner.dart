@@ -1,5 +1,8 @@
-import 'dart:async'; 
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:app/core/sound/app_sound.dart';
+import 'package:app/core/sound/sound_service.dart';
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/features/questionnaire/domain/interview_step.dart';
 
@@ -47,6 +50,7 @@ class _InterviewStageBannerState extends State<InterviewStageBanner> {
         _justCompleted = previous;
         _shown = next;
       });
+      unawaited(context.read<SoundService>().play(AppSound.stageComplete));
       _timer = Timer(const Duration(milliseconds: 900), () {
         if (mounted) setState(() => _justCompleted = null);
       });
@@ -75,7 +79,16 @@ class _InterviewStageBannerState extends State<InterviewStageBanner> {
       duration: const Duration(milliseconds: 320),
       switchInCurve: Curves.easeOut,
       switchOutCurve: Curves.easeIn,
-      transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
+      // The existing fade/hold timing is untouched - this only adds a
+      // subtle upward slide, matching InterviewHeader's own transition
+      // style, so the two headers move consistently.
+      transitionBuilder: (child, animation) => FadeTransition(
+        opacity: animation,
+        child: SlideTransition(
+          position: Tween(begin: const Offset(0, 0.15), end: Offset.zero).animate(animation),
+          child: child,
+        ),
+      ),
       child: completed != null
           ? _StageLine(
               key: ValueKey('done-${completed.key}'),

@@ -7,6 +7,8 @@ import 'package:provider/provider.dart';
 import 'package:app/core/router/app_router.dart';
 import 'package:app/l10n/app_localizations.dart';
 import 'package:app/core/services/tts_service.dart';
+import 'package:app/core/sound/sound_service.dart';
+import 'package:app/core/sound/sound_settings_provider.dart';
 import 'package:app/core/storage/local_storage.dart';
 import 'package:app/features/onboarding/onboarding_page.dart';
 import 'package:app/features/agreement/data/agreement_repository.dart';
@@ -313,6 +315,8 @@ Widget buildTestApp({
       Provider<ProfileRepository>.value(value: profileRepository ?? FakeProfileRepository()),
       Provider<LocalStorage>(create: (_) => FakeLocalStorage()),
       Provider<TtsService>(create: (_) => TtsService()),
+      ChangeNotifierProvider<SoundSettingsProvider>(create: (ctx) => SoundSettingsProvider(ctx.read<LocalStorage>())),
+      Provider<SoundService>(create: (ctx) => SoundService(ctx.read<SoundSettingsProvider>())),
       ChangeNotifierProvider(create: (_) => TemplatesListProvider(templates)),
       ChangeNotifierProvider(create: (_) => TemplateDetailProvider(templates, questionnaire)),
       ChangeNotifierProvider(create: (_) => QuestionnaireProvider(questionnaire, documents)),
@@ -371,6 +375,14 @@ Future<void> _answer(WidgetTester tester, String text) async {
   // not hit-testable mid-transition.
   await tester.pumpAndSettle();
   await tester.tap(find.byTooltip('Отправить'));
+  await tester.pumpAndSettle();
+  // The post-answer sequential field reveal (SequentialReveal) advances via
+  // discrete Timers with idle gaps between them, not a continuously
+  // ticking animation - pumpAndSettle can consider itself "settled" during
+  // one of those gaps and return before the reveal (and the subsequent
+  // question transition) actually finishes. A bounded pump covers the
+  // worst case (a small number of revealed fields) before settling again.
+  await tester.pump(const Duration(seconds: 2));
   await tester.pumpAndSettle();
 }
 
@@ -431,6 +443,11 @@ void main() {
     expect(find.byTooltip('Отправить'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Отправить'));
+    await tester.pumpAndSettle();
+    // See _answer's comment: the sequential field-reveal beat uses discrete
+    // Timers, not a continuously ticking animation, so pumpAndSettle alone
+    // can return before it (and the next question) actually appears.
+    await tester.pump(const Duration(seconds: 2));
     await tester.pumpAndSettle();
 
     expect(find.text('Optional note'), findsOneWidget);
