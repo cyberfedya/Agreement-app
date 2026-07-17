@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'package:app/core/router/app_router.dart';
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/core/widgets/app_search_bar.dart';
@@ -10,6 +9,7 @@ import 'package:app/features/deal/domain/deal_history.dart';
 import 'package:app/features/deal/presentation/widgets/deal_card.dart';
 import 'package:app/features/deal/providers/deal_history_provider.dart';
 import 'package:app/l10n/app_localizations.dart';
+import 'package:app/shared/animation/entrance.dart';
 
 enum _HistoryFilter { all, draft, waiting, signed, cancelled }
 
@@ -126,7 +126,7 @@ class _DealHistoryPageState extends State<DealHistoryPage> {
                         return DealCard(
                           deal: deal,
                           onTap: () => Navigator.of(context).pushNamed(AppRoutes.dealHistoryDetail, arguments: deal.id),
-                        );
+                        ).animateEntranceStaggered(index, step: const Duration(milliseconds: 30));
                       },
                     ),
                   );

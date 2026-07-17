@@ -16,6 +16,7 @@ class InterviewHeader extends StatelessWidget {
     required this.progress,
     required this.onOpenDocument,
     this.onBack,
+    this.canGoBack = true,
     this.estimate,
   });
 
@@ -33,6 +34,11 @@ class InterviewHeader extends StatelessWidget {
   final VoidCallback onOpenDocument;
   final VoidCallback? onBack;
 
+  /// Whether [onBack] rewinds one question (true) or leaves the interview
+  /// entirely (false) - the icon/tooltip below reflect this so the user
+  /// can tell which one it'll do before tapping.
+  final bool canGoBack;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -47,8 +53,10 @@ class InterviewHeader extends StatelessWidget {
             children: [
               IconButton(
                 onPressed: onBack,
-                icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
-                tooltip: AppLocalizations.of(context)!.questionnairePreviousStep,
+                icon: Icon(canGoBack ? Icons.arrow_back_ios_new_rounded : Icons.close_rounded, size: 18),
+                tooltip: canGoBack
+                    ? AppLocalizations.of(context)!.questionnairePreviousStep
+                    : AppLocalizations.of(context)!.questionnaireExitInterview,
                 color: theme.colorScheme.onSurfaceVariant,
               ),
               Expanded(

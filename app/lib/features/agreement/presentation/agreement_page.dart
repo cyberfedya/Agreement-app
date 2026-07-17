@@ -20,6 +20,7 @@ import 'package:app/features/agreement/domain/deal_invite.dart';
 import 'package:app/features/agreement/providers/agreement_provider.dart';
 import 'package:app/features/profile/data/profile_repository.dart';
 import 'package:app/l10n/app_localizations.dart';
+import 'package:app/shared/animation/entrance.dart';
 import 'package:app/shared/widgets/primary_button.dart';
 
 /// Shown right after generation: the document plus a QR code the second
@@ -43,6 +44,11 @@ class _AgreementPageState extends State<AgreementPage> {
   /// to non-null - not on every poll while it stays non-null.
   bool _wasAccepted = false;
 
+  /// Same one-shot pattern as [_wasAccepted], for the second party's
+  /// signature - [AppSound.partyJoined] already covers "joined or signed"
+  /// (see its doc comment) but was only ever wired up for the join case.
+  bool _wasSecondPartySigned = false;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -50,6 +56,7 @@ class _AgreementPageState extends State<AgreementPage> {
     if (!identical(_provider, provider)) {
       _provider?.removeListener(_onProviderChanged);
       _wasAccepted = provider.agreement?.acceptedAt != null;
+      _wasSecondPartySigned = provider.isSecondPartySigned;
       _provider = provider..addListener(_onProviderChanged);
       _startPollingIfNeeded();
     }
@@ -77,9 +84,24 @@ class _AgreementPageState extends State<AgreementPage> {
       unawaited(_announceSecondPartyJoined());
     }
 
+    final secondPartySigned = _provider!.isSecondPartySigned;
+    if (secondPartySigned && !_wasSecondPartySigned) {
+      _wasSecondPartySigned = true;
+      unawaited(context.read<SoundService>().play(AppSound.partyJoined));
+    }
+
     if (_provider!.isFullySigned) {
       _pollTimer?.cancel();
-      Navigator.of(context).pushReplacementNamed(AppRoutes.agreementCompleted, arguments: true);
+      // Collapses the whole stack down to Home (not just this page) - a
+      // plain pushReplacementNamed left QuestionnairePage sitting directly
+      // beneath this route, so the system back gesture on the completed
+      // screen resurfaced the finished interview instead of exiting to
+      // Home.
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        AppRoutes.agreementCompleted,
+        ModalRoute.withName(AppRoutes.home),
+        arguments: true,
+      );
     }
   }
 
@@ -169,9 +191,10 @@ class _AgreementPageState extends State<AgreementPage> {
                   ),
                 if (!provider.isFirstPartySigned && provider.isSecondPartySigned)
                   _SignStatusBanner(
+                    key: const ValueKey('second-signed-banner'),
                     icon: Icons.info_outline,
                     message: l10n.agreementSecondSignedWaitingYou,
-                  ),
+                  ).animateEntrance(),
                 if (provider.isFirstPartySigned || provider.isSecondPartySigned)
                   const SizedBox(height: Insets.x16),
 
@@ -318,7 +341,7 @@ class _DealStepsIndicator extends StatelessWidget {
   }
 }
 class _SignStatusBanner extends StatelessWidget {
-  const _SignStatusBanner({required this.icon, required this.message});
+  const _SignStatusBanner({super.key, required this.icon, required this.message});
 
   final IconData icon;
   final String message;

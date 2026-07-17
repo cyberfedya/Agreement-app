@@ -2,7 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:provider/provider.dart';
 
+import 'package:app/core/sound/app_sound.dart';
+import 'package:app/core/sound/sound_service.dart';
 import 'package:app/core/theme/app_tokens.dart';
 
 /// The premium "building your agreement" sequence shown between tapping
@@ -38,6 +41,7 @@ class _GenerationSequenceViewState extends State<GenerationSequenceView> {
         return;
       }
       setState(() => _activeIndex++);
+      unawaited(context.read<SoundService>().play(AppSound.tick));
     });
   }
 

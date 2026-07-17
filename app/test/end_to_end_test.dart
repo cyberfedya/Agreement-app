@@ -92,9 +92,6 @@ class FakeQuestionnaireRepository implements QuestionnaireRepository {
   @override
   Future<Result<void>> dismissDocumentSuggestion(String dealId, String documentType) async => const Success(null);
 
-  /// A minimal but honest stand-in: every scripted field the interview
-  /// walked through is reported back as "manual" - good enough for the
-  /// review screen to render without asserting on its exact grouping.
   @override
   Future<Result<DealReview>> getReview(String dealId) async => Success(
     DealReview(
@@ -210,9 +207,6 @@ class FakeImagePickerPlatform extends ImagePickerPlatform {
       [XFile.fromData(_fakeJpegBytes, path: 'techpassport.jpg', mimeType: 'image/jpeg')];
 }
 
-/// Defaults to an already-filled profile so most tests reach deal creation
-/// without extra setup - the profile-completeness gate is exercised
-/// explicitly by tests that pass an empty result instead.
 class FakeProfileRepository implements ProfileRepository {
   FakeProfileRepository({this.currentResult});
 
@@ -235,8 +229,6 @@ class FakeProfileRepository implements ProfileRepository {
   Future<void> delete() async => currentResult = null;
 }
 
-/// Defaults to "nothing to suggest" so the creation flow goes straight to
-/// the interview, matching the pre-document-upload happy path.
 class FakeDocumentRepository implements DocumentRepository {
   FakeDocumentRepository({this.requiredDocumentsResult});
 
@@ -283,8 +275,7 @@ const _fullNameQuestion = Question(fieldId: 1, fieldName: 'Full name', required:
 const _optionalNoteQuestion = Question(fieldId: 2, fieldName: 'Optional note', required: false, type: 'text');
 const _questions = [_fullNameQuestion, _optionalNoteQuestion];
 
-/// A two-turn interview (ask field 1, then field 2, then ready) — the
-/// scripted shape most tests exercise.
+
 List<Result<InterviewStep>> _twoQuestionSteps() => [
   const Success(InterviewStep(readyToGenerate: false, question: _fullNameQuestion)),
   const Success(InterviewStep(readyToGenerate: false, question: _optionalNoteQuestion)),
@@ -345,16 +336,14 @@ Future<void> _skipSplash(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
-/// Completes the demo MyID login (fixed 1400ms simulated verification),
-/// landing on Home.
+
 Future<void> _completeLogin(WidgetTester tester) async {
   await tester.tap(find.widgetWithText(FilledButton, 'Продолжить с MyID'));
   await tester.pump(const Duration(milliseconds: 1400));
   await tester.pumpAndSettle();
 }
 
-/// Home -> AI Processing: types a request and taps create, then pumps past
-/// the fixed ~2400ms analysis animation.
+
 Future<void> _submitRequest(WidgetTester tester, [String text = 'Я хочу продать свою машину']) async {
   await tester.enterText(find.byType(TextField).first, text);
   await tester.pump();
@@ -364,24 +353,15 @@ Future<void> _submitRequest(WidgetTester tester, [String text = 'Я хочу п�
   await tester.pumpAndSettle();
 }
 
-/// The composer's answer field (idle mode).
 Finder _answerField() => find.descendant(of: find.byType(AnswerComposer), matching: find.byType(TextField));
 
 /// Types [text] and sends it, then pumps through the thinking beat
 /// (Motion.thinkingMin) and the next question's entrance.
 Future<void> _answer(WidgetTester tester, String text) async {
   await tester.enterText(_answerField(), text);
-  // Settle first: the send button scales in via AnimatedSwitcher and is
-  // not hit-testable mid-transition.
   await tester.pumpAndSettle();
   await tester.tap(find.byTooltip('Отправить'));
   await tester.pumpAndSettle();
-  // The post-answer sequential field reveal (SequentialReveal) advances via
-  // discrete Timers with idle gaps between them, not a continuously
-  // ticking animation - pumpAndSettle can consider itself "settled" during
-  // one of those gaps and return before the reveal (and the subsequent
-  // question transition) actually finishes. A bounded pump covers the
-  // worst case (a small number of revealed fields) before settling again.
   await tester.pump(const Duration(seconds: 2));
   await tester.pumpAndSettle();
 }
@@ -396,12 +376,8 @@ Future<void> _completeDocumentVerification(WidgetTester tester) async {
   await tester.pumpAndSettle();
   await tester.tap(find.widgetWithText(ListTile, 'Камера'));
   await tester.pumpAndSettle();
-  // Camera capture opens its own multi-page staging screen (auto-takes the
-  // first photo, then waits for an explicit "Продолжить" instead of
-  // uploading immediately) - confirm the single fake photo before moving on.
   await tester.tap(find.widgetWithText(PrimaryButton, 'Продолжить'));
   await tester.pumpAndSettle();
-  // Working -> done (auto-continues after a fixed delay) -> review.
   await tester.pump(const Duration(milliseconds: 1200));
   await tester.pumpAndSettle();
 }
@@ -422,54 +398,29 @@ void main() {
     await _skipSplash(tester);
     await _completeLogin(tester);
     expect(find.byType(HomePage), findsOneWidget);
-
     await _submitRequest(tester);
-
-    // Straight to the interview for the matched deal — the Agreements
-    // template picker is not part of the creation flow. The greeting beat
-    // (min 1800ms) has already been pumped through by pumpAndSettle.
     expect(find.byType(QuestionnairePage), findsOneWidget);
     expect(find.byType(TemplatesListPage), findsNothing);
     expect(find.text(_matchedDeal.templateTitle), findsOneWidget);
     expect(find.byType(AnswerComposer), findsOneWidget);
     expect(find.text('Full name'), findsOneWidget);
-    // No questionnaire numbering anywhere in the conversational interview.
     expect(find.textContaining('Вопрос'), findsNothing);
-
-    // The send button only materializes once there is something to send.
     expect(find.byTooltip('Отправить'), findsNothing);
     await tester.enterText(_answerField(), 'Aliyev Vali');
     await tester.pumpAndSettle();
     expect(find.byTooltip('Отправить'), findsOneWidget);
-
     await tester.tap(find.byTooltip('Отправить'));
     await tester.pumpAndSettle();
-    // See _answer's comment: the sequential field-reveal beat uses discrete
-    // Timers, not a continuously ticking animation, so pumpAndSettle alone
-    // can return before it (and the next question) actually appears.
     await tester.pump(const Duration(seconds: 2));
     await tester.pumpAndSettle();
-
     expect(find.text('Optional note'), findsOneWidget);
-
     await _answer(tester, 'A quick note');
-
-    // No document was uploaded during the interview - the mandatory final
-    // check requires uploading one before the review phase.
     await _completeDocumentVerification(tester);
-
-    // Planner says it has enough — the review phase offers to generate.
     expect(find.text('Договор готов к созданию'), findsOneWidget);
     await tester.tap(find.widgetWithText(FilledButton, 'Создать договор'));
-    // Bounded pumps instead of pumpAndSettle: the generation checklist is
-    // finite, but the agreement page it lands on hosts an endless
-    // waiting-for-signature pulse that would never settle.
     await tester.pump(const Duration(milliseconds: 1600));
     await tester.pump(const Duration(milliseconds: 400));
-
     expect(find.byType(AgreementPage), findsOneWidget);
-    // The QR/status header pushes the document preview below the sliver's
-    // build cache, so scroll to it rather than assume it's built.
     await tester.scrollUntilVisible(find.byType(Html), 300, scrollable: find.byType(Scrollable).first);
     expect(find.byType(Html), findsOneWidget);
   });

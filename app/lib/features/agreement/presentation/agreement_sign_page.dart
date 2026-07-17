@@ -81,7 +81,13 @@ class _AgreementSignPageState extends State<AgreementSignPage> {
   void _goToCompletionIfFullySigned(AgreementProvider provider) {
     if (_navigatedToCompletion || !provider.isFullySigned) return;
     _navigatedToCompletion = true;
-    Navigator.of(context).pushReplacementNamed(AppRoutes.agreementCompleted, arguments: false);
+    // Same stack-collapsing navigation as AgreementPage's own call - see
+    // its comment for why a plain pushReplacementNamed isn't enough.
+    Navigator.of(context).pushNamedAndRemoveUntil(
+      AppRoutes.agreementCompleted,
+      ModalRoute.withName(AppRoutes.home),
+      arguments: false,
+    );
   }
 
   @override

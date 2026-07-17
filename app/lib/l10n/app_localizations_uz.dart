@@ -137,6 +137,16 @@ class AppLocalizationsUz extends AppLocalizations {
       'Маълумотларни ҳужжат билан солиштиряпман…';
 
   @override
+  String get documentVerificationWorkingStep1 => 'Ҳужжатни ўқияпмиз';
+
+  @override
+  String get documentVerificationWorkingStep2 =>
+      'Жавобларингиз билан солиштиряпмиз';
+
+  @override
+  String get documentVerificationWorkingStep3 => 'Мосликларни текширяпмиз';
+
+  @override
   String get documentVerificationConflictTitle => 'Фарқ топдик';
 
   @override
@@ -251,6 +261,9 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get questionnairePreviousStep => 'Олдинги қадам';
+
+  @override
+  String get questionnaireExitInterview => 'Чиқиш';
 
   @override
   String questionnaireAlreadyTold(int count) {

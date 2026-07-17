@@ -114,6 +114,12 @@ class QuestionnaireProvider extends ChangeNotifier {
       _documentSuggestion = null;
       _preview = null;
       _review = null;
+      // Otherwise the previous deal's template fields (e.g. a vehicle
+      // sale) stay visible in the live document preview / fill-progress
+      // until this deal's own fetch below completes - or indefinitely, if
+      // that fetch fails - because every other piece of per-deal state is
+      // reset here but this one was missed.
+      _allFields = const [];
     }
     _dealId = dealId;
     _isLoading = true;

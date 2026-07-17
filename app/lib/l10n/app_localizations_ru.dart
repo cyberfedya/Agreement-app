@@ -135,6 +135,15 @@ class AppLocalizationsRu extends AppLocalizations {
   String get documentVerificationWorking => 'Сверяю данные с документом…';
 
   @override
+  String get documentVerificationWorkingStep1 => 'Читаем документ';
+
+  @override
+  String get documentVerificationWorkingStep2 => 'Сверяем с вашими ответами';
+
+  @override
+  String get documentVerificationWorkingStep3 => 'Проверяем совпадения';
+
+  @override
   String get documentVerificationConflictTitle => 'Мы нашли отличие';
 
   @override
@@ -248,6 +257,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get questionnairePreviousStep => 'Предыдущий шаг';
+
+  @override
+  String get questionnaireExitInterview => 'Выйти';
 
   @override
   String questionnaireAlreadyTold(int count) {

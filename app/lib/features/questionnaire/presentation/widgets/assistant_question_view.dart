@@ -108,10 +108,19 @@ class AssistantQuestionView extends StatelessWidget {
               ),
             ).animate(delay: 350.ms).fadeIn(duration: 250.ms),
           ],
-          if (documentHint != null) ...[
-            const SizedBox(height: Insets.x20),
-            documentHint!,
-          ],
+          AnimatedSwitcher(
+            duration: Motion.fast,
+            switchInCurve: Curves.easeOut,
+            switchOutCurve: Curves.easeIn,
+            transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
+            child: documentHint == null
+                ? const SizedBox.shrink(key: ValueKey('hint-empty'))
+                : Padding(
+                    key: documentHint!.key,
+                    padding: const EdgeInsets.only(top: Insets.x20),
+                    child: documentHint,
+                  ),
+          ),
         ],
       ),
     );

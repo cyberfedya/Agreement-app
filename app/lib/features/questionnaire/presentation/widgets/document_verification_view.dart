@@ -10,6 +10,7 @@ import 'package:app/features/documents/data/document_repository.dart';
 import 'package:app/features/documents/presentation/document_capture.dart';
 import 'package:app/features/documents/domain/document_verification.dart';
 import 'package:app/features/documents/providers/document_upload_provider.dart';
+import 'package:app/features/questionnaire/presentation/widgets/generation_sequence_view.dart';
 import 'package:app/features/questionnaire/providers/questionnaire_provider.dart';
 import 'package:app/l10n/app_localizations.dart';
 import 'package:app/shared/animation/entrance.dart';
@@ -246,16 +247,14 @@ class _WorkingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    final l10n = AppLocalizations.of(context)!;
+    return GenerationSequenceView(
       key: const ValueKey('verification-working'),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const CircularProgressIndicator(),
-          const SizedBox(height: Insets.x16),
-          Text(AppLocalizations.of(context)!.documentVerificationWorking),
-        ],
-      ),
+      steps: [
+        l10n.documentVerificationWorkingStep1,
+        l10n.documentVerificationWorkingStep2,
+        l10n.documentVerificationWorkingStep3,
+      ],
     );
   }
 }

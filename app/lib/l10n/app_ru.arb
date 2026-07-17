@@ -86,6 +86,12 @@
   "@documentVerificationUploadButton": {},
   "documentVerificationWorking": "Сверяю данные с документом…",
   "@documentVerificationWorking": {},
+  "documentVerificationWorkingStep1": "Читаем документ",
+  "@documentVerificationWorkingStep1": {},
+  "documentVerificationWorkingStep2": "Сверяем с вашими ответами",
+  "@documentVerificationWorkingStep2": {},
+  "documentVerificationWorkingStep3": "Проверяем совпадения",
+  "@documentVerificationWorkingStep3": {},
   "documentVerificationConflictTitle": "Мы нашли отличие",
   "@documentVerificationConflictTitle": {},
   "documentVerificationYouEntered": "Вы указали",
@@ -166,6 +172,8 @@
   "@questionnairePreparingFirstStep": {},
   "questionnairePreviousStep": "Предыдущий шаг",
   "@questionnairePreviousStep": {},
+  "questionnaireExitInterview": "Выйти",
+  "@questionnaireExitInterview": {},
   "questionnaireAlreadyTold": "Вы уже сообщили: {count}",
   "@questionnaireAlreadyTold": {
     "placeholders": {

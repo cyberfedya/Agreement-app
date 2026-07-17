@@ -155,7 +155,12 @@ class AppRouter {
         return FadeTransition(
           opacity: curved,
           child: SlideTransition(
-            position: Tween(begin: const Offset(0, 0.03), end: Offset.zero).animate(curved),
+            // Horizontal, not vertical: forward navigation slides in from
+            // the right, and Flutter's built-in reverse-on-pop then slides
+            // the same page back out to the right on the way back - so
+            // "back" finally reads as back, not as an identical motion in
+            // reverse.
+            position: Tween(begin: const Offset(0.04, 0), end: Offset.zero).animate(curved),
             child: ScaleTransition(
               scale: Tween(begin: 0.98, end: 1.0).animate(curved),
               child: child,

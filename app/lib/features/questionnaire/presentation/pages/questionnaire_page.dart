@@ -514,7 +514,18 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    // Mirrors InterviewHeader's own onBack logic (see _withHeader) so the
+    // system back gesture/button and the header's back arrow always agree:
+    // mid-interview both rewind one question, and only once there's no
+    // question left to rewind to does either one actually leave the page.
+    final canRewind = context.watch<QuestionnaireProvider>().canGoBack;
+    return PopScope(
+      canPop: !canRewind,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        context.read<QuestionnaireProvider>().goBack();
+      },
+      child: Scaffold(
       body: SafeArea(
         child: Consumer2<QuestionnaireProvider, DocumentUploadProvider>(
           builder: (context, provider, uploads, _) {
@@ -649,6 +660,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
           );
         },
       ),
+      ),
     );
   }
 
@@ -669,6 +681,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
           progress: _progress(provider),
           onOpenDocument: () => AgreementPreviewSheet.show(context, title: widget.templateTitle),
           onBack: provider.canGoBack ? provider.goBack : () => Navigator.of(context).maybePop(),
+          canGoBack: provider.canGoBack,
         ),
         Expanded(child: child),
       ],

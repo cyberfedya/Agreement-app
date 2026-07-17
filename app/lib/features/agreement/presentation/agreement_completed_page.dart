@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:provider/provider.dart';
 import 'package:app/core/router/app_router.dart';
@@ -105,7 +106,15 @@ class _AgreementCompletedPageState extends State<AgreementCompletedPage> {
                           height: 72,
                           decoration: BoxDecoration(color: theme.colorScheme.primary, shape: BoxShape.circle),
                           child: const Icon(Icons.check_rounded, color: Colors.white, size: 40),
-                        ),
+                        )
+                            .animate()
+                            .scale(
+                              begin: const Offset(0.4, 0.4),
+                              end: const Offset(1, 1),
+                              duration: 500.ms,
+                              curve: Curves.easeOutBack,
+                            )
+                            .fadeIn(duration: 250.ms),
                       ],
                     ),
                   ),

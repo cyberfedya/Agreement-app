@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/l10n/app_localizations.dart';
+import 'package:app/shared/animation/entrance.dart';
 
 class DocumentHintCard extends StatelessWidget {
   const DocumentHintCard({super.key, required this.onUpload, required this.onDismiss});
@@ -15,7 +15,7 @@ class DocumentHintCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(Insets.x16),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerLow,
+        color: theme.colorScheme.surfaceContainerLow, 
         borderRadius: Corners.lgRadius,
         border: Border.all(color: theme.colorScheme.outlineVariant),
       ),
@@ -76,6 +76,6 @@ class DocumentHintCard extends StatelessWidget {
           ),
         ],
       ),
-    ).animate().fadeIn(duration: 300.ms, curve: Curves.easeOut).slideY(begin: 0.06, end: 0, duration: 300.ms, curve: Curves.easeOut);
+    ).animateEntrance();
   }
 }

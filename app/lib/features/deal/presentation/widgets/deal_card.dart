@@ -4,6 +4,7 @@ import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/features/deal/domain/deal_history.dart';
 import 'package:app/features/deal/presentation/widgets/deal_status_badge.dart';
 import 'package:app/shared/extensions/string_extensions.dart';
+import 'package:app/shared/widgets/pressable_scale.dart';
 import 'package:app/l10n/app_localizations.dart';
 
 /// Minimalist list row for one deal in Deal History: title, category, date
@@ -24,7 +25,8 @@ class DealCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context)!;
-    return Material(
+    return PressableScale(
+      child: Material(
       color: theme.colorScheme.surfaceContainerLow,
       borderRadius: Corners.mdRadius,
       child: InkWell(
@@ -60,6 +62,7 @@ class DealCard extends StatelessWidget {
             ],
           ),
         ),
+      ),
       ),
     );
   }

@@ -340,6 +340,24 @@ abstract class AppLocalizations {
   /// **'Сверяю данные с документом…'**
   String get documentVerificationWorking;
 
+  /// No description provided for @documentVerificationWorkingStep1.
+  ///
+  /// In ru, this message translates to:
+  /// **'Читаем документ'**
+  String get documentVerificationWorkingStep1;
+
+  /// No description provided for @documentVerificationWorkingStep2.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сверяем с вашими ответами'**
+  String get documentVerificationWorkingStep2;
+
+  /// No description provided for @documentVerificationWorkingStep3.
+  ///
+  /// In ru, this message translates to:
+  /// **'Проверяем совпадения'**
+  String get documentVerificationWorkingStep3;
+
   /// No description provided for @documentVerificationConflictTitle.
   ///
   /// In ru, this message translates to:
@@ -549,6 +567,12 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Предыдущий шаг'**
   String get questionnairePreviousStep;
+
+  /// No description provided for @questionnaireExitInterview.
+  ///
+  /// In ru, this message translates to:
+  /// **'Выйти'**
+  String get questionnaireExitInterview;
 
   /// No description provided for @questionnaireAlreadyTold.
   ///
