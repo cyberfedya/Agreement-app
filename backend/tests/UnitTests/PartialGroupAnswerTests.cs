@@ -93,4 +93,54 @@ public sealed class PartialGroupAnswerTests
         Assert.Equal("Какая марка и модель?", second.Question);
         Assert.DoesNotContain("Ещё раз уточню", second.Question);
     }
+
+    /// <summary>
+    /// Reported live with a screenshot: answering "2020" got extracted into
+    /// BOTH the make/model field AND the year field - the live document
+    /// preview showed "Автотранспорт русуми: 2020" right next to
+    /// "...ишлаб чиқарилган йил: 2020". The model imprecisely echoed the
+    /// same value into both fieldIds of the combined group; only the year
+    /// extraction should survive.
+    /// </summary>
+    [Fact]
+    public async Task Same_value_extracted_for_both_group_fields_only_fills_the_field_it_actually_looks_plausible_for()
+    {
+        var fields = new List<AgreementTemplateField>
+        {
+            new() { FieldId = 21, Mode = AgreementFieldMode.Required },
+            new() { FieldId = 22, Mode = AgreementFieldMode.Required },
+        };
+        var labels = new Dictionary<int, string>
+        {
+            [21] = "Автотранспорт русуми",
+            [22] = "Автотранспорт воситаси ишлаб чиқарилган йил",
+        };
+
+        var ai = new ScriptedAiClient(
+            """{"question":"Какая марка, модель и год выпуска?"}""",
+            // The imprecise extraction actually observed: both fieldIds
+            // got the same bare year value.
+            """{"question":null,"extracted":{"21":"2020","22":"2020"}}""");
+        var planner = new InterviewPlanner(new QuestionGenerator(ai));
+        var answers = new Dictionary<int, string>();
+        var askedQuestions = new Dictionary<string, string>();
+
+        await planner.ExecuteAsync(
+            templateDomain: "vehicle", templateTitle: "Test agreement", language: "ru",
+            userRequest: null, currentMessage: null, documentHints: new DocumentFieldHintCollection([]),
+            fields: fields, labels: labels, answers: answers, askedQuestions: askedQuestions,
+            dismissedDocumentSuggestions: new HashSet<string>(), deferredFieldIds: new HashSet<int>(),
+            cancellationToken: CancellationToken.None);
+
+        var second = await planner.ExecuteAsync(
+            templateDomain: "vehicle", templateTitle: "Test agreement", language: "ru",
+            userRequest: null, currentMessage: "2020", documentHints: new DocumentFieldHintCollection([]),
+            fields: fields, labels: labels, answers: answers, askedQuestions: askedQuestions,
+            dismissedDocumentSuggestions: new HashSet<string>(), deferredFieldIds: new HashSet<int>(),
+            cancellationToken: CancellationToken.None);
+
+        Assert.Equal("2020", answers[22]);
+        Assert.False(answers.ContainsKey(21));
+        Assert.Equal(21, second.FieldId);
+    }
 }

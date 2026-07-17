@@ -50,6 +50,16 @@ public static class AnswerShapeValidator
         "қандай", "способ", "тартиб", "каким образом", "как будет",
     ];
 
+    /// <summary>
+    /// A make/model field's answer is a name ("Chevrolet Nexia"), never a
+    /// bare number - without this check a combined question like
+    /// "vehicle_identity" (make/model + year, both classified RequiredObject
+    /// so they can cluster together) let a manufacture year the model
+    /// echoed into BOTH fields slip through as "plausible" for the
+    /// make/model field too, silently overwriting it with the year.
+    /// </summary>
+    private static readonly string[] NameLikeKeywords = ["русуми", "модел", "марка"];
+
     public static bool LooksPlausible(string label, string answer)
     {
         var text = answer.Trim();
@@ -66,6 +76,9 @@ public static class AnswerShapeValidator
 
         if (MatchesAny(lowerLabel, DateKeywords))
             return text.Any(char.IsDigit) || MatchesAny(text.ToLowerInvariant(), RelativeDateWords);
+
+        if (MatchesAny(lowerLabel, NameLikeKeywords))
+            return !text.All(char.IsDigit);
 
         return true;
     }

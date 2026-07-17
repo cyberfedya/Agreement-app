@@ -22,6 +22,23 @@ public sealed class AnswerShapeValidationTests
     }
 
     /// <summary>
+    /// Reported live: answering only the year ("2020") for the combined
+    /// make/model + year question got extracted into BOTH fields - the
+    /// make/model field ("Автотранспорт русуми") ended up showing "2020"
+    /// too, since a bare number "looked plausible" for a field with no
+    /// digit-shape validation at all.
+    /// </summary>
+    [Theory]
+    [InlineData("Автотранспорт русуми", "2020", false)]
+    [InlineData("Автотранспорт русуми", "Chevrolet Nexia", true)]
+    [InlineData("Марка ва модели", "2020", false)]
+    [InlineData("Модели", "Cobalt", true)]
+    public void LooksPlausible_rejects_bare_numbers_for_make_model_labels(string label, string answer, bool expected)
+    {
+        Assert.Equal(expected, AnswerShapeValidator.LooksPlausible(label, answer));
+    }
+
+    /// <summary>
     /// Payment-METHOD answers legitimately contain no digits at all - the
     /// label shares money vocabulary ("тўлов") with amount fields, and the
     /// digit requirement used to reject every valid answer here, re-asking
