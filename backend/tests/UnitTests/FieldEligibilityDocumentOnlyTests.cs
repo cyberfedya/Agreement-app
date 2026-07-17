@@ -170,6 +170,19 @@ public sealed class FieldEligibilityDocumentOnlyTests
         Assert.Equal(FieldCategory.RequiredTime, Classify("Қонуний никоҳдан ўтилган сана"));
     }
 
+    /// <summary>
+    /// A franchise agreement's license fee ("Лицензия комплекси учун
+    /// тўланадиган ҳақ миқдори") also contains "лицензия", but it's the
+    /// deal's actual price, not a reference to an existing license read
+    /// off a document - it must stay askable, not fall through to
+    /// DocumentOnly alongside genuine license-reference fields.
+    /// </summary>
+    [Fact]
+    public void License_fee_amount_stays_askable_as_commercial()
+    {
+        Assert.Equal(FieldCategory.RequiredCommercial, Classify("Лицензия комплекси учун тўланадиган ҳақ миқдори"));
+    }
+
     [Theory]
     [InlineData("Шикоят берувчи юридик шахс номи ва ташкилий ҳуқуқий шакли")] // court: appellant org identity
     [InlineData("Сотувчи корхонанинг юридик манзили")] // business: company legal address

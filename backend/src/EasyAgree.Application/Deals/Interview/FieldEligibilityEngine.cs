@@ -79,11 +79,6 @@ public static class FieldEligibilityEngine
     [
         "гувоҳнома рақами", "гувохнома рақами",
         "гувоҳнома берилган сана", "гувохнома берилган сана",
-        // Bare "лицензия" rather than a specific suffixed form - Uzbek's
-        // agglutinative suffixes ("лицензия"/"лицензияси"/"лицензиясини"/
-        // "лицензиянинг") vary too much for one exact phrase to catch them
-        // all reliably.
-        "лицензия",
     ];
     private static readonly string[] RegistrationCertificateKeywords =
     [
@@ -148,7 +143,7 @@ public static class FieldEligibilityEngine
         }
 
         if (MatchesAny(lower, TechnicalDocumentOnlyKeywords) || MatchesAny(lower, RegistrationCertificateKeywords) ||
-            MatchesAny(lower, RegistryCertificateKeywords))
+            MatchesAny(lower, RegistryCertificateKeywords) || IsLicenseReferenceField(lower))
         {
             return FieldCategory.DocumentOnly;
         }
@@ -164,5 +159,18 @@ public static class FieldEligibilityEngine
 
         return FieldCategory.RequiredObject;
     }
+
+    // Bare "лицензия" (rather than a specific suffixed phrase - Uzbek's
+    // agglutinative suffixes "лицензия"/"лицензияси"/"лицензиясини"/
+    // "лицензиянинг" vary too much for one exact phrase to catch reliably)
+    // usually references an existing license read off a document - but a
+    // field can also ask for the license itself as the deal's commercial
+    // subject (e.g. a franchise agreement's "license fee amount"). Only
+    // treat it as document-derived when the label isn't also a price/
+    // amount question, so that case still reaches the commercial check
+    // below instead of being silently skipped.
+    private static bool IsLicenseReferenceField(string lower) =>
+        lower.Contains("лицензия") && !MatchesAny(lower, CommercialKeywords);
+
     private static bool MatchesAny(string lower, string[] keywords) => keywords.Any(lower.Contains);
 }
