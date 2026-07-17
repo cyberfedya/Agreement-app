@@ -3,6 +3,7 @@ services:
     build:
       context: ../backend
       dockerfile: ../docker/api/Dockerfile
+    restart: unless-stopped
     ports:
       - "5000:8080"
     depends_on:
@@ -20,6 +21,7 @@ services:
 
   postgres:
     image: postgres:16-alpine
+    restart: unless-stopped
     environment:
       POSTGRES_DB: easyagree
       POSTGRES_USER: easyagree
@@ -31,11 +33,13 @@ services:
 
   redis:
     image: redis:7-alpine
+    restart: unless-stopped
     ports:
       - "6379:6379"
 
   nginx:
     image: nginx:1.27-alpine
+    restart: unless-stopped
     ports:
       - "80:80"
     volumes:
