@@ -72,6 +72,7 @@ public sealed class AnswerShapeValidationTests
             answers,
             new Dictionary<string, string>(),
             new HashSet<string>(),
+            new HashSet<int>(),
             CancellationToken.None);
 
         Assert.Equal(1, result.FieldId);
@@ -93,14 +94,14 @@ public sealed class AnswerShapeValidationTests
         var first = await manager.ExecuteAsync(
             "loan", "Loan agreement", "ru", null, DocumentFieldHintCollection.Empty,
             1, "Тестовый ответ", "Какая сумма займа?",
-            fields, Labels(fields), answers, new Dictionary<string, string>(), new HashSet<string>(), CancellationToken.None);
+            fields, Labels(fields), answers, new Dictionary<string, string>(), new HashSet<string>(), new HashSet<int>(), CancellationToken.None);
 
         // The client echoes back exactly what it was just shown - which is
         // already notice-wrapped from the first mismatch.
         var second = await manager.ExecuteAsync(
             "loan", "Loan agreement", "ru", null, DocumentFieldHintCollection.Empty,
             1, "Ещё один нерелевантный ответ", first.Question!,
-            fields, Labels(fields), answers, new Dictionary<string, string>(), new HashSet<string>(), CancellationToken.None);
+            fields, Labels(fields), answers, new Dictionary<string, string>(), new HashSet<string>(), new HashSet<int>(), CancellationToken.None);
 
         Assert.Equal(first.Question, second.Question);
         var noticeCount = CountOccurrences(second.Question!, "Уточните, пожалуйста:");
@@ -145,10 +146,51 @@ public sealed class AnswerShapeValidationTests
             answers,
             new Dictionary<string, string>(),
             new HashSet<string>(),
+            new HashSet<int>(),
             CancellationToken.None);
 
         Assert.Equal("15 000 000 сум", answers[1]);
         Assert.Equal(2, result.FieldId);
+    }
+
+    /// <summary>
+    /// Saying "не знаю" must advance to a different field (not repeat the
+    /// same one) and must never write anything to `answers` for it - a
+    /// document uploaded later still needs to be free to fill it in.
+    /// </summary>
+    [Fact]
+    public async Task DontKnow_advances_to_a_different_field_without_recording_an_answer()
+    {
+        var manager = new ConversationManager(
+            new IntentClassifier(new StaticChatClient("DONT_KNOW")),
+            new SideQuestionAnswerer(new StaticChatClient("n/a")),
+            new InterviewPlanner(new QuestionGenerator(new StaticChatClient(
+                """{"question":"Какой объект?","extracted":{}}"""))));
+
+        var fields = RequiredFields((1, "сумма"), (2, "объект"));
+        var answers = DealAnswersSerializer.Deserialize(null);
+        var deferredFieldIds = new HashSet<int>();
+
+        var result = await manager.ExecuteAsync(
+            "loan",
+            "Loan agreement",
+            "ru",
+            null,
+            DocumentFieldHintCollection.Empty,
+            1,
+            "Не знаю",
+            "Какая сумма займа?",
+            fields,
+            Labels(fields),
+            answers,
+            new Dictionary<string, string>(),
+            new HashSet<string>(),
+            deferredFieldIds,
+            CancellationToken.None);
+
+        Assert.Equal(2, result.FieldId);
+        Assert.False(answers.ContainsKey(1));
+        Assert.Contains(1, deferredFieldIds);
     }
 
     private static IReadOnlyList<AgreementTemplateField> RequiredFields(params (int Id, string Label)[] fields) =>

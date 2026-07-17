@@ -95,6 +95,22 @@ class AppLocalizationsUz extends AppLocalizations {
   String get commonUploadFailed => 'Ҳужжатни юклаб бўлмади.';
 
   @override
+  String get documentCaptureTitle => 'Ҳужжат сурати';
+
+  @override
+  String get documentCaptureAddPage => 'Яна сурат';
+
+  @override
+  String get documentCaptureRetake => 'Қайта суратга олиш';
+
+  @override
+  String get documentCaptureContinue => 'Давом этиш';
+
+  @override
+  String get documentCaptureEmptyHint =>
+      'Ҳужжатни суратга олинг - керак бўлса, яна саҳифалар қўшишингиз мумкин.';
+
+  @override
   String get documentVerificationTitle => 'Автомобил маълумотларини текширамиз';
 
   @override

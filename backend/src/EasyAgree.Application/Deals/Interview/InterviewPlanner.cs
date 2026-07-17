@@ -69,6 +69,7 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator, LegalK
         Dictionary<int, string> answers,
         Dictionary<string, string> askedQuestions,
         ISet<string> dismissedDocumentSuggestions,
+        ISet<int> deferredFieldIds,
         CancellationToken cancellationToken)
     {
         var enrichedHints = legalKnowledgeEngine is null
@@ -82,7 +83,7 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator, LegalK
 
         for (var iteration = 0; iteration < MaxPlanningIterations; iteration++)
         {
-            var askable = Askable(classified, answers, labels);
+            var askable = Askable(classified, answers, labels, deferredFieldIds);
             if (askable.Count == 0)
                 return InterviewPlanResult.Ready(ClosingPhrases.Pick(language));
             var suggestionCandidates = askable
@@ -164,7 +165,7 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator, LegalK
 
         }
 
-        var remaining = Askable(classified, answers, labels);
+        var remaining = Askable(classified, answers, labels, deferredFieldIds);
         if (remaining.Count == 0)
             return InterviewPlanResult.Ready(ClosingPhrases.Pick(language));
 
@@ -175,10 +176,12 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator, LegalK
     private static List<ClassifiedField> Askable(
         IReadOnlyList<ClassifiedField> classified,
         Dictionary<int, string> answers,
-        IReadOnlyDictionary<int, string> labels) =>
+        IReadOnlyDictionary<int, string> labels,
+        ISet<int> deferredFieldIds) =>
         classified
             .Where(f => f.Category is FieldCategory.RequiredObject or FieldCategory.RequiredCommercial or FieldCategory.RequiredTime)
             .Where(f => !answers.ContainsKey(f.FieldId))
+            .Where(f => !deferredFieldIds.Contains(f.FieldId))
             .Where(f => !FieldDependencyEngine.IsObsolete(f, answers, labels))
             .ToList();
 

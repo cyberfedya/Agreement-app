@@ -46,6 +46,7 @@ public sealed class GetDealFieldStatesUseCase(
         var documents = await documentRepository.GetByDealIdAsync(dealId, cancellationToken);
         var hints = DocumentFieldHintCollection.FromDocuments(documents);
         var answers = DealAnswersSerializer.Deserialize(deal.AnswersJson);
+        var deferredFieldIds = DealDeferredFieldIdsSerializer.Deserialize(deal.DeferredFieldIdsJson);
         var classified = FieldEligibilityEngine.Classify(template.Fields, labels);
 
         // Resolved lazily (only templates with NeverAsk fields need it) -
@@ -119,6 +120,13 @@ public sealed class GetDealFieldStatesUseCase(
             {
                 states.Add(State(field, null, required, "system", 1.0, "NOT_REQUIRED", Party(field), false,
                     "SKIPPED", "Obsolete because a dependency answer made it irrelevant"));
+                continue;
+            }
+
+            if (deferredFieldIds.Contains(field.FieldId))
+            {
+                states.Add(State(field, null, required, "user", 1.0, "NOT_REQUIRED", Party(field), false,
+                    "SKIPPED", "User didn't know - will be filled from a document if uploaded, or left blank"));
                 continue;
             }
 

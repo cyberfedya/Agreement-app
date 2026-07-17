@@ -16,9 +16,10 @@ public sealed class IntentClassifier(IAiChatClient aiChatClient)
 
         ANSWER - the message answers CURRENT_QUESTION: a value, a date, a name, "да"/"нет", a description -
         anything that could plausibly be the requested information, even if informal or incomplete.
-        DONT_KNOW - the user says they don't know, don't have, or can't recall the specific fact being asked
-        ("не знаю", "не помню", "без понятия", "нет данных", "хз", "затрудняюсь ответить", "понятия не
-        имею") - this is NOT a value for the field, even though it's a direct reply to the question.
+        DONT_KNOW - the user says they don't know, don't have, or can't recall/check the specific fact being
+        asked ("не знаю", "не помню", "без понятия", "нет данных", "хз", "затрудняюсь ответить", "понятия не
+        имею", "не могу сейчас посмотреть", "сейчас нет рядом документа", "забыл") - this is NOT a value for
+        the field, even though it's a direct reply to the question.
         QUESTION - the user is asking something about the process, a term, or a consequence instead of
         answering ("а зачем это нужно?", "что означает этот пункт?", "какие будут последствия?").
         HELP - the user says they don't understand or need help ("помоги", "я не понимаю", "объясни").

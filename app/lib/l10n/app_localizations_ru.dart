@@ -94,6 +94,22 @@ class AppLocalizationsRu extends AppLocalizations {
   String get commonUploadFailed => 'Не удалось загрузить документ.';
 
   @override
+  String get documentCaptureTitle => 'Фото документа';
+
+  @override
+  String get documentCaptureAddPage => 'Ещё фото';
+
+  @override
+  String get documentCaptureRetake => 'Переснять';
+
+  @override
+  String get documentCaptureContinue => 'Продолжить';
+
+  @override
+  String get documentCaptureEmptyHint =>
+      'Сфотографируйте документ — при необходимости можно добавить ещё страницы.';
+
+  @override
   String get documentVerificationTitle => 'Проверим данные автомобиля';
 
   @override

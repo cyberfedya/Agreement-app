@@ -28,6 +28,12 @@
   "commonUnsupportedPhotoFormat": "Couldn't recognize the photo format. Try JPEG, PNG or WebP.",
   "commonUploadFailed": "Couldn't upload the document.",
 
+  "documentCaptureTitle": "Document photo",
+  "documentCaptureAddPage": "Another photo",
+  "documentCaptureRetake": "Retake",
+  "documentCaptureContinue": "Continue",
+  "documentCaptureEmptyHint": "Take a photo of the document - you can add more pages if needed.",
+
   "documentVerificationTitle": "Let's check the vehicle's details",
   "documentVerificationBody": "If you have the vehicle's registration certificate, upload a photo of it. We'll automatically check whether what you entered matches the document, and flag anything that doesn't.\n\nThis step is optional — you can continue without uploading a document.",
   "documentVerificationUploadButton": "Upload registration certificate",

@@ -99,7 +99,7 @@ public sealed class DocumentSuggestionEngineTests
         var result = await planner.ExecuteAsync(
             "vehicle", "Vehicle sale", "ru", null, null, DocumentFieldHintCollection.Empty,
             fields, labels, DealAnswersSerializer.Deserialize(null), new Dictionary<string, string>(),
-            new HashSet<string>(), CancellationToken.None);
+            new HashSet<string>(), new HashSet<int>(), CancellationToken.None);
 
         Assert.True(result.IsSuggestDocument);
         Assert.Equal(DocumentType.VehicleRegistration, result.SuggestedDocumentType);
@@ -124,7 +124,7 @@ public sealed class DocumentSuggestionEngineTests
         var result = await planner.ExecuteAsync(
             "vehicle", "Vehicle sale", "ru", null, null, DocumentFieldHintCollection.Empty,
             fields, labels, DealAnswersSerializer.Deserialize(null), new Dictionary<string, string>(),
-            dismissed, CancellationToken.None);
+            dismissed, new HashSet<int>(), CancellationToken.None);
 
         Assert.False(result.IsSuggestDocument);
         Assert.NotNull(result.FieldId);

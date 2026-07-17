@@ -58,6 +58,7 @@ public sealed class InterviewQuestionCapTests
                 answers: answers,
                 askedQuestions: askedQuestions,
                 dismissedDocumentSuggestions: new HashSet<string>(),
+                deferredFieldIds: new HashSet<int>(),
                 cancellationToken: CancellationToken.None);
 
             if (result.IsReady)
@@ -163,6 +164,7 @@ public sealed class InterviewQuestionCapTests
                 answers: answers,
                 askedQuestions: askedQuestions,
                 dismissedDocumentSuggestions: dismissedDocumentSuggestions,
+                deferredFieldIds: new HashSet<int>(),
                 cancellationToken: CancellationToken.None);
 
             if (result.IsReady)

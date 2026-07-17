@@ -50,6 +50,15 @@ public class Deal
     public string? DismissedDocumentSuggestionsJson { get; set; }
 
     /// <summary>
+    /// Field ids the user said they don't know/can't check right now,
+    /// serialized as a JSON array of field ids. Excluded from the
+    /// interview's askable set so the same field is never re-asked, but
+    /// deliberately never written to <see cref="AnswersJson"/> - a document
+    /// uploaded later (or a manual edit) can still fill it in normally.
+    /// </summary>
+    public string? DeferredFieldIdsJson { get; set; }
+
+    /// <summary>
     /// Pre-interview field map produced from documents/profile/memory,
     /// keyed by template field id and preserving source/confidence so the
     /// intake can be refreshed without losing user-entered answers.

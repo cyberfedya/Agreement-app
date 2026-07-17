@@ -384,6 +384,11 @@ Future<void> _completeDocumentVerification(WidgetTester tester) async {
   await tester.pumpAndSettle();
   await tester.tap(find.widgetWithText(ListTile, 'Камера'));
   await tester.pumpAndSettle();
+  // Camera capture opens its own multi-page staging screen (auto-takes the
+  // first photo, then waits for an explicit "Продолжить" instead of
+  // uploading immediately) - confirm the single fake photo before moving on.
+  await tester.tap(find.widgetWithText(PrimaryButton, 'Продолжить'));
+  await tester.pumpAndSettle();
   // Working -> done (auto-continues after a fixed delay) -> review.
   await tester.pump(const Duration(milliseconds: 1200));
   await tester.pumpAndSettle();

@@ -41,6 +41,43 @@ public static class ConversationReplies
         _ => "Ничего страшного - если под рукой есть соответствующий документ, можно загрузить его фото, и я сам найду там эту информацию. Либо попробуйте ответить как можно точнее.",
     };
 
+    /// <summary>
+    /// Said once, briefly, when the user doesn't know/can't check a fact
+    /// right now, right before moving on to the next question - unlike
+    /// <see cref="DontKnowNotice"/> this is never followed by the same
+    /// question again, so it stays short instead of re-explaining the
+    /// document-upload path every time.
+    /// </summary>
+    private static readonly Dictionary<string, string[]> DeferredAcknowledgementByLanguage = new()
+    {
+        ["ru"] =
+        [
+            "Ничего страшного.",
+            "Это можно будет проверить по документу.",
+            "Если позже загрузите документ, мы заполним эти данные автоматически.",
+        ],
+        ["uz"] =
+        [
+            "Ҳечқиси йўқ.",
+            "Буни ҳужжат орқали текшириб кўрса бўлади.",
+            "Кейинроқ ҳужжат юкласангиз, бу маълумотлар ўзи тўлдирилади.",
+        ],
+        ["en"] =
+        [
+            "No worries.",
+            "We can check that from a document later.",
+            "If you upload a document later, we'll fill this in automatically.",
+        ],
+    };
+
+    public static string DeferredAcknowledgement(string language)
+    {
+        var options = DeferredAcknowledgementByLanguage.TryGetValue(language, out var forLanguage)
+            ? forLanguage
+            : DeferredAcknowledgementByLanguage["ru"];
+        return options[Random.Shared.Next(options.Length)];
+    }
+
     public static string Resume(string language) => language switch
     {
         "uz" => "Давом этамиз.",
@@ -108,6 +145,10 @@ public static class ConversationReplies
     /// </summary>
     public static string StripLeadingNotice(string language, string questionText)
     {
+        var deferredOptions = DeferredAcknowledgementByLanguage.TryGetValue(language, out var forLanguage)
+            ? forLanguage
+            : DeferredAcknowledgementByLanguage["ru"];
+
         string[] notices =
         [
             AnswerShapeMismatchNotice(language),
@@ -115,6 +156,7 @@ public static class ConversationReplies
             OffTopicRedirect(language),
             ChangeTopicNotice(language),
             CancelNotice(language),
+            .. deferredOptions,
         ];
 
         foreach (var notice in notices)

@@ -73,6 +73,38 @@ public sealed class DealFieldStateWorkflowTests
         Assert.Contains(result.Fields, field => field.FieldId == 32 && field.Status == "MISSING");
     }
 
+    /// <summary>
+    /// A field the user said "don't know" to must not block generation
+    /// (reported as SKIPPED, not MISSING) - and a document uploaded
+    /// afterwards must still be free to auto-fill it normally.
+    /// </summary>
+    [Fact]
+    public async Task Deferred_field_is_skipped_not_missing_and_stays_fillable_from_a_document()
+    {
+        var dealId = Guid.NewGuid();
+        var deal = new Deal
+        {
+            Id = dealId,
+            TemplateKey = "vehicle-sale",
+            DeferredFieldIdsJson = DealDeferredFieldIdsSerializer.Serialize(new HashSet<int> { 32 }),
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+        };
+        var template = Template("vehicle-sale", (32, "sale price"));
+        var useCase = new GetDealFieldStatesUseCase(
+            new DealRepo(deal),
+            new TemplateRepo(template),
+            new DocumentRepo([]),
+            new ProfileRepo(),
+            new PartyProfileResolver(new PartyRoleClassifier(new UnusedAiChatClient())));
+
+        var result = await useCase.ExecuteAsync(dealId);
+
+        Assert.NotNull(result);
+        Assert.NotEqual(DealWorkflowStatus.MissingMandatoryTerms, result.WorkflowStatus);
+        Assert.Contains(result.Fields, field => field.FieldId == 32 && field.Status == "SKIPPED");
+    }
+
     private static AgreementTemplate Template(string key, params (int FieldId, string Label)[] fields) => new()
     {
         Id = Guid.NewGuid(),

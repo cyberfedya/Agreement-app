@@ -7,6 +7,7 @@ import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/core/widgets/skeletons.dart';
 import 'package:app/features/questionnaire/domain/deal_review.dart';
 import 'package:app/features/questionnaire/presentation/widgets/confidence_badge.dart';
+import 'package:app/features/questionnaire/presentation/widgets/edit_field_dialog.dart';
 import 'package:app/features/questionnaire/providers/questionnaire_provider.dart';
 import 'package:app/l10n/app_localizations.dart';
 import 'package:app/shared/animation/entrance.dart';
@@ -37,7 +38,7 @@ class ReviewView extends StatelessWidget {
   }) async {
     final newValue = await showDialog<String>(
       context: context,
-      builder: (context) => _EditFieldDialog(label: label, initialValue: value ?? ''),
+      builder: (context) => EditFieldDialog(label: label, initialValue: value ?? ''),
     );
     if (newValue == null || newValue.trim().isEmpty || !context.mounted) return;
 
@@ -544,53 +545,6 @@ class _ReviewSkeleton extends StatelessWidget {
         Skeleton(height: 68, radius: Corners.lg),
         SizedBox(height: Insets.x8),
         Skeleton(height: 68, radius: Corners.lg),
-      ],
-    );
-  }
-}
-
-/// Owns its `TextEditingController` for the whole dialog route lifetime -
-/// disposing it eagerly right after `showDialog` resolves (rather than
-/// letting this widget's own `dispose()` do it once the exit animation
-/// actually finishes) crashes the framework, because the still-animating
-/// `TextField` tries to rebuild against an already-disposed controller.
-class _EditFieldDialog extends StatefulWidget {
-  const _EditFieldDialog({required this.label, required this.initialValue});
-
-  final String label;
-  final String initialValue;
-
-  @override
-  State<_EditFieldDialog> createState() => _EditFieldDialogState();
-}
-
-class _EditFieldDialogState extends State<_EditFieldDialog> {
-  late final TextEditingController _controller = TextEditingController(text: widget.initialValue);
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    return AlertDialog(
-      title: Text(widget.label),
-      content: TextField(
-        controller: _controller,
-        autofocus: true,
-        minLines: 1,
-        maxLines: 4,
-        decoration: const InputDecoration(border: OutlineInputBorder()),
-      ),
-      actions: [
-        TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(l10n.commonCancel)),
-        FilledButton(
-          onPressed: () => Navigator.of(context).pop(_controller.text),
-          child: Text(l10n.commonSave),
-        ),
       ],
     );
   }

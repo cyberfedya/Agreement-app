@@ -37,6 +37,7 @@ public sealed class GetNextQuestionUseCase(
         var answers = DealAnswersSerializer.Deserialize(deal.AnswersJson);
         var askedQuestions = DealAskedQuestionsSerializer.Deserialize(deal.AskedQuestionsJson);
         var dismissedDocumentSuggestions = DealDismissedDocumentSuggestionsSerializer.Deserialize(deal.DismissedDocumentSuggestionsJson);
+        var deferredFieldIds = DealDeferredFieldIdsSerializer.Deserialize(deal.DeferredFieldIdsJson);
 
         var labels = AgreementPlaceholderParser.ExtractLabels(template.HtmlTemplate);
         var (title, _) = TranslationResolver.Resolve(template.Translations, language);
@@ -46,9 +47,9 @@ public sealed class GetNextQuestionUseCase(
 
         var result = await conversationManager.ExecuteAsync(
             template.Domain, title, language, deal.RequestText, documentHints, answeredFieldId, answerText, currentQuestionText,
-            template.Fields, labels, answers, askedQuestions, dismissedDocumentSuggestions, cancellationToken);
+            template.Fields, labels, answers, askedQuestions, dismissedDocumentSuggestions, deferredFieldIds, cancellationToken);
 
-        await SaveAsync(deal, answers, askedQuestions, cancellationToken);
+        await SaveAsync(deal, answers, askedQuestions, deferredFieldIds, cancellationToken);
 
         if (result.IsSuggestDocument)
             return NextQuestionResult.SuggestDocument(result.SuggestedDocumentType!.Value, result.SuggestedMatchedFieldCount);
@@ -78,10 +79,15 @@ public sealed class GetNextQuestionUseCase(
     }
 
     private async Task SaveAsync(
-        Deal deal, Dictionary<int, string> answers, Dictionary<string, string> askedQuestions, CancellationToken cancellationToken)
+        Deal deal,
+        Dictionary<int, string> answers,
+        Dictionary<string, string> askedQuestions,
+        ISet<int> deferredFieldIds,
+        CancellationToken cancellationToken)
     {
         deal.AnswersJson = DealAnswersSerializer.Serialize(answers);
         deal.AskedQuestionsJson = DealAskedQuestionsSerializer.Serialize(askedQuestions);
+        deal.DeferredFieldIdsJson = DealDeferredFieldIdsSerializer.Serialize((IReadOnlySet<int>)deferredFieldIds);
         deal.UpdatedAt = DateTime.UtcNow;
         await dealRepository.UpdateAsync(deal, cancellationToken);
     }

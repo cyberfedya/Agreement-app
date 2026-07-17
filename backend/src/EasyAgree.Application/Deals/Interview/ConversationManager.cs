@@ -11,14 +11,15 @@ namespace EasyAgree.Application.Deals.Interview;
 /// interview exactly where it was: same field still pending, nothing
 /// written to the answer set, current question repeated.
 ///
-/// The 5 non-answer branches below (DontKnow/Question/Help/OffTopic/
-/// ChangeTopic/Cancel) return <see cref="InterviewPlanResult.NeedMoreInfo"/>
-/// without a real field group to pass, so its <c>groupFieldIds</c> falls
-/// back to just the single echoed field id - a client showing several
-/// boxes for a combined question sees that set "shrink" to one for this
-/// one reply. Accepted: the client only uses the returned field id to
-/// decide whether it's still the same conceptual question (it is), not to
-/// resize its box layout on every reply.
+/// 4 of the non-answer branches below (Question/Help/OffTopic/ChangeTopic/
+/// Cancel) return <see cref="InterviewPlanResult.NeedMoreInfo"/> without a
+/// real field group to pass, so its <c>groupFieldIds</c> falls back to just
+/// the single echoed field id - a client showing several boxes for a
+/// combined question sees that set "shrink" to one for this one reply.
+/// Accepted: the client only uses the returned field id to decide whether
+/// it's still the same conceptual question (it is), not to resize its box
+/// layout on every reply. DontKnow is the exception - it genuinely advances
+/// to a new field/group via the planner, see below.
 ///
 /// A multi-field combined answer (one voice/typed blob covering several
 /// boxes) is expected to arrive with <c>answeredFieldId</c>/
@@ -47,6 +48,7 @@ public sealed class ConversationManager(
         Dictionary<int, string> answers,
         Dictionary<string, string> askedQuestions,
         ISet<string> dismissedDocumentSuggestions,
+        ISet<int> deferredFieldIds,
         CancellationToken cancellationToken)
     {
         // Nothing to classify against yet - either the very first turn, or
@@ -60,7 +62,7 @@ public sealed class ConversationManager(
 
             return await interviewPlanner.ExecuteAsync(
                 templateDomain, templateTitle, language, userRequest, answerText, documentHints, fields, labels, answers,
-                askedQuestions, dismissedDocumentSuggestions, cancellationToken);
+                askedQuestions, dismissedDocumentSuggestions, deferredFieldIds, cancellationToken);
         }
 
         var intent = await intentClassifier.ClassifyAsync(currentQuestionText, answerText, cancellationToken);
@@ -93,11 +95,21 @@ public sealed class ConversationManager(
                 answers[fieldId] = answerText;
                 return await interviewPlanner.ExecuteAsync(
                         templateDomain, templateTitle, language, userRequest, answerText, documentHints, fields, labels, answers,
-                        askedQuestions, dismissedDocumentSuggestions, cancellationToken);
+                        askedQuestions, dismissedDocumentSuggestions, deferredFieldIds, cancellationToken);
 
             case ConversationIntent.DontKnow:
-                return InterviewPlanResult.NeedMoreInfo(
-                    fieldId, $"{ConversationReplies.DontKnowNotice(language)} {bareQuestionText}");
+                // Move on instead of re-asking: the field is excluded from
+                // the askable set (see InterviewPlanner.Askable) but
+                // deliberately never written to `answers`, so a document
+                // uploaded later can still fill it in normally. Routed
+                // through the planner exactly like a real answer so the
+                // *next* actual question comes back, just with a brief
+                // acknowledgment instead of the field's own wording.
+                deferredFieldIds.Add(fieldId);
+                var deferredResult = await interviewPlanner.ExecuteAsync(
+                    templateDomain, templateTitle, language, userRequest, answerText, documentHints, fields, labels, answers,
+                    askedQuestions, dismissedDocumentSuggestions, deferredFieldIds, cancellationToken);
+                return WithAcknowledgement(deferredResult, ConversationReplies.DeferredAcknowledgement(language));
 
             case ConversationIntent.Question:
             case ConversationIntent.Help:
@@ -120,7 +132,23 @@ public sealed class ConversationManager(
             default:
                 return await interviewPlanner.ExecuteAsync(
                     templateDomain, templateTitle, language, userRequest, answerText, documentHints, fields, labels, answers,
-                    askedQuestions, dismissedDocumentSuggestions, cancellationToken);
+                    askedQuestions, dismissedDocumentSuggestions, deferredFieldIds, cancellationToken);
         }
+    }
+
+    /// <summary>
+    /// Prefixes a short acknowledgment onto whatever the planner returned
+    /// for the *next* turn - <see cref="InterviewPlanResult"/> has no
+    /// settable properties, so this rebuilds one via its own factories
+    /// rather than mutating in place. A document suggestion has no question
+    /// text to prefix, so it's returned unchanged.
+    /// </summary>
+    private static InterviewPlanResult WithAcknowledgement(InterviewPlanResult result, string acknowledgement)
+    {
+        if (result.IsSuggestDocument)
+            return result;
+        if (result.IsReady)
+            return InterviewPlanResult.Ready($"{acknowledgement} {result.Question}");
+        return InterviewPlanResult.NeedMoreInfo(result.FieldId!.Value, $"{acknowledgement} {result.Question}", result.GroupFieldIds);
     }
 }

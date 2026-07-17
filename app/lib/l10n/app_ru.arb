@@ -59,6 +59,17 @@
   "commonUploadFailed": "Не удалось загрузить документ.",
   "@commonUploadFailed": {},
 
+  "documentCaptureTitle": "Фото документа",
+  "@documentCaptureTitle": {},
+  "documentCaptureAddPage": "Ещё фото",
+  "@documentCaptureAddPage": {},
+  "documentCaptureRetake": "Переснять",
+  "@documentCaptureRetake": {},
+  "documentCaptureContinue": "Продолжить",
+  "@documentCaptureContinue": {},
+  "documentCaptureEmptyHint": "Сфотографируйте документ — при необходимости можно добавить ещё страницы.",
+  "@documentCaptureEmptyHint": {},
+
   "documentVerificationTitle": "Проверим данные автомобиля",
   "@documentVerificationTitle": {},
   "documentVerificationBody": "Если у вас есть техпаспорт или ПТС, загрузите его фотографию. Мы автоматически проверим, соответствуют ли введённые данные документу, и предупредим, если найдём расхождения.\n\nЭтот шаг необязателен — вы можете продолжить оформление договора без загрузки документа.",

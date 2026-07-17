@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/features/documents/data/document_repository.dart';
+import 'package:app/features/documents/presentation/document_capture.dart';
 import 'package:app/features/documents/domain/document_verification.dart';
 import 'package:app/features/documents/providers/document_upload_provider.dart';
 import 'package:app/features/questionnaire/providers/questionnaire_provider.dart';
@@ -213,11 +214,8 @@ class _PromptView extends StatelessWidget {
     );
     if (source == null || !context.mounted) return;
 
-    final picker = ImagePicker();
-    final picked = source == ImageSource.camera
-        ? await picker.pickImage(source: ImageSource.camera, imageQuality: 85).then((f) => f == null ? <XFile>[] : [f])
-        : await picker.pickMultiImage(imageQuality: 85);
-    if (picked.isEmpty) return;
+    final picked = await pickDocumentFiles(context, source);
+    if (picked.isEmpty || !context.mounted) return;
 
     final entries = <(String, String, List<int>)>[];
     for (final file in picked) {

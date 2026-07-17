@@ -1,20 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:provider/provider.dart';
 
 import 'package:app/core/theme/app_tokens.dart';
+import 'package:app/features/questionnaire/presentation/widgets/edit_field_dialog.dart';
+import 'package:app/features/questionnaire/providers/questionnaire_provider.dart';
 import 'package:app/l10n/app_localizations.dart';
 
-/// "Вы уже сообщили: ✓ Марка ✓ Модель ✓ VIN" - a small collapsed bubble
-/// that expands to the labels of everything answered so far, so the
-/// interview reads as one continuous conversation the assistant
-/// remembers, not a sequence of unrelated questions. [answeredLabels] is
-/// already-ordered, backend-sourced field labels - this widget only
-/// formats and animates them.
-class ConversationRecap extends StatefulWidget {
-  const ConversationRecap({super.key, required this.answeredLabels});
+/// One already-answered field: enough to render a chip and let the user
+/// correct it without re-deriving anything from raw provider state.
+typedef AnsweredEntry = ({int fieldId, String label, String value});
 
-  final List<String> answeredLabels;
+/// "Вы уже сообщили: ✓ Chevrolet Cobalt ✓ 2023" - a small collapsed bubble
+/// that expands to what's been answered so far, each entry tappable to fix
+/// it on the spot - so the interview reads as one continuous conversation
+/// the assistant remembers, not a sequence of unrelated questions.
+/// [answeredFields] is already-ordered, backend-sourced data - this widget
+/// only formats, animates, and wires up the edit action.
+class ConversationRecap extends StatefulWidget {
+  const ConversationRecap({super.key, required this.answeredFields});
+
+  final List<AnsweredEntry> answeredFields;
 
   @override
   State<ConversationRecap> createState() => _ConversationRecapState();
@@ -23,11 +30,30 @@ class ConversationRecap extends StatefulWidget {
 class _ConversationRecapState extends State<ConversationRecap> {
   bool _expanded = false;
 
+  Future<void> _edit(BuildContext context, AnsweredEntry entry) async {
+    final newValue = await showDialog<String>(
+      context: context,
+      builder: (context) => EditFieldDialog(label: entry.label, initialValue: entry.value),
+    );
+    if (newValue == null || newValue.trim().isEmpty || !context.mounted) return;
+    if (newValue.trim() == entry.value) return;
+
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    final provider = context.read<QuestionnaireProvider>();
+    final ok = await provider.editAnswer(entry.fieldId, entry.label, newValue);
+    if (ok) {
+      HapticFeedback.selectionClick();
+    } else if (context.mounted) {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.reviewEditSaveFailed)));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (widget.answeredLabels.isEmpty) return const SizedBox.shrink();
+    if (widget.answeredFields.isEmpty) return const SizedBox.shrink();
     final theme = Theme.of(context);
-    final count = widget.answeredLabels.length;
+    final count = widget.answeredFields.length;
 
     return Container(
       decoration: BoxDecoration(
@@ -76,8 +102,8 @@ class _ConversationRecapState extends State<ConversationRecap> {
                       spacing: Insets.x8,
                       runSpacing: Insets.x8,
                       children: [
-                        for (final (index, label) in widget.answeredLabels.indexed)
-                          _RecapChip(label: label).animate().fadeIn(
+                        for (final (index, entry) in widget.answeredFields.indexed)
+                          _RecapChip(entry: entry, onTap: () => _edit(context, entry)).animate().fadeIn(
                             duration: 200.ms,
                             delay: (index * 30).ms,
                           ),
@@ -93,28 +119,42 @@ class _ConversationRecapState extends State<ConversationRecap> {
 }
 
 class _RecapChip extends StatelessWidget {
-  const _RecapChip({required this.label});
+  const _RecapChip({required this.entry, required this.onTap});
 
-  final String label;
+  final AnsweredEntry entry;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: Insets.x12, vertical: Insets.x4 + 2),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHigh,
+    final l10n = AppLocalizations.of(context)!;
+    return Material(
+      color: theme.colorScheme.surfaceContainerHigh,
+      borderRadius: BorderRadius.circular(999),
+      child: InkWell(
         borderRadius: BorderRadius.circular(999),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.check_rounded, size: 14, color: theme.colorScheme.primary),
-          const SizedBox(width: Insets.x4),
-          Flexible(
-            child: Text(label, style: theme.textTheme.bodySmall, maxLines: 1, overflow: TextOverflow.ellipsis),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: Insets.x12, vertical: Insets.x4 + 2),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.check_rounded, size: 14, color: theme.colorScheme.primary),
+              const SizedBox(width: Insets.x4),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 160),
+                child: Text(entry.value, style: theme.textTheme.bodySmall, maxLines: 1, overflow: TextOverflow.ellipsis),
+              ),
+              const SizedBox(width: Insets.x4),
+              Icon(Icons.edit_outlined, size: 12, color: theme.colorScheme.onSurfaceVariant),
+              const SizedBox(width: Insets.x4 - 2),
+              Text(
+                l10n.questionnaireEditAnswer,
+                style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

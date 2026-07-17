@@ -95,6 +95,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonUploadFailed => 'Couldn\'t upload the document.';
 
   @override
+  String get documentCaptureTitle => 'Document photo';
+
+  @override
+  String get documentCaptureAddPage => 'Another photo';
+
+  @override
+  String get documentCaptureRetake => 'Retake';
+
+  @override
+  String get documentCaptureContinue => 'Continue';
+
+  @override
+  String get documentCaptureEmptyHint =>
+      'Take a photo of the document - you can add more pages if needed.';
+
+  @override
   String get documentVerificationTitle => 'Let\'s check the vehicle\'s details';
 
   @override

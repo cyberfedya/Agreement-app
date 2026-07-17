@@ -262,6 +262,36 @@ abstract class AppLocalizations {
   /// **'Не удалось загрузить документ.'**
   String get commonUploadFailed;
 
+  /// No description provided for @documentCaptureTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Фото документа'**
+  String get documentCaptureTitle;
+
+  /// No description provided for @documentCaptureAddPage.
+  ///
+  /// In ru, this message translates to:
+  /// **'Ещё фото'**
+  String get documentCaptureAddPage;
+
+  /// No description provided for @documentCaptureRetake.
+  ///
+  /// In ru, this message translates to:
+  /// **'Переснять'**
+  String get documentCaptureRetake;
+
+  /// No description provided for @documentCaptureContinue.
+  ///
+  /// In ru, this message translates to:
+  /// **'Продолжить'**
+  String get documentCaptureContinue;
+
+  /// No description provided for @documentCaptureEmptyHint.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сфотографируйте документ — при необходимости можно добавить ещё страницы.'**
+  String get documentCaptureEmptyHint;
+
   /// No description provided for @documentVerificationTitle.
   ///
   /// In ru, this message translates to:

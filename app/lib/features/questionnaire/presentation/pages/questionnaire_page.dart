@@ -12,6 +12,7 @@ import 'package:app/core/theme/app_tokens.dart';
 import 'package:app/core/widgets/app_widgets.dart';
 import 'package:app/core/widgets/bottom_action_bar.dart';
 import 'package:app/features/agreement/providers/agreement_provider.dart';
+import 'package:app/features/documents/presentation/document_capture.dart';
 import 'package:app/features/documents/presentation/uploaded_documents_sheet.dart';
 import 'package:app/features/documents/providers/document_upload_provider.dart';
 import 'package:app/features/questionnaire/domain/question.dart';
@@ -62,7 +63,6 @@ class QuestionnairePage extends StatefulWidget {
 class _QuestionnairePageState extends State<QuestionnairePage> {
   final TextEditingController _controller = TextEditingController();
   final InterviewScript _script = InterviewScript();
-  final ImagePicker _picker = ImagePicker();
 
   /// Micro-emotion shown above the current question; null before the first
   /// answer (nothing to acknowledge yet).
@@ -275,9 +275,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
     });
   }
   Future<void> _pickAndUpload(ImageSource source) async {
-    final files = source == ImageSource.camera
-        ? await _picker.pickImage(source: ImageSource.camera, imageQuality: 85).then((f) => f == null ? <XFile>[] : [f])
-        : await _picker.pickMultiImage(imageQuality: 85);
+    final files = await pickDocumentFiles(context, source);
     if (files.isEmpty || !mounted) return;
 
     final entries = <(String, String, List<int>)>[];
@@ -472,15 +470,18 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
     return _progressPhraseCache;
   }
 
-  /// Labels of every field already answered, in the order they were
-  /// answered - [QuestionnaireProvider.answers] is a `Map` populated in
-  /// insertion order, and [QuestionnaireProvider.allFields] supplies the
-  /// human labels. Pure formatting of two already-fetched backend lists,
-  /// nothing computed.
-  List<String> _answeredLabels(QuestionnaireProvider provider) {
+  /// Every field already answered, in the order they were answered -
+  /// [QuestionnaireProvider.answers] is a `Map` populated in insertion
+  /// order, and [QuestionnaireProvider.allFields] supplies the human
+  /// labels. Pure formatting of two already-fetched backend lists, nothing
+  /// computed. Carries the field id/value (not just the label) so
+  /// [ConversationRecap] can offer inline editing.
+  List<AnsweredEntry> _answeredLabels(QuestionnaireProvider provider) {
     final labelsById = {for (final q in provider.allFields) q.fieldId: q.fieldName};
     return [
-      for (final fieldId in provider.answers.keys) ?labelsById[fieldId],
+      for (final entry in provider.answers.entries)
+        if (labelsById[entry.key] case final label?)
+          (fieldId: entry.key, label: label, value: entry.value),
     ];
   }
 
@@ -688,7 +689,7 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
                       onWhy: () => _showWhySheet(field.fieldName),
                       recap: provider.answers.isEmpty
                           ? null
-                          : ConversationRecap(answeredLabels: _answeredLabels(provider)),
+                          : ConversationRecap(answeredFields: _answeredLabels(provider)),
                       documentHint: _activeHint == null
                           ? null
                           : DocumentHintCard(

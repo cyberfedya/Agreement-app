@@ -35,6 +35,9 @@ public sealed class DealConfiguration : IEntityTypeConfiguration<Deal>
         builder.Property(d => d.DismissedDocumentSuggestionsJson)
             .HasColumnType("jsonb");
 
+        builder.Property(d => d.DeferredFieldIdsJson)
+            .HasColumnType("jsonb");
+
         builder.Property(d => d.PreprocessedFieldsJson)
             .HasColumnType("jsonb");
 
