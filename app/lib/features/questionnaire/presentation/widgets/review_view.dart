@@ -258,7 +258,11 @@ class _WorkflowStatusPill extends StatelessWidget {
     'MISSING_MANDATORY_TERMS' => l10n.reviewStatusMissingMandatoryTerms,
     'WAITING_FOR_PARTY_AGREEMENT' => l10n.reviewStatusWaitingPartyAgreement,
     'LEGAL_REVIEW_REQUIRED' => l10n.reviewStatusLegalReviewRequired,
-    _ => status,
+    // An unmapped status code is a real gap (the backend added a status
+    // this build doesn't know about yet) - but showing the raw code
+    // verbatim (e.g. "SOME_NEW_STATUS") reads as a bug to the user. Fall
+    // back to a generic, still-honest label instead.
+    _ => l10n.reviewStatusGenericPending,
   };
 
   @override

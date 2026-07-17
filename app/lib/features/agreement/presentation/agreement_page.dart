@@ -134,22 +134,40 @@ class _AgreementPageState extends State<AgreementPage> {
   }
 
   Future<void> _exportPdf(BuildContext context, String html) => exportAgreementAsPdf(context, html);
+
+  /// The name recorded as the legal signatory - mirrors
+  /// `AgreementSignPage._resolveSignerName`. Blocks signing (rather than
+  /// falling back to a placeholder like "First party") until the profile
+  /// is actually filled in, since that placeholder would otherwise be sent
+  /// to the backend and end up as the party's name in the signed document.
+  Future<String?> _resolveSignerName() async {
+    final profileRepository = context.read<ProfileRepository>();
+    var profile = await profileRepository.getCurrent();
+    if (profile != null && profile.fullName.trim().isNotEmpty) return profile.fullName.trim();
+    if (!mounted) return null;
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.dealInviteFillProfileFirst)));
+    await Navigator.of(context).pushNamed(AppRoutes.profile);
+    if (!mounted) return null;
+
+    profile = await profileRepository.getCurrent();
+    return (profile != null && profile.fullName.trim().isNotEmpty) ? profile.fullName.trim() : null;
+  }
+
   Future<void> _signAsFirstParty() async {
     if (_signing) return;
-    setState(() => _signing = true);
     final provider = context.read<AgreementProvider>();
     final dealId = provider.agreement?.key;
-    final profile = await context.read<ProfileRepository>().getCurrent();
-    if (!mounted || dealId == null) {
-      if (mounted) setState(() => _signing = false);
-      return;
-    }
+    if (dealId == null) return;
+
+    final signerName = await _resolveSignerName();
+    if (signerName == null || !mounted) return;
+
+    setState(() => _signing = true);
     final l10n = AppLocalizations.of(context)!;
-    final fullName = profile?.fullName.trim();
-    final success = await provider.signAsFirstParty(
-      dealId,
-      (fullName == null || fullName.isEmpty) ? l10n.agreementFirstPartyFallback : fullName,
-    );
+    final success = await provider.signAsFirstParty(dealId, signerName);
     if (!mounted) return;
     setState(() => _signing = false);
     if (!success) {

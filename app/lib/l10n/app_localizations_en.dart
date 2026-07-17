@@ -107,6 +107,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonUploadFailed => 'Couldn\'t upload the document.';
 
   @override
+  String get voiceInputPermissionDenied =>
+      'Microphone access is needed for voice input. Allow it in your device settings, or just type instead.';
+
+  @override
+  String get voiceInputRecognitionError =>
+      'Couldn\'t start voice recognition. Try again, or type instead.';
+
+  @override
+  String get voiceInputNoSpeechDetected =>
+      'Didn\'t catch that — try again, a bit closer to the microphone.';
+
+  @override
   String get documentCaptureTitle => 'Document photo';
 
   @override
@@ -123,15 +135,14 @@ class AppLocalizationsEn extends AppLocalizations {
       'Take a photo of the document - you can add more pages if needed.';
 
   @override
-  String get documentVerificationTitle => 'Let\'s check the vehicle\'s details';
+  String get documentVerificationTitle => 'Let\'s check the details';
 
   @override
   String get documentVerificationBody =>
-      'If you have the vehicle\'s registration certificate, upload a photo of it. We\'ll automatically check whether what you entered matches the document, and flag anything that doesn\'t.\n\nThis step is optional — you can continue without uploading a document.';
+      'If you have a supporting document for this deal, upload a photo of it. We\'ll automatically check whether what you entered matches the document, and flag anything that doesn\'t.\n\nThis step is optional — you can continue without uploading a document.';
 
   @override
-  String get documentVerificationUploadButton =>
-      'Upload registration certificate';
+  String get documentVerificationUploadButton => 'Upload a document';
 
   @override
   String get documentVerificationWorking => 'Checking against the document…';
@@ -371,6 +382,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reviewStatusLegalReviewRequired => 'Legal review required';
 
   @override
+  String get reviewStatusGenericPending => 'Waiting on a few more details';
+
+  @override
   String get reviewRiskLowLabel => 'Low risk';
 
   @override
@@ -389,6 +403,20 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get reviewRiskHighMessage =>
       'Important deal terms are missing. We can still create the agreement now, but that increases legal risk.';
+
+  @override
+  String get reviewHighRiskConfirmTitle => 'Create with missing terms?';
+
+  @override
+  String reviewHighRiskConfirmBody(Object count) {
+    return '$count important deal terms are still missing. The agreement will be created, but it may not hold up the way you expect — you can go back and fill them in first, or continue anyway.';
+  }
+
+  @override
+  String get reviewHighRiskConfirmFillIn => 'Go back and fill in';
+
+  @override
+  String get reviewHighRiskConfirmContinue => 'I understand, create it anyway';
 
   @override
   String get profileTitle => 'Profile';
@@ -519,9 +547,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get agreementCopied => 'Agreement copied';
 
   @override
-  String get agreementFirstPartyFallback => 'First party';
-
-  @override
   String get agreementSignFailed => 'Couldn\'t sign the agreement.';
 
   @override
@@ -563,10 +588,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get agreementSignButton => 'Sign agreement';
-
-  @override
-  String get agreementOpenAsSecondParty =>
-      'Open as the other party (on this device)';
 
   @override
   String get agreementWaitingBothSignatures => 'Waiting for both signatures';
@@ -987,9 +1008,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get routeNotFoundTitle => 'Page not found';
 
   @override
-  String routeNotFoundMessage(String routeName) {
-    return 'The screen \"$routeName\" doesn\'t exist in this build.';
-  }
+  String get routeNotFoundMessage =>
+      'This page isn\'t available. Go back to Home and try again.';
 
   @override
   String get categoryVehicle => 'Vehicle';

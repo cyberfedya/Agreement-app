@@ -372,7 +372,7 @@ Future<void> _answer(WidgetTester tester, String text) async {
 /// (faked) camera pick to reach the ordinary review/generate screen the
 /// way most tests still expect.
 Future<void> _completeDocumentVerification(WidgetTester tester) async {
-  await tester.tap(find.widgetWithText(PrimaryButton, 'Загрузить техпаспорт'));
+  await tester.tap(find.widgetWithText(PrimaryButton, 'Загрузить документ'));
   await tester.pumpAndSettle();
   await tester.tap(find.widgetWithText(ListTile, 'Камера'));
   await tester.pumpAndSettle();

@@ -286,6 +286,24 @@ abstract class AppLocalizations {
   /// **'Не удалось загрузить документ.'**
   String get commonUploadFailed;
 
+  /// No description provided for @voiceInputPermissionDenied.
+  ///
+  /// In ru, this message translates to:
+  /// **'Для голосового ввода нужен доступ к микрофону. Разрешите его в настройках устройства — или просто напечатайте текст.'**
+  String get voiceInputPermissionDenied;
+
+  /// No description provided for @voiceInputRecognitionError.
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось запустить распознавание речи. Попробуйте ещё раз или напечатайте текст.'**
+  String get voiceInputRecognitionError;
+
+  /// No description provided for @voiceInputNoSpeechDetected.
+  ///
+  /// In ru, this message translates to:
+  /// **'Не расслышал. Попробуйте ещё раз, ближе к микрофону.'**
+  String get voiceInputNoSpeechDetected;
+
   /// No description provided for @documentCaptureTitle.
   ///
   /// In ru, this message translates to:
@@ -319,19 +337,19 @@ abstract class AppLocalizations {
   /// No description provided for @documentVerificationTitle.
   ///
   /// In ru, this message translates to:
-  /// **'Проверим данные автомобиля'**
+  /// **'Проверим детали'**
   String get documentVerificationTitle;
 
   /// No description provided for @documentVerificationBody.
   ///
   /// In ru, this message translates to:
-  /// **'Если у вас есть техпаспорт или ПТС, загрузите его фотографию. Мы автоматически проверим, соответствуют ли введённые данные документу, и предупредим, если найдём расхождения.\n\nЭтот шаг необязателен — вы можете продолжить оформление договора без загрузки документа.'**
+  /// **'Если у вас есть подтверждающий документ по этой сделке, загрузите его фотографию. Мы автоматически проверим, соответствуют ли введённые данные документу, и предупредим, если найдём расхождения.\n\nЭтот шаг необязателен — вы можете продолжить оформление договора без загрузки документа.'**
   String get documentVerificationBody;
 
   /// No description provided for @documentVerificationUploadButton.
   ///
   /// In ru, this message translates to:
-  /// **'Загрузить техпаспорт'**
+  /// **'Загрузить документ'**
   String get documentVerificationUploadButton;
 
   /// No description provided for @documentVerificationWorking.
@@ -754,6 +772,12 @@ abstract class AppLocalizations {
   /// **'Требуется юридическая проверка'**
   String get reviewStatusLegalReviewRequired;
 
+  /// No description provided for @reviewStatusGenericPending.
+  ///
+  /// In ru, this message translates to:
+  /// **'Осталось уточнить ещё немного деталей'**
+  String get reviewStatusGenericPending;
+
   /// No description provided for @reviewRiskLowLabel.
   ///
   /// In ru, this message translates to:
@@ -789,6 +813,30 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Отсутствуют важные условия сделки. Мы можем сформировать договор сейчас, но это увеличивает юридический риск.'**
   String get reviewRiskHighMessage;
+
+  /// No description provided for @reviewHighRiskConfirmTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Создать договор с пропущенными условиями?'**
+  String get reviewHighRiskConfirmTitle;
+
+  /// No description provided for @reviewHighRiskConfirmBody.
+  ///
+  /// In ru, this message translates to:
+  /// **'Не заполнено ещё {count} важных условий сделки. Договор будет создан, но может не иметь той силы, на которую вы рассчитываете — можно вернуться и заполнить их, или продолжить как есть.'**
+  String reviewHighRiskConfirmBody(Object count);
+
+  /// No description provided for @reviewHighRiskConfirmFillIn.
+  ///
+  /// In ru, this message translates to:
+  /// **'Вернуться и заполнить'**
+  String get reviewHighRiskConfirmFillIn;
+
+  /// No description provided for @reviewHighRiskConfirmContinue.
+  ///
+  /// In ru, this message translates to:
+  /// **'Понимаю, создать всё равно'**
+  String get reviewHighRiskConfirmContinue;
 
   /// No description provided for @profileTitle.
   ///
@@ -1030,12 +1078,6 @@ abstract class AppLocalizations {
   /// **'Договор скопирован'**
   String get agreementCopied;
 
-  /// No description provided for @agreementFirstPartyFallback.
-  ///
-  /// In ru, this message translates to:
-  /// **'Первая сторона'**
-  String get agreementFirstPartyFallback;
-
   /// No description provided for @agreementSignFailed.
   ///
   /// In ru, this message translates to:
@@ -1107,12 +1149,6 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Подписать договор'**
   String get agreementSignButton;
-
-  /// No description provided for @agreementOpenAsSecondParty.
-  ///
-  /// In ru, this message translates to:
-  /// **'Открыть как вторая сторона (на этом устройстве)'**
-  String get agreementOpenAsSecondParty;
 
   /// No description provided for @agreementWaitingBothSignatures.
   ///
@@ -1855,8 +1891,8 @@ abstract class AppLocalizations {
   /// No description provided for @routeNotFoundMessage.
   ///
   /// In ru, this message translates to:
-  /// **'Экран \"{routeName}\" не существует в этой сборке.'**
-  String routeNotFoundMessage(String routeName);
+  /// **'Эта страница недоступна. Вернитесь на главный экран и попробуйте снова.'**
+  String get routeNotFoundMessage;
 
   /// No description provided for @categoryVehicle.
   ///

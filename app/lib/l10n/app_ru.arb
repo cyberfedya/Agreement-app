@@ -66,6 +66,12 @@
   "@commonUnsupportedPhotoFormat": {},
   "commonUploadFailed": "Не удалось загрузить документ.",
   "@commonUploadFailed": {},
+  "voiceInputPermissionDenied": "Для голосового ввода нужен доступ к микрофону. Разрешите его в настройках устройства — или просто напечатайте текст.",
+  "@voiceInputPermissionDenied": {},
+  "voiceInputRecognitionError": "Не удалось запустить распознавание речи. Попробуйте ещё раз или напечатайте текст.",
+  "@voiceInputRecognitionError": {},
+  "voiceInputNoSpeechDetected": "Не расслышал. Попробуйте ещё раз, ближе к микрофону.",
+  "@voiceInputNoSpeechDetected": {},
 
   "documentCaptureTitle": "Фото документа",
   "@documentCaptureTitle": {},
@@ -78,11 +84,11 @@
   "documentCaptureEmptyHint": "Сфотографируйте документ — при необходимости можно добавить ещё страницы.",
   "@documentCaptureEmptyHint": {},
 
-  "documentVerificationTitle": "Проверим данные автомобиля",
+  "documentVerificationTitle": "Проверим детали",
   "@documentVerificationTitle": {},
-  "documentVerificationBody": "Если у вас есть техпаспорт или ПТС, загрузите его фотографию. Мы автоматически проверим, соответствуют ли введённые данные документу, и предупредим, если найдём расхождения.\n\nЭтот шаг необязателен — вы можете продолжить оформление договора без загрузки документа.",
+  "documentVerificationBody": "Если у вас есть подтверждающий документ по этой сделке, загрузите его фотографию. Мы автоматически проверим, соответствуют ли введённые данные документу, и предупредим, если найдём расхождения.\n\nЭтот шаг необязателен — вы можете продолжить оформление договора без загрузки документа.",
   "@documentVerificationBody": {},
-  "documentVerificationUploadButton": "Загрузить техпаспорт",
+  "documentVerificationUploadButton": "Загрузить документ",
   "@documentVerificationUploadButton": {},
   "documentVerificationWorking": "Сверяю данные с документом…",
   "@documentVerificationWorking": {},
@@ -247,6 +253,8 @@
   "@reviewStatusWaitingPartyAgreement": {},
   "reviewStatusLegalReviewRequired": "Требуется юридическая проверка",
   "@reviewStatusLegalReviewRequired": {},
+  "reviewStatusGenericPending": "Осталось уточнить ещё немного деталей",
+  "@reviewStatusGenericPending": {},
   "reviewRiskLowLabel": "Низкий риск",
   "@reviewRiskLowLabel": {},
   "reviewRiskLowMessage": "Все ключевые сведения заполнены.",
@@ -259,6 +267,14 @@
   "@reviewRiskHighLabel": {},
   "reviewRiskHighMessage": "Отсутствуют важные условия сделки. Мы можем сформировать договор сейчас, но это увеличивает юридический риск.",
   "@reviewRiskHighMessage": {},
+  "reviewHighRiskConfirmTitle": "Создать договор с пропущенными условиями?",
+  "@reviewHighRiskConfirmTitle": {},
+  "reviewHighRiskConfirmBody": "Не заполнено ещё {count} важных условий сделки. Договор будет создан, но может не иметь той силы, на которую вы рассчитываете — можно вернуться и заполнить их, или продолжить как есть.",
+  "@reviewHighRiskConfirmBody": {},
+  "reviewHighRiskConfirmFillIn": "Вернуться и заполнить",
+  "@reviewHighRiskConfirmFillIn": {},
+  "reviewHighRiskConfirmContinue": "Понимаю, создать всё равно",
+  "@reviewHighRiskConfirmContinue": {},
 
   "profileTitle": "Профиль",
   "@profileTitle": {},
@@ -348,8 +364,6 @@
 
   "agreementCopied": "Договор скопирован",
   "@agreementCopied": {},
-  "agreementFirstPartyFallback": "Первая сторона",
-  "@agreementFirstPartyFallback": {},
   "agreementSignFailed": "Не удалось подписать договор.",
   "@agreementSignFailed": {},
   "agreementTitle": "Договор",
@@ -378,8 +392,6 @@
   "@agreementYouSigned": {},
   "agreementSignButton": "Подписать договор",
   "@agreementSignButton": {},
-  "agreementOpenAsSecondParty": "Открыть как вторая сторона (на этом устройстве)",
-  "@agreementOpenAsSecondParty": {},
   "agreementWaitingBothSignatures": "Ожидание подписи обеих сторон",
   "@agreementWaitingBothSignatures": {},
   "agreementWaitingSecondSignature": "Ожидание подписи второй стороны",
@@ -674,12 +686,8 @@
 
   "routeNotFoundTitle": "Страница не найдена",
   "@routeNotFoundTitle": {},
-  "routeNotFoundMessage": "Экран \"{routeName}\" не существует в этой сборке.",
-  "@routeNotFoundMessage": {
-    "placeholders": {
-      "routeName": {"type": "String"}
-    }
-  },
+  "routeNotFoundMessage": "Эта страница недоступна. Вернитесь на главный экран и попробуйте снова.",
+  "@routeNotFoundMessage": {},
 
   "categoryVehicle": "Транспорт",
   "@categoryVehicle": {},

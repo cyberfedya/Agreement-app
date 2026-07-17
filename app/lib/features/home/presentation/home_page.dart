@@ -51,6 +51,14 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  /// Voice input previously failed completely silently on error - the
+  /// button just stopped glowing with no explanation, indistinguishable
+  /// from the user simply not having said anything worth keeping.
+  void _showVoiceError(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
+
   void _openQrScan() => Navigator.of(context).pushNamed(AppRoutes.qrScan);
 
   /// Blocks deal creation until the creator's own party details exist -
@@ -200,6 +208,9 @@ class _HomePageState extends State<HomePage> {
                               HoldToTalkMicButton(
                                 onTextChanged: _onVoiceText,
                                 onListeningChanged: (value) => setState(() => _listening = value),
+                                onPermissionDenied: () => _showVoiceError(l10n.voiceInputPermissionDenied),
+                                onRecognitionError: () => _showVoiceError(l10n.voiceInputRecognitionError),
+                                onNoSpeechDetected: () => _showVoiceError(l10n.voiceInputNoSpeechDetected),
                               ).animateEntranceStaggered(4),
                               const SizedBox(height: Insets.x12),
                               AnimatedSwitcher(

@@ -312,6 +312,17 @@ class _AgreementSignPageState extends State<AgreementSignPage> {
                         loading: _verifying,
                         onPressed: _verifying ? null : _identifyAndSign,
                       ),
+                      const SizedBox(height: Insets.x12),
+                      // Same disclosure AuthPage shows next to its own MyID
+                      // button - this is the other party's most legally
+                      // significant moment in the whole flow, so it must be
+                      // exactly as honest about the demo identification as
+                      // the very first screen was, not silently omit it.
+                      Text(
+                        l10n.authDemoModeNotice,
+                        style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                        textAlign: TextAlign.center,
+                      ),
                     ],
                   ),
                 ),

@@ -67,6 +67,14 @@ class _AnswerComposerState extends State<AnswerComposer> {
     });
   }
 
+  /// Voice input previously failed completely silently - the mic just
+  /// stopped glowing with no explanation, indistinguishable from having
+  /// said nothing worth keeping.
+  void _showVoiceError(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
+
   void _confirmVoice() {
     final text = _transcript.trim();
     setState(() => _mode = _ComposerMode.idle);
@@ -199,6 +207,9 @@ class _AnswerComposerState extends State<AnswerComposer> {
                     onTextChanged: (text) => setState(() => _transcript = text),
                     onFinalResult: _onVoiceFinal,
                     onListeningChanged: _onListeningChanged,
+                    onPermissionDenied: () => _showVoiceError(l10n.voiceInputPermissionDenied),
+                    onRecognitionError: () => _showVoiceError(l10n.voiceInputRecognitionError),
+                    onNoSpeechDetected: () => _showVoiceError(l10n.voiceInputNoSpeechDetected),
                   ),
           ),
         ],

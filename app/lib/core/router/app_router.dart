@@ -134,7 +134,7 @@ class AppRouter {
                 final l10n = AppLocalizations.of(context)!;
                 return AppEmptyView(
                   title: l10n.routeNotFoundTitle,
-                  message: l10n.routeNotFoundMessage(settings.name ?? ''),
+                  message: l10n.routeNotFoundMessage,
                 );
               },
             ),

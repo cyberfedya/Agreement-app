@@ -12,6 +12,9 @@ class HoldToTalkMicButton extends StatefulWidget {
     required this.onTextChanged,
     this.onFinalResult,
     this.onListeningChanged,
+    this.onPermissionDenied,
+    this.onRecognitionError,
+    this.onNoSpeechDetected,
     this.permissionService,
     this.size = 72,
   });
@@ -27,6 +30,22 @@ class HoldToTalkMicButton extends StatefulWidget {
   /// Fires when recording starts/stops, so the surrounding UI can swap
   /// itself into a "Слушаю…" state while the mic is held.
   final ValueChanged<bool>? onListeningChanged;
+
+  /// The user denied (or has permanently blocked) microphone access - the
+  /// button did nothing when pressed, and without this callback the caller
+  /// has no way to tell the user why.
+  final VoidCallback? onPermissionDenied;
+
+  /// The recognizer itself failed (native engine error, no network for a
+  /// cloud-backed recognizer, etc.) - distinct from simply hearing nothing.
+  final VoidCallback? onRecognitionError;
+
+  /// Listening ended with no words recognized at all - the mic worked, but
+  /// nothing was heard (silence, background noise). Distinct from
+  /// [onRecognitionError] so the caller can give a more specific hint
+  /// ("didn't catch that" vs. "microphone isn't working").
+  final VoidCallback? onNoSpeechDetected;
+
   final PermissionService? permissionService;
   final double size;
 
@@ -39,6 +58,12 @@ class _HoldToTalkMicButtonState extends State<HoldToTalkMicButton> {
   final SpeechToText _speech = SpeechToText();
   bool _listening = false;
   bool _initialized = false;
+
+  /// Whether any (even partial) words were recognized during the current
+  /// press - lets [_onStatus] tell "nothing was heard" apart from a normal
+  /// stop after real speech, without needing extra state threading through
+  /// `onResult`.
+  bool _heardAnything = false;
 
   void _setListening(bool value) {
     if (_listening == value) return;
@@ -54,20 +79,27 @@ class _HoldToTalkMicButtonState extends State<HoldToTalkMicButton> {
 
   Future<void> _start() async {
     final granted = await _permissions.requestMicrophone();
-    if (!granted || !mounted) return;
+    if (!mounted) return;
+    if (!granted) {
+      widget.onPermissionDenied?.call();
+      return;
+    }
 
-    // Initialize the recognizer once and reuse it - re-initializing on every
-    // press tears down and rebuilds the native engine each time, which is
-    // what causes the "starts then immediately cuts off, then never starts
-    // again" behavior on some devices.
+    _heardAnything = false;
+
     if (!_initialized) {
       _initialized = await _speech.initialize(onStatus: _onStatus, onError: _onError);
-      if (!_initialized || !mounted) return;
+      if (!mounted) return;
+      if (!_initialized) {
+        widget.onRecognitionError?.call();
+        return;
+      }
     }
 
     _setListening(true);
     await _speech.listen(
       onResult: (result) {
+        if (result.recognizedWords.trim().isNotEmpty) _heardAnything = true;
         widget.onTextChanged(result.recognizedWords);
         if (result.finalResult && result.recognizedWords.trim().isNotEmpty) {
           widget.onFinalResult?.call(result.recognizedWords);
@@ -83,7 +115,10 @@ class _HoldToTalkMicButtonState extends State<HoldToTalkMicButton> {
 
   void _onStatus(String status) {
     if (status == 'done' || status == 'notListening') {
-      if (mounted) _setListening(false);
+      if (!mounted) return;
+      final wasListening = _listening;
+      _setListening(false);
+      if (wasListening && !_heardAnything) widget.onNoSpeechDetected?.call();
     }
   }
 
@@ -92,7 +127,10 @@ class _HoldToTalkMicButtonState extends State<HoldToTalkMicButton> {
     // re-initialized - reset so the next press starts clean instead of
     // silently doing nothing forever.
     _initialized = false;
-    if (mounted) _setListening(false);
+    if (!mounted) return;
+    final wasListening = _listening;
+    _setListening(false);
+    if (wasListening) widget.onRecognitionError?.call();
   }
 
   Future<void> _stop() async {

@@ -107,6 +107,18 @@ class AppLocalizationsUz extends AppLocalizations {
   String get commonUploadFailed => 'Ҳужжатни юклаб бўлмади.';
 
   @override
+  String get voiceInputPermissionDenied =>
+      'Овозли киритиш учун микрофонга рухсат керак. Қурилма созламаларида рухсат беринг ёки матнни ёзиб киритинг.';
+
+  @override
+  String get voiceInputRecognitionError =>
+      'Нутқни аниқлашни бошлаб бўлмади. Қайта уриниб кўринг ёки матнни ёзиб киритинг.';
+
+  @override
+  String get voiceInputNoSpeechDetected =>
+      'Эшитилмади. Микрофонга яқинроқ туриб қайта уриниб кўринг.';
+
+  @override
   String get documentCaptureTitle => 'Ҳужжат сурати';
 
   @override
@@ -123,14 +135,14 @@ class AppLocalizationsUz extends AppLocalizations {
       'Ҳужжатни суратга олинг - керак бўлса, яна саҳифалар қўшишингиз мумкин.';
 
   @override
-  String get documentVerificationTitle => 'Автомобил маълумотларини текширамиз';
+  String get documentVerificationTitle => 'Маълумотларни текширамиз';
 
   @override
   String get documentVerificationBody =>
-      'Агар қўлингизда техпаспорт ёки ПТС бўлса, унинг суратини юкланг. Биз киритилган маълумотлар ҳужжатга мос келишини автоматик текширамиз ва фарқ топсак, огоҳлантирамиз.\n\nБу қадам мажбурий эмас — ҳужжат юкламасдан ҳам шартномани расмийлаштиришни давом эттиришингиз мумкин.';
+      'Агар қўлингизда ушбу битим бўйича тасдиқловчи ҳужжат бўлса, унинг суратини юкланг. Биз киритилган маълумотлар ҳужжатга мос келишини автоматик текширамиз ва фарқ топсак, огоҳлантирамиз.\n\nБу қадам мажбурий эмас — ҳужжат юкламасдан ҳам шартномани расмийлаштиришни давом эттиришингиз мумкин.';
 
   @override
-  String get documentVerificationUploadButton => 'Техпаспортни юклаш';
+  String get documentVerificationUploadButton => 'Ҳужжат юклаш';
 
   @override
   String get documentVerificationWorking =>
@@ -372,6 +384,10 @@ class AppLocalizationsUz extends AppLocalizations {
       'Юридик текширув талаб қилинади';
 
   @override
+  String get reviewStatusGenericPending =>
+      'Яна бир нечта тафсилот аниқлаштирилмоқда';
+
+  @override
   String get reviewRiskLowLabel => 'Паст хавф';
 
   @override
@@ -390,6 +406,21 @@ class AppLocalizationsUz extends AppLocalizations {
   @override
   String get reviewRiskHighMessage =>
       'Битимнинг муҳим шартлари етишмайди. Шартномани ҳозир расмийлаштиришимиз мумкин, лекин бу юридик хавфни оширади.';
+
+  @override
+  String get reviewHighRiskConfirmTitle =>
+      'Етишмаётган шартлар билан яратилсинми?';
+
+  @override
+  String reviewHighRiskConfirmBody(Object count) {
+    return 'Ҳали $count та муҳим битим шарти тўлдирилмаган. Шартнома яратилади, лекин сиз кутганидек кучга эга бўлмаслиги мумкин — орқага қайтиб тўлдиришингиз ёки шундайлигича давом эттиришингиз мумкин.';
+  }
+
+  @override
+  String get reviewHighRiskConfirmFillIn => 'Орқага қайтиб тўлдириш';
+
+  @override
+  String get reviewHighRiskConfirmContinue => 'Тушундим, барибир яратиш';
 
   @override
   String get profileTitle => 'Профил';
@@ -520,9 +551,6 @@ class AppLocalizationsUz extends AppLocalizations {
   String get agreementCopied => 'Шартнома нусхаланди';
 
   @override
-  String get agreementFirstPartyFallback => 'Биринчи томон';
-
-  @override
   String get agreementSignFailed => 'Шартномани имзолаб бўлмади.';
 
   @override
@@ -563,10 +591,6 @@ class AppLocalizationsUz extends AppLocalizations {
 
   @override
   String get agreementSignButton => 'Шартномани имзолаш';
-
-  @override
-  String get agreementOpenAsSecondParty =>
-      'Иккинчи тараф сифатида очиш (шу қурилмада)';
 
   @override
   String get agreementWaitingBothSignatures =>
@@ -987,9 +1011,8 @@ class AppLocalizationsUz extends AppLocalizations {
   String get routeNotFoundTitle => 'Саҳифа топилмади';
 
   @override
-  String routeNotFoundMessage(String routeName) {
-    return '\"$routeName\" экрани ушбу сборкада мавжуд эмас.';
-  }
+  String get routeNotFoundMessage =>
+      'Бу саҳифа мавжуд эмас. Бош саҳифага қайтиб, қайта уриниб кўринг.';
 
   @override
   String get categoryVehicle => 'Транспорт';

@@ -451,6 +451,17 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
     final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
 
+    // Same threshold as ReviewView's _RiskBanner turning red - the button
+    // must never let a high-risk draft through on a single tap. The
+    // banner's warning text alone wasn't a real gate: nothing stopped
+    // "Create agreement" from working exactly like the low-risk path right
+    // next to it.
+    final missingCount = questionnaire.review?.missing.length ?? 0;
+    if (missingCount >= 3) {
+      final proceed = await _confirmHighRiskGeneration(missingCount);
+      if (proceed != true || !mounted) return;
+    }
+
     HapticFeedback.mediumImpact();
     setState(() => _generating = true);
 
@@ -470,6 +481,31 @@ class _QuestionnairePageState extends State<QuestionnairePage> {
         SnackBar(content: Text(agreementProvider.errorMessage ?? AppLocalizations.of(context)!.questionnaireGenerateFailed)),
       );
     }
+  }
+
+  /// Explicit "I understand" required before creating a draft the review
+  /// screen itself already flagged 🔴 high-risk - defaults to "go back and
+  /// fill in" (the safer choice) rather than "continue", unlike a plain
+  /// warning banner sitting next to an always-enabled button.
+  Future<bool?> _confirmHighRiskGeneration(int missingCount) {
+    final l10n = AppLocalizations.of(context)!;
+    return showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.reviewHighRiskConfirmTitle),
+        content: Text(l10n.reviewHighRiskConfirmBody(missingCount)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n.reviewHighRiskConfirmFillIn),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(l10n.reviewHighRiskConfirmContinue),
+          ),
+        ],
+      ),
+    );
   }
 
   // --- Progress ---

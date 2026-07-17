@@ -106,6 +106,18 @@ class AppLocalizationsRu extends AppLocalizations {
   String get commonUploadFailed => 'Не удалось загрузить документ.';
 
   @override
+  String get voiceInputPermissionDenied =>
+      'Для голосового ввода нужен доступ к микрофону. Разрешите его в настройках устройства — или просто напечатайте текст.';
+
+  @override
+  String get voiceInputRecognitionError =>
+      'Не удалось запустить распознавание речи. Попробуйте ещё раз или напечатайте текст.';
+
+  @override
+  String get voiceInputNoSpeechDetected =>
+      'Не расслышал. Попробуйте ещё раз, ближе к микрофону.';
+
+  @override
   String get documentCaptureTitle => 'Фото документа';
 
   @override
@@ -122,14 +134,14 @@ class AppLocalizationsRu extends AppLocalizations {
       'Сфотографируйте документ — при необходимости можно добавить ещё страницы.';
 
   @override
-  String get documentVerificationTitle => 'Проверим данные автомобиля';
+  String get documentVerificationTitle => 'Проверим детали';
 
   @override
   String get documentVerificationBody =>
-      'Если у вас есть техпаспорт или ПТС, загрузите его фотографию. Мы автоматически проверим, соответствуют ли введённые данные документу, и предупредим, если найдём расхождения.\n\nЭтот шаг необязателен — вы можете продолжить оформление договора без загрузки документа.';
+      'Если у вас есть подтверждающий документ по этой сделке, загрузите его фотографию. Мы автоматически проверим, соответствуют ли введённые данные документу, и предупредим, если найдём расхождения.\n\nЭтот шаг необязателен — вы можете продолжить оформление договора без загрузки документа.';
 
   @override
-  String get documentVerificationUploadButton => 'Загрузить техпаспорт';
+  String get documentVerificationUploadButton => 'Загрузить документ';
 
   @override
   String get documentVerificationWorking => 'Сверяю данные с документом…';
@@ -367,6 +379,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Требуется юридическая проверка';
 
   @override
+  String get reviewStatusGenericPending =>
+      'Осталось уточнить ещё немного деталей';
+
+  @override
   String get reviewRiskLowLabel => 'Низкий риск';
 
   @override
@@ -385,6 +401,21 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get reviewRiskHighMessage =>
       'Отсутствуют важные условия сделки. Мы можем сформировать договор сейчас, но это увеличивает юридический риск.';
+
+  @override
+  String get reviewHighRiskConfirmTitle =>
+      'Создать договор с пропущенными условиями?';
+
+  @override
+  String reviewHighRiskConfirmBody(Object count) {
+    return 'Не заполнено ещё $count важных условий сделки. Договор будет создан, но может не иметь той силы, на которую вы рассчитываете — можно вернуться и заполнить их, или продолжить как есть.';
+  }
+
+  @override
+  String get reviewHighRiskConfirmFillIn => 'Вернуться и заполнить';
+
+  @override
+  String get reviewHighRiskConfirmContinue => 'Понимаю, создать всё равно';
 
   @override
   String get profileTitle => 'Профиль';
@@ -515,9 +546,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get agreementCopied => 'Договор скопирован';
 
   @override
-  String get agreementFirstPartyFallback => 'Первая сторона';
-
-  @override
   String get agreementSignFailed => 'Не удалось подписать договор.';
 
   @override
@@ -558,10 +586,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get agreementSignButton => 'Подписать договор';
-
-  @override
-  String get agreementOpenAsSecondParty =>
-      'Открыть как вторая сторона (на этом устройстве)';
 
   @override
   String get agreementWaitingBothSignatures => 'Ожидание подписи обеих сторон';
@@ -979,9 +1003,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get routeNotFoundTitle => 'Страница не найдена';
 
   @override
-  String routeNotFoundMessage(String routeName) {
-    return 'Экран \"$routeName\" не существует в этой сборке.';
-  }
+  String get routeNotFoundMessage =>
+      'Эта страница недоступна. Вернитесь на главный экран и попробуйте снова.';
 
   @override
   String get categoryVehicle => 'Транспорт';
