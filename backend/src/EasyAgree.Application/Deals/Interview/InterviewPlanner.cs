@@ -123,12 +123,36 @@ public sealed class InterviewPlanner(QuestionGenerator questionGenerator, LegalK
             if (isFirstTurn)
                 allowedExtractionIds.UnionWith(ordered.Select(f => f.FieldId));
 
-            var extractedNewFieldThisTurn = false;
+            var candidates = new List<(int FieldId, string Value)>();
             foreach (var (fieldId, value) in generated.Extracted)
             {
                 if (!allowedExtractionIds.Contains(fieldId) || string.IsNullOrWhiteSpace(value) || answers.ContainsKey(fieldId))
                     continue;
                 if (labels.TryGetValue(fieldId, out var extractedLabel) && !AnswerShapeValidator.LooksPlausible(extractedLabel, value))
+                    continue;
+
+                candidates.Add((fieldId, value));
+            }
+
+            // The exact same value assigned to two or more DIFFERENT fields
+            // in one extraction batch is a mis-attribution (the model
+            // echoed one field's answer into a sibling it doesn't belong
+            // to - the multi-field vehicle_identifiers cluster in
+            // particular has no letters-vs-digits shape to lean on the way
+            // AnswerShapeValidator's make/model check does), not a genuine
+            // coincidence. There's no reliable way to tell which field it
+            // actually belongs to, so skip all of them and let the
+            // interview ask again rather than silently guessing.
+            var duplicateValues = candidates
+                .GroupBy(c => c.Value, StringComparer.OrdinalIgnoreCase)
+                .Where(g => g.Count() > 1)
+                .Select(g => g.Key)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            var extractedNewFieldThisTurn = false;
+            foreach (var (fieldId, value) in candidates)
+            {
+                if (duplicateValues.Contains(value))
                     continue;
 
                 answers[fieldId] = value;

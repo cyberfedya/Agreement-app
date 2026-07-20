@@ -143,4 +143,67 @@ public sealed class PartialGroupAnswerTests
         Assert.False(answers.ContainsKey(21));
         Assert.Equal(21, second.FieldId);
     }
+
+    /// <summary>
+    /// The vehicle_identifiers cluster (VIN/engine/body/chassis, 4 fields)
+    /// has no letters-vs-digits shape to distinguish a mis-attributed
+    /// value the way AnswerShapeValidator's make/model check does - all
+    /// four are arbitrary alphanumeric codes. If the model echoes the same
+    /// code into two of them, neither can be trusted, so both must be
+    /// rejected rather than silently keeping whichever happened first.
+    /// </summary>
+    [Fact]
+    public async Task Same_code_echoed_into_two_technical_identifier_fields_fills_neither()
+    {
+        var fields = new List<AgreementTemplateField>
+        {
+            new() { FieldId = 37, Mode = AgreementFieldMode.Required },
+            new() { FieldId = 23, Mode = AgreementFieldMode.Required },
+            new() { FieldId = 24, Mode = AgreementFieldMode.Required },
+            new() { FieldId = 25, Mode = AgreementFieldMode.Required },
+        };
+        var labels = new Dictionary<int, string>
+        {
+            [37] = "Автотранспорт воситасининг VIN рақами",
+            [23] = "Автотранспортнинг двигатель рақами",
+            [24] = "Автотранспортнинг кузов рақами",
+            [25] = "Автотранспортнинг шасси рақами",
+        };
+
+        var ai = new ScriptedAiClient(
+            """{"question":"Какой VIN, номер двигателя, кузова и шасси?"}""",
+            // Engine and body wrongly got the same code as the VIN.
+            """{"question":null,"extracted":{"37":"JT2SV22E8P0123456","23":"JT2SV22E8P0123456","24":"CD5678","25":"JT2SV22E8P0123456"}}""");
+        var planner = new InterviewPlanner(new QuestionGenerator(ai));
+        var answers = new Dictionary<int, string>();
+        var askedQuestions = new Dictionary<string, string>();
+        // These 4 fields also match the vehicle registration-certificate
+        // document suggestion (>= MinMatchedFields=3) - dismiss it up front
+        // so the planner actually reaches the question/extraction path
+        // this test exercises, instead of short-circuiting to
+        // SuggestDocument before ever calling the AI client.
+        var dismissedDocumentSuggestions = new HashSet<string> { "VehicleRegistration" };
+
+        await planner.ExecuteAsync(
+            templateDomain: "vehicle", templateTitle: "Test agreement", language: "ru",
+            userRequest: null, currentMessage: null, documentHints: new DocumentFieldHintCollection([]),
+            fields: fields, labels: labels, answers: answers, askedQuestions: askedQuestions,
+            dismissedDocumentSuggestions: dismissedDocumentSuggestions, deferredFieldIds: new HashSet<int>(),
+            cancellationToken: CancellationToken.None);
+
+        await planner.ExecuteAsync(
+            templateDomain: "vehicle", templateTitle: "Test agreement", language: "ru",
+            userRequest: null, currentMessage: "VIN JT2SV22E8P0123456, кузов CD5678", documentHints: new DocumentFieldHintCollection([]),
+            fields: fields, labels: labels, answers: answers, askedQuestions: askedQuestions,
+            dismissedDocumentSuggestions: dismissedDocumentSuggestions, deferredFieldIds: new HashSet<int>(),
+            cancellationToken: CancellationToken.None);
+
+        // The duplicated code is shared by three fieldIds (37, 23, 25) - none
+        // of them can be trusted, so none get filled. Only the genuinely
+        // unique body number (24) is recorded.
+        Assert.False(answers.ContainsKey(23));
+        Assert.False(answers.ContainsKey(25));
+        Assert.False(answers.ContainsKey(37));
+        Assert.Equal("CD5678", answers[24]);
+    }
 }
